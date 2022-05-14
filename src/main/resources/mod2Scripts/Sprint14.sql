@@ -426,3 +426,184 @@ END$$
 DELIMITER ;
 ;
 
+select min(s.STATIC_LABEL_ID) into @min from ap_static_label s where s.LABEL_CODE='static.tooltip.LagInMonth';
+
+delete l.* from ap_static_label_languages l where l.STATIC_LABEL_ID=@min;
+delete l.* from ap_static_label l where l.STATIC_LABEL_ID=@min;
+
+select min(s.STATIC_LABEL_ID) into @min from ap_static_label s where s.LABEL_CODE='static.common.dataEnteredIn';
+
+delete l.* from ap_static_label_languages l where l.STATIC_LABEL_ID=@min;
+delete l.* from ap_static_label l where l.STATIC_LABEL_ID=@min;
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.forecastOutput.compareAndSelectForecast','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Compare And Select Forecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Comparer et sélectionner les prévisions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comparar y seleccionar pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Compare e selecione a previsão');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.forecastOutput.totalForecastQuantity','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Forecasted Quantity');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale prévue');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total pronosticada');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total prevista');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.forecastOutput.stockOrUnmedDemand','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock or Unmet Demand');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Stock ou demande non satisfaite');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Stock o Demanda Insatisfecha');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque ou Demanda Não Atendida');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.forecastOutput.differenceBetweenMonths','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Difference between months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Différence entre les mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Diferencia entre meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Diferença entre meses');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.usageTemplate.persons','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Person(s)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# Personne(s)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# persona(s)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# Pessoas)');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.usageTemplate.personsUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Person(s) Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Personne(s) Unité');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de persona(s)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de pessoa(s)');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.usageTemplate.timesPerFrequency','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of times/Frequency');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# de fois/Fréquence');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de veces/Frecuencia');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de vezes/Frequência');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.usageTemplate.periodUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Period Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de période');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Periodo Unidad');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Período');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.stringNotAllowed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'String value not allowed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur de chaîne non autorisée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor de cadena no permitido');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor da string não permitido');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.decimalNotAllowed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Decimal value not allowed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur décimale non autorisée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor decimal no permitido');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor decimal não permitido');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.10digitWholeNumber','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please enter 10 digit whole number');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez saisir un nombre entier à 10 chiffres');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor ingrese un número entero de 10 dígitos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira um número inteiro de 10 dígitos');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.max99MonthAllowed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Maximum 99 months are allowed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un maximum de 99 mois est autorisé');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permite un máximo de 99 meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Máximo de 99 meses são permitidos');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.negativeValueNotAllowed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Negative value not allowed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur négative non autorisée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor negativo no permitido');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor negativo não permitido');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.max10Digit4AfterDecimal','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 10 digit number and 4 digits after decimal are allowed.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre maximum de 10 chiffres et 4 chiffres après la virgule sont autorisés.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número máximo de 10 dígitos y 4 dígitos después del decimal.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Número máximo de 10 dígitos e 4 dígitos após decimal são permitidos.');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.stockEndOf','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock (end of');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Stock (fin de');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Existencias (fin de');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque (final de');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.existingShipments','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Existing Shipments (');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expéditions existantes (');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envíos existentes (');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessas existentes (');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.planningUnitSetting.desiredMonthsOfStock','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Desired Months of Stock (end of');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois de stock souhaités (fin');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses deseados de existencias (final de');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses de Estoque Desejados (final de');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.equivalencyUnit.duplicateEUFUP','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate equivalency unit, forecasting unit, program combination not allow');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité d équivalence en double, unité de prévision, combinaison de programmes non autorisée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de equivalencia duplicada, unidad de previsión, combinación de programas no permitida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de equivalência duplicada, unidade de previsão, combinação de programa não permitida');-- pr
+
+SELECT l.`STATIC_LABEL_ID` INTO @MAX FROM ap_static_label l WHERE l.`LABEL_CODE`='static.dashboard.Versioncomarition';
+SELECT l.`STATIC_LABEL_LANGUAGE_ID` INTO @MAX FROM ap_static_label_languages l WHERE l.`STATIC_LABEL_ID`=@MAX AND l.`LANGUAGE_ID`=1;
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Version Comparison' WHERE `STATIC_LABEL_LANGUAGE_ID`=@MAX; 
