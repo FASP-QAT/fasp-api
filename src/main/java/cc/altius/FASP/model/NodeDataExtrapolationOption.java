@@ -37,6 +37,7 @@ public class NodeDataExtrapolationOption implements Serializable {
 
     public NodeDataExtrapolationOption(int nodeDataExtapolationOptionId) {
         this.nodeDataExtapolationOptionId = nodeDataExtapolationOptionId;
+        this.extrapolationOptionDataList = new LinkedList<>();
     }
 
     public int getNodeDataExtapolationOptionId() {
