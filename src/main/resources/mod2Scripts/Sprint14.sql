@@ -612,3 +612,4 @@ DELETE ntr.* FROM ap_node_type_rule ntr where ntr.NODE_TYPE_ID=6;
 SET FOREIGN_KEY_CHECKS=0;
 DELETE nt.*,l.* FROM ap_node_type nt LEFT JOIN ap_label l ON nt.LABEL_ID=l.LABEL_ID where nt.NODE_TYPE_ID=6;
 SET FOREIGN_KEY_CHECKS=1;
+DELETE ntr.* FROM ap_node_type_rule ntr WHERE ntr.NODE_TYPE_ID=1 AND ntr.`CHILD_NODE_TYPE_ID`=6;
