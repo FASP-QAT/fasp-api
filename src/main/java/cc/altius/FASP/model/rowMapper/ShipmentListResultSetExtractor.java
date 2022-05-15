@@ -11,9 +11,9 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.SimpleBudgetObject;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleProcurementAgentObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,11 +43,10 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             }
             s.setShipmentId(rs.getInt("SHIPMENT_ID"));
             s.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
-            s.setPlanningUnit(
-                    new SimplePlanningUnitObject(
+            s.setPlanningUnit(new SimplePlanningUnitProductCategoryObject(
                             rs.getInt("PLANNING_UNIT_ID"),
                             new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1),
-                            new SimpleForecastingUnitObject(
+                            new SimpleForecastingUnitProductCategoryObject(
                                     rs.getInt("FORECASTING_UNIT_ID"),
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))

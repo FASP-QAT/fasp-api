@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -114,7 +115,7 @@ public class UserDaoImpl implements UserDao {
 
     private static final String userString = "SELECT "
             + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`ORG_AND_COUNTRY`, `user`.`PASSWORD`, "
-            + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
+            + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, `user`.`DEFAULT_MODULE_ID`, "
             + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + "    lang.`LANGUAGE_ID`, langLabel.`LABEL_ID` AS LANGUAGE_LABEL_ID,langLabel.`LABEL_EN` AS LANGUAGE_LABEL_EN,langLabel.`LABEL_FR` AS LANGUAGE_LABEL_FR,langLabel.`LABEL_PR` LANGUAGE_LABEL_PR,langLabel.`LABEL_SP` AS LANGUAGE_LABEL_SP , lang.`LANGUAGE_CODE`,lang.`COUNTRY_CODE`, "
             + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
@@ -266,7 +267,6 @@ public class UserDaoImpl implements UserDao {
 //        }
 //        return responseMap;
 //    }
-
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         try {
@@ -350,6 +350,7 @@ public class UserDaoImpl implements UserDao {
         map.put("EMAIL_ID", user.getEmailId());
         map.put("ORG_AND_COUNTRY", user.getOrgAndCountry());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
+        map.put("DEFAULT_MODULE_ID", 1); // SupplyPlan or Mod1
         map.put("ACTIVE", true);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
@@ -741,7 +742,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int mapAccessControls(User user, CustomUserDetails curUser) {    
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         int row = 0, x = 0, count;
@@ -805,7 +806,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         sql = "SELECT l.`LANGUAGE_ID` FROM ap_language l WHERE l.`LANGUAGE_CODE`=?;";
         int languageId = this.jdbcTemplate.queryForObject(sql, Integer.class, languageCode);
-        sql = "UPDATE us_user u SET u.`LANGUAGE_ID`=?,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
+        sql = "UPDATE us_user u SET u.`LANGUAGE_ID`=?,u.`LAST_MODIFIED_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, languageId, curDate, userId, userId);
     }
 
@@ -814,8 +815,18 @@ public class UserDaoImpl implements UserDao {
         String sql;
         sql = "SELECT u.`USER_ID` FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(?);";
         int userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
-        System.out.println("user id----" + userId);
         return this.updateUserLanguage(userId, languageCode);
+    }
+
+    @Override
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException {
+        String sql;
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        if (moduleId != 1 && moduleId != 2) {
+            throw new CouldNotSaveException("Incorrect Module Id");
+        }
+        sql = "UPDATE us_user u SET u.`DEFAULT_MODULE_ID`=?, u.`LAST_MODIFIED_DATE`=?, u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, moduleId, curDate, userId, userId);
     }
 
     @Override

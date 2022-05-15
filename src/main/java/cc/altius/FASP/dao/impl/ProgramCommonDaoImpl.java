@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
@@ -38,8 +39,14 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     }
 
     @Override
-    public Program getProgramById(int programId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlListString).append(" AND p.PROGRAM_ID=:programId");
+    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder;
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListString);
+        } else {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListString);
+        }
+        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         sqlStringBuilder.append(ProgramDaoImpl.sqlOrderBy);

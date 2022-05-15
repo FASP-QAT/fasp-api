@@ -60,7 +60,7 @@ public class ARTMISHistoryDTO extends ManualTaggingDTO {
                     .min(Comparator.comparing(ErpShipmentDTO::getEoActualDeliveryDate)).orElse(null);
             if (erpShipmentDTO != null && erpShipmentDTO.getEoActualDeliveryDate() != null) {
                 dt = erpShipmentDTO.getEoActualDeliveryDate();
-                System.out.println("min delivery date history---" + dt);
+//                System.out.println("min delivery date history---" + dt);
             }
         }
         return dt;
@@ -85,8 +85,8 @@ public class ARTMISHistoryDTO extends ManualTaggingDTO {
                     .max(Comparator.comparing(FilePathDTO::getFilename)).orElse(null);
             if (file != null && file.getFilename() != null) {
                 fileName = file.getFilename();
-                System.out.println("ERP shipment list---" + this.shipmentList);
-                System.out.println("max file name---" + fileName);
+//                System.out.println("ERP shipment list---" + this.shipmentList);
+//                System.out.println("max file name---" + fileName);
 //                System.out.println("getCalculatedExpectedDeliveryDate---"+this.getCalculatedExpectedDeliveryDate());
             }
         }

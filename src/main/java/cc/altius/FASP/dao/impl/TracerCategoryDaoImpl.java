@@ -45,17 +45,16 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     private AclService aclService;
 
     private final String sqlListString = "SELECT  "
-            + "    m.TRACER_CATEGORY_ID,  "
-            + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
-            + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
-            + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
-            + "FROM rm_tracer_category m  "
-            + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
-            + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+            + "    tc.TRACER_CATEGORY_ID,  "
+            + "    tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR, "
+            + "    r.REALM_ID, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN` , r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+            + "    ha.HEALTH_AREA_ID, ha.`LABEL_ID` `HA_LABEL_ID`, ha.`LABEL_EN` `HA_LABEL_EN` , ha.`LABEL_FR` `HA_LABEL_FR`, ha.`LABEL_PR` `HA_LABEL_PR`, ha.`LABEL_SP` `HA_LABEL_SP`, ha.HEALTH_AREA_CODE, "
+            + "    tc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, tc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, tc.LAST_MODIFIED_DATE "
+            + "FROM vw_tracer_category tc  "
+            + "LEFT JOIN vw_realm r ON tc.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN vw_health_area ha ON tc.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + "LEFT JOIN us_user cb ON tc.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON tc.LAST_MODIFIED_BY=lmb.USER_ID ";
 
     @Override
     @Transactional
@@ -97,41 +96,40 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
 
     @Override
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         if (active) {
-            sqlStringBuilder.append(" AND m.ACTIVE ");
+            sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.REALM_ID=:realmId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.REALM_ID=:realmId ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         if (active) {
-            sqlStringBuilder.append(" AND m.ACTIVE ");
+            sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.REALM_ID=:realmId ")
-                .append("AND m.TRACER_CATEGORY_ID IN (SELECT fu.TRACER_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId GROUP BY fu.TRACER_CATEGORY_ID) ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId AND pha.PROGRAM_ID=:programId ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         params.put("programId", programId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         if (active) {
-            sqlStringBuilder.append(" AND m.ACTIVE ");
+            sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
-        sqlStringBuilder.append(" ORDER BY ml.LABEL_EN");
+        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
@@ -148,26 +146,24 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
                 programIdsString = opt;
             }
         }
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.REALM_ID=:realmId ")
-                .append("AND m.TRACER_CATEGORY_ID IN (SELECT fu.TRACER_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE TRUE ");
-        if (programIds !=null && programIds.length>0) {
-            sqlStringBuilder.append(" AND ppu.PROGRAM_ID in (").append(programIdsString).append(")");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId ");
+        if (programIds.length > 0) {
+            sqlStringBuilder.append(" AND pha.PROGRAM_ID IN (").append(programIdsString).append(") ");
         }
-        sqlStringBuilder.append(" GROUP BY fu.TRACER_CATEGORY_ID) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         if (active) {
-            sqlStringBuilder.append(" AND m.ACTIVE ");
+            sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
-        sqlStringBuilder.append(" ORDER BY ml.LABEL_EN");
+        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.`TRACER_CATEGORY_ID`=:tracerCategoryId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.`TRACER_CATEGORY_ID`=:tracerCategoryId ");
         Map<String, Object> params = new HashMap<>();
         params.put("tracerCategoryId", tracerCategoryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
@@ -176,7 +172,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
 
     @Override
     public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.LAST_MODIFIED_DATE>:lastSyncDate ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);

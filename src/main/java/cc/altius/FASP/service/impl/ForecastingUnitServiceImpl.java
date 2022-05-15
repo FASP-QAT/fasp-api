@@ -14,8 +14,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleObject;
 import java.util.LinkedList;
 
 /**
@@ -31,6 +35,8 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser) {
@@ -93,4 +99,23 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
         }
     }
 
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListByTracerCategory(tracerCategoryId, active, curUser);
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
+        } else {
+            throw new AccessDeniedException("You do not have access to this Program");
+        }
+    }
 }

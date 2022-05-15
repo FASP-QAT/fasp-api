@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,12 +18,19 @@ import java.util.stream.Collectors;
  */
 public class LoadProgram implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject program;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject realmCountry;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<SimpleCodeObject> healthAreaList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject organisation;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<LoadVersion> versionList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int currentPage;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int maxPages;
 
     public LoadProgram() {

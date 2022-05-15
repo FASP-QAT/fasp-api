@@ -194,9 +194,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int rowsEffected = 0;
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
-        System.out.println("procurementAgentPlanningUnits----" + Arrays.toString(procurementAgentPlanningUnits));
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
-            System.out.println("papu------" + papu);
             if (papu.getProcurementAgentPlanningUnitId() == 0) {
                 // Insert
                 params = new HashMap<>();
@@ -453,4 +451,31 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         sqlStringBuilder.append("GROUP BY papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper());
     }
+
+    @Override
+    public Map<Integer, List<ProcurementAgentPlanningUnit>> getProcurementAgentPlanningUnitListByPlanningUnitList(int[] planningUnitIds, CustomUserDetails curUser) {
+        Map<Integer, List<ProcurementAgentPlanningUnit>> result = new HashMap<>();
+        Arrays.stream(planningUnitIds).forEach(puId -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put("planningUnitId", puId);
+            StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
+                    + " pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
+                    + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+                    + " papu.CATALOG_PRICE, papu.MOQ, papu.UNITS_PER_CONTAINER, papu.UNITS_PER_PALLET_EURO1, papu.UNITS_PER_PALLET_EURO2, papu.SKU_CODE, papu.VOLUME, papu.WEIGHT, "
+                    + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, papu.ACTIVE, papu.CREATED_DATE, papu.LAST_MODIFIED_DATE  "
+                    + " FROM rm_procurement_agent_planning_unit papu  "
+                    + " LEFT JOIN rm_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID "
+                    + " LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID "
+                    + " LEFT JOIN rm_planning_unit pu on papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                    + " LEFT JOIN ap_label pul on pu.LABEL_ID=pul.LABEL_ID "
+                    + " LEFT JOIN us_user cb ON papu.CREATED_BY=cb.USER_ID  "
+                    + " LEFT JOIN us_user lmb ON papu.LAST_MODIFIED_BY=lmb.USER_ID "
+                    + " WHERE papu.PLANNING_UNIT_ID=:planningUnitId ");
+            this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+            sqlStringBuilder.append(" AND papu.ACTIVE");
+            result.put(puId, this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper()));
+        });
+        return result;
+    }
+
 }

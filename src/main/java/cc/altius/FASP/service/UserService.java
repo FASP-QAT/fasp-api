@@ -5,13 +5,13 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -26,7 +26,6 @@ public interface UserService {
     public CustomUserDetails getCustomUserByUserId(int userId);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
-
     public int resetFailedAttemptsByUsername(String emailId);
 
     public int updateFailedAttemptsByUserId(String emailId);
@@ -80,6 +79,8 @@ public interface UserService {
     public int updateUserLanguage(int userId, String languageCode);
 
     public int updateUserLanguageByEmailId(String emailId, String languageCode);
+
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
 
     public int acceptUserAgreement(int userId);
 

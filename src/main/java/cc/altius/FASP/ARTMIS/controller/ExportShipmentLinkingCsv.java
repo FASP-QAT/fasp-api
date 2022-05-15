@@ -67,7 +67,7 @@ public class ExportShipmentLinkingCsv {
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
             String curDate = simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST));
-            System.out.println("new date format----" + simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST)));
+//            System.out.println("new date format----" + simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST)));
             String path;
             Date lastDate;
             lastDate = this.exportArtmisDataService.getLastDate("ARTMIS", "QAT_Shipment_Linking");

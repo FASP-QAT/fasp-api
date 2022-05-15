@@ -10,9 +10,9 @@ import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -39,10 +39,10 @@ public class InventoryListFromCommitRequestResultSetExtractor implements ResultS
                 i.setInventoryDate(rs.getString("INVENTORY_DATE"));
                 i.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 1)));
                 i.setRealmCountryPlanningUnit(new SimpleObject(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("REALM_COUNTRY_PLANNING_UNIT_").mapRow(rs, 1)));
-                i.setPlanningUnit(new SimplePlanningUnitObject(
+                i.setPlanningUnit(new SimplePlanningUnitProductCategoryObject(
                         rs.getInt("PLANNING_UNIT_ID"),
                         new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1),
-                        new SimpleForecastingUnitObject(
+                        new SimpleForecastingUnitProductCategoryObject(
                                 rs.getInt("FORECASTING_UNIT_ID"),
                                 new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                 new SimpleObject(

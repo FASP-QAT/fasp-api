@@ -32,7 +32,6 @@ public class MastersSync implements Serializable {
     private List<OrganisationType> organisationTypeList;
     private List<FundingSource> fundingSourceList;
     private List<ProcurementAgent> procurementAgentList;
-    private List<Supplier> supplierList;
     private List<ForecastingUnit> forecastingUnitList;
     private List<PlanningUnit> planningUnitList;
     private List<ProcurementUnit> procurementUnitList;
@@ -47,6 +46,18 @@ public class MastersSync implements Serializable {
     private List<SimpleObject> problemCategoryList;
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
+    private List<SimpleObject> versionTypeList;
+    private List<SimpleObject> versionStatusList;
+    private List<SimpleBaseModel> usageTypeList;
+    private List<NodeTypeSync> nodeTypeList;
+    private List<SimpleBaseModel> forecastMethodTypeList;
+    private List<UsagePeriod> usagePeriodList;
+    private List<ModelingType> modelingTypeList;
+    private List<ForecastMethod> forecastMethodList;
+    private List<UsageTemplate> usageTemplateList;
+    private List<TreeTemplate> treeTemplateList;
+    private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
+    private List<SimpleBaseModel> extrapolationMethodList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -184,14 +195,6 @@ public class MastersSync implements Serializable {
         this.procurementAgentList = procurementAgentList;
     }
 
-    public List<Supplier> getSupplierList() {
-        return supplierList;
-    }
-
-    public void setSupplierList(List<Supplier> supplierList) {
-        this.supplierList = supplierList;
-    }
-
     public List<ForecastingUnit> getForecastingUnitList() {
         return forecastingUnitList;
     }
@@ -302,6 +305,102 @@ public class MastersSync implements Serializable {
 
     public void setBudgetList(List<Budget> budgetList) {
         this.budgetList = budgetList;
+    }
+
+    public List<SimpleObject> getVersionTypeList() {
+        return versionTypeList;
+    }
+
+    public void setVersionTypeList(List<SimpleObject> versionTypeList) {
+        this.versionTypeList = versionTypeList;
+    }
+
+    public List<SimpleObject> getVersionStatusList() {
+        return versionStatusList;
+    }
+
+    public void setVersionStatusList(List<SimpleObject> versionStatusList) {
+        this.versionStatusList = versionStatusList;
+    }
+
+    public List<SimpleBaseModel> getUsageTypeList() {
+        return usageTypeList;
+    }
+
+    public void setUsageTypeList(List<SimpleBaseModel> usageTypeList) {
+        this.usageTypeList = usageTypeList;
+    }
+
+    public List<NodeTypeSync> getNodeTypeList() {
+        return nodeTypeList;
+    }
+
+    public void setNodeTypeList(List<NodeTypeSync> nodeTypeList) {
+        this.nodeTypeList = nodeTypeList;
+    }
+
+    public List<SimpleBaseModel> getForecastMethodTypeList() {
+        return forecastMethodTypeList;
+    }
+
+    public void setForecastMethodTypeList(List<SimpleBaseModel> forecastMethodTypeList) {
+        this.forecastMethodTypeList = forecastMethodTypeList;
+    }
+
+    public List<UsagePeriod> getUsagePeriodList() {
+        return usagePeriodList;
+    }
+
+    public void setUsagePeriodList(List<UsagePeriod> usagePeriodList) {
+        this.usagePeriodList = usagePeriodList;
+    }
+
+    public List<ModelingType> getModelingTypeList() {
+        return modelingTypeList;
+    }
+
+    public void setModelingTypeList(List<ModelingType> modelingTypeList) {
+        this.modelingTypeList = modelingTypeList;
+    }
+
+    public List<ForecastMethod> getForecastMethodList() {
+        return forecastMethodList;
+    }
+
+    public void setForecastMethodList(List<ForecastMethod> forecastMethodList) {
+        this.forecastMethodList = forecastMethodList;
+    }
+
+    public List<UsageTemplate> getUsageTemplateList() {
+        return usageTemplateList;
+    }
+
+    public void setUsageTemplateList(List<UsageTemplate> usageTemplateList) {
+        this.usageTemplateList = usageTemplateList;
+    }
+
+    public List<TreeTemplate> getTreeTemplateList() {
+        return treeTemplateList;
+    }
+
+    public void setTreeTemplateList(List<TreeTemplate> treeTemplateList) {
+        this.treeTemplateList = treeTemplateList;
+    }
+
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList() {
+        return equivalencyUnitMappingList;
+    }
+
+    public void setEquivalencyUnitMappingList(List<EquivalencyUnitMapping> equivalencyUnitMappingList) {
+        this.equivalencyUnitMappingList = equivalencyUnitMappingList;
+    }
+
+    public List<SimpleBaseModel> getExtrapolationMethodList() {
+        return extrapolationMethodList;
+    }
+
+    public void setExtrapolationMethodList(List<SimpleBaseModel> extrapolationMethodList) {
+        this.extrapolationMethodList = extrapolationMethodList;
     }
 
 }

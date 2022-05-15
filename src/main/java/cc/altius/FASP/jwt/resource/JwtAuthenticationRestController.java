@@ -68,7 +68,7 @@ public class JwtAuthenticationRestController {
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
             this.userService.updateSuncExpiresOn(authenticationRequest.getUsername());
             logger.info("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
-            System.out.println("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
+//            System.out.println("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
             if (authenticationRequest.isLanguageChanged()) {
                 this.userService.updateUserLanguageByEmailId(authenticationRequest.getUsername(), authenticationRequest.getLanguageCode());
             }
@@ -90,7 +90,7 @@ public class JwtAuthenticationRestController {
             logger.info("JWT Token generation failed because Password has expired for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.passwordExpired"), HttpStatus.NOT_ACCEPTABLE);
         } catch (UsernameNotFoundException e) {
-            System.out.println("-------5--------------");
+//            System.out.println("-------5--------------");
             logger.info("JWT Token generation failed because User not found for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.noUser"), HttpStatus.UNAUTHORIZED);
         }

@@ -27,6 +27,9 @@ public class DataSourceRowMapper implements RowMapper<DataSource> {
                 new LabelRowMapper("").mapRow(rs, i),
                 new SimpleObject(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper("DATA_SOURCE_TYPE_").mapRow(rs, i))
         );
+        if (ds.getProgram().getId()==0) {
+            ds.setProgram(null);
+        }
         ds.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ds;
     }

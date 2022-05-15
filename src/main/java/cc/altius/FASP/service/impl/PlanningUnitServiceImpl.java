@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
@@ -46,6 +47,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private AclService aclService;
     @Autowired
     private ProductCategoryDao productCategoryDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -69,7 +72,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
-            return this.planningUnitDao.getPlanningUnitList(fu.getRealm().getId(), active, curUser);
+            return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -209,5 +212,25 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
     }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByTracerCategory(tracerCategoryId, active, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
+    }
+
+//    @Override
+//    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+//        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+//        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+//            return this.planningUnitDao.getPlanningUnitListForDataset(programId, versionId, curUser);
+//        } else {
+//            throw new AccessDeniedException("You do not have access to this Program");
+//        }
+//    }
 
 }

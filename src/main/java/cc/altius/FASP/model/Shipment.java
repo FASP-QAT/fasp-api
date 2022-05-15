@@ -26,7 +26,7 @@ public class Shipment implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Integer parentShipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private SimplePlanningUnitObject planningUnit;
+    private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -124,11 +124,11 @@ public class Shipment implements Serializable {
         this.parentShipmentId = parentShipmentId;
     }
 
-    public SimplePlanningUnitObject getPlanningUnit() {
+    public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitProductCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 
