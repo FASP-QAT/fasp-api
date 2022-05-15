@@ -288,70 +288,72 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 }
             }
 
-            // Check if Extrapolation exists
-            idx = -1;
-            NodeDataExtrapolation nde = new NodeDataExtrapolation(rs.getInt("NODE_DATA_EXTRAPOLATION_ID"));
-            if (!rs.wasNull() && tnd.getNodeDataExtrapolation() == null) {
-                // Not found so add it
-                nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
-                nde.setNotes(rs.getString("EM_NOTES"));
-                tnd.setNodeDataExtrapolation(nde);
-            } else {
-                nde = tnd.getNodeDataExtrapolation();
-            }
-
-            // Check if Extrapolation Data exists
-            idx = -1;
-            ExtrapolationDataReportingRate edrr = new ExtrapolationDataReportingRate(rs.getDate("EM_MONTH"));
-            if (!rs.wasNull()) {
-                idx = nde.getExtrapolationDataList().indexOf(edrr);
-                if (idx == -1) {
+            if (tnd.isExtrapolation()) {
+                // Check if Extrapolation exists
+                idx = -1;
+                NodeDataExtrapolation nde = new NodeDataExtrapolation(rs.getInt("NODE_DATA_EXTRAPOLATION_ID"));
+                if (!rs.wasNull() && tnd.getNodeDataExtrapolation() == null) {
                     // Not found so add it
-                    edrr.setAmount(rs.getDouble("EM_AMOUNT"));
-                    if (rs.wasNull()) {
-                        edrr.setAmount(null);
-                    }
-                    edrr.setReportingRate(rs.getDouble("EM_REPORTING_RATE"));
-                    if (rs.wasNull()) {
-                        edrr.setReportingRate(null);
-                    }
-                    edrr.setManualChange(rs.getDouble("EM_MANUAL_CHANGE"));
-                    if (rs.wasNull()) {
-                        edrr.setManualChange(null);
-                    }
-                    nde.getExtrapolationDataList().add(edrr);
+                    nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
+                    nde.setNotes(rs.getString("EM_NOTES"));
+                    tnd.setNodeDataExtrapolation(nde);
+                } else {
+                    nde = tnd.getNodeDataExtrapolation();
                 }
-            }
 
-            // Check if Extrapolation Options exists
-            idx = -1;
-            NodeDataExtrapolationOption ndeo = new NodeDataExtrapolationOption(rs.getInt("NODE_DATA_EXTRAPOLATION_OPTION_ID"));
-            if (!rs.wasNull()) {
-                idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
-                if (idx == -1) {
-                    // Not found so add it
-                    ndeo.setExtrapolationMethod(new SimpleObject(rs.getInt("EO_EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EO_").mapRow(rs, 1)));
-                    ndeo.setJsonProperties(rs.getString("JSON_PROPERTIES"));
-                    tnd.getNodeDataExtrapolationOptionList().add(ndeo);
-                }
-                idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
-                ndeo = tnd.getNodeDataExtrapolationOptionList().get(idx);
                 // Check if Extrapolation Data exists
                 idx = -1;
-                ExtrapolationData ed = new ExtrapolationData(rs.getDate("EO_MONTH"));
+                ExtrapolationDataReportingRate edrr = new ExtrapolationDataReportingRate(rs.getDate("EM_MONTH"));
                 if (!rs.wasNull()) {
-                    idx = ndeo.getExtrapolationOptionDataList().indexOf(ed);
+                    idx = nde.getExtrapolationDataList().indexOf(edrr);
                     if (idx == -1) {
                         // Not found so add it
-                        ed.setAmount(rs.getDouble("EO_AMOUNT"));
+                        edrr.setAmount(rs.getDouble("EM_AMOUNT"));
                         if (rs.wasNull()) {
-                            ed.setAmount(null);
+                            edrr.setAmount(null);
                         }
-                        ed.setCi(rs.getDouble("EO_CI"));
+                        edrr.setReportingRate(rs.getDouble("EM_REPORTING_RATE"));
                         if (rs.wasNull()) {
-                            ed.setCi(null);
+                            edrr.setReportingRate(null);
                         }
-                        ndeo.getExtrapolationOptionDataList().add(ed);
+                        edrr.setManualChange(rs.getDouble("EM_MANUAL_CHANGE"));
+                        if (rs.wasNull()) {
+                            edrr.setManualChange(null);
+                        }
+                        nde.getExtrapolationDataList().add(edrr);
+                    }
+                }
+
+                // Check if Extrapolation Options exists
+                idx = -1;
+                NodeDataExtrapolationOption ndeo = new NodeDataExtrapolationOption(rs.getInt("NODE_DATA_EXTRAPOLATION_OPTION_ID"));
+                if (!rs.wasNull()) {
+                    idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
+                    if (idx == -1) {
+                        // Not found so add it
+                        ndeo.setExtrapolationMethod(new SimpleObject(rs.getInt("EO_EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EO_").mapRow(rs, 1)));
+                        ndeo.setJsonProperties(rs.getString("JSON_PROPERTIES"));
+                        tnd.getNodeDataExtrapolationOptionList().add(ndeo);
+                    }
+                    idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
+                    ndeo = tnd.getNodeDataExtrapolationOptionList().get(idx);
+                    // Check if Extrapolation Data exists
+                    idx = -1;
+                    ExtrapolationData ed = new ExtrapolationData(rs.getDate("EO_MONTH"));
+                    if (!rs.wasNull()) {
+                        idx = ndeo.getExtrapolationOptionDataList().indexOf(ed);
+                        if (idx == -1) {
+                            // Not found so add it
+                            ed.setAmount(rs.getDouble("EO_AMOUNT"));
+                            if (rs.wasNull()) {
+                                ed.setAmount(null);
+                            }
+                            ed.setCi(rs.getDouble("EO_CI"));
+                            if (rs.wasNull()) {
+                                ed.setCi(null);
+                            }
+                            ndeo.getExtrapolationOptionDataList().add(ed);
+                        }
                     }
                 }
             }
