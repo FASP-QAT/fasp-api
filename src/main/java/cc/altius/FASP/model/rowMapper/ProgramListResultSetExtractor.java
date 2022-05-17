@@ -61,6 +61,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                 p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
                 p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
                 p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
+                p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setCurrentVersion(new Version(
                         rs.getInt("CV_VERSION_ID"),
                         new SimpleObject(rs.getInt("CV_VERSION_TYPE_ID"), new LabelRowMapper("CV_VERSION_TYPE_").mapRow(rs, 1)),
@@ -71,6 +72,8 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                         new BasicUser(rs.getInt("CV_LMB_USER_ID"), rs.getString("CV_LMB_USERNAME")),
                         rs.getTimestamp("CV_LAST_MODIFIED_DATE")
                 ));
+                p.getCurrentVersion().setForecastStartDate(rs.getDate("CV_FORECAST_START_DATE"));
+                p.getCurrentVersion().setForecastStopDate(rs.getDate("CV_FORECAST_STOP_DATE"));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<Region>());
                 p.setVersionList(new LinkedList<Version>());
@@ -97,6 +100,8 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                     new BasicUser(rs.getInt("VT_LMB_USER_ID"), rs.getString("VT_LMB_USERNAME")),
                     rs.getTimestamp("VT_LAST_MODIFIED_DATE")
             );
+            v.setForecastStartDate(rs.getDate("VT_FORECAST_START_DATE"));
+            v.setForecastStopDate(rs.getDate("VT_FORECAST_STOP_DATE"));
             if (p.getVersionList().indexOf(v) == -1) {
                 p.getVersionList().add(v);
             }

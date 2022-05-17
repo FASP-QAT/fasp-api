@@ -70,7 +70,7 @@ public class SimpleObject {
             return false;
         }
         final SimpleObject other = (SimpleObject) obj;
-        if (this.id != other.id) {
+        if (!this.id.equals(other.id)) {
             return false;
         }
         return true;

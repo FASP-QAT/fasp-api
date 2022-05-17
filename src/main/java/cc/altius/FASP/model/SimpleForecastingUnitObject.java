@@ -5,21 +5,34 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
-public class SimpleForecastingUnitObject extends SimpleObject {
+public class SimpleForecastingUnitObject extends SimpleUnitObject {
 
-    SimpleObject productCategory;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private SimpleObject tracerCategory;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private SimpleObject productCategory;
 
     public SimpleForecastingUnitObject() {
-        super();
     }
 
-    public SimpleForecastingUnitObject(Integer id, Label label, SimpleObject productCategory) {
-        super(id, label);
+    public SimpleForecastingUnitObject(SimpleCodeObject unit, Integer id, Label label, SimpleObject tracerCategory, SimpleObject productCategory) {
+        super(unit, id, label);
+        this.tracerCategory = tracerCategory;
         this.productCategory = productCategory;
+    }
+
+    public SimpleObject getTracerCategory() {
+        return tracerCategory;
+    }
+
+    public void setTracerCategory(SimpleObject tracerCategory) {
+        this.tracerCategory = tracerCategory;
     }
 
     public SimpleObject getProductCategory() {

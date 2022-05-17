@@ -32,6 +32,7 @@ public class Program extends BaseModel implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
+    private int programTypeId;
 
     private List<Region> regionList;
     private Version currentVersion;
@@ -234,6 +235,14 @@ public class Program extends BaseModel implements Serializable {
 
     public void setVersionList(List<Version> versionList) {
         this.versionList = versionList;
+    }
+
+    public int getProgramTypeId() {
+        return programTypeId;
+    }
+
+    public void setProgramTypeId(int programTypeId) {
+        this.programTypeId = programTypeId;
     }
 
     @Override

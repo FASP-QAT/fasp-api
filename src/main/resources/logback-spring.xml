@@ -101,6 +101,7 @@
     
     <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
         <!--<appender-ref ref="SpringBootFile" />-->
     </logger>
     

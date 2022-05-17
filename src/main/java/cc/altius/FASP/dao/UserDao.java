@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -26,7 +27,6 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByUserId(int userId);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
-
     public List<String> getBusinessFunctionsForUserId(int userId);
 
     public int resetFailedAttemptsByUsername(String emailId);
@@ -84,6 +84,8 @@ public interface UserDao {
     public int updateUserLanguage(int userId, String languageCode);
 
     public int updateUserLanguageByEmailId(String emailId, String languageCode);
+
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
 
     public int acceptUserAgreement(int userId);
 

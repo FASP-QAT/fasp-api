@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -18,13 +19,28 @@ import java.util.Date;
  */
 public class LoadVersion implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String versionId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject versionType;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject versionStatus;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Date forecastStartDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Date forecastStopDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date createdDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String notes;
 
     public String getVersionId() {
         return versionId;
@@ -50,6 +66,22 @@ public class LoadVersion implements Serializable {
         this.versionStatus = versionStatus;
     }
 
+    public Date getForecastStartDate() {
+        return forecastStartDate;
+    }
+
+    public void setForecastStartDate(Date forecastStartDate) {
+        this.forecastStartDate = forecastStartDate;
+    }
+
+    public Date getForecastStopDate() {
+        return forecastStopDate;
+    }
+
+    public void setForecastStopDate(Date forecastStopDate) {
+        this.forecastStopDate = forecastStopDate;
+    }
+
     public BasicUser getCreatedBy() {
         return createdBy;
     }
@@ -65,6 +97,12 @@ public class LoadVersion implements Serializable {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
-    
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
@@ -42,7 +43,6 @@ public class DashboardDaoImpl implements DashboardDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
     public int getRealmCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_realm r WHERE r.`ACTIVE`");

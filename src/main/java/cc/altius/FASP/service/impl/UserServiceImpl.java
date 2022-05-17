@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
@@ -20,7 +21,6 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
 //    public Map<String, Object> checkIfUserExists(String username, String password) {
 //        return this.userDao.checkIfUserExists(username, password);
 //    }
-
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         return this.userDao.resetFailedAttemptsByUsername(emailId);
@@ -176,10 +175,10 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-            System.out.println("emailId---" + emailId);
-            System.out.println("HOST_URL---" + HOST_URL);
-            System.out.println("PASSWORD_RESET_URL---" + PASSWORD_RESET_URL);
-            System.out.println("token---" + token);
+//            System.out.println("emailId---" + emailId);
+//            System.out.println("HOST_URL---" + HOST_URL);
+//            System.out.println("PASSWORD_RESET_URL---" + PASSWORD_RESET_URL);
+//            System.out.println("token---" + token);
             bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
@@ -233,6 +232,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateUserLanguageByEmailId(String emailId, String languageCode) {
         return this.userDao.updateUserLanguageByEmailId(emailId, languageCode);
+    }
+
+    @Override
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException {
+        return this.userDao.updateUserModule(userId, moduleId);
     }
 
     @Override

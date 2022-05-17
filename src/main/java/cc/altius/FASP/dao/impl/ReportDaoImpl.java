@@ -24,12 +24,18 @@ import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ExpiredStockOutputResultSetExtractor;
+import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorOutput;
+import cc.altius.FASP.model.report.ForecastErrorOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutputRowMapper;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutputRowMapper;
+import cc.altius.FASP.model.report.ForecastSummaryInput;
+import cc.altius.FASP.model.report.ForecastSummaryOutput;
+import cc.altius.FASP.model.report.ForecastSummaryOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutputRowMapper;
@@ -40,6 +46,9 @@ import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryInfoRowMapper;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
+import cc.altius.FASP.model.report.MonthlyForecastInput;
+import cc.altius.FASP.model.report.MonthlyForecastOutput;
+import cc.altius.FASP.model.report.MonthlyForecastOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
@@ -96,6 +105,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -564,6 +574,51 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", dt);
         params.put("approvedSupplyPlanOnly", useApprovedSupplyPlanOnly);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
+    }
+
+    // Report no 30
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fei.getProgramId());
+        params.put("versionId", fei.getVersionId());
+        params.put("startDate", fei.getStartDate());
+        params.put("stopDate", fei.getStopDate());
+        params.put("viewBy", fei.getViewBy());
+        params.put("unitId", fei.getUnitId());
+        params.put("regionIds", fei.getRegionIdString());
+        params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
+        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId); ";
+        System.out.println(LogUtils.buildStringForLog(sql, params));
+        List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
+        for (ForecastErrorOutput fe : feList) {
+            fe.calcErrorPerc();
+        }
+        return feList;
+    }
+
+    // Mod 2 Report 1 -- Monthly Forecast
+    @Override
+    public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", mf.getProgramId());
+        params.put("versionId", mf.getVersionId());
+        params.put("startMonth", mf.getStartDate());
+        params.put("stopMonth", mf.getStopDate());
+        params.put("reportView", mf.getReportView());
+        params.put("unitIds", mf.getUnitIdString());
+        String sql = "CALL getMonthlyForecast(:programId, :versionId, :startMonth, :stopMonth, :reportView, :unitIds)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new MonthlyForecastOutputListResultSetExtractor(mf.isAggregateByYear()));
+    }
+
+    // Mod 2 Report 2 -- Forecast Summary
+    @Override
+    public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fs.getProgramId());
+        params.put("versionId", fs.getVersionId());
+        String sql = "CALL getForecastSummary(:programId, :versionId)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new ForecastSummaryOutputListResultSetExtractor(fs.getReportView()));
     }
 
 }

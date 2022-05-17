@@ -367,12 +367,12 @@ public class ErpOrderDTO {
     }
 
     public boolean isShErpFlag() {
-        System.out.println("inside erp flag function-------------------"+this.eoOrderNo);
+//        System.out.println("inside erp flag function-------------------"+this.eoOrderNo);
         if (this.shErpFlag == null) {
-            System.out.println("inside erp flag function if-------------------"+this.shErpFlag);
+//            System.out.println("inside erp flag function if-------------------"+this.shErpFlag);
             return false;
         } else {
-            System.out.println("inside erp flag function else-------------------"+this.shErpFlag);
+//            System.out.println("inside erp flag function else-------------------"+this.shErpFlag);
             return this.shErpFlag;
         }
     }
@@ -597,18 +597,18 @@ public class ErpOrderDTO {
     }
 
     public boolean isShipmentCancelled() {
-        System.out.println("shipment status id---" + this.eoShipmentStatusId);
+//        System.out.println("shipment status id---" + this.eoShipmentStatusId);
         if (this.eoShipmentStatusId == 8) {
-            System.out.println("inside if-------------------");
+//            System.out.println("inside if-------------------");
             return true;
         }
-        System.out.println("inside else-------------------");
+//        System.out.println("inside else-------------------");
         return false;
     }
 
     public boolean isSkuChanged() {
-        System.out.println("pl1--------------------" + this.eoPlanningUnitId);
-        System.out.println("pl2--------------------" + this.erpPlanningUnitId);
+//        System.out.println("pl1--------------------" + this.eoPlanningUnitId);
+//        System.out.println("pl2--------------------" + this.erpPlanningUnitId);
         if (this.eoPlanningUnitId != this.erpPlanningUnitId) {
             return true;
         }

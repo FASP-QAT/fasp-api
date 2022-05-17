@@ -5,9 +5,10 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
-import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
 import cc.altius.FASP.model.Consumption;
@@ -15,12 +16,14 @@ import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
+import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.ForecastActualConsumption;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
-import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.NotificationUser;
@@ -28,7 +31,6 @@ import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
-import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -38,34 +40,49 @@ import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
-import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.SupplyPlanDate;
+import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
-import cc.altius.FASP.model.rowMapper.ConsumptionListFromCommitRequestResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
+import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
+import cc.altius.FASP.model.ExtrapolationData;
+import cc.altius.FASP.model.ExtrapolationDataReportingRate;
+import cc.altius.FASP.model.ForecastNode;
+import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.NodeDataExtrapolation;
+import cc.altius.FASP.model.NodeDataExtrapolationOption;
+import cc.altius.FASP.model.NodeDataModeling;
+import cc.altius.FASP.model.NodeDataMom;
+import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.TreeLevel;
+import cc.altius.FASP.model.TreeNodeData;
+import cc.altius.FASP.model.TreeScenario;
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
-import cc.altius.FASP.model.rowMapper.InventoryListFromCommitRequestResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ProblemReportFromCommitRequestResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ProgramIdAndVersionIdRowMapper;
-import cc.altius.FASP.model.rowMapper.ShipmentListFromCommitRequestResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitForSupplyPlanObjectResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SupplyPlanCommitRequestRowMapper;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -106,6 +123,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private ProgramCommonDao programCommonDao;
     @Autowired
     private UserService userService;
+    @Autowired
+    private LabelDao labelDao;
 
     private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
 
@@ -116,434 +135,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID,spcr.`COMMITTED_VERSION_ID`, "
-            + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-            + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-            + "spcr.`NOTES`,spcr.`SAVE_DATA`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
-            + "FROM ct_supply_plan_commit_request spcr "
-            + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
-            + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-            + "LEFT JOIN us_user cb ON spcr.CREATED_BY=cb.USER_ID "
-            + "WHERE TRUE ";
-
-    @Override
-    public Version getVersionInfo(int programId, int versionId) {
-        if (versionId == -1) {
-            String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
-            Map<String, Object> params = new HashMap<>();
-            params.put("programId", programId);
-            versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-        }
-        String sqlString = "SELECT pv.VERSION_ID, "
-                + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
-                + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-                + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
-                + "FROM rm_program_version pv  "
-                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
-                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
-                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
-    }
-
-    @Override
-    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("versionId", versionId);
-        params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId, :planningUnitActive)", params, new ConsumptionListResultSetExtractor());
-    }
-
-    @Override
-    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("versionId", versionId);
-        params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId, :planningUnitActive)", params, new InventoryListResultSetExtractor());
-    }
-
-    @Override
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("versionId", versionId);
-        params.put("shipmentActive", shipmentActive);
-        params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
-    }
-
     @Override
     @Transactional
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("PROGRAM_ID", programData.getProgramId());
-        params.put("COMMITTED_VERSION_ID", programData.getRequestedProgramVersion());
-        params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
-        params.put("NOTES", programData.getNotes());
-        params.put("SAVE_DATA", 1);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("STATUS", 1); // New request
-        int commitRequestId = si.executeAndReturnKey(params).intValue();
-        params.clear();
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_consumption").usingGeneratedKeyColumns("ID");
-        SimpleJdbcInsert st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_consumption_batch_info");
-        for (Consumption c : programData.getConsumptionList()) {
-            Map<String, Object> tp = new HashMap<>();
-            tp.put("COMMIT_REQUEST_ID", commitRequestId);
-            tp.put("CONSUMPTION_ID", (c.getConsumptionId() == 0 ? null : c.getConsumptionId()));
-            tp.put("REGION_ID", c.getRegion().getId());
-            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", c.getRealmCountryPlanningUnit().getId());
-            tp.put("PLANNING_UNIT_ID", c.getPlanningUnit().getId());
-            tp.put("CONSUMPTION_DATE", c.getConsumptionDate());
-            tp.put("ACTUAL_FLAG", c.isActualFlag());
-            tp.put("RCPU_QTY", c.getConsumptionRcpuQty());
-            tp.put("QTY", c.getConsumptionQty());
-            tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
-            tp.put("DATA_SOURCE_ID", c.getDataSource().getId());
-            tp.put("NOTES", c.getNotes());
-            tp.put("CREATED_BY", c.getCreatedBy().getUserId());
-            tp.put("CREATED_DATE", c.getCreatedDate());
-            tp.put("LAST_MODIFIED_BY", c.getLastModifiedBy().getUserId());
-            tp.put("LAST_MODIFIED_DATE", c.getLastModifiedDate());
-            tp.put("ACTIVE", c.isActive());
-            tp.put("VERSION_ID", c.getVersionId());
-            int id = si.executeAndReturnKey(tp).intValue();
-            for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
-                Map<String, Object> tb = new HashMap<>();
-                tb.put("COMMIT_REQUEST_ID", commitRequestId);
-                tb.put("CONSUMPTION_TRANS_ID", null);
-                tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", b.getConsumptionTransBatchInfoId());
-                tb.put("PARENT_ID", id);
-                tb.put("BATCH_ID", b.getBatch().getBatchId());
-                tb.put("BATCH_NO", b.getBatch().getBatchNo());
-                tb.put("AUTO_GENERATED", b.getBatch().isAutoGenerated());
-                tb.put("BATCH_CREATED_DATE", b.getBatch().getCreatedDate());
-                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
-                tb.put("BATCH_QTY", b.getConsumptionQty());
-                st.execute(tb);
-            }
-        }
-        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_inventory").usingGeneratedKeyColumns("ID");
-        st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_inventory_batch_info");
-        for (Inventory i : programData.getInventoryList()) {
-            Map<String, Object> tp = new HashMap<>();
-            tp.put("COMMIT_REQUEST_ID", commitRequestId);
-            tp.put("INVENTORY_ID", (i.getInventoryId() == 0 ? null : i.getInventoryId()));
-            tp.put("INVENTORY_DATE", i.getInventoryDate());
-            tp.put("REGION_ID", i.getRegion().getId());
-            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", i.getRealmCountryPlanningUnit().getId());
-            tp.put("ACTUAL_QTY", i.getActualQty());
-            tp.put("ADJUSTMENT_QTY", i.getAdjustmentQty());
-            tp.put("EXPECTED_BAL", i.getExpectedBal());
-            tp.put("DATA_SOURCE_ID", i.getDataSource().getId());
-            tp.put("NOTES", i.getNotes());
-            tp.put("CREATED_BY", i.getCreatedBy().getUserId());
-            tp.put("CREATED_DATE", i.getCreatedDate());
-            tp.put("LAST_MODIFIED_BY", i.getLastModifiedBy().getUserId());
-            tp.put("LAST_MODIFIED_DATE", i.getLastModifiedDate());
-            tp.put("ACTIVE", i.isActive());
-            tp.put("VERSION_ID", i.getVersionId());
-            int id = si.executeAndReturnKey(tp).intValue();
-            for (InventoryBatchInfo b : i.getBatchInfoList()) {
-                Map<String, Object> tb = new HashMap<>();
-                tb.put("COMMIT_REQUEST_ID", commitRequestId);
-                tb.put("INVENTORY_TRANS_ID", null);
-                tb.put("INVENTORY_TRANS_BATCH_INFO_ID", b.getInventoryTransBatchInfoId());
-                tb.put("PARENT_ID", id);
-                tb.put("BATCH_ID", b.getBatch().getBatchId());
-                tb.put("BATCH_ID", b.getBatch().getBatchId());
-                tb.put("BATCH_NO", b.getBatch().getBatchNo());
-                tb.put("AUTO_GENERATED", b.getBatch().isAutoGenerated());
-                tb.put("BATCH_CREATED_DATE", b.getBatch().getCreatedDate());
-                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
-                tb.put("ACTUAL_QTY", b.getActualQty());
-                tb.put("ADJUSTMENT_QTY", b.getAdjustmentQty());
-                st.execute(tb);
-            }
-        }
-
-        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment").usingGeneratedKeyColumns("ID");
-        st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment_batch_info");
-        for (Shipment s : programData.getShipmentList()) {
-            Map<String, Object> tp = new HashMap<>();
-            tp.put("COMMIT_REQUEST_ID", commitRequestId);
-            tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
-            tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
-            tp.put("SUGGESTED_QTY", s.getSuggestedQty());
-            tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
-            tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
-            tp.put("BUDGET_ID", (s.getBudget() == null || s.getBudget().getId() == null || s.getBudget().getId() == 0 ? null : s.getBudget().getId()));
-            tp.put("ACCOUNT_FLAG", s.isAccountFlag());
-            tp.put("ERP_FLAG", s.isErpFlag());
-            tp.put("CURRENCY_ID", s.getCurrency().getCurrencyId());
-            tp.put("CONVERSION_RATE_TO_USD", s.getCurrency().getConversionRateToUsd());
-            tp.put("EMERGENCY_ORDER", s.isEmergencyOrder());
-            tp.put("LOCAL_PROCUREMENT", s.isLocalProcurement());
-            tp.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
-            tp.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
-            tp.put("PROCUREMENT_UNIT_ID", (s.getProcurementUnit() == null || s.getProcurementUnit().getId() == null || s.getProcurementUnit().getId() == 0 ? null : s.getProcurementUnit().getId()));
-            tp.put("SUPPLIER_ID", (s.getSupplier() == null || s.getSupplier().getId() == null || s.getSupplier().getId() == 0 ? null : s.getSupplier().getId()));
-            tp.put("SHIPMENT_QTY", s.getShipmentQty());
-            tp.put("RATE", s.getRate());
-            tp.put("PRODUCT_COST", s.getProductCost());
-            tp.put("SHIPMENT_MODE", s.getShipmentMode());
-            tp.put("FREIGHT_COST", s.getFreightCost());
-            tp.put("PLANNED_DATE", s.getPlannedDate());
-            tp.put("SUBMITTED_DATE", s.getSubmittedDate());
-            tp.put("APPROVED_DATE", s.getApprovedDate());
-            tp.put("SHIPPED_DATE", s.getShippedDate());
-            tp.put("ARRIVED_DATE", s.getArrivedDate());
-            tp.put("RECEIVED_DATE", s.getReceivedDate());
-            tp.put("SHIPMENT_STATUS_ID", s.getShipmentStatus().getId());
-            tp.put("DATA_SOURCE_ID", s.getDataSource().getId());
-            tp.put("NOTES", s.getNotes());
-            tp.put("ORDER_NO", (s.getOrderNo() == null || s.getOrderNo().isBlank() ? null : s.getOrderNo()));
-            tp.put("PRIME_LINE_NO", (s.getPrimeLineNo() == null || s.getPrimeLineNo().isBlank() ? null : s.getPrimeLineNo()));
-            tp.put("CREATED_BY", s.getCreatedBy().getUserId());
-            tp.put("CREATED_DATE", s.getCreatedDate());
-            tp.put("LAST_MODIFIED_BY", s.getLastModifiedBy().getUserId());
-            tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
-            tp.put("ACTIVE", s.isActive());
-            tp.put("VERSION_ID", s.getVersionId());
-            int id = si.executeAndReturnKey(tp).intValue();
-            for (ShipmentBatchInfo b : s.getBatchInfoList()) {
-                Map<String, Object> tb = new HashMap<>();
-                tb.put("COMMIT_REQUEST_ID", commitRequestId);
-                tb.put("SHIPMENT_TRANS_ID", null);
-                tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", b.getShipmentTransBatchInfoId());
-                tb.put("PARENT_ID", id);
-                tb.put("BATCH_ID", b.getBatch().getBatchId());
-                tb.put("BATCH_NO", b.getBatch().getBatchNo());
-                tb.put("AUTO_GENERATED", b.getBatch().isAutoGenerated());
-                tb.put("BATCH_CREATED_DATE", b.getBatch().getCreatedDate());
-                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
-                tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
-                st.execute(tb);
-            }
-        }
-
-        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report").usingGeneratedKeyColumns("ID");
-        for (ProblemReport pr : programData.getProblemReportList()) {
-            Map<String, Object> tp = new HashMap<>();
-            tp.put("COMMIT_REQUEST_ID", commitRequestId);
-            tp.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
-            tp.put("REALM_PROBLEM_ID", pr.getRealmProblem().getRealmProblemId());
-            tp.put("PROGRAM_ID", pr.getProgram().getId());
-            tp.put("VERSION_ID", pr.getVersionId());
-            tp.put("PROBLEM_TYPE_ID", pr.getProblemType().getId());
-            tp.put("PROBLEM_STATUS_ID", pr.getProblemStatus().getId());
-            tp.put("REVIEWED", pr.isReviewed());
-            tp.put("REVIEW_NOTES", pr.getReviewNotes());
-            tp.put("REVIEWED_DATE", pr.getReviewedDate());
-            tp.put("DATA1", pr.getDt()); // Dt
-            tp.put("DATA2", (pr.getRegion() != null ? pr.getRegion().getId() : null)); // RegionId
-            tp.put("DATA3", pr.getPlanningUnit().getId()); // PlanningUnitId
-            tp.put("DATA4", pr.getShipmentId()); // ShipmentId
-            tp.put("DATA5", pr.getData5());
-            tp.put("CREATED_BY", pr.getCreatedBy().getUserId());
-            tp.put("CREATED_DATE", pr.getCreatedDate());
-            tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
-            tp.put("LAST_MODIFIED_DATE", pr.getLastModifiedDate());
-            int id = si.executeAndReturnKey(tp).intValue();
-            SimpleJdbcInsert strans = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report_trans");
-            for (ProblemReportTrans prt : pr.getProblemTransList()) {
-                if (prt.getCreatedDate() != null) {
-                    Map<String, Object> tt = new HashMap<>();
-                    tt.put("COMMIT_REQUEST_ID", commitRequestId);
-                    tt.put("PARENT_ID", id);
-                    tt.put("PROBLEM_REPORT_TRANS_ID", prt.getProblemReportTransId());
-                    tt.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
-                    tt.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
-                    tt.put("REVIEWED", prt.isReviewed());
-                    tt.put("CREATED_BY", prt.getCreatedBy().getUserId());
-                    tt.put("CREATED_DATE", prt.getCreatedDate());
-                    tt.put("NOTES", prt.getNotes());
-                    strans.execute(tt);
-                }
-            }
-        }
-        return commitRequestId;
-    }
-
-    @Override
-    public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList() {
-        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND STATUS=1 LIMIT 1");
-        Map<String, Object> params = new HashMap<>();
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
-    }
-
-    @Override
-    @Transactional
-    public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
-        Map<String, Object> params = new HashMap<>();
-//        try {
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+        this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), commitUser);
-        ProgramData pd = new ProgramData(p);
-        pd.setVersionType(spcr.getVersionType());
-        pd.setVersionStatus(new SimpleObject(1, new Label(0)));
-        pd.setNotes(spcr.getNotes());
-        String sql = "SELECT  "
-                + "    spc.ID, spcbi.PARENT_ID, spc.CONSUMPTION_ID, spc.CONSUMPTION_DATE, spc.RCPU_QTY `CONSUMPTION_RCPU_QTY`, spc.QTY `CONSUMPTION_QTY`, spc.DAYS_OF_STOCK_OUT,  "
-                + "    spc.ACTUAL_FLAG,  "
-                + "    spc.VERSION_ID, spc.NOTES, spcbi.CONSUMPTION_TRANS_ID,  "
-                + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-                + "    r.REGION_ID, r.LABEL_ID `REGION_LABEL_ID`, r.LABEL_EN `REGION_LABEL_EN`, r.LABEL_FR `REGION_LABEL_FR`, r.LABEL_SP `REGION_LABEL_SP`, r.LABEL_PR `REGION_LABEL_PR`,  "
-                + "    rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, rcpu.LABEL_ID `RCPU_LABEL_ID`, rcpu.LABEL_EN `RCPU_LABEL_EN`, rcpu.LABEL_FR `RCPU_LABEL_FR`, rcpu.LABEL_SP `RCPU_LABEL_SP`, rcpu.LABEL_PR `RCPU_LABEL_PR`, rcpu.MULTIPLIER, pu.MULTIPLIER `CONVERSION_FACTOR`, "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
-                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, "
-                + "    ds.DATA_SOURCE_ID, ds.LABEL_ID `DATA_SOURCE_LABEL_ID`, ds.LABEL_EN `DATA_SOURCE_LABEL_EN`, ds.LABEL_FR `DATA_SOURCE_LABEL_FR`, ds.LABEL_SP `DATA_SOURCE_LABEL_SP`, ds.LABEL_PR `DATA_SOURCE_LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spc.CREATED_DATE, "
-                + "    lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, spc.LAST_MODIFIED_DATE, spc.ACTIVE, "
-                + "    spcbi.CONSUMPTION_TRANS_BATCH_INFO_ID, spcbi.BATCH_ID, spc.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, spcbi.BATCH_NO, spcbi.AUTO_GENERATED, spcbi.EXPIRY_DATE, spcbi.BATCH_CREATED_DATE, spcbi.BATCH_QTY "
-                + "FROM ct_supply_plan_commit_request spcr "
-                + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN ct_supply_plan_consumption spc ON spcr.COMMIT_REQUEST_ID=spc.COMMIT_REQUEST_ID "
-                + "LEFT JOIN ct_supply_plan_consumption_batch_info spcbi ON spc.ID=spcbi.PARENT_ID  "
-                + "LEFT JOIN vw_region r ON spc.REGION_ID=r.REGION_ID "
-                + "LEFT JOIN vw_realm_country_planning_unit rcpu on spc.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON spc.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
-                + "LEFT JOIN vw_data_source ds ON spc.DATA_SOURCE_ID=ds.DATA_SOURCE_ID "
-                + "LEFT JOIN us_user cb ON spc.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON spc.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID "
-                + "ORDER BY spc.PLANNING_UNIT_ID, spc.ID, spcbi.ID";
-        pd.setConsumptionList(this.namedParameterJdbcTemplate.query(sql, params, new ConsumptionListFromCommitRequestResultSetExtractor()));
-        sql = "SELECT  "
-                + "    spi.ID, spi.INVENTORY_ID, spi.INVENTORY_DATE, spi.ACTUAL_QTY, spi.ADJUSTMENT_QTY, rcpu.MULTIPLIER, pu.MULTIPLIER `CONVERSION_FACTOR`, spi.`EXPECTED_BAL`,  "
-                + "    spi.VERSION_ID, spi.NOTES, spibi.INVENTORY_TRANS_ID,  "
-                + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-                + "    r.REGION_ID, r.LABEL_ID `REGION_LABEL_ID`, r.LABEL_EN `REGION_LABEL_EN`, r.LABEL_FR `REGION_LABEL_FR`, r.LABEL_SP `REGION_LABEL_SP`, r.LABEL_PR `REGION_LABEL_PR`,  "
-                + "    rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, rcpu.LABEL_ID `REALM_COUNTRY_PLANNING_UNIT_LABEL_ID`, rcpu.LABEL_EN `REALM_COUNTRY_PLANNING_UNIT_LABEL_EN`, rcpu.LABEL_FR `REALM_COUNTRY_PLANNING_UNIT_LABEL_FR`, rcpu.LABEL_SP `REALM_COUNTRY_PLANNING_UNIT_LABEL_SP`, rcpu.LABEL_PR `REALM_COUNTRY_PLANNING_UNIT_LABEL_PR`, rcpu.MULTIPLIER, pu.MULTIPLIER `CONVERSION_FACTOR`, "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
-                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, "
-                + "    ds.DATA_SOURCE_ID, ds.LABEL_ID `DATA_SOURCE_LABEL_ID`, ds.LABEL_EN `DATA_SOURCE_LABEL_EN`, ds.LABEL_FR `DATA_SOURCE_LABEL_FR`, ds.LABEL_SP `DATA_SOURCE_LABEL_SP`, ds.LABEL_PR `DATA_SOURCE_LABEL_PR`, "
-                + "    u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP `UNIT_LABEL_SP`, u.LABEL_PR `UNIT_LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spi.CREATED_DATE, "
-                + "    lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, spi.LAST_MODIFIED_DATE, spi.ACTIVE, "
-                + "    spibi.INVENTORY_TRANS_BATCH_INFO_ID, spibi.BATCH_ID, rcpu.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, spibi.BATCH_NO, spibi.AUTO_GENERATED, spibi.EXPIRY_DATE, spibi.BATCH_CREATED_DATE, spibi.ACTUAL_QTY `BATCH_ACTUAL_QTY`, spibi.ADJUSTMENT_QTY `BATCH_ADJUSTMENT_QTY`"
-                + "FROM ct_supply_plan_commit_request spcr "
-                + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN ct_supply_plan_inventory spi ON spcr.COMMIT_REQUEST_ID=spi.COMMIT_REQUEST_ID "
-                + "LEFT JOIN ct_supply_plan_inventory_batch_info spibi ON spi.ID=spibi.PARENT_ID  "
-                + "LEFT JOIN vw_region r ON spi.REGION_ID=r.REGION_ID "
-                + "LEFT JOIN vw_realm_country_planning_unit rcpu on spi.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON rcpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
-                + "LEFT JOIN vw_data_source ds ON spi.DATA_SOURCE_ID=ds.DATA_SOURCE_ID "
-                + "LEFT JOIN vw_unit u ON rcpu.UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN us_user cb ON spi.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON spi.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID "
-                + "ORDER BY rcpu.PLANNING_UNIT_ID, spi.ID, spibi.ID";
-        pd.setInventoryList(this.namedParameterJdbcTemplate.query(sql, params, new InventoryListFromCommitRequestResultSetExtractor()));
-        sql = "SELECT  "
-                + "    sps.ID, sps.SHIPMENT_ID, sps.PARENT_SHIPMENT_ID, sps.EXPECTED_DELIVERY_DATE, sps.PLANNED_DATE, sps.SUBMITTED_DATE,  "
-                + "    sps.APPROVED_DATE, sps.SHIPPED_DATE, sps.ARRIVED_DATE, sps.RECEIVED_DATE, sps.SHIPMENT_QTY, "
-                + "    pu.MULTIPLIER `CONVERSION_FACTOR`, sps.RATE, sps.PRODUCT_COST, sps.FREIGHT_COST, sps.SHIPMENT_MODE,  "
-                + "    sps.SUGGESTED_QTY, sps.ACCOUNT_FLAG, sps.ERP_FLAG, sps.ORDER_NO, sps.PRIME_LINE_NO, "
-                + "    sps.VERSION_ID, sps.NOTES, null CONSUMPTION_TRANS_ID,  "
-                + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-                + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
-                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, "
-                + "    pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID `PROCUREMENT_UNIT_LABEL_ID`, pru.LABEL_EN `PROCUREMENT_UNIT_LABEL_EN`, pru.LABEL_FR `PROCUREMENT_UNIT_LABEL_FR`, pru.LABEL_SP `PROCUREMENT_UNIT_LABEL_SP`, pru.LABEL_PR `PROCUREMENT_UNIT_LABEL_PR`, "
-                + "    s.SUPPLIER_ID, s.LABEL_ID `SUPPLIER_LABEL_ID`, s.LABEL_EN `SUPPLIER_LABEL_EN`, s.LABEL_FR `SUPPLIER_LABEL_FR`, s.LABEL_SP `SUPPLIER_LABEL_SP`, s.LABEL_PR `SUPPLIER_LABEL_PR`, "
-                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, ss.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, ss.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, ss.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, ss.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`, "
-                + "    ds.DATA_SOURCE_ID, ds.LABEL_ID `DATA_SOURCE_LABEL_ID`, ds.LABEL_EN `DATA_SOURCE_LABEL_EN`, ds.LABEL_FR `DATA_SOURCE_LABEL_FR`, ds.LABEL_SP `DATA_SOURCE_LABEL_SP`, ds.LABEL_PR `DATA_SOURCE_LABEL_PR`, "
-                + "    c.CURRENCY_ID `SHIPMENT_CURRENCY_ID`, c.CURRENCY_CODE `SHIPMENT_CURRENCY_CODE`, sps.CONVERSION_RATE_TO_USD `SHIPMENT_CONVERSION_RATE_TO_USD`, c.LABEL_ID `SHIPMENT_CURRENCY_LABEL_ID`, c.LABEL_EN `SHIPMENT_CURRENCY_LABEL_EN`, c.LABEL_FR `SHIPMENT_CURRENCY_LABEL_FR`, c.LABEL_SP `SHIPMENT_CURRENCY_LABEL_SP`, c.LABEL_PR `SHIPMENT_CURRENCY_LABEL_PR`, "
-                + "    sps.EMERGENCY_ORDER, sps.LOCAL_PROCUREMENT,  "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sps.CREATED_DATE, "
-                + "    lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sps.LAST_MODIFIED_DATE, sps.ACTIVE, "
-                + "    bc.CURRENCY_ID `BUDGET_CURRENCY_ID`, bc.CURRENCY_CODE `BUDGET_CURRENCY_CODE`, b.CONVERSION_RATE_TO_USD `BUDGET_CURRENCY_CONVERSION_RATE_TO_USD`, bc.LABEL_ID `BUDGET_CURRENCY_LABEL_ID`, bc.LABEL_EN `BUDGET_CURRENCY_LABEL_EN`, bc.LABEL_FR `BUDGET_CURRENCY_LABEL_FR`, bc.LABEL_SP `BUDGET_CURRENCY_LABEL_SP`, bc.LABEL_PR `BUDGET_CURRENCY_LABEL_PR`, "
-                + "    b.BUDGET_ID, b.BUDGET_CODE, b.LABEL_ID `BUDGET_LABEL_ID`, b.LABEL_ID `BUDGET_LABEL_ID`, b.LABEL_EN `BUDGET_LABEL_EN`, b.LABEL_FR `BUDGET_LABEL_FR`, b.LABEL_SP `BUDGET_LABEL_SP`, b.LABEL_PR `BUDGET_LABEL_PR`, "
-                + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
-                + "    spsbi.SHIPMENT_TRANS_BATCH_INFO_ID, spsbi.BATCH_ID, sps.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, spsbi.BATCH_NO, spsbi.AUTO_GENERATED, spsbi.EXPIRY_DATE, spsbi.BATCH_CREATED_DATE, spsbi.BATCH_SHIPMENT_QTY "
-                + "FROM ct_supply_plan_commit_request spcr "
-                + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN ct_supply_plan_shipment sps ON spcr.COMMIT_REQUEST_ID=sps.COMMIT_REQUEST_ID "
-                + "LEFT JOIN ct_supply_plan_shipment_batch_info spsbi ON sps.ID=spsbi.PARENT_ID  "
-                + "LEFT JOIN vw_procurement_agent pa ON sps.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON sps.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
-                + "LEFT JOIN vw_procurement_unit pru ON sps.PROCUREMENT_UNIT_ID=pru.PROCUREMENT_UNIT_ID "
-                + "LEFT JOIN vw_supplier s ON sps.SUPPLIER_ID=s.SUPPLIER_ID "
-                + "LEFT JOIN vw_shipment_status ss ON sps.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
-                + "LEFT JOIN vw_data_source ds ON sps.DATA_SOURCE_ID=ds.DATA_SOURCE_ID "
-                + "LEFT JOIN vw_currency c ON sps.CURRENCY_ID=c.CURRENCY_ID "
-                + "LEFT JOIN us_user cb ON sps.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON sps.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "LEFT JOIN vw_budget b ON sps.BUDGET_ID=b.BUDGET_ID "
-                + "LEFT JOIN vw_currency bc ON b.CURRENCY_ID=bc.CURRENCY_ID "
-                + "LEFT JOIN vw_funding_source fs ON sps.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
-                + "WHERE sps.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID "
-                + "ORDER BY sps.PLANNING_UNIT_ID, sps.ID, spsbi.ID";
-        pd.setShipmentList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListFromCommitRequestResultSetExtractor()));
-        sql = "SELECT   "
-                + "    sppr.ID, sppr.PROBLEM_REPORT_ID,  "
-                + "    prog.PROGRAM_ID, prog.PROGRAM_CODE, prog.LABEL_ID `PROGRAM_LABEL_ID`, prog.LABEL_EN `PROGRAM_LABEL_EN`, prog.LABEL_FR `PROGRAM_LABEL_FR`, prog.LABEL_SP `PROGRAM_LABEL_SP`, prog.LABEL_PR `PROGRAM_LABEL_PR`,    "
-                + "    sppr.VERSION_ID, sppr.DATA1 `DT`, sppr.REVIEWED, sppr.`REVIEW_NOTES`, sppr.REVIEWED_DATE,   "
-                + "    re.`REGION_ID`, re.LABEL_ID `REGION_LABEL_ID`, re.LABEL_EN `REGION_LABEL_EN`, re.LABEL_FR `REGION_LABEL_FR`, re.LABEL_SP `REGION_LABEL_SP`, re.LABEL_PR `REGION_LABEL_PR`,    "
-                + "    pu.`PLANNING_UNIT_ID`, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,   "
-                + "    sppr.DATA4 `SHIPMENT_ID`, sppr.DATA5,   "
-                + "    ps.PROBLEM_STATUS_ID, ps.LABEL_ID `PROBLEM_STATUS_LABEL_ID`, ps.LABEL_EN `PROBLEM_STATUS_LABEL_EN`, ps.LABEL_FR `PROBLEM_STATUS_LABEL_FR`, ps.LABEL_SP `PROBLEM_STATUS_LABEL_SP`, ps.LABEL_PR `PROBLEM_STATUS_LABEL_PR`,   "
-                + "    pt.PROBLEM_TYPE_ID `RP_PROBLEM_TYPE_ID`, pt.LABEL_ID `RP_PROBLEM_TYPE_LABEL_ID`, pt.LABEL_EN `RP_PROBLEM_TYPE_LABEL_EN`, pt.LABEL_FR `RP_PROBLEM_TYPE_LABEL_FR`, pt.LABEL_SP `RP_PROBLEM_TYPE_LABEL_SP`, pt.LABEL_PR `RP_PROBLEM_TYPE_LABEL_PR`,   "
-                + "    pt.PROBLEM_TYPE_ID, pt.LABEL_ID `PROBLEM_TYPE_LABEL_ID`, pt.LABEL_EN `PROBLEM_TYPE_LABEL_EN`, pt.LABEL_FR `PROBLEM_TYPE_LABEL_FR`, pt.LABEL_SP `PROBLEM_TYPE_LABEL_SP`, pt.LABEL_PR `PROBLEM_TYPE_LABEL_PR`,   "
-                + "    rp.REALM_PROBLEM_ID `RP_REALM_PROBLEM_ID`, r.REALM_ID `RP_REALM_ID`, r.REALM_CODE `RP_REALM_CODE`, r.LABEL_ID `RP_REALM_LABEL_ID`, r.LABEL_EN `RP_REALM_LABEL_EN`, r.LABEL_FR `RP_REALM_LABEL_FR`, r.LABEL_SP `RP_REALM_LABEL_SP`, r.LABEL_PR `RP_REALM_LABEL_PR`,   "
-                + "    p.PROBLEM_ID `RP_PROBLEM_ID`, p.LABEL_ID `RP_PROBLEM_LABEL_ID`, p.LABEL_EN `RP_PROBLEM_LABEL_EN`, p.LABEL_FR `RP_PROBLEM_LABEL_FR`, p.LABEL_SP `RP_PROBLEM_LABEL_SP`, p.LABEL_PR `RP_PROBLEM_LABEL_PR`, p.`ACTION_URL` `RP_ACTION_URL`,   "
-                + "    pcat.PROBLEM_CATEGORY_ID `RP_PROBLEM_CATEGORY_ID`, pcat.LABEL_ID `RP_PROBLEM_CATEGORY_LABEL_ID`, pcat.LABEL_EN `RP_PROBLEM_CATEGORY_LABEL_EN`, pcat.LABEL_FR `RP_PROBLEM_CATEGORY_LABEL_FR`, pcat.LABEL_SP `RP_PROBLEM_CATEGORY_LABEL_SP`, pcat.LABEL_PR `RP_PROBLEM_CATEGORY_LABEL_PR`,   "
-                + "    p.ACTION_LABEL_ID `RP_ACTION_LABEL_ID`, p.ACTION_LABEL_EN `RP_ACTION_LABEL_EN`, p.ACTION_LABEL_FR `RP_ACTION_LABEL_FR`, p.ACTION_LABEL_SP `RP_ACTION_LABEL_SP`, p.ACTION_LABEL_PR `RP_ACTION_LABEL_PR`,   "
-                + "    p.ACTUAL_CONSUMPTION_TRIGGER `RP_ACTUAL_CONSUMPTION_TRIGGER`, p.FORECASTED_CONSUMPTION_TRIGGER `RP_FORECASTED_CONSUMPTION_TRIGGER`, p.INVENTORY_TRIGGER `RP_INVENTORY_TRIGGER`, p.ADJUSTMENT_TRIGGER `RP_ADJUSTMENT_TRIGGER`, p.SHIPMENT_TRIGGER `RP_SHIPMENT_TRIGGER`,   "
-                + "    pc.CRITICALITY_ID `RP_CRITICALITY_ID`, pc.COLOR_HTML_CODE `RP_COLOR_HTML_CODE`, pc.LABEL_ID `RP_CRITICALITY_LABEL_ID`, pc.LABEL_EN `RP_CRITICALITY_LABEL_EN`, pc.LABEL_FR `RP_CRITICALITY_LABEL_FR`, pc.LABEL_SP `RP_CRITICALITY_LABEL_SP`, pc.LABEL_PR `RP_CRITICALITY_LABEL_PR`,   "
-                + "    rp.DATA1 `RP_DATA1`, rp.DATA2 `RP_DATA2`, rp.DATA3 `RP_DATA3`,   "
-                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, sppr.CREATED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, sppr.LAST_MODIFIED_DATE,   "
-                + "    spprt.PROBLEM_REPORT_TRANS_ID, spprt.NOTES, spprt.`REVIEWED` `PROBLEM_REPORT_TRANS_REVIEWED`, spprt.CREATED_DATE `TRANS_CREATED_DATE`, cbt.USER_ID `CBT_USER_ID`, cbt.USERNAME `CBT_USERNAME`,   "
-                + "    pst.PROBLEM_STATUS_ID `PROBLEM_STATUS_TRANS_ID`, pst.LABEL_ID `PROBLEM_STATUS_TRANS_LABEL_ID`, pst.LABEL_EN `PROBLEM_STATUS_TRANS_LABEL_EN`, pst.LABEL_FR `PROBLEM_STATUS_TRANS_LABEL_FR`, pst.LABEL_SP `PROBLEM_STATUS_TRANS_LABEL_SP`, pst.LABEL_PR `PROBLEM_STATUS_TRANS_LABEL_PR` ,p.`PROBLEM_CATEGORY_ID`,pcat.`LABEL_EN` AS `PROBLEM_CATEGORY_LABEL_EN`,pcat.`LABEL_FR` AS `PROBLEM_CATEGORY_LABEL_FR`,pcat.`LABEL_SP` AS `PROBLEM_CATEGORY_LABEL_SP`,pcat.`LABEL_FR` AS `PROBLEM_CATEGORY_LABEL_FR`,pcat.`LABEL_PR` AS `PROBLEM_CATEGORY_LABEL_PR`,pcat.`LABEL_ID` AS `PROBLEM_CATEGORY_LABEL_ID`   "
-                + "FROM ct_supply_plan_commit_request spcr  "
-                + "LEFT JOIN ct_supply_plan_problem_report sppr ON spcr.COMMIT_REQUEST_ID=sppr.COMMIT_REQUEST_ID  "
-                + "LEFT JOIN ct_supply_plan_problem_report_trans spprt ON sppr.ID=spprt.PARENT_ID "
-                + "LEFT JOIN vw_region re ON sppr.DATA2=re.REGION_ID  "
-                + "LEFT JOIN vw_planning_unit pu ON sppr.DATA3=pu.PLANNING_UNIT_ID   "
-                + "LEFT JOIN rm_realm_problem rp ON sppr.REALM_PROBLEM_ID=rp.REALM_PROBLEM_ID   "
-                + "LEFT JOIN vw_problem_type ptrp ON rp.PROBLEM_TYPE_ID=ptrp.PROBLEM_TYPE_ID   "
-                + "LEFT JOIN vw_problem p ON p.PROBLEM_ID=rp.PROBLEM_ID   "
-                + "LEFT JOIN vw_problem_category pcat ON p.PROBLEM_CATEGORY_ID=pcat.PROBLEM_CATEGORY_ID   "
-                + "LEFT JOIN vw_problem_criticality pc ON pc.CRITICALITY_ID=rp.CRITICALITY_ID   "
-                + "LEFT JOIN vw_problem_type pt ON sppr.PROBLEM_TYPE_ID=pt.PROBLEM_TYPE_ID   "
-                + "LEFT JOIN vw_problem_status ps ON sppr.PROBLEM_STATUS_ID=ps.PROBLEM_STATUS_ID   "
-                + "LEFT JOIN us_user cb ON sppr.CREATED_BY=cb.USER_ID   "
-                + "LEFT JOIN us_user lmb ON sppr.LAST_MODIFIED_BY=lmb.USER_ID   "
-                + "LEFT JOIN vw_program prog ON sppr.PROGRAM_ID=prog.PROGRAM_ID   "
-                + "LEFT JOIN vw_realm r ON rp.REALM_ID=r.REALM_ID   "
-                + "LEFT JOIN vw_problem_status pst ON spprt.PROBLEM_STATUS_ID=pst.PROBLEM_STATUS_ID   "
-                + "LEFT JOIN us_user cbt ON spprt.CREATED_BY=cbt.USER_ID   "
-                + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID   "
-                + "WHERE sppr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID "
-                + "ORDER BY pu.PLANNING_UNIT_ID, sppr.ID, spprt.PARENT_ID";
-        pd.setProblemReportList(this.namedParameterJdbcTemplate.query(sql, params, new ProblemReportFromCommitRequestResultSetExtractor()));
+        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
+        ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Check which records have changed
@@ -721,7 +323,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionTypeId", pd.getVersionType().getId());
             params.put("versionStatusId", pd.getVersionStatus().getId());
             params.put("notes", pd.getNotes());
-            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
 //            try {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             logger.info(version + " is the new version no");
@@ -967,7 +569,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1278,7 +880,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1468,7 +1070,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1487,7 +1089,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     params.put("versionTypeId", pd.getVersionType().getId());
                     params.put("versionStatusId", pd.getVersionStatus().getId());
                     params.put("notes", pd.getNotes());
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
 //                    try {
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     logger.info(version + " is the new version no");
@@ -1505,42 +1107,512 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         params.put("versionId", version.getVersionId());
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
-//        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=2, spcr.COMPLETED_DATE=:curDate, spcr.VERSION_ID=:versionId WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         return version;
-//        } catch (Exception e) {
-//            params.clear();
-//            params.put("FAILED_REASON", e.getMessage());
-//            params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
-//            this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=3, FAILED_REASON=:FAILED_REASON WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
-//            return new Version(0, null, null, null, null, null, null, null);
-//        }
     }
 
     @Override
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("FAILED_REASON", message != "" ? message : null);
-        params.put("COMMIT_REQUEST_ID", commitRequestId);
-        params.put("STATUS", status);
-        params.put("VERSION_ID", versionId);
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=:STATUS, spcr.FAILED_REASON=:FAILED_REASON,spcr.COMPLETED_DATE=:curDate,spcr.VERSION_ID=:VERSION_ID WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
-        return new Version(0, null, null, null, null, null, null, null);
-    }
+    @Transactional
+    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        // Get the Dataset that needs to be committed
+        DatasetData dd = spcr.getDatasetData();
+        Map<String, Map<String, Integer>> oldAndNewIdMap = new HashMap<>();
 
-    @Override
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        // Mark the CommitRequest as Started
+        String sqlString = "UPDATE ct_commit_request cr SET cr.STARTED_DATE=:curDate WHERE cr.COMMIT_REQUEST_ID=:commitRequestId";
         Map<String, Object> params = new HashMap<>();
-        if (requestStatus != -1) {
-            sb.append(" AND STATUS=:requestStatus");
-            params.put("requestStatus", requestStatus);
+        params.put("commitRequestId", spcr.getCommitRequestId());
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // Get the new VersionId
+        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate)";
+        params.clear();
+        params.put("programId", spcr.getProgram().getId());
+        params.put("versionTypeId", spcr.getVersionType().getId());
+        params.put("versionStatusId", 2);
+        params.put("notes", spcr.getNotes());
+        params.put("forecastStartDate", dd.getCurrentVersion().getForecastStartDate());
+        params.put("forecastStopDate", dd.getCurrentVersion().getForecastStopDate());
+        params.put("daysInMonth", dd.getCurrentVersion().getDaysInMonth());
+        params.put("freightPerc", dd.getCurrentVersion().getFreightPerc());
+        params.put("forecastThresholdHighPerc", dd.getCurrentVersion().getForecastThresholdHighPerc());
+        params.put("forecastThresholdLowPerc", dd.getCurrentVersion().getForecastThresholdLowPerc());
+        params.put("curUser", spcr.getCreatedBy().getUserId());
+        params.put("curDate", spcr.getCreatedDate());
+        Version version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+
+        params.clear();
+        // Step 1 -- Insert Actual Consumption
+        final List<SqlParameterSource> batchList = new ArrayList<>();
+        for (ForecastActualConsumption fac : dd.getActualConsumptionList()) {
+            Map<String, Object> batchParams = new HashMap<>();
+            batchParams.put("PROGRAM_ID", spcr.getProgram().getId());
+            batchParams.put("PLANNING_UNIT_ID", fac.getPlanningUnit().getId());
+            batchParams.put("REGION_ID", fac.getRegion().getId());
+            batchParams.put("MONTH", fac.getMonth());
+            batchParams.put("AMOUNT", fac.getAmount());
+            batchParams.put("DAYS_OF_STOCK_OUT", fac.getDaysOfStockOut());
+            batchParams.put("ADJUSTED_AMOUNT", fac.getAdjustedAmount());
+            batchParams.put("PU_AMOUNT", fac.getPuAmount());
+            batchParams.put("VERSION_ID", version.getVersionId());
+            batchParams.put("CREATED_BY", fac.getCreatedBy().getUserId());
+            batchParams.put("CREATED_DATE", fac.getCreatedDate());
+            batchList.add(new MapSqlParameterSource(batchParams));
         }
-        params.put("startDate", spcr.getStartDateString() + " 00:00:00");
-        params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
-        params.put("curUser", curUser.getUserId());
-        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
+        SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_actual_consumption");
+        si.executeBatch(batchList.toArray(batchArray));
+
+        batchList.clear();
+        params.clear();
+        batchArray = null;
+        si = null;
+
+        // Step 2 -- Inser Consumption Extrapolation and Data
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation").usingGeneratedKeyColumns("CONSUMPTION_EXTRAPOLATION_ID");
+        SimpleJdbcInsert siData = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation_data");
+        for (ForecastConsumptionExtrapolation fce : dd.getConsumptionExtrapolation()) {
+            params.clear();
+            params.put("PROGRAM_ID", spcr.getProgram().getId());
+            params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
+            params.put("REGION_ID", fce.getRegion().getId());
+            params.put("EXTRAPOLATION_METHOD_ID", fce.getExtrapolationMethod().getId());
+            params.put("VERSION_ID", version.getVersionId());
+            params.put("JSON_PROPERTIES", fce.getJsonPropertiesString());
+            params.put("CREATED_BY", fce.getCreatedBy().getUserId());
+            params.put("CREATED_DATE", fce.getCreatedDate());
+            int conspuptionExtrapolationId = si.executeAndReturnKey(params).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", Integer.toString(fce.getConsumptionExtrapolationId()), conspuptionExtrapolationId);
+            for (ExtrapolationData fced : fce.getExtrapolationDataList()) {
+                Map<String, Object> batchParams = new HashMap<>();
+                batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", conspuptionExtrapolationId);
+                batchParams.put("MONTH", fced.getMonth());
+                batchParams.put("AMOUNT", fced.getAmount());
+                batchParams.put("CI", fced.getCi());
+                batchList.add(new MapSqlParameterSource(batchParams));
+            }
+            batchArray = new SqlParameterSource[batchList.size()];
+            siData.executeBatch(batchList.toArray(batchArray));
+        }
+
+        params.clear();
+        batchList.clear();
+        batchArray = null;
+        si = null;
+        siData = null;
+
+        //Step 3 -- Insert ForecastTree and related tables
+        for (DatasetTree dt : dd.getTreeList()) {
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree").usingGeneratedKeyColumns("TREE_ID");
+            // Step 3Ai -- Insert the Forecast Tree
+            params.put("PROGRAM_ID", spcr.getProgram().getId());
+            params.put("VERSION_ID", version.getVersionId());
+            int labelId = this.labelDao.addLabel(dt.getLabel(), LabelConstants.RM_FORECAST_TREE, spcr.getCreatedBy().getUserId());
+            params.put("LABEL_ID", labelId);
+            params.put("FORECAST_METHOD_ID", dt.getForecastMethod().getId());
+            params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+            params.put("CREATED_DATE", spcr.getCreatedDate());
+            params.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+            params.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+            params.put("ACTIVE", dt.isActive());
+            params.put("NOTES", dt.getNotes());
+            int treeId = si.executeAndReturnKey(params).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), treeId);
+            SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
+
+            // Step 3Aii -- Insert the Region list for the Forecast Tree
+            batchList.clear();
+            for (SimpleObject region : dt.getRegionList()) {
+                Map<String, Object> batchParams = new HashMap<>();
+                batchParams.put("TREE_ID", treeId);
+                batchParams.put("REGION_ID", region.getId());
+                batchList.add(new MapSqlParameterSource(batchParams));
+            }
+            batchArray = new SqlParameterSource[batchList.size()];
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_region");
+            si.executeBatch(batchList.toArray(batchArray));
+
+            // Step 3Aiii -- Insert the Level list for the Forecast Tree
+            batchList.clear();
+            for (TreeLevel level : dt.getLevelList()) {
+                Map<String, Object> batchParams = new HashMap<>();
+                batchParams.put("TREE_ID", treeId);
+                batchParams.put("LEVEL_NO", level.getLevelNo());
+                int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
+                batchParams.put("LABEL_ID", treeLevelLabelId);
+                batchParams.put("UNIT_ID", (level.getUnit() == null ? null : level.getUnit().getId()));
+                batchList.add(new MapSqlParameterSource(batchParams));
+            }
+            batchArray = new SqlParameterSource[batchList.size()];
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_level");
+            si.executeBatch(batchList.toArray(batchArray));
+
+            // Step 3B -- Insert all the Nodes for the Tree
+            for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                Map<String, Object> nodeParams = new HashMap<>();
+                nodeParams.put("TREE_ID", treeId);
+                nodeParams.put("SORT_ORDER", n.getSortOrder());
+                nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+                nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
+                nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
+                int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
+                nodeParams.put("LABEL_ID", nodeLabelId);
+                nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                nodeParams.put("CREATED_DATE", spcr.getCreatedDate());
+                nodeParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                nodeParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                nodeParams.put("ACTIVE", 1);
+                int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
+                updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
+                nodeParams.clear();
+            }
+
+            // Step 3C -- Update the Parent Node Id for the Tree Nodes that you just inserted
+            params.clear();
+            params.put("treeId", treeId);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_forecast_tree_node ttn LEFT JOIN rm_forecast_tree_node ttn2 ON ttn.TREE_ID=ttn2.TREE_ID AND left(ttn.SORT_ORDER, length(ttn.SORT_ORDER)-3)=ttn2.SORT_ORDER SET ttn.PARENT_NODE_ID=ttn2.NODE_ID WHERE ttn.TREE_ID=:treeId", params);
+            params.clear();
+            ni = null;
+
+            // Step 3D -- Insert the Scenarios for the Tree
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_scenario").usingGeneratedKeyColumns("SCENARIO_ID");
+            for (TreeScenario ts : dt.getScenarioList()) {
+                Map<String, Object> nodeParams = new HashMap<>();
+                nodeParams.put("TREE_ID", treeId);
+                int scenarioLabelId = this.labelDao.addLabel(ts.getLabel(), LabelConstants.RM_SCENARIO, spcr.getCreatedBy().getUserId());
+                nodeParams.put("LABEL_ID", scenarioLabelId);
+                nodeParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
+                nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                nodeParams.put("CREATED_DATE", spcr.getCreatedDate());
+                nodeParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                nodeParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                nodeParams.put("ACTIVE", 1);
+                nodeParams.put("NOTES", ts.getNotes());
+                int scenarioId = si.executeAndReturnKey(nodeParams).intValue();
+                updateOldAndNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId(), scenarioId);
+
+                // Step 3E Insert the NodeData
+                for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                    for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
+                        Map<String, Object> nodeDataParams = new HashMap<>();
+                        Integer nodeDataFuId = null;
+                        Integer nodeDataPuId = null;
+                        if (n.getPayload().getNodeType().getId() == 4) { // FU node //TODO change to GlobalConstants
+                            // Step 3F -- If it is a FU Node then insert that first
+                            nodeDataParams.clear();
+                            nodeDataParams.put("FORECASTING_UNIT_ID", tnd.getFuNode().getForecastingUnit().getId());
+                            nodeDataParams.put("LAG_IN_MONTHS", tnd.getFuNode().getLagInMonths());
+                            nodeDataParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
+                            nodeDataParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
+                            nodeDataParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
+                            nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
+                            nodeDataParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
+                            nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
+                            nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
+                            nodeDataParams.put("REPEAT_USAGE_PERIOD_ID", (tnd.getFuNode().getRepeatUsagePeriod() == null ? null : (tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId())));
+                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("ACTIVE", 1);
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
+                            nodeDataFuId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                        }
+                        if (n.getPayload().getNodeType().getId() == 5) { // PU node //TODO change to GlobalConstants
+                            // Step 3G -- If it is a PU Node then insert that first
+                            nodeDataParams.clear();
+                            nodeDataParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
+                            nodeDataParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
+                            nodeDataParams.put("REFILL_MONTHS", tnd.getPuNode().getRefillMonths());
+                            nodeDataParams.put("PU_PER_VISIT", tnd.getPuNode().getPuPerVisit());
+                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("ACTIVE", 1);
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
+                            nodeDataPuId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                        }
+                        nodeDataParams.clear();
+                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
+                        nodeDataParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId()));
+                        nodeDataParams.put("MONTH", tnd.getMonth());
+                        nodeDataParams.put("DATA_VALUE", tnd.getDataValue());
+                        nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
+                        nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
+                        nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
+                        nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                        nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                        nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                        nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                        nodeDataParams.put("ACTIVE", 1);
+                        ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
+                        int nodeDataId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                        updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
+
+                        // Step 3H -- Add the Node Data Modelling values
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling");
+                            for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                                nodeDataParams.clear();
+                                nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                                nodeDataParams.put("START_DATE", ndm.getStartDate());
+                                nodeDataParams.put("STOP_DATE", ndm.getStopDate());
+                                nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
+                                nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
+                                nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
+                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
+                                nodeDataParams.put("NOTES", ndm.getNotes());
+                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                                nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                                nodeDataParams.put("ACTIVE", 1);
+                                ni.execute(nodeDataParams);
+                            }
+                        }
+
+                        // Step 3I -- Add the Node Data Extrapolation Option values 
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
+                            SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
+
+                            for (NodeDataExtrapolationOption ndeo : tnd.getNodeDataExtrapolationOptionList()) {
+                                nodeDataParams.clear();
+                                nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                                nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
+                                nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
+                                int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                    nodeDataParams.clear();
+                                    nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
+                                    nodeDataParams.put("MONTH", ed.getMonth());
+                                    nodeDataParams.put("AMOUNT", ed.getAmount());
+                                    nodeDataParams.put("CI", ed.getCi());
+                                    nid.execute(nodeDataParams);
+                                }
+                            }
+                        }
+
+                        // Step 3J -- Add the Node Data Extrapolation and Data values
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
+                            NodeDataExtrapolation nde = tnd.getNodeDataExtrapolation();
+                            nodeDataParams.clear();
+                            nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                            nodeDataParams.put("EXTRAPOLATION_METHOD_ID", nde.getExtrapolationMethod().getId());
+                            nodeDataParams.put("NOTES", nde.getNotes());
+                            int ndeId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                            SimpleJdbcInsert di = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecast_tree_node_data_extrapolation_data");
+                            for (ExtrapolationDataReportingRate edrr : nde.getExtrapolationDataList()) {
+                                nodeParams.clear();
+                                nodeParams.put("NODE_DATA_EXTRAPOLATION_ID", ndeId);
+                                nodeParams.put("MONTH", edrr.getMonth());
+                                nodeParams.put("AMOUNT", (edrr.getAmount() == null ? null : (edrr.getAmount() < 0 ? 0 : edrr.getAmount())));
+                                nodeParams.put("REPORTING_RATE", edrr.getReportingRate());
+                                nodeParams.put("MANUAL_CHANGE", edrr.getManualChange());
+                                di.execute(nodeParams);
+                            }
+                        }
+
+                        // Step 3K -- Add the Node Data Override
+                        ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_override");
+                        for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
+                            nodeDataParams.clear();
+                            nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                            nodeDataParams.put("MONTH", ndo.getMonth());
+                            nodeDataParams.put("MANUAL_CHANGE", ndo.getManualChange());
+                            nodeDataParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
+                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("ACTIVE", 1);
+                            ni.execute(nodeDataParams);
+                        }
+
+                        // Step 3L -- Add the Node Data MOM
+                        ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_mom");
+                        for (NodeDataMom ndo : tnd.getNodeDataMomList()) {
+                            nodeDataParams.clear();
+                            nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                            nodeDataParams.put("MONTH", ndo.getMonth());
+                            nodeDataParams.put("START_VALUE", ndo.getStartValue());
+                            nodeDataParams.put("END_VALUE", ndo.getEndValue());
+                            nodeDataParams.put("CALCULATED_VALUE", ndo.getCalculatedValue());
+                            nodeDataParams.put("CALCULATED_MMD_VALUE", ndo.getCalculatedMmdValue());
+                            nodeDataParams.put("DIFFERENCE", ndo.getDifference());
+                            nodeDataParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
+                            nodeDataParams.put("MANUAL_CHANGE", ndo.getManualChange());
+                            ni.execute(nodeDataParams);
+                        }
+                    }
+                }
+
+                batchList.clear();
+                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_ID=:nodeDataId";
+                // go back and update the TransferNodeDataId's
+                for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                    for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
+                        for (NodeDataModeling tndm : tnd.getNodeDataModelingList()) {
+                            if (tndm.getTransferNodeDataId() != null) {
+                                Map<String, Object> batchParams = new HashMap<>();
+                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
+                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tnd.getNodeDataId())));
+                                batchList.add(new MapSqlParameterSource(batchParams));
+                            }
+                        }
+                    }
+                }
+                if (batchList.size() > 0) {
+                    batchArray = new SqlParameterSource[batchList.size()];
+                    namedParameterJdbcTemplate.batchUpdate(sql, batchList.toArray(batchArray));
+                }
+            }
+
+        }
+
+        //Step 4 -- Insert the Planning Units and the Selected Forecasts
+        si = null;
+        params.clear();
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit").usingGeneratedKeyColumns("PROGRAM_PLANNING_UNIT_ID");
+        siData = null;
+        siData = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit_selected");
+        for (DatasetPlanningUnit dpu : dd.getPlanningUnitList()) {
+            params.put("PROGRAM_ID", dd.getProgramId());
+            params.put("VERSION_ID", version.getVersionId());
+            params.put("PLANNING_UNIT_ID", dpu.getPlanningUnit().getId());
+            params.put("CONSUMPTION_FORECAST", dpu.isConsuptionForecast());
+            params.put("TREE_FORECAST", dpu.isTreeForecast());
+            params.put("STOCK", dpu.getStock());
+            params.put("EXISTING_SHIPMENTS", dpu.getExistingShipments());
+            params.put("MONTHS_OF_STOCK", dpu.getMonthsOfStock());
+            params.put("PROCUREMENT_AGENT_ID", (dpu.getProcurementAgent() == null || dpu.getProcurementAgent().getId() == 0 ? null : dpu.getProcurementAgent().getId()));
+            params.put("PRICE", dpu.getPrice());
+            params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
+            params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
+            params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
+            params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
+            if (dpu.getOtherUnit() != null) {
+                int ouLabelId = this.labelDao.addLabel(dpu.getOtherUnit().getLabel(), LabelConstants.RM_DATASET_PLANNING_UNIT, spcr.getCreatedBy().getUserId());
+                params.put("OTHER_LABEL_ID", ouLabelId);
+                params.put("OTHER_MULTIPLIER", (dpu.getOtherUnit() == null ? null : dpu.getOtherUnit().getMultiplier()));
+            }
+            params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+            params.put("CREATED_DATE", spcr.getCreatedDate());
+            params.put("ACTIVE", dpu.isActive());
+            int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", Integer.toString(dpu.getProgramPlanningUnitId()), programPlanningUnitId);
+
+            // Now store the selected Forecast for this Planning Unit
+            if (dpu.getSelectedForecastMap() != null) {
+                batchList.clear();
+                batchArray = null;
+                for (int regionId : dpu.getSelectedForecastMap().keySet()) {
+                    Map<String, Object> batchParams = new HashMap<>();
+                    batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
+                    batchParams.put("REGION_ID", regionId);
+                    if (dpu.getSelectedForecastMap().get(regionId).getTreeId() != null) {
+                        batchParams.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getTreeId())));
+                    }
+                    if (dpu.getSelectedForecastMap().get(regionId).getScenarioId() != null) {
+                        batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getTreeId() + "-" + dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
+                    }
+                    if (dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId() != null) {
+                        batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId())));
+                    }
+                    batchParams.put("TOTAL_FORECAST", dpu.getSelectedForecastMap().get(regionId).getTotalForecast());
+                    batchParams.put("NOTES", dpu.getSelectedForecastMap().get(regionId).getNotes());
+                    batchList.add(new MapSqlParameterSource(batchParams));
+                }
+                batchArray = new SqlParameterSource[batchList.size()];
+                siData.executeBatch(batchList.toArray(batchArray));
+            }
+        }
+
+        // Step 5 -- Update the Version no on the Program table
+        sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", spcr.getProgram().getId());
+        params.put("versionId", version.getVersionId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return version;
+    }
+
+    private void updateOldAndNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId, int newId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
+        if (tableData == null) {
+            tableData = new HashMap<String, Integer>();
+            oldAndNewId.put(tableName, tableData);
+        }
+        tableData.put(oldId, newId);
+    }
+
+    private Integer getNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
+        if (tableData == null) {
+            return null;
+        } else {
+            return tableData.get(oldId);
+        }
+    }
+
+    @Override
+    public Version getVersionInfo(int programId, int versionId) {
+        if (versionId == -1) {
+            String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
+            Map<String, Object> params = new HashMap<>();
+            params.put("programId", programId);
+            versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        }
+        String sqlString = "SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC, "
+                + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
+                + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+    }
+
+    @Override
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId, :planningUnitActive)", params, new ConsumptionListResultSetExtractor());
+    }
+
+    @Override
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId, :planningUnitActive)", params, new InventoryListResultSetExtractor());
+    }
+
+    @Override
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("shipmentActive", shipmentActive);
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
@@ -1602,7 +1674,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "AND (:organisationId = -1 OR p.ORGANISATION_ID = :organisationId) "
                 + "AND (:versionTypeId = -1 OR pv.VERSION_TYPE_ID = :versionTypeId) "
                 + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
-                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionResultSetExtractor());
 
@@ -1673,12 +1746,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programCommonDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
-            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
-            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
+//            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
+//            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
@@ -1692,12 +1765,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {
-                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-            }
-            if (sbCcEmails.length() != 0) {
-                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-            }
+//            if (sbToEmails.length() != 0) {
+//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+//            }
+//            if (sbCcEmails.length() != 0) {
+//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+//            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
@@ -1713,12 +1786,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programCommonDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
-            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
-            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
+//            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
+//            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
@@ -1732,12 +1805,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {
-                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-            }
-            if (sbCcEmails.length() != 0) {
-                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-            }
+//            if (sbToEmails.length() != 0) {
+//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+//            }
+//            if (sbCcEmails.length() != 0) {
+//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+//            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
@@ -1786,19 +1859,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
     }
 
-//    @Override
-//    public void buildStockBalances(int programId, int versionId) {
-//        String sqlString = "CALL buildSupplyPlan(:programId, :versionId)";
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("programId", programId);
-//        params.put("versionId", versionId);
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "SELECT spbi.TRANS_DATE, SUM(spbi.FORECASTED_CONSUMPTION_QTY+spbi.EXPIRED_CONSUMPTION) CONSUMPTION FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:progarmId AND spbi.VERSION_ID=:versionId GROUP BY spbi.TRANS_DATE HAVING SUM(spbi.FORECASTED_CONSUMPTION_QTY)>0 OR SUM(spbi.EXPIRED_CONSUMPTION)>0";
-//        List<UnaccountedConsumption> ucList = this.namedParameterJdbcTemplate.query(sqlString, new UnaccountedConsumptionRowMapper());
-//        for (UnaccountedConsumption u : ucList) {
-//
-//        }
-//    }
     @Override
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
         String sqlString = "UPDATE rm_supply_plan_batch_info spbi "
@@ -1922,18 +1982,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
-        System.out.println("Going to call buildSimpleSupplyPlan SP");
-        System.out.println(new Date());
+//        System.out.println("Going to call buildSimpleSupplyPlan SP");
+//        System.out.println(new Date());
         String sqlString = "CALL buildSimpleSupplyPlan(:programId, :versionId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
-        System.out.println("SP call completed");
-        System.out.println(new Date());
-        System.out.println("Going through the loops to calculate on basis of FEFO");
-        System.out.println(new Date());
-        System.out.println("PLANNING_UNIT_ID\tBATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
+//        System.out.println("SP call completed");
+//        System.out.println(new Date());
+//        System.out.println("Going through the loops to calculate on basis of FEFO");
+//        System.out.println(new Date());
+//        System.out.println("PLANNING_UNIT_ID\tBATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                 int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
@@ -1958,11 +2018,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     spbi.setUnmetDemandWps(unallocatedConsumptionWps);
                     sd.setUnallocatedConsumptionWps(0);
                 }
-                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
+//                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
-        System.out.println("Completed loops");
-        System.out.println(new Date());
+//        System.out.println("Completed loops");
+//        System.out.println(new Date());
         return sp;
     }
 
@@ -2042,7 +2102,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchParams.put("curDate", nsp.getTransDate());
                             newBatchParams.put("expiryDate", bd.getExpiryDate());
                             try {
-                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
+//                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
                                 batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
                             } catch (EmptyResultDataAccessException erda) {
                                 sql = "INSERT INTO `rm_batch_info` SELECT "
@@ -2178,12 +2238,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
-        String sqlString = "SELECT p.CURRENT_VERSION_ID,p.PROGRAM_ID FROM rm_program p WHERE p.PROGRAM_ID IN (" + programIds + ")";
-        return this.jdbcTemplate.query(sqlString, new ProgramIdAndVersionIdRowMapper());
-    }
-
-    @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
         String sqlString = "SELECT li.INT_PROGRAM_VERSION_TRANS_ID PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  li.INT_VERSION_ID VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
                 + "FROM ( "
@@ -2225,11 +2279,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public String getSupplyPlanReviewerEmialList(int realmCountryId) {
-        String sql = "select group_concat(u.EMAIL_ID)\n"
-                + "from us_user u\n"
-                + "left join us_user_role ur on u.USER_ID=ur.USER_ID\n"
-                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID\n"
-                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and\n"
+        String sql = "select group_concat(u.EMAIL_ID) "
+                + "from us_user u "
+                + "left join us_user_role ur on u.USER_ID=ur.USER_ID "
+                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID "
+                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and "
                 + "(ua.REALM_COUNTRY_ID is null OR ua.REALM_COUNTRY_ID=?)";
         return this.jdbcTemplate.queryForObject(sql, String.class, realmCountryId);
     }
@@ -2278,27 +2332,152 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public boolean checkIfCommitRequestExistsForProgram(int programId) {
-        String sql = "select count(*) from ct_supply_plan_commit_request ct where ct.STATUS=1 and ct.PROGRAM_ID=?;";
-        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, programId);
-        if (count > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId) {
-        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND spcr.COMMIT_REQUEST_ID=:commitRequestId");
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        String sql = "SELECT "
+                + "ft.TREE_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
+                + "fm.FORECAST_METHOD_ID, fm.FORECAST_METHOD_TYPE_ID, "
+                + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, "
+                + "tl.TREE_LEVEL_ID `LEVEL_ID`, tl.LEVEL_NO, tl.LABEL_ID `TL_LABEL_ID`, tl.LABEL_EN `TL_LABEL_EN`, tl.LABEL_FR `TL_LABEL_FR`, tl.LABEL_SP `TL_LABEL_SP`, tl.LABEL_PR `TL_LABEL_PR`, "
+                + "u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.`UNIT_CODE`, "
+                + "s.SCENARIO_ID, s.LABEL_ID `S_LABEL_ID`, s.LABEL_EN `S_LABEL_EN`, s.LABEL_FR `S_LABEL_FR`, s.LABEL_SP `S_LABEL_SP`, s.LABEL_PR `S_LABEL_PR`, s.ACTIVE `S_ACTIVE`, s.NOTES `S_NOTES`, "
+                + "r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR`, "
+                + "ft.CREATED_DATE, ft.LAST_MODIFIED_DATE, ft.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ft.`NOTES` "
+                + "FROM vw_forecast_tree ft "
+                + "LEFT JOIN vw_forecast_method fm ON ft.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
+                + "LEFT JOIN vw_tree_level tl ON ft.TREE_ID=tl.TREE_ID "
+                + "LEFT JOIN vw_unit u ON tl.UNIT_ID=u.UNIT_ID "
+                + "LEFT JOIN vw_scenario s ON ft.TREE_ID=s.TREE_ID "
+                + "LEFT JOIN rm_forecast_tree_region ftr ON ft.TREE_ID=ftr.TREE_ID "
+                + "LEFT JOIN vw_region r ON ftr.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN us_user cb ON ft.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ft.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "where ft.PROGRAM_ID=:programId AND ft.VERSION_ID=:versionId";
         Map<String, Object> params = new HashMap<>();
-        params.put("commitRequestId", commitRequestId);
-        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new DatasetTreeResultSetExtractor());
     }
 
     @Override
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
+        String sql = "SELECT "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
+                + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
+                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
+                + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
+                + "          ttnd.`SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.MANUAL_CHANGES_EFFECT_FUTURE, ttnd.IS_EXTRAPOLATION, "
+                + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
+                + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "
+                + "          tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
+                + "          pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "
+                + "          ut.USAGE_TYPE_ID, ut.LABEL_ID `UT_LABEL_ID`, ut.LABEL_EN `UT_LABEL_EN`, ut.LABEL_FR `UT_LABEL_FR`, ut.LABEL_SP `UT_LABEL_SP`, ut.LABEL_PR `UT_LABEL_PR`, "
+                + "          ttndf.ONE_TIME_USAGE, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
+                + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
+                + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
+                + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
+                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
+                + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
+                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
+                + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
+                + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
+                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE`, "
+                + "          ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
+                + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "      FROM vw_forecast_tree_node ttn "
+                + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
+                + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data ttnd ON ttn.NODE_ID=ttnd.NODE_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_fu ttndf on ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID "
+                + "      LEFT JOIN vw_forecasting_unit fu ON ttndf.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "      LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID "
+                + "      LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
+                + "      LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "      LEFT JOIN vw_usage_type ut ON ttndf.USAGE_TYPE_ID=ut.USAGE_TYPE_ID "
+                + "      LEFT JOIN vw_usage_period upf ON ttndf.USAGE_FREQUENCY_USAGE_PERIOD_ID=upf.USAGE_PERIOD_ID "
+                + "      LEFT JOIN vw_usage_period upr ON ttndf.REPEAT_USAGE_PERIOD_ID=upr.USAGE_PERIOD_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
+                + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_modeling ttndm on ttnd.NODE_DATA_ID=ttndm.NODE_DATA_ID "
+                + "      LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_mom ndm ON ttnd.NODE_DATA_ID=ndm.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_override ndo ON ttnd.NODE_DATA_ID=ndo.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation nde ON ttnd.NODE_DATA_ID=nde.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option ndeo ON ttnd.NODE_DATA_ID=ndeo.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                + "      LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "      LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
+                + "      WHERE ttn.TREE_ID=? "
+                + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("treeId", treeId);
+        return this.jdbcTemplate.query(sql, new TreeNodeResultSetExtractor(false), treeId);
+    }
+
+    @Override
+    public List<ForecastActualConsumption> getForecastActualConsumptionData(int programId, int versionId, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        StringBuilder sqlBuilder = new StringBuilder("SELECT "
+                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.ADJUSTED_AMOUNT, fac.PU_AMOUNT, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, pu.MULTIPLIER, "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "
+                + "    r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR` "
+                + "FROM rm_forecast_actual_consumption fac "
+                + "LEFT JOIN vw_dataset p ON fac.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fac.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN vw_region r ON fac.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN us_user cb ON fac.CREATED_BY=cb.USER_ID "
+                + "WHERE fac.PROGRAM_ID=:programId AND fac.VERSION_ID=:versionId ");
+        this.aclService.addFullAclForProgram(sqlBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastActualConsumptionRowMapper());
+    }
+
+    @Override
+    public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "     fce.CONSUMPTION_EXTRAPOLATION_ID, "
+                + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
+                + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
+                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
+                + "FROM rm_forecast_consumption_extrapolation fce "
+                + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_region r ON fce.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "LEFT JOIN us_user cb ON fce.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation_data fced ON fce.CONSUMPTION_EXTRAPOLATION_ID=fced.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId and fce.VERSION_ID=:versionId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastConsumptionExtrapolationListResultSetExtractor());
+    }
+
+    @Override
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", acd.getProgramId());
+        params.put("versionId", acd.getVersionId());
+        params.put("startDate", acd.getStartDate());
+        params.put("stopDate", acd.getStopDate());
+        params.put("planningUnitListString", acd.getPlanningUnitIdString());
+        params.put("regionListString", acd.getRegionIdString());
+        return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());
+    }
+
+    @Override
+    public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_commit_request").usingGeneratedKeyColumns("ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", spcr.getProgram().getId());

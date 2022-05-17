@@ -114,4 +114,12 @@ public class UnitDaoImpl implements UnitDao {
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new UnitRowMapper());
     }
 
+    @Override
+    public List<Unit> getUnitListByDimensionId(int dimensionId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("dimensionId", dimensionId);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString + " AND u.ACTIVE AND u.DIMENSION_ID=:dimensionId");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new UnitRowMapper());
+    }
+
 }

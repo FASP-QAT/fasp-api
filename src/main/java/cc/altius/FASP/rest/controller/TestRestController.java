@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.service.AclService;
@@ -44,7 +45,7 @@ public class TestRestController {
             for (int p : programIdList) {
                 sb.append("\nChecking for access to " + p + "\n");
                 try {
-                    Program prog = this.programService.getProgramById(p, curUser);
+                    Program prog = this.programService.getProgramById(p, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                     boolean access = this.aclService.checkAccessForUser(
                             curUser,
                             prog.getRealmCountry().getRealm().getRealmId(),

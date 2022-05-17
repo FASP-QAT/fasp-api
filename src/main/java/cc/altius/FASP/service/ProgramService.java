@@ -13,12 +13,17 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.TreeNode;
 import java.util.List;
 
 /**
@@ -33,17 +38,19 @@ public interface ProgramService {
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(CustomUserDetails curUser, boolean active);
+    public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
-    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser);
+    public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, CustomUserDetails curUser);
+    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
+
+    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
@@ -75,9 +82,9 @@ public interface ProgramService {
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
-    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
+    public List<LoadProgram> getLoadProgram(int programTypeId, CustomUserDetails curUser);
 
-    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
+    public LoadProgram getLoadProgram(int programId, int page, int programTypeId, CustomUserDetails curUser);
 
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
 
@@ -106,4 +113,11 @@ public interface ProgramService {
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
 
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
+
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
+
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
+
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+
 }
