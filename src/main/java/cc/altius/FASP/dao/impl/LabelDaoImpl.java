@@ -76,7 +76,7 @@ public class LabelDaoImpl implements LabelDao {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT l2.LABEL_ID, l2.LABEL_EN, l2.LABEL_FR, l2.LABEL_SP, l2.LABEL_PR, l2.LABEL_FOR, l2.ID, l2.REALM_ID, l2.PROGRAM_ID, l2.RELATED_TO_LABEL_ID, l2.RELATED_TO_LABEL_EN, l2.RELATED_TO_LABEL_FR, l2.RELATED_TO_LABEL_SP, l2.RELATED_TO_LABEL_PR FROM (SELECT  "
                 + "	l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR, "
-                + "    ls.`SOURCE_TEXT` AS `LABEL_FOR`, "
+                + "    ls.`SOURCE_DESC` AS `LABEL_FOR`, "
                 + "    IFNULL(COALESCE( "
                 + "         c.COUNTRY_ID, r.REALM_ID, c2.CURRENCY_ID, d.DIMENSION_ID, vt.VERSION_TYPE_ID,  "
                 + "         vs.VERSION_STATUS_ID, ss.SHIPMENT_STATUS_ID, r2.ROLE_ID, ha.HEALTH_AREA_ID,  "

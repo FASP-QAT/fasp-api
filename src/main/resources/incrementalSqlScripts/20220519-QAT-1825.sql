@@ -55,3 +55,10 @@ UPDATE `fasp`.`ap_label_source` SET `SOURCE_TEXT` = 'Extrapolation method' WHERE
 UPDATE `fasp`.`ap_label_source` SET `SOURCE_TEXT` = 'Forecast tree - Level' WHERE (`SOURCE_ID` = '53');
 UPDATE `fasp`.`ap_label_source` SET `SOURCE_TEXT` = 'Tree template - Level' WHERE (`SOURCE_ID` = '54');
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.databaseTranslations.relatedTo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Related To');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Relative à');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Relacionada con');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Relacionado a');-- pr
