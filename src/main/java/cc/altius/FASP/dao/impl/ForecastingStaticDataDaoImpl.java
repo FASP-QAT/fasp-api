@@ -136,7 +136,7 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
                 + "FROM vw_extrapolation_method nt "
                 + "LEFT JOIN us_user cb ON nt.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON nt.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE nt.LAST_MODIFIED_DATE>:lastSyncDate ORDER BY em.SORT_ORDER";
+                + "WHERE nt.LAST_MODIFIED_DATE>:lastSyncDate ORDER BY nt.SORT_ORDER";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         return namedParameterJdbcTemplate.query(sqlString, params, new ExtrapolationMethodRowMapper());
