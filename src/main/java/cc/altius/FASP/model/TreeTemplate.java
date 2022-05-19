@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -24,8 +25,10 @@ public class TreeTemplate extends BaseModel implements Serializable {
     @JsonIgnore
     private ForecastTree<TreeNode> tree;
     private String notes;
+    private List<TreeLevel> levelList;
 
     public TreeTemplate() {
+        this.levelList = new LinkedList<>();
     }
 
     public TreeTemplate(int treeTemplateId) {
@@ -116,6 +119,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
             }
             isFirst = false;
         }
+    }
+
+    public List<TreeLevel> getLevelList() {
+        return levelList;
+    }
+
+    public void setLevelList(List<TreeLevel> levelList) {
+        this.levelList = levelList;
     }
 
     @Override
