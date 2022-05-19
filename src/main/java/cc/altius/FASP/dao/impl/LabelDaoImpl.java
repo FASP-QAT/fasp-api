@@ -74,9 +74,9 @@ public class LabelDaoImpl implements LabelDao {
     @Override
     public List<DatabaseTranslationsDTO> getDatabaseLabelsList(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sb = new StringBuilder("SELECT l2.LABEL_ID, l2.LABEL_EN, l2.LABEL_FR, l2.LABEL_SP, l2.LABEL_PR, l2.LABEL_FOR, l2.ID, l2.REALM_ID, l2.PROGRAM_ID FROM (SELECT  "
+        StringBuilder sb = new StringBuilder("SELECT l2.LABEL_ID, l2.LABEL_EN, l2.LABEL_FR, l2.LABEL_SP, l2.LABEL_PR, l2.LABEL_FOR, l2.ID, l2.REALM_ID, l2.PROGRAM_ID, l2.RELATED_TO_LABEL_ID, l2.RELATED_TO_LABEL_EN, l2.RELATED_TO_LABEL_FR, l2.RELATED_TO_LABEL_SP, l2.RELATED_TO_LABEL_PR FROM (SELECT  "
                 + "	l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR, "
-                + "    ls.SOURCE_DESC AS `LABEL_FOR`, "
+                + "    ls.`SOURCE_TEXT` AS `LABEL_FOR`, "
                 + "    IFNULL(COALESCE( "
                 + "         c.COUNTRY_ID, r.REALM_ID, c2.CURRENCY_ID, d.DIMENSION_ID, vt.VERSION_TYPE_ID,  "
                 + "         vs.VERSION_STATUS_ID, ss.SHIPMENT_STATUS_ID, r2.ROLE_ID, ha.HEALTH_AREA_ID,  "
@@ -87,7 +87,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "         s.SUPPLIER_ID, pc3.PROBLEM_CATEGORY_ID, l2.LANGUAGE_ID, nt.NOTIFICATION_TYPE_ID, ot.ORGANISATION_TYPE_ID, "
                 + "         ut.USAGE_TYPE_ID, nt2.NODE_TYPE_ID, up.USAGE_PERIOD_ID, mt.MODELING_TYPE_ID, fmt.FORECAST_METHOD_TYPE_ID, "
                 + "         fm.FORECAST_METHOD_ID, eu.EQUIVALENCY_UNIT_ID, tt.TREE_TEMPLATE_ID, ttn.NODE_ID, ft.TREE_ID, "
-                + "         ftn.NODE_ID, s2.SCENARIO_ID, dpu.PROGRAM_PLANNING_UNIT_ID, em.EXTRAPOLATION_METHOD_ID, ftl.TREE_LEVEL_ID),0) `ID`, "
+                + "         ftn.NODE_ID, s2.SCENARIO_ID, dpu.PROGRAM_PLANNING_UNIT_ID, em.EXTRAPOLATION_METHOD_ID, ftl.TREE_LEVEL_ID, ttl.TREE_TEMPLATE_LEVEL_ID),0) `ID`, "
                 + "	IFNULL(COALESCE( "
                 + "         r.REALM_ID, ha.REALM_ID, o.REALM_ID, r3.REALM_ID, pa.REALM_ID, "
                 + "            fs.REALM_ID, b.REALM_ID, ds.REALM_ID, dst.REALM_ID, p.REALM_ID, "
@@ -97,7 +97,13 @@ public class LabelDaoImpl implements LabelDao {
                 + "            s2.REALM_ID, dpu.REALM_ID, ftl.REALM_ID),0) `REALM_ID`, "
                 + "	IFNULL(COALESCE( "
                 + "		b.PROGRAM_ID, ds.PROGRAM_ID, p.PROGRAM_ID, ft.PROGRAM_ID, ftn.PROGRAM_ID, "
-                + "            s2.PROGRAM_ID, dpu.PROGRAM_ID, ftl.PROGRAM_ID),0) `PROGRAM_ID` "
+                + "            s2.PROGRAM_ID, dpu.PROGRAM_ID, ftl.PROGRAM_ID),0) `PROGRAM_ID`, "
+                + "     COALESCE(ft2.LABEL_ID, ft3.LABEL_ID, ft4.LABEL_ID, tt2.LABEL_ID, tt3.LABEL_ID) `RELATED_TO_LABEL_ID`, "
+                + "     COALESCE(ft2.LABEL_EN, ft3.LABEL_EN, ft4.LABEL_EN, tt2.LABEL_EN, tt3.LABEL_EN) `RELATED_TO_LABEL_EN`, "
+                + "     COALESCE(ft2.LABEL_FR, ft3.LABEL_FR, ft4.LABEL_FR, tt2.LABEL_FR, tt3.LABEL_FR) `RELATED_TO_LABEL_FR`, "
+                + "     COALESCE(ft2.LABEL_SP, ft3.LABEL_SP, ft4.LABEL_SP, tt2.LABEL_SP, tt3.LABEL_SP) `RELATED_TO_LABEL_SP`, "
+                + "     COALESCE(ft2.LABEL_PR, ft3.LABEL_PR, ft4.LABEL_PR, tt2.LABEL_PR, tt3.LABEL_PR) `RELATED_TO_LABEL_PR` "
+                +"              "
                 + "FROM ap_label l  "
                 + "LEFT JOIN ap_label_source ls ON l.SOURCE_ID=ls.SOURCE_ID "
                 + "LEFT JOIN ap_country c ON l.LABEL_ID=c.LABEL_ID " //-- 1
@@ -144,14 +150,19 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN rm_forecast_method fm ON l.LABEL_ID=fm.LABEL_ID " // -- 43
                 + "LEFT JOIN rm_equivalency_unit eu ON l.LABEL_ID=eu.LABEL_ID " // -- 44
                 + "LEFT JOIN rm_tree_template tt ON l.LABEL_ID=tt.LABEL_ID " // -- 45
-                + "LEFT JOIN (SELECT ttn.NODE_ID, ttn.LABEL_ID, tt.REALM_ID FROM rm_tree_template_node ttn LEFT JOIN rm_tree_template tt ON ttn.TREE_TEMPLATE_ID=tt.TREE_TEMPLATE_ID) ttn ON l.LABEL_ID=ttn.LABEL_ID " // -- 46
+                + "LEFT JOIN (SELECT ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.LABEL_ID, tt.REALM_ID FROM rm_tree_template_node ttn LEFT JOIN rm_tree_template tt ON ttn.TREE_TEMPLATE_ID=tt.TREE_TEMPLATE_ID) ttn ON l.LABEL_ID=ttn.LABEL_ID " // -- 46
+                + "LEFT JOIN vw_tree_template tt2 ON ttn.TREE_TEMPLATE_ID=tt2.TREE_TEMPLATE_ID "
                 + "LEFT JOIN (SELECT ft.TREE_ID, ft.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_forecast_tree ft LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) ft ON ft.LABEL_ID=l.LABEL_ID " // -- 47
-                + "LEFT JOIN (SELECT ftn.NODE_ID, ftn.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_forecast_tree_node ftn LEFT JOIN rm_forecast_tree ft ON ftn.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) ftn ON ftn.LABEL_ID=l.LABEL_ID " // -- 48
-                + "LEFT JOIN (SELECT s.SCENARIO_ID, s.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_scenario s LEFT JOIN rm_forecast_tree ft ON s.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) s2 ON l.LABEL_ID=s2.LABEL_ID " // -- 49
+                + "LEFT JOIN (SELECT ftn.NODE_ID, ftn.TREE_ID, ftn.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_forecast_tree_node ftn LEFT JOIN rm_forecast_tree ft ON ftn.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) ftn ON ftn.LABEL_ID=l.LABEL_ID " // -- 48
+                + "LEFT JOIN vw_forecast_tree ft2 ON ftn.TREE_ID=ft2.TREE_ID "
+                + "LEFT JOIN (SELECT s.SCENARIO_ID, s.TREE_ID, s.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_scenario s LEFT JOIN rm_forecast_tree ft ON s.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) s2 ON l.LABEL_ID=s2.LABEL_ID " // -- 49
+                + "LEFT JOIN vw_forecast_tree ft3 ON s2.TREE_ID=ft3.TREE_ID "
                 + "LEFT JOIN (SELECT dpu.PROGRAM_PLANNING_UNIT_ID, dpu.OTHER_LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_dataset_planning_unit dpu LEFT JOIN rm_program p ON dpu.PROGRAM_ID=p.PROGRAM_ID) dpu ON dpu.OTHER_LABEL_ID=l.LABEL_ID " // -- 50
-                + "LEFT JOIN ap_extrapolation_method em ON em.LABEL_ID=l.LABEL_ID "
-                + "LEFT JOIN (SELECT ftl.TREE_LEVEL_ID, ftl.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_forecast_tree_level ftl LEFT JOIN rm_forecast_tree ft ON ftl.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) ftl ON ftl.LABEL_ID=l.LABEL_ID "
-                + ""
+                + "LEFT JOIN ap_extrapolation_method em ON em.LABEL_ID=l.LABEL_ID " // 52
+                + "LEFT JOIN (SELECT ftl.TREE_LEVEL_ID, ftl.TREE_ID, ftl.LABEL_ID, p.REALM_ID, p.PROGRAM_ID FROM rm_forecast_tree_level ftl LEFT JOIN rm_forecast_tree ft ON ftl.TREE_ID=ft.TREE_ID LEFT JOIN rm_program p ON ft.PROGRAM_ID=p.PROGRAM_ID) ftl ON ftl.LABEL_ID=l.LABEL_ID " // 53
+                + "LEFT JOIN vw_forecast_tree ft4 ON ftl.TREE_ID=ft4.TREE_ID "
+                + "LEFT JOIN (SELECT ttl.TREE_TEMPLATE_LEVEL_ID, ttl.TREE_TEMPLATE_ID, ttl.LABEL_ID, tt.REALM_ID FROM rm_tree_template_level ttl LEFT JOIN rm_tree_template tt ON ttl.TREE_TEMPLATE_ID=tt.TREE_TEMPLATE_ID) ttl ON ttl.LABEL_ID=l.LABEL_ID " // 54
+                + "LEFT JOIN vw_tree_template tt3 ON ttl.TREE_TEMPLATE_ID=tt3.TREE_TEMPLATE_ID "
                 + ") AS l2 "
                 + "LEFT JOIN vw_program p ON l2.PROGRAM_ID=p.PROGRAM_ID "
                 + "WHERE l2.ID IS NOT NULL AND l2.LABEL_FOR IS NOT NULL ");
