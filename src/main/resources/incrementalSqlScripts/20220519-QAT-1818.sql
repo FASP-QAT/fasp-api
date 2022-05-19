@@ -33,9 +33,9 @@ SELECT
 
 
 INSERT INTO ap_label_source values (null, 'rm_tree_template_level');
-INSERT INTO ap_label values (null, 'Level 0' , null, null, null, @curUser, @dt, @curUser, @dt, 54);
+INSERT INTO ap_label values (null, 'Level 0' , null, null, null, 1, now(), 1, now(), 54);
 SELECT LAST_INSERT_ID() INTO @labelId;
 insert into rm_tree_template_level values (null, 1, 0, @labelId, 91);
-INSERT INTO ap_label values (null, 'Level 1' , null, null, null, @curUser, @dt, @curUser, @dt, 54);
+INSERT INTO ap_label values (null, 'Level 1' , null, null, null, 1, now(), 1, now(), 54);
 SELECT LAST_INSERT_ID() INTO @labelId;
 insert into rm_tree_template_level values (null, 1, 1, @labelId, 91);
