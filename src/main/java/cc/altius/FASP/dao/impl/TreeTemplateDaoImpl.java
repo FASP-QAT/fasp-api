@@ -235,23 +235,6 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("nodeDataId", nodeDataId);
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
-                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
-                        nodeParams.clear();
-                        nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        nodeParams.put("START_DATE", ndm.getStartDateNo());
-                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
-                        nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
-                        nodeParams.put("DATA_VALUE", ndm.getDataValue());
-                        nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
-                        nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
-                        nodeParams.put("NOTES", ndm.getNotes());
-                        nodeParams.put("CREATED_BY", curUser.getUserId());
-                        nodeParams.put("CREATED_DATE", curDate);
-                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
-                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
-                        nodeParams.put("ACTIVE", 1);
-                        nidm.execute(nodeParams);
-                    }
                     for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
@@ -264,6 +247,32 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
                         nido.execute(nodeParams);
+                    }
+                }
+            }
+        }
+        
+        for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
+            Map<String, Object> nodeParams = new HashMap<>();
+            if (n.getPayload().getNodeDataMap().get(0) != null) {
+                TreeNodeData tnd = n.getPayload().getNodeDataMap().get(0).get(0);
+                if (tnd != null) {
+                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                        nodeParams.clear();
+                        nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                        nodeParams.put("START_DATE", ndm.getStartDateNo());
+                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
+                        nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
+                        nodeParams.put("DATA_VALUE", ndm.getDataValue());
+                        nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
+                        nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
+                        nodeParams.put("NOTES", ndm.getNotes());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        nodeParams.put("ACTIVE", 1);
+                        nidm.execute(nodeParams);
                     }
                 }
             }
@@ -400,9 +409,30 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("nodeDataId", nodeDataId);
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
-                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                    for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
+                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
+                        nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
+                        nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        nodeParams.put("ACTIVE", 1);
+                        nido.execute(nodeParams);
+                    }
+                }
+            }
+        }
+        for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
+            Map<String, Object> nodeParams = new HashMap<>();
+            if (n.getPayload().getNodeDataMap().get(0) != null) {
+                TreeNodeData tnd = n.getPayload().getNodeDataMap().get(0).get(0);
+                if (tnd != null) {
+                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                        nodeParams.clear();
+                        nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
                         nodeParams.put("START_DATE", ndm.getStartDateNo());
                         nodeParams.put("STOP_DATE", ndm.getStopDateNo());
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
@@ -416,19 +446,6 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
                         nidm.execute(nodeParams);
-                    }
-                    for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
-                        nodeParams.clear();
-                        nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
-                        nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
-                        nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
-                        nodeParams.put("CREATED_BY", curUser.getUserId());
-                        nodeParams.put("CREATED_DATE", curDate);
-                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
-                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
-                        nodeParams.put("ACTIVE", 1);
-                        nido.execute(nodeParams);
                     }
                 }
             }
