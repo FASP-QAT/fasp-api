@@ -22,6 +22,10 @@ public class DatabaseTranslationsDTORowMapper implements RowMapper<DatabaseTrans
         DatabaseTranslationsDTO l = new DatabaseTranslationsDTO();
         l.setLabelFor(rs.getString("LABEL_FOR"));
         l.setLabel(new LabelRowMapper().mapRow(rs, i));
+        l.setRelatedTo(new LabelRowMapper("RELATED_TO_").mapRow(rs, i));
+        if (l.getRelatedTo().getLabelId()==0) {
+            l.setRelatedTo(null);
+        }
         return l;
     }
 
