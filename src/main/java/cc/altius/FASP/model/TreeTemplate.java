@@ -33,6 +33,7 @@ public class TreeTemplate extends BaseModel implements Serializable {
 
     public TreeTemplate(int treeTemplateId) {
         this.treeTemplateId = treeTemplateId;
+        this.levelList = new LinkedList<>();
     }
 
     public int getTreeTemplateId() {
