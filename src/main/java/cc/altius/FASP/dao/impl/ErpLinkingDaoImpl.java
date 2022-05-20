@@ -14,7 +14,9 @@ import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
@@ -28,6 +30,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.ProgramService;
@@ -1941,4 +1944,44 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper());
     }
+
+    @Override
+    public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(""
+                + "SELECT "
+                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
+                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
+                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "    e.PRICE, e.SHIPPING_COST, "
+                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR` "
+                + "FROM rm_erp_order_consolidated e "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu on left(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
+                + "LEFT JOIN rm_program_planning_unit ppu on ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID in (SELECT p3.PROGRAM_ID FROM rm_program p2 LEFT JOIN rm_program p3 ON p3.REALM_COUNTRY_ID=p2.REALM_COUNTRY_ID WHERE p2.PROGRAM_ID=:shipmentProgramId) "
+                + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_planning_unit pu2 ON pu2.PLANNING_UNIT_ID=:shipmentPlanningUnitId "
+                + "LEFT JOIN rm_forecasting_unit fu2 ON pu2.FORECASTING_UNIT_ID=fu2.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
+                + "WHERE "
+                + "    (e.RO_NO = :roNo OR :roNo='') " 
+                + "    AND (papu.PLANNING_UNIT_ID = :filterPlanningUnitId OR :filterPlanningUnitId = '')"
+                + "    AND e.ACTIVE "
+                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) "
+                + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
+                + "    AND fu2.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID "
+                + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
+        Map<String, Object> params = new HashMap<>();
+        params.put("versionId", input.getVersionId());
+        params.put("shipmentProgramId", input.getProgramId());
+        params.put("shipmentPlanningUnitId", input.getShipmentPlanningUnitId());
+        params.put("roNo", input.getRoNo());
+        params.put("filterPlanningUnitId", input.getFilterPlanningUnitId());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+    }
+
 }

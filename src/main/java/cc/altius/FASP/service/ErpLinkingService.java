@@ -11,7 +11,9 @@ import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
@@ -59,4 +61,6 @@ public interface ErpLinkingService {
     public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser);
     
     public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser);
+    
+    public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInput input, CustomUserDetails curUser);
 }

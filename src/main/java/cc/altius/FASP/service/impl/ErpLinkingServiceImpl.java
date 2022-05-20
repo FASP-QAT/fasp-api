@@ -9,10 +9,11 @@ import cc.altius.FASP.dao.ErpLinkingDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
-import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
@@ -21,7 +22,6 @@ import cc.altius.FASP.service.ProgramService;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**
@@ -159,6 +159,12 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     @Override
     public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser) {
         return this.erpLinkingDao.autoCompletePu(planningUnitId, puName, curUser);
+    }
+
+    @Override
+    public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
+        this.programService.getProgramById(input.getProgramId(), curUser);
+        return this.erpLinkingDao.getNotLinkedErpShipments(input, curUser);
     }
 
 }

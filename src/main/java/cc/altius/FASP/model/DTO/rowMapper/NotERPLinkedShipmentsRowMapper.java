@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.DTO.rowMapper;
 
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -22,7 +21,6 @@ public class NotERPLinkedShipmentsRowMapper implements RowMapper<ManualTaggingDT
     @Override
     public ManualTaggingDTO mapRow(ResultSet rs, int rows) throws SQLException {
         ManualTaggingDTO m = new ManualTaggingDTO();
-        m.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         m.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
         m.setErpStatus(rs.getString("STATUS"));
         m.setShipmentQty(rs.getLong("QTY"));
