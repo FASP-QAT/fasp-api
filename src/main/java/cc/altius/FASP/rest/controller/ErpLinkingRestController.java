@@ -375,6 +375,16 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     *
+     * @param input programId -- Program Id of the Shipment that you clicked on
+     * to open the popup | shipmentPlanningUnitId -- Planning Unit Id of the
+     * Shipment that you clicked on to open the popup | roNo -- RO no that you
+     * selected from the autocomplete | filterPlanningUnitId -- Planning Unit Id
+     * that you selected from the autocomplete
+     * @param auth
+     * @return
+     */
     @PostMapping("/api/erpLinking/notLinkedErpShipments/")
     public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInput input, Authentication auth) {
         try {
