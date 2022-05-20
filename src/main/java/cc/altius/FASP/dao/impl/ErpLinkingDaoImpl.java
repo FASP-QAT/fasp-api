@@ -28,10 +28,13 @@ import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.erpLinking.ErpShipmentsOutput;
 import cc.altius.FASP.model.erpLinking.QatErpLinkedShipmentsInput;
 import cc.altius.FASP.model.erpLinking.rowMapper.ErpShipmentsOutputRowMapper;
+import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -1938,21 +1941,13 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 
     // ################################## New functions ###########################################
     @Override
-    public List<ErpShipmentsOutput> getQatErpLinkedShipments(QatErpLinkedShipmentsInput input, CustomUserDetails curUser) {
-        // QAT Shipments that are Linked in the Latest version of the ProgramId provided for the Procurement Id and PlanningUnit filter list
-        String sql = "";
-        List<ErpShipmentsOutput> list = null;
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+    public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("planningUnitId", input.getPlanningUnitIdsString());
-        params.put("curDate", curDate);
-        params.put("programId", input.getProgramId());
-        params.put("procurementAgentId", input.getProcurementAgentId());
-        sql = "CALL getQatErpLinkedShipments(:procurementAgentId, :programId, :planningUnitId, -1)";
-        list = this.namedParameterJdbcTemplate.query(sql, params, new ErpShipmentsOutputRowMapper());
-        logger.info((LogUtils.buildStringForLog(sql, params)));
-        logger.info("ERP Linking : tab 1 list ---" + list);
-        return list;
+        params.put("planningUnitIds", ArrayUtils.convertArrayToString(planningUnitIds));
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("procurementAgentId", 1); // HardCoded as PSM since we are only matching with ARTMS orders
+        String sql = "CALL getNotLinkedQatShipments(:programId, :versionId, :procurementAgentId, :planningUnitIds)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListResultSetExtractor());
     }
-
 }

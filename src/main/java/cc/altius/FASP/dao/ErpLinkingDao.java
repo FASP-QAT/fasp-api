@@ -12,8 +12,7 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.erpLinking.ErpShipmentsOutput;
-import cc.altius.FASP.model.erpLinking.QatErpLinkedShipmentsInput;
+import cc.altius.FASP.model.Shipment;
 import java.util.List;
 
 /**
@@ -61,7 +60,7 @@ public interface ErpLinkingDao {
     public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
 
     public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
-    
+
     // ################################## New functions ###########################################
-    public List<ErpShipmentsOutput> getQatErpLinkedShipments(QatErpLinkedShipmentsInput input, CustomUserDetails curUser);
+    public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
 }

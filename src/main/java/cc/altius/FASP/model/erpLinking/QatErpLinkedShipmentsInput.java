@@ -14,8 +14,8 @@ import java.io.Serializable;
 public class QatErpLinkedShipmentsInput implements Serializable {
 
     private int programId;
+    private int versionId;
     private String[] planningUnitIdList;
-    private int procurementAgentId;
 
     public int getProgramId() {
         return programId;
@@ -25,20 +25,20 @@ public class QatErpLinkedShipmentsInput implements Serializable {
         this.programId = programId;
     }
 
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
+    }
+
     public String[] getPlanningUnitIdList() {
         return planningUnitIdList;
     }
 
     public void setPlanningUnitIdList(String[] planningUnitIdList) {
         this.planningUnitIdList = planningUnitIdList;
-    }
-
-    public int getProcurementAgentId() {
-        return procurementAgentId;
-    }
-
-    public void setProcurementAgentId(int procurementAgentId) {
-        this.procurementAgentId = procurementAgentId;
     }
 
     public String getPlanningUnitIdsString() {

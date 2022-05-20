@@ -13,12 +13,14 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.erpLinking.ErpShipmentsOutput;
-import cc.altius.FASP.model.erpLinking.QatErpLinkedShipmentsInput;
+import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
+import cc.altius.FASP.service.ProgramService;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +29,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ErpLinkingServiceImpl implements ErpLinkingService {
+
+    @Autowired
+    private AclService aclService;
+    @Autowired
+    private ProgramService programService;
 
     @Autowired
     private ErpLinkingDao erpLinkingDao;
@@ -142,8 +149,9 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
 
     // ################################## New functions ###########################################
     @Override
-    public List<ErpShipmentsOutput> getQatErpLinkedShipments(QatErpLinkedShipmentsInput input, CustomUserDetails curUser) {
-        return this.erpLinkingDao.getQatErpLinkedShipments(input, curUser);
+    public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
+        this.programService.getProgramById(programId, curUser);
+        return this.erpLinkingDao.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
     }
 
 }

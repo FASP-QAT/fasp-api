@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  *
@@ -299,20 +300,31 @@ public class ErpLinkingRestController {
     }
 
     // ################################## New functions ###########################################
-    @PostMapping("/qatErpLinkedShipments")
-    public ResponseEntity getQatErpLinkedShipments(@RequestBody QatErpLinkedShipmentsInput input, Authentication auth) {
+    /**
+     * This function is called when the user clicks on Tab1 option in the
+     * Linking screen. Current data is taken from the local but this API serves
+     * historical data.
+     *
+     * @param programId -- ProgramId that you want to pull the Shipments for
+     * @param versionId -- VersionId that you want to pull the Shipments for
+     * @param planningUnitIds -- List of PlanningUnits that you want to pull the
+     * Shipments for
+     * @param auth
+     * @return -- List of Shipment object that matches the criteria
+     */
+    @PostMapping("/api/erpLinking/notLinkedQatShipments/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getNotLinkedQatShipments(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @RequestBody String[] planningUnitIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getQatErpLinkedShipments(input, curUser), HttpStatus.OK);
-//            return new ResponseEntity("", HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("ERP Linking : Error while trying to list Shipment list for Manual Tagging 1---", e);
+            logger.error("ERP Linking : Error while trying to list Shipment list Not Linked Qat Shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("ERP Linking : Error while trying to list Shipment list for Manual Tagging 2---", e);
+            logger.error("ERP Linking : Error while trying to list Shipment list Not Linked Qat Shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("ERP Linking : Error while trying to list Shipment list for Manual Tagging 3---", e);
+            logger.error("ERP Linking : Error while trying to list Shipment list Not Linked Qat Shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
