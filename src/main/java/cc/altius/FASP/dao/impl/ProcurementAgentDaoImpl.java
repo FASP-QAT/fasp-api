@@ -167,6 +167,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper());
     }
 
+    // TODO -- Delete this after checking
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(" SELECT pu.PLANNING_UNIT_ID, pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_PR, pul.LABEL_SP,papu.SKU_CODE "
@@ -185,7 +186,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitTracerCategoryRowMapper());
     }
-
+    
     @Override
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_planning_unit");

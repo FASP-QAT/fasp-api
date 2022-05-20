@@ -13,6 +13,7 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
 /**
@@ -39,8 +40,6 @@ public interface ErpLinkingDao {
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
-
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
     public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
@@ -63,4 +62,8 @@ public interface ErpLinkingDao {
 
     // ################################## New functions ###########################################
     public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
+
+    public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser);
 }

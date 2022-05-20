@@ -14,6 +14,7 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.ProgramService;
@@ -84,11 +85,6 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
-        return this.erpLinkingDao.getErpOrderSearchData(term, programId, planningUnitId, linkingType);
-    }
-
-    @Override
     public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
         return this.erpLinkingDao.getShipmentListForManualTagging(manualTaggingDTO, curUser);
     }
@@ -152,6 +148,17 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
         this.programService.getProgramById(programId, curUser);
         return this.erpLinkingDao.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
+    }
+
+    @Override
+    public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser) {
+        this.programService.getProgramById(programId, curUser);
+        return this.erpLinkingDao.autoCompleteOrder(roPo, programId, planningUnitId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser) {
+        return this.erpLinkingDao.autoCompletePu(planningUnitId, puName, curUser);
     }
 
 }

@@ -329,22 +329,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/getPlanningUnitByTracerCategory/planningUnitId/{planningUnitId}/{procurementAgentId}/{term}")
-    public ResponseEntity getPlanningUnitByTracerCategory(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("procurementAgentId") int procurementAgentId, @PathVariable("term") String term, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    
 
     @JsonView(Views.ReportView.class)
     @PostMapping("/planningUnit/tracerCategory/program/")

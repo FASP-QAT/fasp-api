@@ -9,12 +9,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.erpLinking.QatErpLinkedShipmentsInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.UserService;
+import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  *
@@ -190,23 +189,6 @@ public class ErpLinkingRestController {
         }
     }
 
-    @GetMapping("/searchErpOrderData/{term}/{programId}/{erpPlanningUnitId}/{linkingType}")
-    public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getErpOrderSearchData(term, programId, planningUnitId, linkingType), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/orderDetails/{roNoOrderNo}/{programId}/{erpPlanningUnitId}/{linkingType}/{parentShipmentId}")
     public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("roNoOrderNo") String roNoOrderNo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, @PathVariable("parentShipmentId") int parentShipmentId, Authentication auth) {
         try {
@@ -325,6 +307,69 @@ public class ErpLinkingRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("ERP Linking : Error while trying to list Shipment list Not Linked Qat Shipments", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * The autocomplete runs only if the search term provided is more than 4
+     * characters
+     *
+     * @param roPo -- PO Number or RO Number that you want to search for
+     * @param programId -- Program Id that you want to filter for
+     * @param planningUnitId -- Planning Unit Id in case you want to filter. 0
+     * if you do not want to filter on that
+     * @param auth
+     * @return
+     */
+    @GetMapping("/api/erpLinking/autoCompleteOrder/{roPo}/{programId}/{erpPlanningUnitId}")
+    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            if (roPo != null && roPo.length() >= 4) {
+                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, planningUnitId, curUser), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new LinkedList<String>(), HttpStatus.OK);
+            }
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * The autocomplete runs only if the search term provided is more than 4
+     * characters
+     *
+     * @param planningUnitId -- planningUnit of the Selected Shipment to match
+     * the Tracer Category against
+     * @param puName -- The puName or the SKUCode that we need to search against
+     * @param auth
+     * @return
+     */
+    @GetMapping("/api/erpLinking/autoCompletePu/{planningUnitId}/{puName}")
+    public ResponseEntity autoCompletePu(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("puName") String puName, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            if (puName != null && puName.length() > 4) {
+                return new ResponseEntity(this.erpLinkingService.autoCompletePu(planningUnitId, puName, curUser), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new LinkedList<>(), HttpStatus.OK);
+            }
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error linking : Error while trying to autoCompletePu", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error linking : Error while trying to autoCompletePu", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error linking : Error while trying to autoCompletePu", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

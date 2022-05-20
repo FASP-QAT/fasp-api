@@ -10,7 +10,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
-import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -20,7 +19,6 @@ import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.ErpOrderAutocompleteDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
@@ -29,13 +27,11 @@ import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Shipment;
-import cc.altius.FASP.model.erpLinking.ErpShipmentsOutput;
-import cc.altius.FASP.model.erpLinking.QatErpLinkedShipmentsInput;
-import cc.altius.FASP.model.erpLinking.rowMapper.ErpShipmentsOutputRowMapper;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -1680,55 +1676,6 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
-        StringBuilder sb = new StringBuilder();
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("planningUnitId", planningUnitId);
-        params.put("", sb);
-
-        sb.append("(SELECT e.`ERP_ORDER_ID`,e.`RO_NO` AS LABEL FROM rm_erp_order e "
-                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
-                + "FROM rm_realm_country rc "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId "
-                + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + "WHERE  p.`REALM_COUNTRY_ID` IS NOT NULL AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) AND e.`RO_NO` LIKE '%").append(term).append("%' ");
-        if (planningUnitId != 0) {
-            sb.append(" AND papu.`PLANNING_UNIT_ID`=:planningUnitId ");
-        }
-        if (linkingType == 1) {
-            sb.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
-        }
-        sb.append(" GROUP BY e.`RO_NO` ");
-        sb.append(" ) ");
-        sb.append(" UNION ");
-        sb.append("(SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
-                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
-                + "FROM rm_realm_country rc "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId "
-                + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + "WHERE p.`REALM_COUNTRY_ID` IS NOT NULL AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) AND  e.`ORDER_NO` LIKE '%").append(term).append("%' ");
-        if (planningUnitId != 0) {
-            sb.append(" AND papu.`PLANNING_UNIT_ID`=:planningUnitId ");
-        }
-
-        if (linkingType == 1) {
-            sb.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
-        }
-        sb.append(" GROUP BY e.`ORDER_NO` ");
-        sb.append(" ) ");
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ErpOrderAutocompleteDTORowMapper());
-    }
-
-    @Override
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -1949,5 +1896,49 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("procurementAgentId", 1); // HardCoded as PSM since we are only matching with ARTMS orders
         String sql = "CALL getNotLinkedQatShipments(:programId, :versionId, :procurementAgentId, :planningUnitIds)";
         return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListResultSetExtractor());
+    }
+
+    @Override
+    public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT e.`RO_NO`"
+                + "FROM rm_erp_order_consolidated e "
+                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=:programId "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
+                + "WHERE  "
+                + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
+                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) "
+                + "    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') "
+                + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
+                + "    AND (:planningUnitId=0 OR papu.PLANNING_UNIT_ID=:planningUnitId) "
+                + "GROUP BY e.RO_NO");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+    }
+
+    @Override
+    public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(""
+                + "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_PR, pu.LABEL_SP, papu.SKU_CODE `CODE` "
+                + "FROM rm_procurement_agent_planning_unit papu  "
+                + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID` "
+                + "LEFT JOIN rm_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID` "
+                + "LEFT JOIN rm_planning_unit pu2 ON pu2.PLANNING_UNIT_ID=:planningUnitId "
+                + "LEFT JOIN rm_forecasting_unit fu2 ON pu2.FORECASTING_UNIT_ID=fu2.FORECASTING_UNIT_ID "
+                + "WHERE "
+                + "     papu.PROCUREMENT_AGENT_ID=1 "
+                + "     AND pu.`ACTIVE` "
+                + "     AND papu.`ACTIVE` "
+                + "     AND tc.`TRACER_CATEGORY_ID`=fu2.TRACER_CATEGORY_ID "
+                + "     AND (pu.`LABEL_EN` LIKE '%").append(puName).append("%' OR papu.`SKU_CODE` LIKE '%").append(puName).append("%')");
+        Map<String, Object> params = new HashMap<>();
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper());
     }
 }
