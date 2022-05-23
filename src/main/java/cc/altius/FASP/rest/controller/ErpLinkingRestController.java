@@ -284,7 +284,6 @@ public class ErpLinkingRestController {
 // ############################################################################################    
 // ################################## New functions ###########################################
 // ############################################################################################
-    
     /**
      * This function is called when the user clicks on Tab1 option in the
      * Linking screen. Current data is taken from the local but this API serves
@@ -318,18 +317,22 @@ public class ErpLinkingRestController {
      * The autocomplete runs only if the search term provided is more than 4
      * characters
      *
-     * @param roPo -- PO Number or RO Number that you want to search for
+     * @param roPo -- PO Number or RO Number that you want to search for. 0 if
+     * you do not want to filter on this
      * @param programId -- Program Id that you want to filter for
      * @param planningUnitId -- Planning Unit Id in case you want to filter. 0
      * if you do not want to filter on that
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompleteOrder/{roPo}/{programId}/{erpPlanningUnitId}")
+    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}")
     public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
         try {
+            if (roPo.equals("0")) {
+                roPo = null;
+            }
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (roPo != null && roPo.length() >= 4) {
+            if (roPo == null || roPo.length() >= 4) {
                 return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, planningUnitId, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<String>(), HttpStatus.OK);
@@ -360,7 +363,7 @@ public class ErpLinkingRestController {
     public ResponseEntity autoCompletePu(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("puName") String puName, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (puName != null && puName.length() > 4) {
+            if (puName != null && puName.length() >= 4) {
                 return new ResponseEntity(this.erpLinkingService.autoCompletePu(planningUnitId, puName, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<>(), HttpStatus.OK);
@@ -393,24 +396,23 @@ public class ErpLinkingRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            logger.error("Error linking : Error while trying to get list of not linked ERP shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            logger.error("Error linking : Error while trying to get list of not linked ERP shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            logger.error("Error linking : Error while trying to get list of not linked ERP shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      *
-     * @param input programId -- Program Id of the Shipment that you clicked on
-     * to open the popup | shipmentPlanningUnitId -- Planning Unit Id of the
-     * Shipment that you clicked on to open the popup | roNo -- RO no that you
-     * selected from the autocomplete | filterPlanningUnitId -- Planning Unit Id
-     * that you selected from the autocomplete
+     * @param input realmCountryId -- that you want to see the ERP shipments for
+     * productCategorySortOrder -- Sort order of the Product Category that you
+     * want to filter on planningUnitIds -- Array of PlanningUnitIds that you
+     * want to filter the results on
      * @param auth
      * @return
      */
@@ -419,6 +421,34 @@ public class ErpLinkingRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error linking : Error while trying to get list of QAT Linked shipments", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error linking : Error while trying to get list of QAT Linked shipments", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error linking : Error while trying to get list of QAT Linked shipments", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     *
+     * @param programId -- Program Id that you want to see the linked Shipments
+     * for
+     * @param versionId -- Version Id that you want to see the linked Shipments
+     * for
+     * @param planningUnitIds -- List of Planning Units that the list is
+     * filtered on
+     * @param auth
+     * @return
+     */
+    @PostMapping("/api/erpLinking/linkedShipments/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getLinkedQatShipments(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @RequestBody String[] planningUnitIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to autoCompleteOrder", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

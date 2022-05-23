@@ -10,7 +10,7 @@ BEGIN
     IF @versionId = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
-    
+      
     SELECT 
         st.*, stbi.SHIPMENT_TRANS_BATCH_INFO_ID, stbi.BATCH_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.BATCH_NO, bi.AUTO_GENERATED, bi.EXPIRY_DATE, bi.CREATED_DATE `BATCH_CREATED_DATE`, stbi.BATCH_SHIPMENT_QTY `BATCH_SHIPMENT_QTY` 
     FROM (
@@ -54,7 +54,7 @@ BEGIN
         LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID 
         WHERE 
 			(@shipmentActive = FALSE OR st.ACTIVE) 
-            AND FIND_IN_SET(st.PLANNING_UNIT_ID, @planningUnitIds) 
+            AND (FIND_IN_SET(st.PLANNING_UNIT_ID, @planningUnitIds) OR @planningUnitIds='') 
             AND st.ERP_FLAG=0 
             AND st.ACCOUNT_FLAG 
             AND st.SHIPMENT_STATUS_ID IN (3,4,5,6,9,7)

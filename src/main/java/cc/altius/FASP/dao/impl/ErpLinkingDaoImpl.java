@@ -1900,6 +1900,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("versionId", versionId);
         params.put("procurementAgentId", 1); // HardCoded as PSM since we are only matching with ARTMS orders
         String sql = "CALL getNotLinkedQatShipments(:programId, :versionId, :procurementAgentId, :planningUnitIds)";
+        System.out.println(params);
+        System.out.println(sql);
         return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListResultSetExtractor());
     }
 
@@ -1915,9 +1917,12 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
-                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) "
-                + "    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') "
-                + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
+                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) ");
+        if (roPo != null) {
+            sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
+        }
+
+        sb.append("    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
                 + "    AND (:planningUnitId=0 OR papu.PLANNING_UNIT_ID=:planningUnitId) "
                 + "GROUP BY e.RO_NO");
         Map<String, Object> params = new HashMap<>();
@@ -1957,7 +1962,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
-                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR` "
+                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
+                + "    SL.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
                 + "FROM rm_erp_order_consolidated e "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
@@ -1972,7 +1978,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "WHERE "
                 + "    (e.RO_NO = :roNo OR :roNo='') "
                 + "    AND (papu.PLANNING_UNIT_ID = :filterPlanningUnitId OR :filterPlanningUnitId = 0)"
-                + "    AND e.ACTIVE "
+                + "    AND e.ACTIVE AND e.STATUS!='Cancelled' "
                 + "    AND IF(COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH, sm.SHIPMENT_STATUS_MAPPING_ID !=1, sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
                 + "    AND fu2.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID "
@@ -1997,30 +2003,62 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
-                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR` "
+                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
+                + "    SL.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
                 + "FROM rm_realm_country rc "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN rm_erp_order_consolidated e ON c.LABEL_EN=e.RECPIENT_COUNTRY "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,:planningUnitIds) OR :planningUnitIds='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
+                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE AND sl.VERSION_ID<=:versionId "
                 + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
                 + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
                 + "WHERE "
                 + "    rc.REALM_COUNTRY_ID=:realmCountryId "
-                + "    AND e.ACTIVE "
+                + "    AND e.ACTIVE AND e.STATUS!='Cancelled' "
                 + "    AND IF(COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH, sm.SHIPMENT_STATUS_MAPPING_ID!=2 , sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
                 + "    AND pu.PLANNING_UNIT_ID IS NOT NULL "
                 + "    AND pc.SORT_ORDER LIKE CONCAT(:pcSortOrder,'%')"
                 + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmCountryId", input.getRealmCountryId());
+        params.put("programID", input.getRealmCountryId());
         params.put("pcSortOrder", input.getProductCategorySortOrder());
         params.put("planningUnitIds", ArrayUtils.convertArrayToString(input.getPlanningUnitIds()));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+    }
+
+    @Override
+    public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
+                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
+                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "    e.PRICE, e.SHIPPING_COST, "
+                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
+                + "    sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
+                + "FROM rm_erp_order_consolidated e "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.PROCUREMENT_AGENT_ID=1 AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
+                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=:programId "
+                + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
+                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO AND sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
+                + "WHERE "
+                + "    ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL "
+                + "    AND (FIND_IN_SET(pu.PLANNING_UNIT_ID, :planningUnitIds) OR :planningUnitIds='') "
+                + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NOT NULL");
+        Map<String, Object> params = new HashMap<>(); 
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("planningUnitIds", ArrayUtils.convertArrayToString(planningUnitIds));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
     }
 

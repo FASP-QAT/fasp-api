@@ -174,4 +174,10 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
         return this.erpLinkingDao.getNotLinkedErpShipments(input, curUser);
     }
 
+    @Override
+    public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
+        this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.erpLinkingDao.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
+    }
+
 }

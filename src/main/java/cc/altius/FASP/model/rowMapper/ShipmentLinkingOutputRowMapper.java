@@ -40,6 +40,14 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
             so.setShippingCost(null);
         }
         so.setQatEquivalentShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SS_").mapRow(rs, rowNum)));
+        so.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            so.setParentShipmentId(null);
+        }
+        so.setChildShipmentId(rs.getInt("CHILD_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            so.setChildShipmentId(null);
+        }
         return so;
     }
 

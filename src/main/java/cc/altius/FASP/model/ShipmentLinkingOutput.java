@@ -36,6 +36,8 @@ public class ShipmentLinkingOutput implements Serializable {
     private Double price;
     private Double shippingCost;
     private SimpleObject qatEquivalentShipmentStatus;
+    private Integer parentShipmentId;
+    private Integer childShipmentId;
 
     public String getRoNo() {
         return roNo;
@@ -148,4 +150,23 @@ public class ShipmentLinkingOutput implements Serializable {
     public void setQatEquivalentShipmentStatus(SimpleObject qatEquivalentShipmentStatus) {
         this.qatEquivalentShipmentStatus = qatEquivalentShipmentStatus;
     }
+
+    public Integer getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(Integer parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
+    }
+
+    public Integer getChildShipmentId() {
+        return childShipmentId;
+    }
+
+    public void setChildShipmentId(Integer childShipmentId) {
+        this.childShipmentId = childShipmentId;
+    }
+    
+    
+    
 }
