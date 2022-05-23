@@ -9,7 +9,8 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
@@ -282,7 +283,10 @@ public class ErpLinkingRestController {
         }
     }
 
-    // ################################## New functions ###########################################
+// ############################################################################################    
+// ################################## New functions ###########################################
+// ############################################################################################
+    
     /**
      * This function is called when the user clicks on Tab1 option in the
      * Linking screen. Current data is taken from the local but this API serves
@@ -385,8 +389,35 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @PostMapping("/api/erpLinking/notLinkedErpShipments/")
-    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInput input, Authentication auth) {
+    @PostMapping("/api/erpLinking/notLinkedErpShipments/tab1")
+    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInputTab1 input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error linking : Error while trying to autoCompleteOrder", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     *
+     * @param input programId -- Program Id of the Shipment that you clicked on
+     * to open the popup | shipmentPlanningUnitId -- Planning Unit Id of the
+     * Shipment that you clicked on to open the popup | roNo -- RO no that you
+     * selected from the autocomplete | filterPlanningUnitId -- Planning Unit Id
+     * that you selected from the autocomplete
+     * @param auth
+     * @return
+     */
+    @PostMapping("/api/erpLinking/notLinkedErpShipments/tab3")
+    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInputTab3 input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);

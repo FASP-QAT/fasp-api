@@ -9,7 +9,7 @@ package cc.altius.FASP.model;
  *
  * @author akil
  */
-public class NotLinkedErpShipmentsInput {
+public class NotLinkedErpShipmentsInputTab1 {
 
     private int programId;
     private int versionId;
@@ -55,6 +55,11 @@ public class NotLinkedErpShipmentsInput {
 
     public void setFilterPlanningUnitId(int filterPlanningUnitId) {
         this.filterPlanningUnitId = filterPlanningUnitId;
+    }
+
+    @Override
+    public String toString() {
+        return "NotLinkedErpShipmentsInputTab1{" + "programId=" + programId + ", versionId=" + versionId + ", shipmentPlanningUnitId=" + shipmentPlanningUnitId + ", roNo=" + roNo + ", filterPlanningUnitId=" + filterPlanningUnitId + '}';
     }
 
 }
