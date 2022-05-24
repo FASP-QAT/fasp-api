@@ -21,6 +21,5 @@ public class GlobalConstants {
     public static final int NODE_TYPE_PERCENTAGE = 3;
     public static final int NODE_TYPE_FU = 4;
     public static final int NODE_TYPE_PU = 5;
-    public static final int NODE_TYPE_EXTRAPOLATION = 6;
         
 }
