@@ -23,8 +23,8 @@ VIEW `vw_extrapolation_method` AS
         (`ap_extrapolation_method` `em`
         LEFT JOIN `ap_label` `l` ON ((`em`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
-UPDATE ap_extrapolation_method em set em.SORT_ORDER=1 where em.EXTRAPOLATION_METHOD_ID=7;
-UPDATE ap_extrapolation_method em set em.SORT_ORDER=2 where em.EXTRAPOLATION_METHOD_ID=6;
-UPDATE ap_extrapolation_method em set em.SORT_ORDER=3 where em.EXTRAPOLATION_METHOD_ID=5;
-UPDATE ap_extrapolation_method em set em.SORT_ORDER=4 where em.EXTRAPOLATION_METHOD_ID=2;
-UPDATE ap_extrapolation_method em set em.SORT_ORDER=5 where em.EXTRAPOLATION_METHOD_ID=4;
+UPDATE ap_extrapolation_method em set em.SORT_ORDER=1 where em.EXTRAPOLATION_METHOD_ID=7; # moving averages
+UPDATE ap_extrapolation_method em set em.SORT_ORDER=2 where em.EXTRAPOLATION_METHOD_ID=6; # semi-averages
+UPDATE ap_extrapolation_method em set em.SORT_ORDER=3 where em.EXTRAPOLATION_METHOD_ID=5; # regression
+UPDATE ap_extrapolation_method em set em.SORT_ORDER=5 where em.EXTRAPOLATION_METHOD_ID=2; # TES
+UPDATE ap_extrapolation_method em set em.SORT_ORDER=4 where em.EXTRAPOLATION_METHOD_ID=4; # ARIMA
