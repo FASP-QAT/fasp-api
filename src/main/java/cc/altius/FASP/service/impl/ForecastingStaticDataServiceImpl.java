@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.dao.ForecastingStaticDataDao;
+import cc.altius.FASP.model.ExtrapolationMethod;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.NodeTypeSync;
 import cc.altius.FASP.service.ForecastingStaticDataService;
@@ -56,7 +57,7 @@ public class ForecastingStaticDataServiceImpl implements ForecastingStaticDataSe
     }
 
     @Override
-    public List<SimpleBaseModel> getExtrapolationMethodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<ExtrapolationMethod> getExtrapolationMethodListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.forecastingStaticDataDao.getExtrapolationMethodListForSync(lastSyncDate, curUser);
     }
 
