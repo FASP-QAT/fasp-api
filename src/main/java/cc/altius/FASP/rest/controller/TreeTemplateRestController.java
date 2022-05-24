@@ -6,20 +6,13 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
-import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
