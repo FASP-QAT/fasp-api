@@ -28,3 +28,9 @@ UPDATE ap_extrapolation_method em set em.SORT_ORDER=2 where em.EXTRAPOLATION_MET
 UPDATE ap_extrapolation_method em set em.SORT_ORDER=3 where em.EXTRAPOLATION_METHOD_ID=5;
 UPDATE ap_extrapolation_method em set em.SORT_ORDER=4 where em.EXTRAPOLATION_METHOD_ID=2;
 UPDATE ap_extrapolation_method em set em.SORT_ORDER=5 where em.EXTRAPOLATION_METHOD_ID=4;
+
+UPDATE `fasp`.`ap_extrapolation_method` SET `LAST_MODIFIED_DATE`=NOW() WHERE `EXTRAPOLATION_METHOD_ID`='2'; 
+UPDATE `fasp`.`ap_extrapolation_method` SET `LAST_MODIFIED_DATE`=NOW() WHERE `EXTRAPOLATION_METHOD_ID`='4'; 
+UPDATE `fasp`.`ap_extrapolation_method` SET `LAST_MODIFIED_DATE`=NOW() WHERE `EXTRAPOLATION_METHOD_ID`='5'; 
+UPDATE `fasp`.`ap_extrapolation_method` SET `LAST_MODIFIED_DATE`=NOW() WHERE `EXTRAPOLATION_METHOD_ID`='6'; 
+UPDATE `fasp`.`ap_extrapolation_method` SET `LAST_MODIFIED_DATE`=NOW() WHERE `EXTRAPOLATION_METHOD_ID`='7'; 
