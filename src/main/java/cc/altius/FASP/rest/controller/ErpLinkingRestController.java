@@ -314,8 +314,7 @@ public class ErpLinkingRestController {
     }
 
     /**
-     * The autocomplete runs only if the search term provided is more than 4
-     * characters
+     * The autocomplete runs only if the roPo provided is 4 or more characters
      *
      * @param roPo -- PO Number or RO Number that you want to search for. 0 if
      * you do not want to filter on this
