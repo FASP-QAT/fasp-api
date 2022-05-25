@@ -1995,6 +1995,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     //TODO -- Check the 6 months condition for status
     @Override
     public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInputTab3 input, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryId", input.getRealmCountryId());
+        params.put("planningUnitIds", ArrayUtils.convertArrayToString(input.getPlanningUnitIds()));
         StringBuilder sqlStringBuilder = new StringBuilder(""
                 + "SELECT "
                 + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
@@ -2004,14 +2007,14 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
                 + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
-                + "    SL.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
+                + "    sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
                 + "FROM rm_realm_country rc "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN rm_erp_order_consolidated e ON c.LABEL_EN=e.RECPIENT_COUNTRY "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,:planningUnitIds) OR :planningUnitIds='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE AND sl.VERSION_ID<=:versionId "
+                + "LEFT JOIN rm_erp_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
                 + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
@@ -2021,13 +2024,23 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    AND e.ACTIVE AND e.STATUS!='Cancelled' "
                 + "    AND IF(COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH, sm.SHIPMENT_STATUS_MAPPING_ID!=2 , sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NULL "
-                + "    AND pu.PLANNING_UNIT_ID IS NOT NULL "
-                + "    AND pc.SORT_ORDER LIKE CONCAT(:pcSortOrder,'%')"
-                + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
-        Map<String, Object> params = new HashMap<>();
-        params.put("programID", input.getRealmCountryId());
-        params.put("pcSortOrder", input.getProductCategorySortOrder());
-        params.put("planningUnitIds", ArrayUtils.convertArrayToString(input.getPlanningUnitIds()));
+                + "    AND pu.PLANNING_UNIT_ID IS NOT NULL ");
+        int count = 1;
+        for (String pcSortOrder : input.getProductCategorySortOrders()) {
+            if (count == 1) {
+                sqlStringBuilder.append("AND (");
+                sqlStringBuilder.append("pc.SORT_ORDER LIKE CONCAT(:pcSortOrder").append(count).append(", '%')");
+            }
+            if (count > 1) {
+                sqlStringBuilder.append(" OR pc.SORT_ORDER LIKE CONCAT(:pcSortOrder").append(count).append(", '%')");
+            }
+            params.put("pcSortOrder" + count, pcSortOrder);
+            count++;
+        }
+        if (count > 1) {
+            sqlStringBuilder.append(") ");
+        }
+        sqlStringBuilder.append("ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
     }
 
@@ -2055,7 +2068,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL "
                 + "    AND (FIND_IN_SET(pu.PLANNING_UNIT_ID, :planningUnitIds) OR :planningUnitIds='') "
                 + "    AND sl.ERP_SHIPMENT_LINKING_ID IS NOT NULL");
-        Map<String, Object> params = new HashMap<>(); 
+        Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("planningUnitIds", ArrayUtils.convertArrayToString(planningUnitIds));

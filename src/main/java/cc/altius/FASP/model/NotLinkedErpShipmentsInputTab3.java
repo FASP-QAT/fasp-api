@@ -14,7 +14,7 @@ import cc.altius.FASP.utils.ArrayUtils;
 public class NotLinkedErpShipmentsInputTab3 {
 
     private int realmCountryId;
-    private String productCategorySortOrder;
+    private String[] productCategorySortOrders;
     private String[] planningUnitIds;
 
     public int getRealmCountryId() {
@@ -25,12 +25,12 @@ public class NotLinkedErpShipmentsInputTab3 {
         this.realmCountryId = realmCountryId;
     }
 
-    public String getProductCategorySortOrder() {
-        return productCategorySortOrder;
+    public String[] getProductCategorySortOrders() {
+        return productCategorySortOrders;
     }
 
-    public void setProductCategorySortOrder(String productCategorySortOrder) {
-        this.productCategorySortOrder = productCategorySortOrder;
+    public void setProductCategorySortOrder(String[] productCategorySortOrders) {
+        this.productCategorySortOrders = productCategorySortOrders;
     }
 
     public String[] getPlanningUnitIds() {
@@ -43,7 +43,7 @@ public class NotLinkedErpShipmentsInputTab3 {
 
     @Override
     public String toString() {
-        return "NotLinkedErpShipmentsInputTab3{" + "realmCountryId=" + realmCountryId + ", productCategorySortOrder=" + productCategorySortOrder + ", planningUnitIds=" + ArrayUtils.convertArrayToString(planningUnitIds) + '}';
+        return "NotLinkedErpShipmentsInputTab3{" + "realmCountryId=" + realmCountryId + ", productCategorySortOrders=" + ArrayUtils.convertArrayToString(productCategorySortOrders) + ", planningUnitIds=" + ArrayUtils.convertArrayToString(planningUnitIds) + '}';
     }
 
 }
