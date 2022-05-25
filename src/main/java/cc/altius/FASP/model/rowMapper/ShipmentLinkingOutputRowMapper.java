@@ -30,7 +30,14 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
         so.setKnShipmentNo(rs.getString("KN_SHIPMENT_NO"));
         so.setBatchNo(rs.getString("BATCH_NO"));
         so.setExpiryDate(rs.getDate("EXPIRY_DATE"));
-        so.setErpPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum)));
+        so.setErpPlanningUnit(new SimpleObject(rs.getInt("ERP_PLANNING_UNIT_ID"), new LabelRowMapper("ERP_PU_").mapRow(rs, rowNum)));
+        int tmpPuId = rs.getInt("QAT_PLANNING_UNIT_ID");
+        if (rs.wasNull() || tmpPuId == 0) {
+            so.setQatPlanningUnit(null);
+        } else {
+            so.setQatPlanningUnit(new SimpleObject(rs.getInt("QAT_PLANNING_UNIT_ID"), new LabelRowMapper("QAT_PU_").mapRow(rs, rowNum)));
+        }
+
         so.setPrice(rs.getDouble("PRICE"));
         if (rs.wasNull()) {
             so.setPrice(null);
@@ -48,6 +55,8 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
         if (rs.wasNull()) {
             so.setChildShipmentId(null);
         }
+        so.setNotes(rs.getString("NOTES"));
+        so.setShipBy(rs.getString("SHIP_BY"));
         return so;
     }
 

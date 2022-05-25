@@ -35,9 +35,12 @@ public class ShipmentLinkingOutput implements Serializable {
     private SimpleObject erpPlanningUnit;
     private Double price;
     private Double shippingCost;
+    private String shipBy;
     private SimpleObject qatEquivalentShipmentStatus;
     private Integer parentShipmentId;
     private Integer childShipmentId;
+    private String notes;
+    private SimpleObject qatPlanningUnit;
 
     public String getRoNo() {
         return roNo;
@@ -166,7 +169,29 @@ public class ShipmentLinkingOutput implements Serializable {
     public void setChildShipmentId(Integer childShipmentId) {
         this.childShipmentId = childShipmentId;
     }
-    
-    
-    
+
+    public String getShipBy() {
+        return shipBy;
+    }
+
+    public void setShipBy(String shipBy) {
+        this.shipBy = shipBy;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public SimpleObject getQatPlanningUnit() {
+        return qatPlanningUnit;
+    }
+
+    public void setQatPlanningUnit(SimpleObject qatPlanningUnit) {
+        this.qatPlanningUnit = qatPlanningUnit;
+    }
+
 }
