@@ -1963,7 +1963,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
                 + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
-                + "    SL.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
+                + "    sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID "
                 + "FROM rm_erp_order_consolidated e "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
