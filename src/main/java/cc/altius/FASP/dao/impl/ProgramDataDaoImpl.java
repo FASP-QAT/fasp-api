@@ -57,6 +57,7 @@ import cc.altius.FASP.model.ExtrapolationData;
 import cc.altius.FASP.model.ExtrapolationDataReportingRate;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.LinkedShipments;
 import cc.altius.FASP.model.NodeDataExtrapolation;
 import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
@@ -69,6 +70,7 @@ import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResult
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.LinkedShipmentsRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
@@ -1613,6 +1615,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("shipmentActive", shipmentActive);
         params.put("planningUnitActive", planningUnitActive);
         return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
+    }
+
+    @Override
+    public List<LinkedShipments> getLinkedShipmentsList(int programId, int versionId) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "	sl.ERP_SHIPMENT_LINKING_ID, sl.PROGRAM_ID, sl.VERSION_ID, "
+                + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
+                + "	sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, "
+                + "    sl.ERP_PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.CONVERSION_FACTOR, "
+                + "    sl.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sl.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
+                + "FROM rm_erp_shipment_linking sl "
+                + "LEFT JOIN vw_procurement_agent pa on sl.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
+                + "LEFT JOIN vw_planning_unit pu ON sl.ERP_PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN us_user cb ON sl.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON sl.LAST_MODIFIED_BY=lmb.LAST_MODIFIED_BY "
+                + "WHERE sl.PROGRAM_ID=:programId AND sl.VERSION_ID<=:versionId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new LinkedShipmentsRowMapper());
     }
 
     @Override

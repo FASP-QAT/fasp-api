@@ -64,6 +64,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<Shipment> shipmentList;
+    @JsonView({Views.InternalView.class})
+    private List<LinkedShipments> linkedShipmentsList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<Batch> batchInfoList;
     @JsonView(Views.InternalView.class)
@@ -282,6 +284,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setShipmentList(List<Shipment> shipmentList) {
         this.shipmentList = shipmentList;
+    }
+
+    public List<LinkedShipments> getLinkedShipmentsList() {
+        return linkedShipmentsList;
+    }
+
+    public void setLinkedShipmentsList(List<LinkedShipments> linkedShipmentsList) {
+        this.linkedShipmentsList = linkedShipmentsList;
     }
 
     public List<Batch> getBatchInfoList() {

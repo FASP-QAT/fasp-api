@@ -65,6 +65,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
+        pd.setLinkedShipmentsList(this.programDataDao.getLinkedShipmentsList(programId, versionId));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));

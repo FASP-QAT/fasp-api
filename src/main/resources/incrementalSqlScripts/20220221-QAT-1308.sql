@@ -465,6 +465,7 @@ DELIMITER ;
 
 CREATE TABLE `rm_erp_shipment_linking` (
   `ERP_SHIPMENT_LINKING_ID` int unsigned NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` int unsigned DEFAULT NULL,
   `VERSION_ID` int unsigned NOT NULL,
   `PROCUREMENT_AGENT_ID` int unsigned NOT NULL,
   `PARENT_SHIPMENT_ID` int unsigned NOT NULL,
@@ -485,12 +486,14 @@ CREATE TABLE `rm_erp_shipment_linking` (
   KEY `fk_rm_erp_shipment_linking_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
   KEY `fk_rm_erp_shipment_linking_planningUnitId_idx` (`ERP_PLANNING_UNIT_ID`),
   KEY `fk_rm_erp_shipment_linking_childShipmentId_idx` (`CHILD_SHIPMENT_ID`),
+  KEY `fk_rm_erp_shipment_linking_programId_idx` (`PROGRAM_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_childShipment` FOREIGN KEY (`CHILD_SHIPMENT_ID`) REFERENCES `rm_shipment` (`SHIPMENT_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_createdBy` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_parentShipment` FOREIGN KEY (`PARENT_SHIPMENT_ID`) REFERENCES `rm_shipment` (`SHIPMENT_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_planningUnitId` FOREIGN KEY (`ERP_PLANNING_UNIT_ID`) REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`),
-  CONSTRAINT `fk_rm_erp_shipment_linking_procurementAgentId` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`)
+  CONSTRAINT `fk_rm_erp_shipment_linking_procurementAgentId` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`),
+  CONSTRAINT `fk_rm_erp_shipment_linking_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 call buildErpOrder(curdate());
