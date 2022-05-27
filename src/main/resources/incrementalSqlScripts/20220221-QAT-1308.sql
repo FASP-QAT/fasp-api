@@ -4,7 +4,7 @@ CREATE TABLE `log` (
   `UPDATED_DATE` datetime NOT NULL,
   `DESC` varchar(200) NOT NULL,
   PRIMARY KEY (`LOG_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 CREATE TABLE `rm_erp_order_consolidated` (
@@ -55,7 +55,7 @@ CREATE TABLE `rm_erp_order_consolidated` (
   CONSTRAINT `fk_erp_order_consolidated_procurementAgentId` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`),
   CONSTRAINT `fk_rm_erp_order_consolidated_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`),
   CONSTRAINT `fk_rm_erp_order_consolidated_shipmentId` FOREIGN KEY (`SHIPMENT_ID`) REFERENCES `rm_shipment` (`SHIPMENT_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `rm_erp_shipment_consolidated` (
   `ERP_SHIPMENT_ID` int unsigned NOT NULL AUTO_INCREMENT,
@@ -86,7 +86,7 @@ CREATE TABLE `rm_erp_shipment_consolidated` (
   KEY `idx_erp_shipment_consolidated_erpOrderId_idx` (`ERP_ORDER_ID`),
   KEY `idx_erp_shipment_consolidated_fileName` (`FILE_NAME`),
   CONSTRAINT `fk_rm_erp_shipment_consolidated_erpOrderId` FOREIGN KEY (`ERP_ORDER_ID`) REFERENCES `rm_erp_order_consolidated` (`ERP_ORDER_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 USE `fasp`;
@@ -494,7 +494,7 @@ CREATE TABLE `rm_erp_shipment_linking` (
   CONSTRAINT `fk_rm_erp_shipment_linking_planningUnitId` FOREIGN KEY (`ERP_PLANNING_UNIT_ID`) REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_procurementAgentId` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`),
   CONSTRAINT `fk_rm_erp_shipment_linking_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
 
 
 USE `fasp`;
