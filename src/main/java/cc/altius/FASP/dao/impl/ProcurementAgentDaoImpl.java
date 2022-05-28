@@ -12,10 +12,15 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
+import cc.altius.FASP.model.ProcurementAgentType;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.PlanningUnitTracerCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
+import cc.altius.FASP.model.rowMapper.ProcurementAgentTypeRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
@@ -55,15 +60,24 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Autowired
     private AclService aclService;
 
-    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
-            + " r.REALM_ID, r.REALM_CODE, "
-            + " pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
-            + " rl.`LABEL_ID` `REALM_LABEL_ID` ,rl.`LABEL_EN` `REALM_LABEL_EN`, rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`,"
+    private String procurementAgentSqlString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
+            + " r.REALM_ID, r.REALM_CODE, r.`LABEL_ID` `REALM_LABEL_ID` ,r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`,"
+            + " pa.`LABEL_ID` ,pa.`LABEL_EN`, pa.`LABEL_FR`, pa.`LABEL_PR`, pa.`LABEL_SP`,"
+            + " pat.PROCUREMENT_AGENT_TYPE_ID, pat.PROCUREMENT_AGENT_TYPE_CODE, pat.`LABEL_ID` `PAT_LABEL_ID`, pat.`LABEL_EN` `PAT_LABEL_EN`, pat.`LABEL_FR` `PAT_LABEL_FR`, pat.`LABEL_PR` `PAT_LABEL_PR`, pat.`LABEL_SP` `PAT_LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pa.ACTIVE, pa.CREATED_DATE, pa.LAST_MODIFIED_DATE "
-            + " FROM rm_procurement_agent pa "
-            + "  LEFT JOIN ap_label pal ON pa.`LABEL_ID`=pal.`LABEL_ID` "
-            + "  LEFT JOIN rm_realm r ON pa.REALM_ID=r.REALM_ID "
-            + "  LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+            + " FROM vw_procurement_agent pa "
+            + "  LEFT JOIN vw_realm r ON pa.REALM_ID=r.REALM_ID "
+            + "  LEFT JOIN us_user cb ON pa.CREATED_BY=cb.USER_ID "
+            + "  LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "  WHERE TRUE ";
+
+    private String procurementAgentTypeSqlString = " SELECT pa.PROCUREMENT_AGENT_TYPE_ID, pa.PROCUREMENT_AGENT_TYPE_CODE, "
+            + " r.REALM_ID, r.REALM_CODE, r.`LABEL_ID` `REALM_LABEL_ID` ,r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`,"
+            + " pa.`LABEL_ID` ,pa.`LABEL_EN`, pa.`LABEL_FR`, pa.`LABEL_PR`, pa.`LABEL_SP`,"
+            + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pa.ACTIVE, pa.CREATED_DATE, pa.LAST_MODIFIED_DATE "
+            + " FROM vw_procurement_agent_type pa "
+            + "  LEFT JOIN vw_realm r ON pa.REALM_ID=r.REALM_ID "
+            + "  LEFT JOIN vw_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID "
             + "  LEFT JOIN us_user cb ON pa.CREATED_BY=cb.USER_ID "
             + "  LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID "
             + "  WHERE TRUE ";
@@ -79,8 +93,43 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("REALM_ID", p.getRealm().getId());
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
+        params.put("PROCUREMENT_AGENT_TYPE_ID", p.getProcurementAgentType().getId());
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
+        params.put("ACTIVE", true);
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_DATE", curDate);
+        int procurementAgentId = si.executeAndReturnKey(params).intValue();
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[p.getProgramList().size()];
+        si = null;
+        int x = 0;
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        for (SimpleObject program : p.getProgramList()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", program.getId());
+            params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        si.executeBatch(batchParams);
+        return procurementAgentId;
+    }
+
+    @Override
+    @Transactional
+    public int addProcurementAgentType(ProcurementAgentType p, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent_type").usingGeneratedKeyColumns("PROCUREMENT_AGENT_TYPE_ID");
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("PROCUREMENT_AGENT_TYPE_CODE", p.getProcurementAgentTypeCode());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
+        int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT_TYPE, curUser.getUserId());
+        params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -97,14 +146,16 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("procurementAgentId", p.getProcurementAgentId());
         params.put("labelEn", p.getLabel().getLabel_en());
         params.put("procurementAgentCode", p.getProcurementAgentCode());
+        params.put("procurementAgentTypeId", p.getProcurementAgentType().getId());
         params.put("colorHtmlCode", p.getColorHtmlCode());
         params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
         params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
         params.put("active", p.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID SET "
+        int linesUpdated = this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID SET "
                 + " pa.PROCUREMENT_AGENT_CODE=:procurementAgentCode, "
+                + " pa.PROCUREMENT_AGENT_TYPE_ID=:procurementAgentTypeId, "
                 + " pa.COLOR_HTML_CODE=:colorHtmlCode, "
                 + " pa.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + " pa.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
@@ -115,19 +166,66 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " pal.LAST_MODIFIED_BY=:curUser, "
                 + " pal.LAST_MODIFIED_DATE=:curDate "
                 + " WHERE pa.PROCUREMENT_AGENT_ID=:procurementAgentId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROCUREMENT_AGENT_ID=:procurementAgentId", params);
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[p.getProgramList().size()];
+        int x = 0;
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        for (SimpleObject program : p.getProgramList()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", program.getId());
+            params.put("PROCUREMENT_AGENT_ID", p.getProcurementAgentId());
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        si.executeBatch(batchParams);
+        return linesUpdated;
+    }
+
+    @Override
+    @Transactional
+    public int updateProcurementAgentType(ProcurementAgentType p, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("procurementAgentTypeId", p.getProcurementAgentTypeId());
+        params.put("labelEn", p.getLabel().getLabel_en());
+        params.put("procurementAgentTypeCode", p.getProcurementAgentTypeCode());
+        params.put("active", p.isActive());
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", curDate);
+        return this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent_type pa "
+                + "LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID SET "
+                + " pa.PROCUREMENT_AGENT_TYPE_CODE=:procurementAgentTypeCode, "
+                + " pa.ACTIVE=:active, "
+                + " pa.LAST_MODIFIED_BY=:curUser, "
+                + " pa.LAST_MODIFIED_DATE=:curDate, "
+                + " pal.LABEL_EN=:labelEn, "
+                + " pal.LAST_MODIFIED_BY=:curUser, "
+                + " pal.LAST_MODIFIED_DATE=:curDate "
+                + " WHERE pa.PROCUREMENT_AGENT_TYPE_ID=:procurementAgentTypeId", params);
     }
 
     @Override
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
     }
 
     @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentTypeRowMapper());
+    }
+
+    @Override
     public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", realmId, curUser);
@@ -135,12 +233,30 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeByRealm(int realmId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", realmId, curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentTypeRowMapper());
+    }
+
+    @Override
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pa.PROCUREMENT_AGENT_ID=:procurementAgentId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString).append(" AND pa.PROCUREMENT_AGENT_ID=:procurementAgentId ");
         Map<String, Object> params = new HashMap<>();
         params.put("procurementAgentId", procurementAgentId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
+    }
+
+    @Override
+    public ProcurementAgentType getProcurementAgentTypeById(int procurementAgentTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString).append(" AND pa.PROCUREMENT_AGENT_TYPE_ID=:procurementAgentTypeId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("procurementAgentTypeId", procurementAgentTypeId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProcurementAgentTypeRowMapper());
     }
 
     @Override
@@ -346,11 +462,20 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 
     @Override
     public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pa.LAST_MODIFIED_DATE>:lastSyncDate ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString).append(" AND pa.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
+    }
+
+    @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString).append(" AND pa.LAST_MODIFIED_DATE>:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentTypeRowMapper());
     }
 
     @Override
@@ -476,6 +601,22 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
             result.put(puId, this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper()));
         });
         return result;
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramListByProcurementAgentId(int procurementAgentId, CustomUserDetails curUser) {
+        String sql = "SELECT p.PROGRAM_ID ID, p.PROGRAM_CODE CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM rm_program_procurement_agent ppa LEFT JOIN vw_program p ON ppa.PROGRAM_ID=p.PROGRAM_ID WHERE ppa.PROCUREMENT_AGENT_ID=:procurementAgentId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("procurementAgentId", procurementAgentId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new SimpleCodeObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentListByProgramId(int programId, CustomUserDetails curUser) {
+        String sql = "SELECT pa.PROCUREMENT_AGENT_ID ID, pa.PROCUREMENT_AGENT_CODE CODE, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR WHERE ppa.PROGRAM_ID=:programId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new SimpleCodeObjectRowMapper());
     }
 
 }

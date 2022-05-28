@@ -22,6 +22,7 @@ public class ProcurementAgentRowMapper implements RowMapper<ProcurementAgent> {
         ProcurementAgent pa = new ProcurementAgent(
                 rs.getInt("PROCUREMENT_AGENT_ID"),
                 new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
+                new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_TYPE_ID"), new LabelRowMapper("PAT_").mapRow(rs, rowNum), rs.getString("PROCUREMENT_AGENT_TYPE_CODE")),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 rs.getString("PROCUREMENT_AGENT_CODE"),
                 rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
