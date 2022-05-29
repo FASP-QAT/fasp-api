@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addNewUser(User user, int curUser) {
+    public int addNewUser(User user, CustomUserDetails curUser) {
         return this.userDao.addNewUser(user, curUser);
     }
 
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateUser(User user, int curUser) {
+    public int updateUser(User user, CustomUserDetails curUser) {
         return this.userDao.updateUser(user, curUser);
     }
 

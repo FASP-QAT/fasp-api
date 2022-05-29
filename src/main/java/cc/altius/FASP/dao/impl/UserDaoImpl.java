@@ -339,7 +339,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public int addNewUser(User user, int curUser) {
+    public int addNewUser(User user, CustomUserDetails curUser) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingColumns("REALM_ID", "AGREEMENT_ACCEPTED", "USERNAME", "PASSWORD", "EMAIL_ID", "ORG_AND_COUNTRY", "LANGUAGE_ID", "ACTIVE", "FAILED_ATTEMPTS", "EXPIRES_ON", "SYNC_EXPIRES_ON", "LAST_LOGIN_DATE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
@@ -356,9 +356,9 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
-        map.put("CREATED_BY", curUser);
+        map.put("CREATED_BY", curUser.getUserId());
         map.put("CREATED_DATE", curDate);
-        map.put("LAST_MODIFIED_BY", curUser);
+        map.put("LAST_MODIFIED_BY", curUser.getUserId());
         map.put("LAST_MODIFIED_DATE", curDate);
         int userId = insert.executeAndReturnKey(map).intValue();
         String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
@@ -369,12 +369,14 @@ public class UserDaoImpl implements UserDao {
             params = new HashMap<>();
             params.put("userId", userId);
             params.put("roleId", role);
-            params.put("curUser", curUser);
+            params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
+        user.setUserId(userId);
+        this.mapAccessControls(user, curUser);
         return userId;
     }
 
@@ -417,7 +419,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public int updateUser(User user, int curUser) {
+    public int updateUser(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
@@ -436,7 +438,7 @@ public class UserDaoImpl implements UserDao {
         params.put("orgAndCountry", user.getOrgAndCountry());
         params.put("languageId", user.getLanguage().getLanguageId());
         params.put("active", user.isActive());
-        params.put("lastModifiedBy", curUser);
+        params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
         params.put("userId", user.getUserId());
         int row = this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -450,12 +452,13 @@ public class UserDaoImpl implements UserDao {
             params = new HashMap<>();
             params.put("userId", user.getUserId());
             params.put("roleId", role);
-            params.put("curUser", curUser);
+            params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
+        this.mapAccessControls(user, curUser);
         return row;
     }
 

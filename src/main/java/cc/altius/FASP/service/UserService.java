@@ -34,7 +34,7 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, int curUser);
+    public int addNewUser(User user, CustomUserDetails curUser);
 
     public List<User> getUserList(CustomUserDetails curUser);
 
@@ -42,7 +42,7 @@ public interface UserService {
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, int curUser);
+    public int updateUser(User user, CustomUserDetails curUser);
 
     public String checkIfUserExistsByEmailId(User user, int page);
 
