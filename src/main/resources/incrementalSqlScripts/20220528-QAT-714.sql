@@ -47,15 +47,7 @@ VIEW `vw_procurement_agent_type` AS
         LEFT JOIN `ap_label` `l` ON ((`pat`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
 
-ALTER TABLE `fasp`.`rm_procurement_agent` ADD COLUMN `PROCUREMENT_AGENT_TYPE_ID` INT UNSIGNED NOT NULL AFTER `REALM_ID`, ADD INDEX `fk_rm_procurement_agent_procurementAgentType_idx` (`PROCUREMENT_AGENT_TYPE_ID` ASC);
-
-ALTER TABLE `fasp`.`rm_procurement_agent` 
-ADD CONSTRAINT `fk_rm_procurement_agent_procurementAgentType`
-  FOREIGN KEY (`PROCUREMENT_AGENT_TYPE_ID`)
-  REFERENCES `fasp`.`rm_procurement_agent_type` (`PROCUREMENT_AGENT_TYPE_ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
-
+ALTER TABLE `fasp`.`rm_procurement_agent` ADD COLUMN `PROCUREMENT_AGENT_TYPE_ID` INT UNSIGNED NULL AFTER `REALM_ID`, ADD INDEX `fk_rm_procurement_agent_procurementAgentType_idx` (`PROCUREMENT_AGENT_TYPE_ID` ASC);
 
 USE `fasp`;
 CREATE 
@@ -93,11 +85,9 @@ INSERT INTO `fasp`.`ap_label_source` (`SOURCE_ID`, `SOURCE_DESC`, `SOURCE_TEXT`)
 insert into ap_label values (null, 'Faith based donors', null, null, null, 1, now(), 1, now(), 55);
 INSERT INTO rm_procurement_agent_type VALUES (null, 1, 'FBD', LAST_INSERT_ID(), 1, 1, now(), 1, now() );
 
-ALTER TABLE `fasp`.`rm_procurement_agent` ADD COLUMN `PROCUREMENT_AGENT_TYPE_ID` INT UNSIGNED NULL AFTER `REALM_ID`;
-UPDATE rm_procurement_agent pa set pa.PROCUREMENT_AGENT_TYPE_ID=null;
-ALTER TABLE `fasp`.`rm_procurement_agent` 
-ADD INDEX `fk_rm_procurement_agent_procurementAgentTypeId_idx` (`PROCUREMENT_AGENT_TYPE_ID` ASC) ;
-;
+
+ALTER TABLE `fasp`.`rm_procurement_agent` ADD INDEX `fk_rm_procurement_agent_procurementAgentTypeId_idx` (`PROCUREMENT_AGENT_TYPE_ID` ASC) ;
+
 ALTER TABLE `fasp`.`rm_procurement_agent` 
 ADD CONSTRAINT `fk_rm_procurement_agent_procurementAgentTypeId`
   FOREIGN KEY (`PROCUREMENT_AGENT_TYPE_ID`)
@@ -108,7 +98,7 @@ ADD CONSTRAINT `fk_rm_procurement_agent_procurementAgentTypeId`
 -- TODO
 -- Match up the Procurement Agents to the Types
 UPDATE rm_procurement_agent p set p.PROCUREMENT_AGENT_TYPE_ID=1;
-ALTER TABLE `fasp`.`rm_procurement_agent` ALTER COLUMN `PROCUREMENT_AGENT_TYPE_ID` INT UNSIGNED NOT NULL;
+ALTER TABLE `fasp`.`rm_procurement_agent` CHANGE COLUMN `PROCUREMENT_AGENT_TYPE_ID` `PROCUREMENT_AGENT_TYPE_ID` INT UNSIGNED NOT NULL;
 
 CREATE TABLE `rm_program_procurement_agent` (
   `PROGRAM_ID` int unsigned NOT NULL,
