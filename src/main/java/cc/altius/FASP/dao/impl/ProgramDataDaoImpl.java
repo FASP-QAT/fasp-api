@@ -1620,11 +1620,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<LinkedShipments> getLinkedShipmentsList(int programId, int versionId) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
-                + "	sl.ERP_SHIPMENT_LINKING_ID, sl.PROGRAM_ID, sl.VERSION_ID, "
+                + "    sl.ERP_SHIPMENT_LINKING_ID, sl.PROGRAM_ID, sl.VERSION_ID, "
                 + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
-                + "	sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, "
+                + "    sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, "
                 + "    sl.ERP_PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
-                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.CONVERSION_FACTOR, "
+                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, sl.ERP_SHIPMENT_STATUS, sl.CONVERSION_FACTOR, "
                 + "    sl.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sl.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
                 + "FROM rm_erp_shipment_linking sl "
                 + "LEFT JOIN vw_procurement_agent pa on sl.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "

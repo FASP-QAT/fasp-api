@@ -35,6 +35,14 @@ public class LinkedShipments extends BaseModel implements Serializable {
     @JsonView({Views.InternalView.class})
     private String roPrimeLineNo;
     @JsonView({Views.InternalView.class})
+    private String orderNo;
+    @JsonView({Views.InternalView.class})
+    private String primeLineNo;
+    @JsonView({Views.InternalView.class})
+    private String knShipmentNo;
+    @JsonView({Views.InternalView.class})
+    private String erpShipmentStatus;
+    @JsonView({Views.InternalView.class})
     private double conversionFactor;
 
     public int getErpShipmentLinkingId() {
@@ -115,6 +123,38 @@ public class LinkedShipments extends BaseModel implements Serializable {
 
     public void setRoPrimeLineNo(String roPrimeLineNo) {
         this.roPrimeLineNo = roPrimeLineNo;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(String primeLineNo) {
+        this.primeLineNo = primeLineNo;
+    }
+
+    public String getKnShipmentNo() {
+        return knShipmentNo;
+    }
+
+    public void setKnShipmentNo(String knShipmentNo) {
+        this.knShipmentNo = knShipmentNo;
+    }
+
+    public String getErpShipmentStatus() {
+        return erpShipmentStatus;
+    }
+
+    public void setErpShipmentStatus(String erpShipmentStatus) {
+        this.erpShipmentStatus = erpShipmentStatus;
     }
 
     public double getConversionFactor() {
