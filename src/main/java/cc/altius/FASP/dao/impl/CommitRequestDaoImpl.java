@@ -15,8 +15,13 @@ import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.CommitRequestInput;
 import cc.altius.FASP.model.rowMapper.CommitRequestRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.UserService;
 import cc.altius.utils.DateUtils;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +30,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -44,10 +50,11 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
-    @Autowired
-    private UserService userService;
-
-    private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
+    @Value("${qat.commitRequestPath}")
+    private String QAT_COMMIT_REQUEST_PATH;
+    private final Logger logger = LoggerFactory.getLogger(CommitRequestDaoImpl.class);
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -73,7 +80,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND STATUS=1 LIMIT 1");
         Map<String, Object> params = new HashMap<>();
         try {
-            return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper());
+            return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH));
         } catch (EmptyResultDataAccessException erda) {
             return null;
         }
@@ -93,8 +100,16 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
-        params.put("JSON", json);
-        return si.executeAndReturnKey(params).intValue();
+//        params.put("JSON", json);
+        int commitRequestId = si.executeAndReturnKey(params).intValue();
+        try {
+            Path path = FileSystems.getDefault().getPath(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH, commitRequestId + ".json");
+            Files.writeString(path, json, StandardOpenOption.CREATE);
+            return commitRequestId;
+        } catch (Exception ex) {
+            logger.error("Could not write the CommitRequest file", ex);
+            throw new CouldNotSaveException("Could not write the CommitRequest");
+        }
     }
 
     @Override
@@ -112,7 +127,15 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
         params.put("JSON", json);
-        return si.executeAndReturnKey(params).intValue();
+        int commitRequestId = si.executeAndReturnKey(params).intValue();
+        try {
+            Path path = FileSystems.getDefault().getPath(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH, commitRequestId + ".json");
+            Files.writeString(path, json, StandardOpenOption.CREATE);
+            return commitRequestId;
+        } catch (Exception ex) {
+            logger.error("Could not write the CommitRequest file", ex);
+            throw new CouldNotSaveException("Could not write the CommitRequest");
+        }
     }
 
     @Override
@@ -140,7 +163,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("curUser", curUser.getUserId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         try {
-            return this.namedParameterJdbcTemplate.query(sb.toString(), params, new CommitRequestRowMapper());
+            return this.namedParameterJdbcTemplate.query(sb.toString(), params, new CommitRequestRowMapper(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -153,7 +176,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND spcr.COMMIT_REQUEST_ID=:commitRequestId");
         Map<String, Object> params = new HashMap<>();
         params.put("commitRequestId", commitRequestId);
-        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH));
     }
 
     public boolean checkIfCommitRequestExistsForProgram(int programId) {
