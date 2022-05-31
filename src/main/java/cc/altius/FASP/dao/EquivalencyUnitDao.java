@@ -26,6 +26,8 @@ public interface EquivalencyUnitDao {
     public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser);
+    
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser);
 
     public EquivalencyUnit getEquivalencyUnitById(int equivalencyUnitId, CustomUserDetails curUser);
 }
