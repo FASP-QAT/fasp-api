@@ -51,33 +51,35 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
         spcr.setCompletedDate(rs.getTimestamp("COMPLETED_DATE"));
         spcr.setStatus(rs.getInt("STATUS"));
         spcr.setFailedReason(rs.getString("FAILED_REASON"));
-        Path path = FileSystems.getDefault().getPath(FILE_PATH, spcr.getCommitRequestId() + ".json");
-        String json = null;
-        try {
-            json = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new SQLException(e);
-        }
-//        spcr.setJson(json);
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
-                .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .setLenient();
         spcr.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
-        Gson gson = gsonBuilder.create();
-        try {
-            if (spcr.getProgramTypeId() == 1) {
-                ProgramData data = gson.fromJson(json, new TypeToken<ProgramData>() {
-                }.getType());
-                spcr.setProgramData(data);
-            } else if (spcr.getProgramTypeId() == 2) {
-                DatasetData data = gson.fromJson(json, new TypeToken<DatasetData>() {
-                }.getType());
-                spcr.setDatasetData(data);
+        if (spcr.isSaveData()) {
+            Path path = FileSystems.getDefault().getPath(FILE_PATH, spcr.getCommitRequestId() + ".json");
+            String json = null;
+            try {
+                json = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new SQLException(e);
             }
-        } catch (Exception e) {
-            spcr.setFailedReason(e.getMessage());
+//        spcr.setJson(json);
+            GsonBuilder gsonBuilder = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
+                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .setLenient();
+            Gson gson = gsonBuilder.create();
+            try {
+                if (spcr.getProgramTypeId() == 1) {
+                    ProgramData data = gson.fromJson(json, new TypeToken<ProgramData>() {
+                    }.getType());
+                    spcr.setProgramData(data);
+                } else if (spcr.getProgramTypeId() == 2) {
+                    DatasetData data = gson.fromJson(json, new TypeToken<DatasetData>() {
+                    }.getType());
+                    spcr.setDatasetData(data);
+                }
+            } catch (Exception e) {
+                spcr.setFailedReason(e.getMessage());
+            }
         }
         return spcr;
     }
