@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
@@ -137,7 +138,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException {
         Map<String, Object> params = new HashMap<>();
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
@@ -148,11 +149,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+        // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
+        String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", p.getProgramId());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            // This is a delinked Program
+            for (Shipment s : pd.getShipmentList()) {
+                if (s.isErpFlag()) {
+                    throw new CouldNotSaveException("You are trying to commit a program that has ERP linked Shipments but this program has been delinked already");
+                }
+            }
+        }
+
         // Check which records have changed
         params.clear();
         logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
