@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -19,7 +21,6 @@ import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -224,6 +225,15 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
+        } catch (IncorrectAccessControlException iae) {
+            auditLogger.error("Either add All access or specific access " + user);
+            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (CouldNotSaveException cse) {
+            auditLogger.error("Could not updated " + user + " 0 rows updated");
+                return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (DuplicateKeyException e) {
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.error("Error", e);
             auditLogger.info("Failed to add the User");

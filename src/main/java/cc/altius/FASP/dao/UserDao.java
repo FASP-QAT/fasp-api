@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -33,7 +34,7 @@ public interface UserDao {
 
     public int updateFailedAttemptsByUserId(String emailId);
 
-    public int addNewUser(User user, CustomUserDetails curUser);
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, CouldNotSaveException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
