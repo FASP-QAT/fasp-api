@@ -15,7 +15,7 @@ where l.LABEL_CODE='static.common.errors' and ll.LANGUAGE_ID=1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Type d'erreur de prévision'
+set ll.LABEL_TEXT='Type derreur de prévision'
 where l.LABEL_CODE='static.common.errors' and ll.LANGUAGE_ID=2;
 
 update ap_static_label l 
