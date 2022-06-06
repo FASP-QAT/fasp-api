@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForgotPasswordToken;
@@ -34,7 +35,7 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, int curUser);
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, CouldNotSaveException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
@@ -42,7 +43,7 @@ public interface UserService {
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, int curUser);
+    public int updateUser(User user, CustomUserDetails curUser);
 
     public String checkIfUserExistsByEmailId(User user, int page);
 
