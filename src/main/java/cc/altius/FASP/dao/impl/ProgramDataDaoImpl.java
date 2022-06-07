@@ -2511,24 +2511,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
-        String sqlString = "SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC, "
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC, "
                 + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
                 + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
                 + "FROM rm_program_version pv  "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
                 + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
                 + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pv.PROGRAM_ID=:programId AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate";
+                + "WHERE pv.PROGRAM_ID=:programId AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", datasetVersionListInput.getProgramId());
         params.put("versionTypeId", datasetVersionListInput.getVersionTypeId());
         params.put("startDate", datasetVersionListInput.getStartDate());
         params.put("stopDate", datasetVersionListInput.getStopDate());
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new VersionRowMapper());
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new VersionRowMapper());
     }
 
 }

@@ -252,7 +252,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
-        this.programCommonDao.getProgramById(datasetVersionListInput.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
     }
 
