@@ -30,7 +30,9 @@ import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -40,15 +42,19 @@ import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -1900,8 +1906,6 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("versionId", versionId);
         params.put("procurementAgentId", 1); // HardCoded as PSM since we are only matching with ARTMS orders
         String sql = "CALL getNotLinkedQatShipments(:programId, :versionId, :procurementAgentId, :planningUnitIds)";
-        System.out.println(params);
-        System.out.println(sql);
         return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListResultSetExtractor());
     }
 
@@ -2079,6 +2083,46 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("versionId", versionId);
         params.put("planningUnitIds", ArrayUtils.convertArrayToString(planningUnitIds));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+    }
+
+    @Override
+    public List<ShipmentLinkingOutput> getShipmentListForSync(ShipmentSyncInput shipmentSyncInput, CustomUserDetails curUser) {
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_sync`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_sync` ("
+                + "  `RO_NO` VARCHAR(20) NOT NULL, "
+                + "  `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, "
+                + "  PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.jdbcTemplate.update(sqlString);
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        shipmentSyncInput.getRoAndRoPrimeLineNoList().stream().collect(Collectors.toList()).forEach(ut -> {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", ut.getRoNo());
+            param.addValue("roPrimeLineNo", ut.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        );
+        sqlString = "INSERT IGNORE INTO tmp_shipment_sync VALUES (:roNo, :roPrimeLineNo)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
+                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
+                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
+                + "    e.PRICE, e.SHIPPING_COST, null PARENT_SHIPMENT_ID, null CHILD_SHIPMENT_ID, null NOTES, e.SHIP_BY, "
+                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR` "
+                + "FROM tmp_shipment_sync ts "
+                + "LEFT JOIN rm_erp_order_consolidated e ON ts.RO_NO=e.RO_NO AND ts.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.PROCUREMENT_AGENT_ID=1 AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
+                + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
+                + "WHERE "
+                + "    pu.PLANNING_UNIT_ID IS NOT NULL ");
+        return this.jdbcTemplate.query(sqlStringBuilder.toString(), new ShipmentLinkingOutputRowMapper());
     }
 
 }

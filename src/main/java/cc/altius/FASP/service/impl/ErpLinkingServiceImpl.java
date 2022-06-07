@@ -17,6 +17,7 @@ import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
@@ -178,6 +179,12 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
         this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
+    }
+
+    @Override
+    public List<ShipmentLinkingOutput> getShipmentListForSync(ShipmentSyncInput shipmentSyncInput, CustomUserDetails curUser) {
+        this.programService.getProgramById(shipmentSyncInput.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.erpLinkingDao.getShipmentListForSync(shipmentSyncInput, curUser);
     }
 
 }
