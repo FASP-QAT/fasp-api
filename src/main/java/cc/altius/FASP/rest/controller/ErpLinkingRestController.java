@@ -15,8 +15,6 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -464,10 +462,10 @@ public class ErpLinkingRestController {
     }
 
     @PostMapping("/api/erpLinking/shipmentSync")
-    public ResponseEntity shipmentSync(@RequestBody ShipmentSyncInput shipmentSyncInput, Authentication auth) {
+    public ResponseEntity shipmentSync(@RequestBody List<ShipmentSyncInput> shipmentSyncInputList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getShipmentListForSync(shipmentSyncInput, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getShipmentListForSync(shipmentSyncInputList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Sync list for Shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

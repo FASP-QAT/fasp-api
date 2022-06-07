@@ -23,7 +23,9 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.ProgramService;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -182,9 +184,17 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ShipmentLinkingOutput> getShipmentListForSync(ShipmentSyncInput shipmentSyncInput, CustomUserDetails curUser) {
-        this.programService.getProgramById(shipmentSyncInput.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        return this.erpLinkingDao.getShipmentListForSync(shipmentSyncInput, curUser);
+    public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) {
+        Map<Integer, List<ShipmentLinkingOutput>> result = new HashMap<>();
+        for (ShipmentSyncInput ssi : shipmentSyncInputList) {
+            try {
+                this.programService.getProgramById(ssi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                result.put(ssi.getProgramId(), this.erpLinkingDao.getShipmentListForSync(ssi, curUser));
+            } catch (Exception e) {
+
+            }
+        }
+        return result;
     }
 
 }
