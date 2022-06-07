@@ -24,6 +24,7 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -247,6 +248,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
         return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
+    }
+
+    @Override
+    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        this.programCommonDao.getProgramById(datasetVersionListInput.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
     }
 
 }
