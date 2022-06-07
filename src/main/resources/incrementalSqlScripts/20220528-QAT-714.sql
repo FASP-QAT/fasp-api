@@ -167,3 +167,19 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurement Agent Type
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d`affichage du type d`agent d`approvisionnement');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de exibição do tipo de agente de compras');-- pr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre para mostrar del tipo de agente de compras');-- sp
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.procurementagent.procurementagenttypetext','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurement Agent Type is required');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le type d`agent d`approvisionnement est requis');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O tipo de agente de aquisição é obrigatório');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se requiere el tipo de agente de compras');-- sp
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.procurementagent.programtext','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program is required');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le programme est requis');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O programa é obrigatório');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se requiere programa');-- sp
