@@ -630,14 +630,14 @@ CREATE TABLE `rm_shipment_linking_trans` (
   `SHIPMENT_LINKING_TRANS_ID` int unsigned NOT NULL AUTO_INCREMENT,
   `SHIPMENT_LINKING_ID` int unsigned NOT NULL,
   `ACTIVE` tinyint unsigned not null,
-  `CREATED_DATE` datetime NOT NULL,
-  `CREATED_BY` int unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int unsigned NOT NULL,
   `VERSION_ID` int unsigned NOT NULL,
   PRIMARY KEY (`SHIPMENT_LINKING_TRANS_ID`),
   KEY `fk_rm_shipment_linking_trans_shipmentLinkingId_idx` (`SHIPMENT_LINKING_ID`),
   KEY `fk_rm_shipment_linking_trans_createdBy_idx` (`CREATED_BY`),
   CONSTRAINT `fk_rm_shipment_linking_trans_shipmentLinkingId` FOREIGN KEY (`SHIPMENT_LINKING_ID`) REFERENCES `rm_shipment_linking` (`SHIPMENT_LINKING_ID`),
-  CONSTRAINT `fk_rm_shipment_linking_trans_createdBy` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`)
+  CONSTRAINT `fk_rm_shipment_linking_trans_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -664,7 +664,7 @@ BEGIN
         sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, st.PLANNING_UNIT_ID QAT_PLANNING_UNIT_ID,
         pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`,
         sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, sl.CONVERSION_FACTOR,
-        slt.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, slt.CREATED_DATE `LAST_MODIFIED_DATE`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`
+        slt.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, slt.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`
     FROM (
 	SELECT sl.SHIPMENT_LINKING_ID, MAX(slt.VERSION_ID) MAX_VERSION_ID FROM rm_shipment_linking sl LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID WHERE (@versionId=-1 OR slt.VERSION_ID<=@versionId) AND sl.PROGRAM_ID=@programId GROUP BY slt.SHIPMENT_LINKING_ID
     ) ts 
@@ -677,7 +677,7 @@ BEGIN
     LEFT JOIN rm_shipment s ON sl.PARENT_SHIPMENT_ID=s.SHIPMENT_ID 
     LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
     LEFT JOIN us_user cb ON sl.CREATED_BY=cb.USER_ID 
-    LEFT JOIN us_user lmb ON slt.CREATED_BY=lmb.USER_ID;
+    LEFT JOIN us_user lmb ON slt.LAST_MODIFIED_BY=lmb.USER_ID;
     
 END$$
 
