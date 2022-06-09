@@ -44,6 +44,8 @@ public class LinkedShipments extends BaseModel implements Serializable {
     private String erpShipmentStatus;
     @JsonView({Views.InternalView.class})
     private double conversionFactor;
+    @JsonView({Views.InternalView.class})
+    private Integer qatPlanningUnitId;
 
     public int getErpShipmentLinkingId() {
         return erpShipmentLinkingId;
@@ -163,6 +165,14 @@ public class LinkedShipments extends BaseModel implements Serializable {
 
     public void setConversionFactor(double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    public Integer getQatPlanningUnitId() {
+        return qatPlanningUnitId;
+    }
+
+    public void setQatPlanningUnitId(Integer qatPlanningUnitId) {
+        this.qatPlanningUnitId = qatPlanningUnitId;
     }
 
 }

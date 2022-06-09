@@ -34,6 +34,10 @@ public class LinkedShipmentsRowMapper implements RowMapper<LinkedShipments> {
         ls.setKnShipmentNo(rs.getString("KN_SHIPMENT_NO"));
         ls.setErpShipmentStatus(rs.getString("ERP_SHIPMENT_STATUS"));
         ls.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
+        ls.setQatPlanningUnitId(rs.getInt("QAT_PLANNING_UNIT_ID"));
+        if (rs.wasNull()) {
+            ls.setQatPlanningUnitId(null);
+        }
         ls.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return ls;
     }

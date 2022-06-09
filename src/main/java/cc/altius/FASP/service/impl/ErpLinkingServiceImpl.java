@@ -22,6 +22,8 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.ProgramService;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -184,14 +186,19 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) {
+    public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) throws ParseException {
         Map<Integer, List<ShipmentLinkingOutput>> result = new HashMap<>();
         for (ShipmentSyncInput ssi : shipmentSyncInputList) {
             try {
                 this.programService.getProgramById(ssi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                // In case the lastSyncDate is not a valid format check and throw an exception now
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sdf.parse(ssi.getLastSyncDate());
                 result.put(ssi.getProgramId(), this.erpLinkingDao.getShipmentListForSync(ssi, curUser));
+            } catch (ParseException pe) {
+                throw new ParseException(pe.getMessage(), pe.getErrorOffset());
             } catch (Exception e) {
-
+                // Since the user does not have the rights to this program we need to decied what to do, throw and exception or just skip the program and go ahead
             }
         }
         return result;

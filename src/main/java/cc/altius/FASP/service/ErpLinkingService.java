@@ -17,6 +17,7 @@ import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -69,5 +70,5 @@ public interface ErpLinkingService {
 
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
     
-    public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser);
+    public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) throws ParseException;
 }

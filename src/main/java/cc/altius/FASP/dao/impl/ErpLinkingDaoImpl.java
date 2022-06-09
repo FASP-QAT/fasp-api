@@ -2121,7 +2121,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
                 + "WHERE "
-                + "    pu.PLANNING_UNIT_ID IS NOT NULL ");
+                + "    pu.PLANNING_UNIT_ID IS NOT NULL AND (e.LAST_MODIFIED_DATE > :lastSyncDate OR s.LAST_MODIFIED_DATE>:lastSyncDate)");
         return this.jdbcTemplate.query(sqlStringBuilder.toString(), new ShipmentLinkingOutputRowMapper());
     }
 

@@ -15,6 +15,7 @@ import java.util.List;
 public class ShipmentSyncInput implements Serializable {
 
     private int programId;
+    private String lastSyncDate;
     private List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList;
 
     public int getProgramId() {
@@ -23,6 +24,14 @@ public class ShipmentSyncInput implements Serializable {
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public String getLastSyncDate() {
+        return lastSyncDate;
+    }
+
+    public void setLastSyncDate(String lastSyncDate) {
+        this.lastSyncDate = lastSyncDate;
     }
 
     public List<RoAndRoPrimeLineNo> getRoAndRoPrimeLineNoList() {
