@@ -58,7 +58,7 @@ import cc.altius.FASP.model.ExtrapolationData;
 import cc.altius.FASP.model.ExtrapolationDataReportingRate;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.LabelConstants;
-import cc.altius.FASP.model.LinkedShipments;
+import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.NodeDataExtrapolation;
 import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
@@ -71,7 +71,7 @@ import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResult
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.LinkedShipmentsRowMapper;
+import cc.altius.FASP.model.rowMapper.ShipmentLinkingRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
@@ -751,15 +751,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC)) "
                 + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-
+        Map<Integer, Integer> oldAndNewShipmentId = new HashMap<>();
         insertList.clear();
         insertBatchList.clear();
         id = 1;
+        int sCnt = 0;
         for (Shipment s : pd.getShipmentList()) {
             Map<String, Object> tp = new HashMap<>();
             tp.put("ID", id);
             tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
-            tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
+            Integer parentShipmentId = null;
+            if (s.getParentShipmentId() != null) {
+                // Parent Shipment Id is not null, therefore this is an old linking
+                parentShipmentId = s.getParentShipmentId();
+            } else if (s.getTempParentShipmentId() != null) {
+                // Parent Shipment Id was already null and not tempParentShipmentId is not null so it is a new Linking
+                // Calculate the ParentShipemnt Id from the Map
+                parentShipmentId = oldAndNewShipmentId.get(s.getTempParentShipmentId());
+            } else {
+                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
+                parentShipmentId = null;
+            }
+            tp.put("PARENT_SHIPMENT_ID", parentShipmentId);
             tp.put("SUGGESTED_QTY", s.getSuggestedQty());
             tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
             tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
@@ -796,7 +809,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
             tp.put("ACTIVE", s.isActive());
             tp.put("VERSION_ID", s.getVersionId());
-            insertList.add(new MapSqlParameterSource(tp));
+
+            sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
+            int shipmentId = this.namedParameterJdbcTemplate.update(sqlString, tp);
+            sCnt++;
+            if (s.getTempShipmentId() != null && s.getShipmentId() == 0) {
+                oldAndNewShipmentId.put(s.getTempShipmentId(), shipmentId);
+            }
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 if (b.getBatch().getBatchId() == 0) {
@@ -837,12 +856,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             id++;
         }
-        logger.info(id + " shipment records going to be inserted into the tmp table");
 
-        SqlParameterSource[] insertShipment = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
 //        try {
-        int sCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment)).length;
         logger.info(sCnt + " records imported into the tmp table");
 //        } catch (Exception e) {
 //            logger.info("Could not load the tmp shipment records going to throw a CouldNotSaveException");
@@ -978,8 +993,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                }
             }
         }
-        // ###########################  Shipment  ############################################
 
+        // ###########################  Shipment  ############################################
         // #########################  Problem Report #########################################
         insertList.clear();
         insertBatchList.clear();
@@ -1634,26 +1649,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<LinkedShipments> getLinkedShipmentsList(int programId, int versionId) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
-                + "    sl.ERP_SHIPMENT_LINKING_ID, sl.PROGRAM_ID, sl.VERSION_ID, "
-                + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
-                + "    sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, st.PLANNING_UNIT_ID QAT_PLANNING_UNIT_ID, "
-                + "    sl.ERP_PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
-                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, sl.ERP_SHIPMENT_STATUS, sl.CONVERSION_FACTOR, "
-                + "    sl.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sl.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
-                + "FROM rm_erp_shipment_linking sl "
-                + "LEFT JOIN vw_procurement_agent pa on sl.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON sl.ERP_PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN rm_shipment s ON sl.CHILD_SHIPMENT_ID=s.SHIPMENT_ID "
-                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
-                + "LEFT JOIN us_user cb ON sl.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON sl.LAST_MODIFIED_BY=lmb.LAST_MODIFIED_BY "
-                + "WHERE sl.PROGRAM_ID=:programId AND sl.VERSION_ID<=:versionId");
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new LinkedShipmentsRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingData(:programId, :versionId)", params, new ShipmentLinkingRowMapper());
     }
 
     @Override

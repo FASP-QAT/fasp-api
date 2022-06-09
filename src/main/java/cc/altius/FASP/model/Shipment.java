@@ -103,6 +103,10 @@ public class Shipment implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
+    @JsonView({Views.InternalView.class})
+    private Integer tempParentShipmentId;
+    @JsonView({Views.InternalView.class})
+    private Integer tempShipmentId;
 
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
@@ -418,6 +422,22 @@ public class Shipment implements Serializable {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public Integer getTempParentShipmentId() {
+        return tempParentShipmentId;
+    }
+
+    public void setTempParentShipmentId(Integer tempParentShipmentId) {
+        this.tempParentShipmentId = tempParentShipmentId;
+    }
+
+    public Integer getTempShipmentId() {
+        return tempShipmentId;
+    }
+
+    public void setTempShipmentId(Integer tempShipmentId) {
+        this.tempShipmentId = tempShipmentId;
     }
 
     @Override

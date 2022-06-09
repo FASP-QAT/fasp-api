@@ -65,7 +65,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
-        pd.setLinkedShipmentsList(this.programDataDao.getLinkedShipmentsList(programId, versionId));
+        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
@@ -84,6 +84,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
             pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
+            pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId));
             pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));

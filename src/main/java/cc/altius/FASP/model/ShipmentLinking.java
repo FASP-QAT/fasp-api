@@ -12,24 +12,30 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class LinkedShipments extends BaseModel implements Serializable {
+public class ShipmentLinking extends BaseModel implements Serializable {
 
     @JsonView({Views.InternalView.class})
-    private int erpShipmentLinkingId;
+    private int shipmentLinkingId;
     @JsonView({Views.InternalView.class})
-    private int versionId;
+    private int programId;
     @JsonView({Views.InternalView.class})
     private SimpleCodeObject procurementAgent;
     @JsonView({Views.InternalView.class})
     private int parentShipmentId;
+    // Only used in Input not in Output
     @JsonView({Views.InternalView.class})
-    private int tempParentShipmentId;
+    private Integer tempParentShipmentId;
     @JsonView({Views.InternalView.class})
     private int childShipmentId;
+    // Only used in Input not in Output
     @JsonView({Views.InternalView.class})
-    private int tempChildShipmentId;
+    private Integer tempChildShipmentId;
+    // Only for reporting purposes, not to be stored 
     @JsonView({Views.InternalView.class})
     private SimpleObject erpPlanningUnit;
+    // Only for reporting purposes, not to be stored 
+    @JsonView({Views.InternalView.class})
+    private String erpShipmentStatus;
     @JsonView({Views.InternalView.class})
     private String roNo;
     @JsonView({Views.InternalView.class})
@@ -41,26 +47,27 @@ public class LinkedShipments extends BaseModel implements Serializable {
     @JsonView({Views.InternalView.class})
     private String knShipmentNo;
     @JsonView({Views.InternalView.class})
-    private String erpShipmentStatus;
-    @JsonView({Views.InternalView.class})
     private double conversionFactor;
+    // Only for reporting purposes, not to be stored
     @JsonView({Views.InternalView.class})
     private Integer qatPlanningUnitId;
+    @JsonView({Views.InternalView.class})
+    private int versionId;
 
-    public int getErpShipmentLinkingId() {
-        return erpShipmentLinkingId;
+    public int getShipmentLinkingId() {
+        return shipmentLinkingId;
     }
 
-    public void setErpShipmentLinkingId(int erpShipmentLinkingId) {
-        this.erpShipmentLinkingId = erpShipmentLinkingId;
+    public void setShipmentLinkingId(int shipmentLinkingId) {
+        this.shipmentLinkingId = shipmentLinkingId;
     }
 
-    public int getVersionId() {
-        return versionId;
+    public int getProgramId() {
+        return programId;
     }
 
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
+    public void setProgramId(int programId) {
+        this.programId = programId;
     }
 
     public SimpleCodeObject getProcurementAgent() {
@@ -79,11 +86,11 @@ public class LinkedShipments extends BaseModel implements Serializable {
         this.parentShipmentId = parentShipmentId;
     }
 
-    public int getTempParentShipmentId() {
+    public Integer getTempParentShipmentId() {
         return tempParentShipmentId;
     }
 
-    public void setTempParentShipmentId(int tempParentShipmentId) {
+    public void setTempParentShipmentId(Integer tempParentShipmentId) {
         this.tempParentShipmentId = tempParentShipmentId;
     }
 
@@ -95,11 +102,11 @@ public class LinkedShipments extends BaseModel implements Serializable {
         this.childShipmentId = childShipmentId;
     }
 
-    public int getTempChildShipmentId() {
+    public Integer getTempChildShipmentId() {
         return tempChildShipmentId;
     }
 
-    public void setTempChildShipmentId(int tempChildShipmentId) {
+    public void setTempChildShipmentId(Integer tempChildShipmentId) {
         this.tempChildShipmentId = tempChildShipmentId;
     }
 
@@ -109,6 +116,14 @@ public class LinkedShipments extends BaseModel implements Serializable {
 
     public void setErpPlanningUnit(SimpleObject erpPlanningUnit) {
         this.erpPlanningUnit = erpPlanningUnit;
+    }
+
+    public String getErpShipmentStatus() {
+        return erpShipmentStatus;
+    }
+
+    public void setErpShipmentStatus(String erpShipmentStatus) {
+        this.erpShipmentStatus = erpShipmentStatus;
     }
 
     public String getRoNo() {
@@ -151,14 +166,6 @@ public class LinkedShipments extends BaseModel implements Serializable {
         this.knShipmentNo = knShipmentNo;
     }
 
-    public String getErpShipmentStatus() {
-        return erpShipmentStatus;
-    }
-
-    public void setErpShipmentStatus(String erpShipmentStatus) {
-        this.erpShipmentStatus = erpShipmentStatus;
-    }
-
     public double getConversionFactor() {
         return conversionFactor;
     }
@@ -173,6 +180,14 @@ public class LinkedShipments extends BaseModel implements Serializable {
 
     public void setQatPlanningUnitId(Integer qatPlanningUnitId) {
         this.qatPlanningUnitId = qatPlanningUnitId;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
 }
