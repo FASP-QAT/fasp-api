@@ -13,6 +13,7 @@ import cc.altius.FASP.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,9 @@ public class BudgetRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.budgetService.addBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to add Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailedDuplicate"), HttpStatus.CONFLICT); //409
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -64,6 +68,9 @@ public class BudgetRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int rows = this.budgetService.updateBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to update Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailedDuplicate"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
