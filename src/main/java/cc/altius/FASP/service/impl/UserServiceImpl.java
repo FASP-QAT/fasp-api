@@ -111,6 +111,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
+        return this.userDao.getUserListForProgram(programId, curUser);
+    }
+
+    @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) {
         return this.userDao.getUserByUserId(userId, curUser);
     }
