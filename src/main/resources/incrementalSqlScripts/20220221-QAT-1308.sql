@@ -686,3 +686,87 @@ DELIMITER ;
 
 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataEntry.doNotFollowLatestShipment','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Data entry is frozen as the loaded program is not following latest shipment information.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : La saisie des données est gelée car le programme chargé ne suit pas les dernières informations d`expédition.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: La entrada de datos se congela porque el programa cargado no sigue la información de envío más reciente.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: A entrada de dados é congelada porque o programa carregado não segue as informações de envio mais recentes.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.loadProgram.loadWithoutLatestShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load without latest shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger sans dernières expéditions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Carga sin últimos envíos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar sem envios mais recentes');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipmentOfSamePlanningUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select shipments with same planning units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner les envois avec les mêmes unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione envíos con las mismas unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione remessas com as mesmas unidades de planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.roNoAndRoLineNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'RO|RO Prime line No');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ligne principale RO|RO Non');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Línea principal RO|RO No');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'RO|RO Linha Prime No');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.orderNoAndPrimeLineNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Order No|Prime line No');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'N° de commande|N° de ligne principale');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'N.º de pedido|N.º de línea principal');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº do pedido | Nº da linha principal');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.knShipmentNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'KN Shipment No');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'KN Envoi Non');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de envío KN');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'N.º de Remessa KN');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.linkedShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Linked Shipment');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Envoi lié');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envío vinculado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessa vinculada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.local','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Local');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Local');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Local');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Local');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.server','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Server');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Serveur');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Servidor');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Servidor');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.erpNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP No');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ERP Non');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'N.º de ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'ERP Não');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.erpLineNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Line No');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ligne ERP Non');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de línea ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Linha ERP Nº');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.shipmentId','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment Id');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID d`expédition');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Identificación del envío');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Código de envio');-- pr
