@@ -425,7 +425,10 @@ public class UserDaoImpl implements UserDao {
 
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
         params.put("userRealmId", curUser.getRealm().getRealmId());
+            sql += " AND user.REALM_ID=:userRealmId ";
+        }
         params.put("curUser", curUser.getUserId());
         sql += this.userOrderBy;
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
