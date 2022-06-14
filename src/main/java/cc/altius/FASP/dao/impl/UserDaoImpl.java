@@ -27,6 +27,7 @@ import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
 import cc.altius.FASP.rest.controller.UserRestController;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -432,7 +433,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(this.userString)
+        StringBuilder sb = new StringBuilder(this.userCommonString).append(this.userList)
                 .append(" AND user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
                         + "FROM vw_all_program p "
                         + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
