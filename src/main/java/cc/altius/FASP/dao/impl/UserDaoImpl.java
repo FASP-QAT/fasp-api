@@ -26,7 +26,7 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
-import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -136,7 +136,7 @@ public class UserDaoImpl implements UserDao {
 
     private static final String customUserOrderBy = "  ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,bf.`BUSINESS_FUNCTION_ID`,acl.`USER_ACL_ID`";
 
-    private static final String userString = "SELECT "
+    private static final String userCommonString = "SELECT "
             + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`ORG_AND_COUNTRY`, `user`.`PASSWORD`, "
             + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, `user`.`DEFAULT_MODULE_ID`, "
             + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
@@ -170,10 +170,9 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
             + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
-            + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID "
-//            + "    LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL "
-            + "    WHERE user.USER_ID=:userId AND user_role.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ";
-
+            + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID ";
+    private static final String userByUserId = "    WHERE user.USER_ID=:userId ";
+    private static final String userList = "    WHERE user_role.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ";
     private static final String userOrderBy = " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
 
     /**
@@ -411,7 +410,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
-        String sql = this.userString + "AND `user`.`USER_ID` IN (" + userAccessString + ")" + this.userOrderBy;
+        String sql = this.userCommonString + this.userList + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
         params.put("realmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
@@ -421,7 +420,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userString + "AND `user`.`USER_ID` IN (" + userAccessString + ")" + " AND user.REALM_ID=:realmId ";
+        String sql = this.userCommonString + this.userList + this.userOrderBy;
+
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         params.put("userRealmId", curUser.getRealm().getRealmId());
@@ -459,7 +459,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) {
-        String sql = this.userString + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
+        String sql = this.userCommonString + this.userByUserId + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("curUser", curUser.getUserId());
