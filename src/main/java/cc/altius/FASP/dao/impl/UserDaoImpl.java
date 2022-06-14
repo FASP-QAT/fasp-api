@@ -393,6 +393,8 @@ public class UserDaoImpl implements UserDao {
         String sql = this.userCommonString + this.userList + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
+        params.put("realmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
@@ -403,7 +405,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
-            params.put("userRealmId", curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
         params.put("curUser", curUser.getUserId());
