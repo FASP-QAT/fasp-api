@@ -38,6 +38,8 @@ public interface UserDao {
     public List<User> getUserList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
+    
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
