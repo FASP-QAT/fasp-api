@@ -175,6 +175,24 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping(value = "/user/programId/{programId}")
+    public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
