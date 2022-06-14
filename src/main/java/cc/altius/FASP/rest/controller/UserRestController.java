@@ -185,9 +185,11 @@ public class UserRestController {
             return new ResponseEntity(this.userService.getUserByUserId(userId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error(("Could not get User list for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException e) {
             logger.error(("Could not get User list for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error(("Could not get User list for UserId=" + userId));
