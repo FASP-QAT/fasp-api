@@ -17,6 +17,8 @@ import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
+import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
@@ -202,6 +204,11 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
+        return this.erpLinkingDao.getShipmentLinkedToOtherProgram(shipmentInput, curUser);
     }
 
 }

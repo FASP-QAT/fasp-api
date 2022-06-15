@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
@@ -41,7 +42,11 @@ public class ShipmentLinkingRowMapper implements RowMapper<ShipmentLinking> {
         ls.setVersionId(rs.getInt("VERSION_ID"));
         ls.setTempParentShipmentId(null);
         ls.setTempChildShipmentId(null);
-        ls.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
+        ls.setActive(rs.getBoolean("ACTIVE"));
+        ls.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+        ls.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+        ls.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
+        ls.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
         return ls;
     }
 

@@ -19,19 +19,19 @@ import java.util.Date;
  */
 public class BaseModel implements Serializable {
 
-    @JsonView({Views.IgnoreView.class, Views.InternalView.class})
+    @JsonView({Views.IgnoreView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView({Views.IgnoreView.class, Views.InternalView.class})
+    @JsonView({Views.IgnoreView.class})
     private Date createdDate;
-    @JsonView({Views.IgnoreView.class, Views.InternalView.class})
+    @JsonView({Views.IgnoreView.class})
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView({Views.IgnoreView.class, Views.InternalView.class})
+    @JsonView({Views.IgnoreView.class})
     private Date lastModifiedDate;
-    @JsonView({Views.IgnoreView.class, Views.InternalView.class})
+    @JsonView({Views.IgnoreView.class})
     private boolean active;
 
     public BasicUser getCreatedBy() {

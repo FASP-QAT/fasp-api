@@ -5,14 +5,19 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
  * @author akil
  */
-public class ShipmentLinking extends BaseModel implements Serializable {
+public class ShipmentLinking implements Serializable {
 
     @JsonView({Views.InternalView.class})
     private int shipmentLinkingId;
@@ -53,6 +58,20 @@ public class ShipmentLinking extends BaseModel implements Serializable {
     private Integer qatPlanningUnitId;
     @JsonView({Views.InternalView.class})
     private int versionId;
+    @JsonView({Views.InternalView.class})
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.InternalView.class})
+    private Date createdDate;
+    @JsonView({Views.InternalView.class})
+    private BasicUser lastModifiedBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.InternalView.class})
+    private Date lastModifiedDate;
+    @JsonView({Views.InternalView.class})
+    private boolean active;
 
     public int getShipmentLinkingId() {
         return shipmentLinkingId;
@@ -188,6 +207,46 @@ public class ShipmentLinking extends BaseModel implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
+    }
+
+    public BasicUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(BasicUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
 }

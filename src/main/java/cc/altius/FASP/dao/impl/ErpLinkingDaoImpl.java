@@ -32,8 +32,11 @@ import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
+import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.ShipmentLinkedToOtherProgramOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
@@ -2133,6 +2136,41 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", shipmentSyncInput.getLastSyncDate());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+    }
+
+    @Override
+    public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_linked_to_other_programs`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_linked_to_other_programs` ("
+                + "  `PROGRAM_ID` INT(10) NOT NULL, "
+                + "  `RO_NO` VARCHAR(20) NOT NULL, "
+                + "  `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, "
+                + "  PRIMARY KEY (`PROGRAM_ID`, `RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.jdbcTemplate.update(sqlString);
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        shipmentInput.getRoAndRoPrimeLineNoList().stream().collect(Collectors.toList()).forEach(ut -> {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("programId", shipmentInput.getProgramId());
+            param.addValue("roNo", ut.getRoNo());
+            param.addValue("roPrimeLineNo", ut.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        );
+        sqlString = "INSERT IGNORE INTO tmp_shipment_linked_to_other_programs VALUES (:programId, :roNo, :roPrimeLineNo)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+
+        sqlString = "SELECT "
+                + "    p.PROGRAM_ID, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, p.PROGRAM_CODE, "
+                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID, "
+                + "    pm.USER_ID, pm.USERNAME "
+                + "FROM tmp_shipment_linked_to_other_programs ts "
+                + "LEFT JOIN rm_shipment_linking sl ON ts.PROGRAM_ID!=sl.PROGRAM_ID AND ts.RO_NO=sl.RO_NO AND ts.RO_PRIME_LINE_NO=sl.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID AND sl.MAX_VERSION_ID=slt.VERSION_ID "
+                + "LEFT JOIN vw_program p ON sl.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
+                + "WHERE slt.ACTIVE";
+        return this.namedParameterJdbcTemplate.query(sqlString, new ShipmentLinkedToOtherProgramOutputRowMapper());
     }
 
 }
