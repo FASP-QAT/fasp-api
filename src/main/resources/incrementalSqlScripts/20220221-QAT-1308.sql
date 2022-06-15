@@ -1,4 +1,7 @@
-
+DROP TABLE IF EXISTS log;
+DROP TABLE IF EXISTS rm_erp_shipment_consolidated;
+DROP TABLE IF EXISTS rm_erp_order_consolidated;
+DROP TABLE IF EXISTS rm_erp_shipment_linking;
 CREATE TABLE `log` (
   `LOG_ID` int unsigned NOT NULL AUTO_INCREMENT,
   `UPDATED_DATE` datetime NOT NULL,
@@ -56,6 +59,7 @@ CREATE TABLE `rm_erp_order_consolidated` (
   CONSTRAINT `fk_rm_erp_order_consolidated_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`),
   CONSTRAINT `fk_rm_erp_order_consolidated_shipmentId` FOREIGN KEY (`SHIPMENT_ID`) REFERENCES `rm_shipment` (`SHIPMENT_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 
 CREATE TABLE `rm_erp_shipment_consolidated` (
   `ERP_SHIPMENT_ID` int unsigned NOT NULL AUTO_INCREMENT,
@@ -635,7 +639,7 @@ CREATE TABLE `rm_shipment_linking_trans` (
   `VERSION_ID` int unsigned NOT NULL,
   PRIMARY KEY (`SHIPMENT_LINKING_TRANS_ID`),
   KEY `fk_rm_shipment_linking_trans_shipmentLinkingId_idx` (`SHIPMENT_LINKING_ID`),
-  KEY `fk_rm_shipment_linking_trans_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_rm_shipment_linking_trans_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
   CONSTRAINT `fk_rm_shipment_linking_trans_shipmentLinkingId` FOREIGN KEY (`SHIPMENT_LINKING_ID`) REFERENCES `rm_shipment_linking` (`SHIPMENT_LINKING_ID`),
   CONSTRAINT `fk_rm_shipment_linking_trans_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
