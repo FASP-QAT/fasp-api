@@ -23,7 +23,8 @@ public class ShipmentLinkingRowMapper implements RowMapper<ShipmentLinking> {
     public ShipmentLinking mapRow(ResultSet rs, int rowNum) throws SQLException {
         ShipmentLinking ls = new ShipmentLinking();
         ls.setShipmentLinkingId(rs.getInt("SHIPMENT_LINKING_ID"));
-        ls.setVersionId(rs.getInt("PROGRAM_ID"));
+        ls.setProgramId(rs.getInt("PROGRAM_ID"));
+        ls.setVersionId(rs.getInt("VERSION_ID"));
         ls.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PA_").mapRow(rs, rowNum), rs.getString("PROCUREMENT_AGENT_CODE")));
         ls.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
         ls.setChildShipmentId(rs.getInt("CHILD_SHIPMENT_ID"));

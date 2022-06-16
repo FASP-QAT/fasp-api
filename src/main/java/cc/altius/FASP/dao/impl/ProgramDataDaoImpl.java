@@ -381,7 +381,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                logger.info("Failed to insert into the consumption_trans_batch_info table");
 //                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
 //            }
-            sqlString = "SELECT tc.ID, tc.CREATED_BY, tc.CREATED_DATE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
+            sqlString = "SELECT tc.ID, null TEMP_ID, tc.CREATED_BY, tc.CREATED_DATE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("versionId", version.getVersionId());
             params.put("programId", pd.getProgramId());
@@ -629,7 +629,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
 //            }
 
-            sqlString = "SELECT ti.ID, ti.CREATED_BY, ti.CREATED_DATE, ti.LAST_MODIFIED_DATE, ti.LAST_MODIFIED_BY FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
+            sqlString = "SELECT ti.ID, null TEMP_ID, ti.CREATED_BY, ti.CREATED_DATE, ti.LAST_MODIFIED_DATE, ti.LAST_MODIFIED_BY FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
             params.put("versionId", version.getVersionId());
@@ -680,7 +680,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 //        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `TEMP_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `TEMP_PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUGGESTED_QTY` BIGINT(20) UNSIGNED NULL, "
                 + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `FUNDING_SOURCE_ID` INT(10) UNSIGNED NULL, "
@@ -760,19 +762,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             Map<String, Object> tp = new HashMap<>();
             tp.put("ID", id);
             tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
-            Integer parentShipmentId = null;
-            if (s.getParentShipmentId() != null) {
-                // Parent Shipment Id is not null, therefore this is an old linking
-                parentShipmentId = s.getParentShipmentId();
-            } else if (s.getTempParentShipmentId() != null) {
-                // Parent Shipment Id was already null and not tempParentShipmentId is not null so it is a new Linking
-                // Calculate the ParentShipemnt Id from the Map
-                parentShipmentId = tempAndNewShipmentId.get(s.getTempParentShipmentId());
-            } else {
-                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
-                parentShipmentId = null;
-            }
-            tp.put("PARENT_SHIPMENT_ID", parentShipmentId);
+            tp.put("TEMP_SHIPMENT_ID", (s.getTempShipmentId() == null || s.getTempShipmentId() == 0 ? null : s.getTempShipmentId()));
+            tp.put("PARENT_SHIPMENT_ID", (s.getParentShipmentId() == null || s.getParentShipmentId() == 0 ? null : s.getParentShipmentId()));
+            tp.put("TEMP_PARENT_SHIPMENT_ID", (s.getTempParentShipmentId() == null || s.getTempParentShipmentId() == 0 ? null : s.getTempParentShipmentId()));
+//            Integer parentShipmentId = null;
+//            if (s.getParentShipmentId() != null && s.getParentShipmentId() != 0) {
+//                // Parent Shipment Id is not null, therefore this is an old linking
+//                parentShipmentId = s.getParentShipmentId();
+//            } else if (s.getTempParentShipmentId() != null && s.getTempParentShipmentId() != 0) {
+//                // Parent Shipment Id was already null and not tempParentShipmentId is not null so it is a new Linking
+//                // Calculate the ParentShipemnt Id from the Map
+//                parentShipmentId = tempAndNewShipmentId.get(s.getTempParentShipmentId());
+//            } else {
+//                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
+//                parentShipmentId = null;
+//            }
             tp.put("SUGGESTED_QTY", s.getSuggestedQty());
             tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
             tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
@@ -810,12 +814,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("ACTIVE", s.isActive());
             tp.put("VERSION_ID", s.getVersionId());
 
-            sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
-            int shipmentId = this.namedParameterJdbcTemplate.update(sqlString, tp);
+            sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `TEMP_SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `TEMP_PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) "
+                    + "VALUES (:ID, :SHIPMENT_ID, :TEMP_SHIPMENT_ID, :PARENT_SHIPMENT_ID, :TEMP_PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
+            this.namedParameterJdbcTemplate.update(sqlString, tp);
             sCnt++;
-            if (s.getTempShipmentId() != null && s.getShipmentId() == 0) {
-                tempAndNewShipmentId.put(s.getTempShipmentId(), shipmentId);
-            }
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 if (b.getBatch().getBatchId() == 0) {
@@ -955,7 +957,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
 //            }
 
-            sqlString = "SELECT ts.ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
+            sqlString = "SELECT ts.ID, ts.TEMP_SHIPMENT_ID TEMP_ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
             params.put("versionId", version.getVersionId());
@@ -970,13 +972,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("createdDate", tmpId.getCreatedDate());
                 params.put("lastModifiedBy", tmpId.getLastModifiedBy());
                 params.put("lastModifiedDate", tmpId.getLastModifiedDate());
-                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, ts.PARENT_SHIPMENT_ID, ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {
 //                    logger.info("Failed to insert into the shipment table");
 //                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
 //                }
+                sqlString = "SELECT LAST_INSERT_ID()";
+                int shipmentId = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+                tempAndNewShipmentId.put(tmpId.getTempId(), shipmentId);
                 sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT LAST_INSERT_ID(), ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.ID=:id";
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -1047,7 +1052,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             if (s.getParentShipmentId() != 0) {
                 // Parent Shipment Id is not null, therefore this is an old linking
                 parentShipmentId = s.getParentShipmentId();
-            } else if (s.getTempParentShipmentId() != null) {
+            } else if (s.getTempParentShipmentId() != null && s.getTempParentShipmentId() != 0) {
                 // Parent Shipment Id was already 0 and not tempParentShipmentId is not null so it is a new Linking
                 // Calculate the ParentShipemnt Id from the Map
                 parentShipmentId = tempAndNewShipmentId.get(s.getTempParentShipmentId());
@@ -1058,7 +1063,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             if (s.getChildShipmentId() != 0) {
                 // Child Shipment Id is not null, therefore this is an old linking
                 childShipmentId = s.getChildShipmentId();
-            } else if (s.getTempChildShipmentId() != null) {
+            } else if (s.getTempChildShipmentId() != null && s.getTempChildShipmentId() != 0) {
                 // Child Shipment Id was already 0 and not tempChildShipmentId is not null so it is a new Linking
                 // Calculate the ChildShipemnt Id from the Map
                 childShipmentId = tempAndNewShipmentId.get(s.getTempChildShipmentId());
@@ -1125,7 +1130,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID SET s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, s.PARENT_SHIPMENT_ID=ts.PARENT_SHIPMENT_ID, s.CHILD_SHIPMENT_ID=ts.CHILD_SHIPMENT_ID, s.RO_NO=ts.RO_NO, s.RO_PRIME_LINE_NO=ts.RO_PRIME_LINE_NO, s.CONVERSION_FACTOR=ts.CONVERSION_FACTOR, s.ORDER_NO=ts.ORDER_NO, s.PRIME_LINE_NO=ts.PRIME_LINE_NO, s.KN_SHIPMENT_NO=ts.KN_SHIPMENT_NO, s.MAX_VERSION_ID=:versionId, s.LAST_MODIFIED_BY=ts.LAST_MODIFIED_BY, s.LAST_MODIFIED_DATE=ts.LAST_MODIFIED_DATE WHERE ts.SHIPMENT_LINKING_ID IS NOT NULL AND ts.CHANGED=1";
             this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("Updated the Version no in the shipment table");
-            sqlString = "SELECT ts.ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment_linking ts WHERE ts.SHIPMENT_LINKING_ID IS NULL OR ts.SHIPMENT_LINKING_ID=0";
+            sqlString = "SELECT ts.ID, null TEMP_ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment_linking ts WHERE ts.SHIPMENT_LINKING_ID IS NULL OR ts.SHIPMENT_LINKING_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
             params.put("versionId", version.getVersionId());

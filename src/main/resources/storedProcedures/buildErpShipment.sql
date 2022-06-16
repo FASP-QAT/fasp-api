@@ -3,6 +3,10 @@ BEGIN
 	DECLARE VAR_FINISHED INTEGER DEFAULT 0;
 	DECLARE VAR_FILE_NAME varchar(45) DEFAULT "";
 
+        -- Change Code 1 = Create
+        -- Change Code 2 = Delete
+        -- Change Code 3 = Update
+
 	DEClARE curErpShipment CURSOR FOR 
             SELECT DISTINCT eo.FILE_NAME FROM rm_erp_shipment eo WHERE eo.FILE_NAME!='QATDefault' AND eo.FILE_NAME>=CONCAT('shipment_data_',VAR_DT,'.xml') group by eo.FILE_NAME;
 
