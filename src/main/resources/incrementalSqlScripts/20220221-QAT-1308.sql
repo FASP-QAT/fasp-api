@@ -767,10 +767,3 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Line No');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ligne ERP Non');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de línea ERP');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Linha ERP Nº');-- pr
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.shipmentId','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment Id');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID d`expédition');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Identificación del envío');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Código de envio');-- pr

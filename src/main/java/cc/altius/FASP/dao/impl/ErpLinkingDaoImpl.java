@@ -1921,8 +1921,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO"
-                + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.ACTIVE"
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) ");
@@ -2162,7 +2162,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 
         sqlString = "SELECT "
                 + "    p.PROGRAM_ID, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, p.PROGRAM_CODE, "
-                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID, "
+                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID, sl.CONVERSION_FACTOR, "
                 + "    pm.USER_ID, pm.USERNAME "
                 + "FROM tmp_shipment_linked_to_other_programs ts "
                 + "LEFT JOIN rm_shipment_linking sl ON ts.PROGRAM_ID!=sl.PROGRAM_ID AND ts.RO_NO=sl.RO_NO AND ts.RO_PRIME_LINE_NO=sl.RO_PRIME_LINE_NO "

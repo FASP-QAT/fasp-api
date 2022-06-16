@@ -1081,6 +1081,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("KN_SHIPMENT_NO", (s.getKnShipmentNo() == null || s.getKnShipmentNo().isBlank() ? null : s.getKnShipmentNo()));
             tp.put("VERSION_ID", s.getVersionId());
             insertList.add(new MapSqlParameterSource(tp));
+            id++;
         }
 
         if (insertList.size() > 0) {

@@ -25,6 +25,7 @@ public class ShipmentLinkedToOtherProgramOutputRowMapper implements RowMapper<Sh
         so.setRoNo(rs.getString("RO_NO"));
         so.setRoPrimeLineNo(rs.getString("RO_PRIME_LINE_NO"));
         so.setShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
+        so.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         so.setProgramManager(new BasicUser(rs.getInt("USER_ID"), rs.getString("USERNAME")));
         return so;
     }

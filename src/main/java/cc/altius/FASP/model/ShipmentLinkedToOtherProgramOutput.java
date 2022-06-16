@@ -18,6 +18,7 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
     private int shipmentId;
     private String roNo;
     private String roPrimeLineNo;
+    private double conversionFactor;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -57,6 +58,14 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
 
     public void setRoPrimeLineNo(String roPrimeLineNo) {
         this.roPrimeLineNo = roPrimeLineNo;
+    }
+
+    public double getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
 }
