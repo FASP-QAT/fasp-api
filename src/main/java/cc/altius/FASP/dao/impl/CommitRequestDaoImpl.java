@@ -179,8 +179,9 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH));
     }
 
+    @Override
     public boolean checkIfCommitRequestExistsForProgram(int programId) {
-        String sql = "SELECT COUNT(*) FROM ct_commit_request ct WHERE ct.STATUS=1 AND ct.PROGRAM_ID=?";
-        return (this.jdbcTemplate.queryForObject(sql, Integer.class, programId) > 0);
+        String sql = "SELECT COUNT(*) FROM ct_commit_request ct WHERE ct.STATUS=1 AND (ct.PROGRAM_ID=? OR ?=0)";
+        return (this.jdbcTemplate.queryForObject(sql, Integer.class, programId, programId) > 0);
     }
 }

@@ -15,13 +15,15 @@ import java.util.Date;
 public class IdByAndDate implements Serializable {
 
     private int id;
+    private Integer tempId;
     private int createdBy;
     private Date createdDate;
     private int lastModifiedBy;
     private Date lastModifiedDate;
 
-    public IdByAndDate(int id, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
+    public IdByAndDate(int id, int tempId, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
         this.id = id;
+        this.tempId = (tempId == 0 ? null : tempId);
         this.createdBy = createdBy;
         this.createdDate = createdDate;
         this.lastModifiedBy = lastModifiedBy;
@@ -34,6 +36,14 @@ public class IdByAndDate implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getTempId() {
+        return tempId;
+    }
+
+    public void setTempId(int tempId) {
+        this.tempId = (tempId == 0 ? null : tempId);
     }
 
     public int getCreatedBy() {
