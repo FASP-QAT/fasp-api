@@ -29,7 +29,7 @@ public class SimpleCodeObjectRowMapper implements RowMapper<SimpleCodeObject> {
 
     @Override
     public SimpleCodeObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new SimpleCodeObject(rs.getInt("ID"), new LabelRowMapper(prefix).mapRow(rs, rowNum), rs.getString("CODE"));
+        return new SimpleCodeObject(rs.getInt(prefix + "ID"), new LabelRowMapper(prefix).mapRow(rs, rowNum), rs.getString("CODE"));
     }
 
 }
