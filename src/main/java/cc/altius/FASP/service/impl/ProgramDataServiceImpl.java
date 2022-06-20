@@ -62,14 +62,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
-        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
-        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
+//        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
+//        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
+//        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
         pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
-        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
-        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
-        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
-        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
+//        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
+//        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
+//        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
+//        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
         return pd;
     }
 
@@ -81,14 +81,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
-            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
-            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
-            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
+//            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
+//            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
+//            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
             pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId));
-            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
-            pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
-            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
-            pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
+//            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
+//            pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
+//            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
+//            pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             programDataList.add(pd);
         });
         return programDataList;
