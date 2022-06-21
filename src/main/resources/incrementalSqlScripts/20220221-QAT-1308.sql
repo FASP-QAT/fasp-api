@@ -681,7 +681,8 @@ BEGIN
     LEFT JOIN rm_shipment s ON sl.PARENT_SHIPMENT_ID=s.SHIPMENT_ID 
     LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
     LEFT JOIN us_user cb ON sl.CREATED_BY=cb.USER_ID 
-    LEFT JOIN us_user lmb ON slt.LAST_MODIFIED_BY=lmb.USER_ID;
+    LEFT JOIN us_user lmb ON slt.LAST_MODIFIED_BY=lmb.USER_ID
+    GROUP BY sl.SHIPMENT_LINKING_ID;
     
 END$$
 

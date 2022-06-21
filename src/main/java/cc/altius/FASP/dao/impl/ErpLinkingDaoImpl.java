@@ -42,6 +42,7 @@ import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -1979,8 +1980,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu on left(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
-                + "LEFT JOIN rm_program_planning_unit ppu on ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID in (SELECT p3.PROGRAM_ID FROM rm_program p2 LEFT JOIN rm_program p3 ON p3.REALM_COUNTRY_ID=p2.REALM_COUNTRY_ID WHERE p2.PROGRAM_ID=:shipmentProgramId) "
-                + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                + "LEFT JOIN (SELECT ppu2.PLANNING_UNIT_ID FROM rm_program p2 LEFT JOIN rm_program p3 ON p3.REALM_COUNTRY_ID=p2.REALM_COUNTRY_ID LEFT JOIN rm_program_planning_unit ppu2 ON p3.PROGRAM_ID=ppu2.PROGRAM_ID WHERE p2.PROGRAM_ID=:shipmentProgramId AND p2.ACTIVE GROUP BY ppu2.PLANNING_UNIT_ID) ppu3 ON papu.PLANNING_UNIT_ID=ppu3.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=ppu3.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_planning_unit pu2 ON pu2.PLANNING_UNIT_ID=:shipmentPlanningUnitId "
                 + "LEFT JOIN rm_forecasting_unit fu2 ON pu2.FORECASTING_UNIT_ID=fu2.FORECASTING_UNIT_ID "
