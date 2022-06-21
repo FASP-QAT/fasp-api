@@ -34,7 +34,7 @@ public interface UserDao {
 
     public int updateFailedAttemptsByUserId(String emailId);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, CouldNotSaveException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
@@ -42,7 +42,7 @@ public interface UserDao {
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, CustomUserDetails curUser);
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 
