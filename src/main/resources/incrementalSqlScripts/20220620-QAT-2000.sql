@@ -1,76 +1,4 @@
-/*[4:42:58 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201942'; 
-/*[4:42:58 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201943'; 
-/*[4:42:58 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201944'; 
-/*[4:42:58 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201945'; 
 
-/*[4:45:44 PM][ 4 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201602'; 
-/*[4:45:44 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201603'; 
-/*[4:45:44 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201604'; 
-/*[4:45:44 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='201605'; 
-
-/*[4:46:46 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202548'; 
-/*[4:46:46 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202549'; 
-/*[4:46:46 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202550'; 
-/*[4:46:46 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202551'; 
-
-/*[4:47:35 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202739'; 
-/*[4:47:35 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202740'; 
-/*[4:47:35 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202741'; 
-/*[4:47:35 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202742'; 
-
-/*[4:48:21 PM][ 5 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202266'; 
-/*[4:48:21 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202267'; 
-/*[4:48:21 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202268'; 
-/*[4:48:21 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202269'; 
-
-/*[4:49:08 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202310'; 
-/*[4:49:08 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202311'; 
-/*[4:49:08 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202312'; 
-/*[4:49:08 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202313'; 
-
-/*[4:49:55 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199558'; 
-/*[4:49:55 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199559'; 
-/*[4:49:55 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199560'; 
-/*[4:49:55 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199561'; 
-
-/*[4:50:45 PM][ 4 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199562'; 
-/*[4:50:45 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199563'; 
-/*[4:50:45 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199564'; 
-/*[4:50:45 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199565'; 
-
-/*[4:51:42 PM][ 4 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199566'; 
-/*[4:51:42 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199567'; 
-/*[4:51:42 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199568'; 
-/*[4:51:42 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='199569'; 
-
-/*[4:53:36 PM][ 5 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202302'; 
-/*[4:53:36 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202303'; 
-/*[4:53:36 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202304'; 
-/*[4:53:36 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202305'; 
-
-/*[4:54:19 PM][ 4 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202298'; 
-/*[4:54:19 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202299'; 
-/*[4:54:19 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202300'; 
-/*[4:54:19 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202301'; 
-
-/*[4:55:49 PM][ 6 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202286'; 
-/*[4:55:49 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202287'; 
-/*[4:55:49 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202288'; 
-/*[4:55:49 PM][ 1 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='202289'; 
-
-/*[4:57:17 PM][ 5 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203269'; 
-/*[4:57:17 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203270'; 
-/*[4:57:17 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203271'; 
-/*[4:57:17 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203272'; 
-
-/*[4:59:11 PM][ 4 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203273'; 
-/*[4:59:11 PM][ 3 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203274'; 
-/*[4:59:11 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203275'; 
-/*[4:59:11 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203276'; 
-/*[4:59:11 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203277'; 
-/*[4:59:11 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label_languages` WHERE `STATIC_LABEL_LANGUAGE_ID`='203278'; 
-
-/*[5:00:00 PM][ 2 ms]*/ DELETE FROM `fasp`.`ap_static_label` WHERE `STATIC_LABEL_ID`='2829'; 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.VersionSetting.enableUsersTo','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -1154,7 +1082,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(UE) permiten a los us
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(EUs) permitem que os usuários agreguem dados em unidades de planejamento ou unidades de previsão diferentes, mas com a mesma unidade de equivalência. Para obter mais explicações sobre Unidades de Equivalência, consulte a orientação da demonstração no');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.monthlyForecast.XaxisAggregate','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The 'X-axis AGGREGATE BY YEAR' filter allows you to view the data aggregated by year instead of by month.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The "X-axis AGGREGATE BY YEAR" filter allows you to view the data aggregated by year instead of by month.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le filtre Agrégation de laxe X par année vous permet dafficher les données agrégées par année plutôt que par mois.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El filtro "Agregado del eje X por año" le permite ver los datos agregados por año en lugar de por mes.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O filtro "X-axis AGGREGATE BY YEAR" permite visualizar os dados agregados por ano em vez de por mês.');
