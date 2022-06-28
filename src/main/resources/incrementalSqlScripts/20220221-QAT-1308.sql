@@ -768,3 +768,13 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Line No');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ligne ERP Non');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de línea ERP');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Linha ERP Nº');-- pr
+
+
+
+-- Added by Akil on 28th of Jun 2022
+ALTER TABLE `fasp`.`rm_shipment_linking` 
+DROP COLUMN `CONVERSION_FACTOR`;
+
+ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
+ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
+ADD COLUMN `NOTES` TEXT NULL AFTER `CONVERSION_FACTOR`;
