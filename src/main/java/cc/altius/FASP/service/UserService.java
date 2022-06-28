@@ -35,7 +35,7 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, CouldNotSaveException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
@@ -45,7 +45,7 @@ public interface UserService {
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, CustomUserDetails curUser);
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public String checkIfUserExistsByEmailId(User user, int page);
 

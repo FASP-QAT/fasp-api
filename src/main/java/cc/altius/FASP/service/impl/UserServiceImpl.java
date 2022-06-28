@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, CouldNotSaveException {
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         return this.userDao.addNewUser(user, curUser);
     }
 
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateUser(User user, CustomUserDetails curUser) {
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         return this.userDao.updateUser(user, curUser);
     }
 
