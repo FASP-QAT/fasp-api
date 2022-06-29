@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `getForecastError`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getForecastError`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getForecastError`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_VIEW_BY INT(10), VAR_UNIT_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REGION_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     SET @programId = VAR_PROGRAM_ID; 
@@ -32,5 +41,9 @@ BEGIN
 	WHERE ct.CONSUMPTION_DATE BETWEEN @startDate and @stopDate AND (@regionIds='' OR FIND_IN_SET(ct.REGION_ID,@regionIds)) AND ((@viewBy=1 AND ct.PLANNING_UNIT_ID=@unitId) OR (@viewBy=2 AND pu.FORECASTING_UNIT_ID=@unitId))
 	GROUP BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE;
     
-END
+END$$
+
+DELIMITER ;
+;
+
 
