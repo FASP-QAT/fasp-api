@@ -909,3 +909,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please see shipment(s)
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez voir les envois en rouge - le programme dans la colonne ""serveur"" a déjà été lié aux envois ERP auxquels vous essayez d`établir un lien. Veuillez 1) dissocier vos envois ou 2) demander à l`autre programme de dissocier leurs envois.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vea los envíos en texto rojo: el programa en la columna ""servidor"" ya se vinculó a los envíos de ERP que está intentando vincular. 1) desvincule su(s) envío(s) o 2) solicite al otro programa que desvincule su(s) envío(s).');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, veja a(s) remessa(s) em texto vermelho – o programa na coluna `servidor` já está vinculado à(s) remessa(s) de ERP para a qual você está tentando vincular. Por favor, 1) desvincule sua(s) remessa(s) ou 2) solicite ao outro programa para desvincular sua(s) remessa(s).');-- pr
+
+-- Added by Akil on 28th of Jun 2022
+ALTER TABLE `fasp`.`rm_shipment_linking` 
+DROP COLUMN `CONVERSION_FACTOR`;
+
+ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
+ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
+ADD COLUMN `NOTES` TEXT NULL AFTER `CONVERSION_FACTOR`;
