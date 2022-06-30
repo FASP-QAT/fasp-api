@@ -175,23 +175,6 @@ public class ErpLinkingRestController {
         }
     }
 
-    @GetMapping("/artmisHistory/{orderNo}/{primeLineNo}")
-    public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getARTMISHistory(orderNo, primeLineNo), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/orderDetails/{roNoOrderNo}/{programId}/{erpPlanningUnitId}/{linkingType}/{parentShipmentId}")
     public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("roNoOrderNo") String roNoOrderNo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, @PathVariable("parentShipmentId") int parentShipmentId, Authentication auth) {
         try {
@@ -484,6 +467,23 @@ public class ErpLinkingRestController {
             return new ResponseEntity(this.erpLinkingService.getShipmentLinkedToOtherProgram(shipmentInput, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Shipments Linked to other Programs check", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/api/erpLinking/artmisHistory/{orderNo}/{primeLineNo}")
+    public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getARTMISHistory(orderNo, primeLineNo), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
