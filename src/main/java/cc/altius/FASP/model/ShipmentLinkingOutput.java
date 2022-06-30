@@ -41,6 +41,8 @@ public class ShipmentLinkingOutput implements Serializable {
     private Integer childShipmentId;
     private String notes;
     private SimpleObject qatPlanningUnit;
+    private boolean orderActive;
+    private boolean shipmentActive;
 
     public String getRoNo() {
         return roNo;
@@ -192,6 +194,22 @@ public class ShipmentLinkingOutput implements Serializable {
 
     public void setQatPlanningUnit(SimpleObject qatPlanningUnit) {
         this.qatPlanningUnit = qatPlanningUnit;
+    }
+
+    public boolean isOrderActive() {
+        return orderActive;
+    }
+
+    public void setOrderActive(boolean orderActive) {
+        this.orderActive = orderActive;
+    }
+
+    public boolean isShipmentActive() {
+        return shipmentActive;
+    }
+
+    public void setShipmentActive(boolean shipmentActive) {
+        this.shipmentActive = shipmentActive;
     }
 
 }

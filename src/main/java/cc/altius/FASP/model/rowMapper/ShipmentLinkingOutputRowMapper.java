@@ -30,6 +30,8 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
         so.setKnShipmentNo(rs.getString("KN_SHIPMENT_NO"));
         so.setBatchNo(rs.getString("BATCH_NO"));
         so.setExpiryDate(rs.getDate("EXPIRY_DATE"));
+        so.setOrderActive(rs.getBoolean("ORDER_ACTIVE"));
+        so.setShipmentActive(rs.getBoolean("SHIPMENT_ACTIVE"));
         so.setErpPlanningUnit(new SimpleObject(rs.getInt("ERP_PLANNING_UNIT_ID"), new LabelRowMapper("ERP_PU_").mapRow(rs, rowNum)));
         try {
             int tmpPuId = rs.getInt("QAT_PLANNING_UNIT_ID");
