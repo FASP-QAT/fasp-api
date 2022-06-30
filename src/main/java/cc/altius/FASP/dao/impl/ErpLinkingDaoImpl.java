@@ -1913,8 +1913,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 
     @Override
     public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT e.`RO_NO`"
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT(e.`RO_NO`) `RO_NO` "
                 + "FROM rm_erp_order_consolidated e "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO "
                 + "LEFT JOIN vw_program p ON p.PROGRAM_ID=:programId "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
@@ -1924,7 +1925,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
-                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) ");
+                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15)"
+                + "    AND COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH ");
         if (roPo != null) {
             sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
         }
