@@ -12,7 +12,9 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
@@ -75,4 +77,6 @@ public interface ErpLinkingService {
     public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) throws ParseException;
     
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser);
+    
+    public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
 }

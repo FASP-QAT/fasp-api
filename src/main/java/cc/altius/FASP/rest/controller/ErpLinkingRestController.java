@@ -12,6 +12,7 @@ import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.service.ErpLinkingService;
@@ -488,4 +489,15 @@ public class ErpLinkingRestController {
         }
     }
 
+    @PostMapping("/api/erpLinking/batchDetails")
+    public ResponseEntity getBatchDetails(@RequestBody List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getBatchDetails(roAndRoPrimeLineNoList, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while getting Shipments Linked to other Programs check", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+   
 }

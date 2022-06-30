@@ -28,13 +28,16 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
+import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.LinkedShipmentBatchDetailsListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkedToOtherProgramOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -2168,6 +2171,33 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
                 + "WHERE slt.ACTIVE";
         return this.namedParameterJdbcTemplate.query(sqlString, new ShipmentLinkedToOtherProgramOutputRowMapper());
+    }
+
+    @Override
+    public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser) {
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_ro`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_ro` ("
+                + "  `RO_NO` VARCHAR(20) NOT NULL, "
+                + "  `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, "
+                + "  PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.jdbcTemplate.update(sqlString);
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        roAndRoPrimeLineNoList.stream().collect(Collectors.toList()).forEach(ut -> {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", ut.getRoNo());
+            param.addValue("roPrimeLineNo", ut.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        );
+        sqlString = "INSERT IGNORE INTO tmp_ro VALUES (:roNo, :roPrimeLineNo)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT e.RO_NO, e.RO_PRIME_LINE_NO, e.QTY, s.BATCH_NO, COALESCE(s.DELIVERED_QTY,s.SHIPPED_QTY) SHIPPED_QTY "
+                + "FROM tmp_ro r "
+                + "LEFT JOIN rm_erp_order_consolidated e ON r.RO_NO=e.RO_NO AND r.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new LinkedShipmentBatchDetailsListResultSetExtractor());
     }
 
 }
