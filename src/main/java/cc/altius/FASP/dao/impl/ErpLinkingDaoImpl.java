@@ -28,6 +28,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
+import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
@@ -36,13 +37,13 @@ import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.LinkedShipmentBatchDetailsListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkedToOtherProgramOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -1915,8 +1916,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 
     @Override
     public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT e.`RO_NO`"
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT(e.`RO_NO`) `RO_NO` "
                 + "FROM rm_erp_order_consolidated e "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO "
                 + "LEFT JOIN vw_program p ON p.PROGRAM_ID=:programId "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
@@ -1926,7 +1928,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
-                + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) ");
+                + "    AND IF(COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH, sm.SHIPMENT_STATUS_MAPPING_ID!=2 , sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+        );
         if (roPo != null) {
             sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
         }
@@ -1966,9 +1969,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         StringBuilder sqlStringBuilder = new StringBuilder(""
                 + "SELECT "
                 + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
-                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
+                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, e.`ACTIVE` `ORDER_ACTIVE`, "
                 + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
                 + "    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
                 + "    null `QAT_PLANNING_UNIT_ID`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
@@ -2011,10 +2014,10 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("planningUnitIds", ArrayUtils.convertArrayToString(input.getPlanningUnitIds()));
         StringBuilder sqlStringBuilder = new StringBuilder(""
                 + "SELECT "
-                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
+                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, e.`ACTIVE` `ORDER_ACTIVE`, "
                 + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
                 + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
                 + "    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
                 + "    null `QAT_PLANNING_UNIT_ID`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
@@ -2060,10 +2063,10 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     @Override
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
-                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
+                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, e.`ACTIVE` `ORDER_ACTIVE`, "
                 + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
                 + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
+                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
                 + "    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
                 + "    pu2.PLANNING_UNIT_ID `QAT_PLANNING_UNIT_ID`, pu2.LABEL_ID `QAT_PU_LABEL_ID`, pu2.LABEL_EN `QAT_PU_LABEL_EN`, pu2.LABEL_FR `QAT_PU_LABEL_FR`, pu2.LABEL_SP `QAT_PU_LABEL_SP`, pu2.LABEL_PR `QAT_PU_LABEL_PR`, "
                 + "    e.PRICE, e.SHIPPING_COST, "
@@ -2113,23 +2116,29 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         sqlString = "INSERT IGNORE INTO tmp_shipment_sync VALUES (:roNo, :roPrimeLineNo)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
 
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
-                + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, COALESCE(s.STATUS, e.STATUS) `ERP_SHIPMENT_STATUS`, "
-                + "    e.ORDER_NO, e.PRIME_LINE_NO, COALESCE(s.DELIVERED_QTY, s.SHIPPED_QTY, e.QTY) `ERP_QTY`, "
-                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + "    s.KN_SHIPMENT_NO, s.BATCH_NO, s.EXPIRY_DATE, "
-                + "    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
-                + "    e.PRICE, e.SHIPPING_COST, null PARENT_SHIPMENT_ID, null CHILD_SHIPMENT_ID, null NOTES, e.SHIP_BY, "
-                + "    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR` "
-                + "FROM tmp_shipment_sync ts "
-                + "LEFT JOIN rm_erp_order_consolidated e ON ts.RO_NO=e.RO_NO AND ts.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
-                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE "
-                + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.PROCUREMENT_AGENT_ID=1 AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
-                + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID "
-                + "WHERE "
-                + "    pu.PLANNING_UNIT_ID IS NOT NULL AND (e.LAST_MODIFIED_DATE > :lastSyncDate OR s.LAST_MODIFIED_DATE>:lastSyncDate)");
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
+                + "    e.`RO_NO`, e.`RO_PRIME_LINE_NO`, COALESCE(s.`STATUS`, e.`STATUS`) `ERP_SHIPMENT_STATUS`,  "
+                + "    e.`ORDER_NO`, e.`PRIME_LINE_NO`, COALESCE(s.`DELIVERED_QTY`, s.`SHIPPED_QTY`, e.`QTY`) `ERP_QTY`,  "
+                + "    COALESCE(s.`ACTUAL_DELIVERY_DATE`, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS `EXPECTED_DELIVERY_DATE`, e.`ACTIVE` `ORDER_ACTIVE`, "
+                + "    s.`KN_SHIPMENT_NO`, s.`BATCH_NO`, s.`EXPIRY_DATE`, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
+                + "    pu.`PLANNING_UNIT_ID` `ERP_PLANNING_UNIT_ID`, pu.`LABEL_ID` `ERP_PU_LABEL_ID`, pu.`LABEL_EN` `ERP_PU_LABEL_EN`, pu.`LABEL_FR` `ERP_PU_LABEL_FR`, pu.`LABEL_SP` `ERP_PU_LABEL_SP`, pu.`LABEL_PR` `ERP_PU_LABEL_PR`,  "
+                + "    e.`PRICE`, e.`SHIPPING_COST`, null `PARENT_SHIPMENT_ID`, null `CHILD_SHIPMENT_ID`, null `NOTES`, e.`SHIP_BY`,  "
+                + "    ss.`SHIPMENT_STATUS_ID`, ss.`LABEL_ID` `SS_LABEL_ID`, ss.`LABEL_EN` `SS_LABEL_EN`, ss.`LABEL_FR` `SS_LABEL_FR`, ss.`LABEL_SP` `SS_LABEL_SP`, ss.`LABEL_PR`  `SS_LABEL_PR`  "
+                + "FROM ("
+                + "	SELECT e.RO_NO, e.RO_PRIME_LINE_NO "
+                + "     FROM tmp_shipment_sync ts "
+                + "	LEFT JOIN rm_erp_order_consolidated e ON ts.`RO_NO`=e.`RO_NO` AND ts.`RO_PRIME_LINE_NO`=e.`RO_PRIME_LINE_NO` "
+                + "	LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
+                + "	WHERE (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate) "
+                + ") t "
+                + "LEFT JOIN rm_erp_order_consolidated e ON t.`RO_NO`=e.`RO_NO` AND t.`RO_PRIME_LINE_NO`=e.`RO_PRIME_LINE_NO`   "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.`PROCUREMENT_AGENT_ID`=1 AND LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE`  "
+                + "LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
+                + "LEFT JOIN vw_shipment_status ss ON sm.`SHIPMENT_STATUS_ID`=ss.`SHIPMENT_STATUS_ID`  "
+                + "WHERE  "
+                + "    pu.`PLANNING_UNIT_ID` IS NOT NULL AND (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate)");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", shipmentSyncInput.getLastSyncDate());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
@@ -2168,6 +2177,33 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
                 + "WHERE slt.ACTIVE";
         return this.namedParameterJdbcTemplate.query(sqlString, new ShipmentLinkedToOtherProgramOutputRowMapper());
+    }
+
+    @Override
+    public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser) {
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_ro`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_ro` ("
+                + "  `RO_NO` VARCHAR(20) NOT NULL, "
+                + "  `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, "
+                + "  PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.jdbcTemplate.update(sqlString);
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        roAndRoPrimeLineNoList.stream().collect(Collectors.toList()).forEach(ut -> {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", ut.getRoNo());
+            param.addValue("roPrimeLineNo", ut.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        );
+        sqlString = "INSERT IGNORE INTO tmp_ro VALUES (:roNo, :roPrimeLineNo)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT e.RO_NO, e.RO_PRIME_LINE_NO, e.QTY, s.BATCH_NO, COALESCE(s.DELIVERED_QTY,s.SHIPPED_QTY) SHIPPED_QTY "
+                + "FROM tmp_ro r "
+                + "LEFT JOIN rm_erp_order_consolidated e ON r.RO_NO=e.RO_NO AND r.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new LinkedShipmentBatchDetailsListResultSetExtractor());
     }
 
 }

@@ -14,7 +14,9 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
@@ -209,6 +211,11 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     @Override
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
         return this.erpLinkingDao.getShipmentLinkedToOtherProgram(shipmentInput, curUser);
+    }
+
+    @Override
+    public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser) {
+        return this.erpLinkingDao.getBatchDetails(roAndRoPrimeLineNoList, curUser);
     }
 
 }

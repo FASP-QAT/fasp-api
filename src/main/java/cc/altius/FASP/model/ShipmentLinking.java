@@ -53,6 +53,8 @@ public class ShipmentLinking implements Serializable {
     private String knShipmentNo;
     @JsonView({Views.InternalView.class})
     private double conversionFactor;
+    @JsonView({Views.InternalView.class})
+    private String notes;
     // Only for reporting purposes, not to be stored
     @JsonView({Views.InternalView.class})
     private Integer qatPlanningUnitId;
@@ -191,6 +193,14 @@ public class ShipmentLinking implements Serializable {
 
     public void setConversionFactor(double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Integer getQatPlanningUnitId() {

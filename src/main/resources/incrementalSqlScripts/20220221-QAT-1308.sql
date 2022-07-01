@@ -667,7 +667,7 @@ BEGIN
         pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE,
         sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, st.PLANNING_UNIT_ID QAT_PLANNING_UNIT_ID,
         pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`,
-        sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, sl.CONVERSION_FACTOR,
+        sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, slt.CONVERSION_FACTOR,
         slt.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, slt.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`
     FROM (
 	SELECT sl.SHIPMENT_LINKING_ID, MAX(slt.VERSION_ID) MAX_VERSION_ID FROM rm_shipment_linking sl LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID WHERE (@versionId=-1 OR slt.VERSION_ID<=@versionId) AND sl.PROGRAM_ID=@programId GROUP BY slt.SHIPMENT_LINKING_ID
@@ -768,3 +768,152 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Line No');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ligne ERP Non');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de línea ERP');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Linha ERP Nº');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.manualTaggingNotePart1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP linking is only editable for local versions. If you don’t see the program or version you need, please');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La liaison ERP n`est modifiable que pour les versions locales. Si vous ne voyez pas le programme ou la version dont vous avez besoin, veuillez');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La vinculación de ERP solo se puede editar para las versiones locales. Si no ve el programa o la versión que necesita, por favor');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A vinculação do ERP só é editável para versões locais. Se você não vir o programa ou a versão que precisa, por favor');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.manualTaggingNotePart2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' load');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' charger');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' carga');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' carregar');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.manualTaggingNotePart3','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' your program first. Also, please note that only ERP orders after “Approved” Status are available for linking.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' votre programme d`abord. Veuillez également noter que seules les commandes ERP après le statut ""Approuvé"" sont disponibles pour la liaison.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' su programa primero. Además, tenga en cuenta que solo los pedidos de ERP después del estado ""Aprobado"" están disponibles para vincular.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' seu programa primeiro. Além disso, observe que apenas pedidos de ERP após o status ""Aprovado"" estão disponíveis para vinculação.');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Order #'
+where l.LABEL_CODE='static.mt.roNoAndRoLineNo' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ordre #'
+where l.LABEL_CODE='static.mt.roNoAndRoLineNo' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ordenar #'
+where l.LABEL_CODE='static.mt.roNoAndRoLineNo' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ordem #'
+where l.LABEL_CODE='static.mt.roNoAndRoLineNo' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.batchNo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Batch #');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lot #');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Lote #');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lote #');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Conversion (ERP to QAT)'
+where l.LABEL_CODE='static.manualTagging.conversionFactor' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Conversion (EGP en QAR)'
+where l.LABEL_CODE='static.manualTagging.conversionFactor' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Conversión (EGP a QAR)'
+where l.LABEL_CODE='static.manualTagging.conversionFactor' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Conversão (EGP para QAR)'
+where l.LABEL_CODE='static.manualTagging.conversionFactor' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Converted Qty'
+where l.LABEL_CODE='static.manualTagging.convertedQATShipmentQty' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Quantité convertie'
+where l.LABEL_CODE='static.manualTagging.convertedQATShipmentQty' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Cantidad convertida'
+where l.LABEL_CODE='static.manualTagging.convertedQATShipmentQty' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Quantidade convertida'
+where l.LABEL_CODE='static.manualTagging.convertedQATShipmentQty' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.parentShipmentId(childShipmentId)','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT Ship # (Child #)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT Navire # (Enfant #)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'N.° de barco QAT (N.° de niño)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'QAT Navio # (Filho #)');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='ERP Order #'
+where l.LABEL_CODE='static.manualTagging.RONO' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Numéro de commande ERP'
+where l.LABEL_CODE='static.manualTagging.RONO' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Orden ERP #'
+where l.LABEL_CODE='static.manualTagging.RONO' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nº do pedido ERP'
+where l.LABEL_CODE='static.manualTagging.RONO' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.loadProgram.loadProgramNotePart1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note : When loading, QAT will pull the latest shipment data for ERP-linked shipments, so the supply plan may look different than it was when it was originally committed. To see read-only version(s) of supply plans as they were originally committed, go to the');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : lors du chargement, QAT extrait les dernières données dexpédition pour les expéditions liées à l`ERP, de sorte que le plan d`approvisionnement peut être différent de ce qu`il était lors de son engagement initial. Pour afficher les versions en lecture seule des plans d`approvisionnement tels qu`ils ont été validés à l`origine, accédez à la');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Al cargar, QAT extraerá los datos de envío más recientes para los envíos vinculados a ERP, por lo que el plan de suministro puede verse diferente de lo que era cuando se comprometió originalmente. Para ver las versiones de solo lectura de los planes de suministro tal como se comprometieron originalmente, vaya a la');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Ao carregar, o QAT extrairá os dados de remessa mais recentes para remessas vinculadas ao ERP, portanto, o plano de fornecimento pode parecer diferente do que era quando foi originalmente confirmado. Para ver a(s) versão(ões) somente leitura dos planos de fornecimento conforme foram originalmente confirmados, vá para o');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.loadProgram.loadProgramNotePart2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'screen.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'filtrer.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'pantalla.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.shipmentAlreadyLinkedToOtherProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please see shipment(s) in red text – the program in the ‘server’ column has already linked to the ERP shipment(s) you are trying to link to. Please 1) de-link your shipment(s) or 2) request the other program to de-link their shipment(s).');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez voir les envois en rouge - le programme dans la colonne ""serveur"" a déjà été lié aux envois ERP auxquels vous essayez d`établir un lien. Veuillez 1) dissocier vos envois ou 2) demander à l`autre programme de dissocier leurs envois.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vea los envíos en texto rojo: el programa en la columna ""servidor"" ya se vinculó a los envíos de ERP que está intentando vincular. 1) desvincule su(s) envío(s) o 2) solicite al otro programa que desvincule su(s) envío(s).');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, veja a(s) remessa(s) em texto vermelho – o programa na coluna `servidor` já está vinculado à(s) remessa(s) de ERP para a qual você está tentando vincular. Por favor, 1) desvincule sua(s) remessa(s) ou 2) solicite ao outro programa para desvincular sua(s) remessa(s).');-- pr
+
+-- Added by Akil on 28th of Jun 2022
+ALTER TABLE `fasp`.`rm_shipment_linking` 
+DROP COLUMN `CONVERSION_FACTOR`;
+
+ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
+ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
+ADD COLUMN `NOTES` TEXT NULL AFTER `CONVERSION_FACTOR`;
