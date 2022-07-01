@@ -1929,7 +1929,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15)"
-                + "    AND COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH ");
+                + "    AND COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH "
+        );
         if (roPo != null) {
             sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
         }
