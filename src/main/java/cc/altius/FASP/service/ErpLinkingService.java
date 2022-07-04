@@ -55,8 +55,6 @@ public interface ErpLinkingService {
 
     public int getNotificationCount(CustomUserDetails curUser);
 
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
-
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
 
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
@@ -77,6 +75,8 @@ public interface ErpLinkingService {
     public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) throws ParseException;
     
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser);
+    
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
     
     public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
 }

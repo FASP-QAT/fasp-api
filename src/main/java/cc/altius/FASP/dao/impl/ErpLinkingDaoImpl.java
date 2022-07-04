@@ -1829,25 +1829,6 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     }
 
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        String sql = "SELECT "
-                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
-                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
-                + " COALESCE(e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,IF(es.`DELIVERED_QTY`!=0,COALESCE(es.`DELIVERED_QTY`,es.`SHIPPED_QTY`),es.`SHIPPED_QTY`) AS BATCH_QTY "
-                + " FROM rm_erp_order e "
-                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
-                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
-                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
-//                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
-        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
-        List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
-        System.out.println("history---" + history);
-        return history;
-    }
-
-    @Override
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
         String sql = "SELECT papu.`PLANNING_UNIT_ID` FROM ( "
                 + "SELECT e.`ERP_ORDER_ID`,e.`PLANNING_UNIT_SKU_CODE` FROM rm_erp_order e "
@@ -2129,7 +2110,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "     FROM tmp_shipment_sync ts "
                 + "	LEFT JOIN rm_erp_order_consolidated e ON ts.`RO_NO`=e.`RO_NO` AND ts.`RO_PRIME_LINE_NO`=e.`RO_PRIME_LINE_NO` "
                 + "	LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
-                + "	WHERE (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate) "
+                + "	WHERE (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate)  group by e.RO_NO, e.RO_PRIME_LINE_NO "
                 + ") t "
                 + "LEFT JOIN rm_erp_order_consolidated e ON t.`RO_NO`=e.`RO_NO` AND t.`RO_PRIME_LINE_NO`=e.`RO_PRIME_LINE_NO`   "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
@@ -2138,7 +2119,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
                 + "LEFT JOIN vw_shipment_status ss ON sm.`SHIPMENT_STATUS_ID`=ss.`SHIPMENT_STATUS_ID`  "
                 + "WHERE  "
-                + "    pu.`PLANNING_UNIT_ID` IS NOT NULL AND (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate)");
+                + "    pu.`PLANNING_UNIT_ID` IS NOT NULL "
+//                + "AND (e.`LAST_MODIFIED_DATE` > :lastSyncDate OR s.`LAST_MODIFIED_DATE`>:lastSyncDate)"
+        );
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", shipmentSyncInput.getLastSyncDate());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
@@ -2168,7 +2151,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 
         sqlString = "SELECT "
                 + "    p.PROGRAM_ID, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, p.PROGRAM_CODE, "
-                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID, sl.CONVERSION_FACTOR, "
+                + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID, slt.CONVERSION_FACTOR, "
                 + "    pm.USER_ID, pm.USERNAME "
                 + "FROM tmp_shipment_linked_to_other_programs ts "
                 + "LEFT JOIN rm_shipment_linking sl ON ts.PROGRAM_ID!=sl.PROGRAM_ID AND ts.RO_NO=sl.RO_NO AND ts.RO_PRIME_LINE_NO=sl.RO_PRIME_LINE_NO "
@@ -2177,6 +2160,25 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
                 + "WHERE slt.ACTIVE";
         return this.namedParameterJdbcTemplate.query(sqlString, new ShipmentLinkedToOtherProgramOutputRowMapper());
+    }
+    
+    @Override
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+        String sql = "SELECT "
+                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
+                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
+                + " COALESCE(e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,IF(es.`DELIVERED_QTY`!=0,COALESCE(es.`DELIVERED_QTY`,es.`SHIPPED_QTY`),es.`SHIPPED_QTY`) AS BATCH_QTY "
+                + " FROM rm_erp_order e "
+                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
+                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
+                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
+                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
+//                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
+        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
+        List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
+        System.out.println("history---" + history);
+        return history;
     }
 
     @Override
