@@ -25,6 +25,7 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +65,8 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     @Value("${syncExpiresOn}")
     private int syncExpiresOn;
@@ -399,6 +402,33 @@ public class UserDaoImpl implements UserDao {
         params.put("curUser", curUser.getUserId());
         sql += this.userOrderBy;
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
+    }
+
+    @Override
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(this.userString)
+                .append(" AND user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
+                        + "FROM vw_all_program p "
+                        + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                        + "LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "
+                        + "LEFT JOIN us_user u ON u.REALM_ID = rc.REALM_ID "
+                        + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID "
+                        + "WHERE "
+                        + "    p.PROGRAM_ID=:programId "
+                        + "    AND u.REALM_ID IS NOT NULL "
+                        + "    AND u.ACTIVE "
+                        + "    AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID) "
+                        + "    AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID)) "
+                        + "    AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) "
+                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        params.put("curUser", curUser.getUserId());
+        sb
+                .append(")")
+                .append(this.userOrderBy);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }
 
     @Override

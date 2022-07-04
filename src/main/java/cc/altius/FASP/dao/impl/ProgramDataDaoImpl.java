@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
@@ -137,7 +138,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException {
         Map<String, Object> params = new HashMap<>();
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
@@ -148,11 +149,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+        // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
+        String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", p.getProgramId());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            // This is a delinked Program
+            for (Shipment s : pd.getShipmentList()) {
+                if (s.isErpFlag()) {
+                    throw new CouldNotSaveException("You are trying to commit a program that has ERP linked Shipments but this program has been delinked already");
+                }
+            }
+        }
+
         // Check which records have changed
         params.clear();
         logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
@@ -2241,15 +2257,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
         String sqlString = "SELECT li.INT_PROGRAM_VERSION_TRANS_ID PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  li.INT_VERSION_ID VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
                 + "FROM ( "
-                + "         SELECT MAX(pvte.PROGRAM_VERSION_TRANS_ID) INT_PROGRAM_VERSION_TRANS_ID, pvte.PROGRAM_ID, ip.INTEGRATION_ID, MAX(pvte.VERSION_ID) INT_VERSION_ID, max(pvte.LAST_MODIFIED_DATE) INT_LAST_MODIFIED_DATE "
-                + "         FROM rm_integration_program ip "
-                + "         LEFT JOIN ( "
-                + "                  SELECT pvt.PROGRAM_VERSION_TRANS_ID, pvt.LAST_MODIFIED_DATE, pv.PROGRAM_ID, pv.VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID "
+                + "         SELECT pvt.PROGRAM_VERSION_TRANS_ID INT_PROGRAM_VERSION_TRANS_ID, pv.PROGRAM_ID, pv.VERSION_ID INT_VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, pvt2.INTEGRATION_ID FROM (SELECT pv.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, ip.INTEGRATION_ID "
                 + "                  FROM rm_program_version_trans pvt "
                 + "                  LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         ) pvte ON ip.PROGRAM_ID=pvte.PROGRAM_ID and ip.VERSION_TYPE_ID=pvte.VERSION_TYPE_ID AND ip.VERSION_STATUS_ID=pvte.VERSION_STATUS_ID "
-                + "         WHERE ip.ACTIVE AND pvte.PROGRAM_VERSION_TRANS_ID IS NOT  NULL "
-                + "         GROUP BY pvte.PROGRAM_ID, ip.INTEGRATION_ID "
+                + "                  LEFT JOIN rm_integration_program ip ON ip.PROGRAM_ID=pv.PROGRAM_ID AND ip.VERSION_TYPE_ID=pv.VERSION_TYPE_ID AND ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID "
+                + "                  WHERE ip.ACTIVE "
+                + "                  GROUP BY pv.PROGRAM_ID, ip.INTEGRATION_ID) pvt2 "
+                + "                  LEFT JOIN rm_program_version pv ON pv.PROGRAM_ID=pvt2.PROGRAM_ID AND pv.VERSION_ID=pvt2.VERSION_ID "
+                + "                  LEFT JOIN rm_program_version_trans pvt ON pvt2.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID AND pv.PROGRAM_VERSION_ID=pvt.PROGRAM_VERSION_ID "
                 + ") li "
                 + "LEFT JOIN ( "
                 + "         SELECT pv.PROGRAM_ID, ipc.INTEGRATION_ID, MAX(pv.VERSION_ID) LAST_COMPLETED_VERSION_ID "
