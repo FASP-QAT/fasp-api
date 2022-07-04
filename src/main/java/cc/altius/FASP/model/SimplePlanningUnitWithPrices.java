@@ -15,25 +15,18 @@ import java.util.Objects;
  */
 public class SimplePlanningUnitWithPrices extends SimpleObject {
 
-    private SimpleObject productCategory;
+    private SimpleForecastingUnitObject forecastingUnit;
+    private SimpleCodeObject unit;
+    private Double multiplier;
     private List<SimpleObjectPrice> procurementAgentPriceList;
 
     public SimplePlanningUnitWithPrices() {
         this.procurementAgentPriceList = new LinkedList<>();
     }
 
-    public SimplePlanningUnitWithPrices(Integer id, Label label, SimpleObject productCategory) {
+    public SimplePlanningUnitWithPrices(Integer id, Label label) {
         super(id, label);
-        this.productCategory = productCategory;
         this.procurementAgentPriceList = new LinkedList<>();
-    }
-
-    public SimpleObject getProductCategory() {
-        return productCategory;
-    }
-
-    public void setProductCategory(SimpleObject productCategory) {
-        this.productCategory = productCategory;
     }
 
     public List<SimpleObjectPrice> getProcurementAgentPriceList() {
@@ -44,10 +37,34 @@ public class SimplePlanningUnitWithPrices extends SimpleObject {
         this.procurementAgentPriceList = procurementAgentPriceList;
     }
 
+    public SimpleForecastingUnitObject getForecastingUnit() {
+        return forecastingUnit;
+    }
+
+    public void setForecastingUnit(SimpleForecastingUnitObject forecastingUnit) {
+        this.forecastingUnit = forecastingUnit;
+    }
+
+    public SimpleCodeObject getUnit() {
+        return unit;
+    }
+
+    public void setUnit(SimpleCodeObject unit) {
+        this.unit = unit;
+    }
+
+    public Double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(Double multiplier) {
+        this.multiplier = multiplier;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 23 * hash + Objects.hashCode(this.productCategory);
+        hash = 23 * hash + Objects.hashCode(this.getId());
         return hash;
     }
 
