@@ -917,3 +917,110 @@ DROP COLUMN `CONVERSION_FACTOR`;
 ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
 ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
 ADD COLUMN `NOTES` TEXT NULL AFTER `CONVERSION_FACTOR`;
+
+ALTER TABLE `fasp`.`rm_shipment_linking` ADD COLUMN `ORIGINAL_ERP_PLANNING_UNIT_ID` INT UNSIGNED NOT NULL AFTER `RO_PRIME_LINE_NO`;
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+CHANGE COLUMN `LABEL_ID` `LABEL_ID` INT UNSIGNED NOT NULL ,
+CHANGE COLUMN `ACTIVE` `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT '1' ,
+CHANGE COLUMN `CREATED_BY` `CREATED_BY` INT UNSIGNED NOT NULL ,
+CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL ;
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `vw_notification_type` AS
+    SELECT 
+        `nt`.`NOTIFICATION_TYPE_ID` AS `NOTIFICATION_TYPE_ID`,
+        `nt`.`LABEL_ID` AS `LABEL_ID`,
+        `nt`.`ACTIVE` AS `ACTIVE`,
+        `nt`.`CREATED_DATE` AS `CREATED_DATE`,
+        `nt`.`CREATED_BY` AS `CREATED_BY`,
+        `nt`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `nt`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_notification_type` `nt`
+        LEFT JOIN `ap_label` `l` ON ((`nt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD INDEX `fk_ap_notification_type_labelId_idx` (`LABEL_ID` ASC);
+;
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_labelId`
+  FOREIGN KEY (`LABEL_ID`)
+  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD INDEX `fk_ap_notification_type_createdBy_idx` (`CREATED_BY` ASC);
+;
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD INDEX `fk_ap_notification_type_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+;
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+CREATE TABLE `rm_erp_notification` (
+  `NOTIFICATION_ID` int unsigned NOT NULL AUTO_INCREMENT,
+  `NOTIFICATION_TYPE_ID` int UNSIGNED NOT NULL COMMENT '1-SKU CHANGE 2-CANCELLED',
+  `ADDRESSED` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+  `ACTIVE` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+  `CREATED_DATE` datetime NOT NULL,
+  `CREATED_BY` int UNSIGNED  NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int UNSIGNED NOT NULL,
+  `SHIPMENT_LINKING_ID` int UNSIGNED NOT NULL,
+  PRIMARY KEY (`NOTIFICATION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `fasp`.`rm_erp_notification` 
+ADD INDEX `fk_rm_erp_notification_notificationTypeId_idx` (`NOTIFICATION_TYPE_ID` ASC) ,
+ADD INDEX `fk_rm_erp_notification_shipmentLinkingId_idx` (`SHIPMENT_LINKING_ID` ASC) ,
+ADD INDEX `fk_rm_erp_notification_createdBy_idx` (`CREATED_BY` ASC) ,
+ADD INDEX `fk_rm_erp_notification_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC) ;
+
+ALTER TABLE `fasp`.`rm_erp_notification` 
+ADD CONSTRAINT `fk_rm_erp_notification_notificationTypeId`
+  FOREIGN KEY (`NOTIFICATION_TYPE_ID`)
+  REFERENCES `fasp`.`ap_notification_type` (`NOTIFICATION_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_shipmentLinkingId`
+  FOREIGN KEY (`SHIPMENT_LINKING_ID`)
+  REFERENCES `fasp`.`rm_shipment_linking` (`SHIPMENT_LINKING_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+
