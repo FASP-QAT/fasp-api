@@ -58,6 +58,7 @@ public class MastersSync implements Serializable {
     private List<TreeTemplate> treeTemplateList;
     private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
     private List<ExtrapolationMethod> extrapolationMethodList;
+    private List<ProcurementAgentType> procurementAgentyType;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -401,6 +402,14 @@ public class MastersSync implements Serializable {
 
     public void setExtrapolationMethodList(List<ExtrapolationMethod> extrapolationMethodList) {
         this.extrapolationMethodList = extrapolationMethodList;
+    }
+
+    public void setProcurementAgentyType(List<ProcurementAgentType> procurementAgentyType) {
+        this.procurementAgentyType = procurementAgentyType;
+    }
+
+    public List<ProcurementAgentType> getProcurementAgentyType() {
+        return procurementAgentyType;
     }
 
 }

@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
+import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
@@ -42,10 +43,25 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public int addProcurementAgentType(ProcurementAgentType procurementAgentType, CustomUserDetails curUser) {
+        return this.procurementAgentDao.addProcurementAgentType(procurementAgentType, curUser);
+    }
+
+    @Override
     public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgent.getProcurementAgentId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return this.procurementAgentDao.updateProcurementAgent(procurementAgent, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public int updateProcurementAgentType(ProcurementAgentType procurementAgentType, CustomUserDetails curUser) {
+        ProcurementAgentType pa = this.procurementAgentDao.getProcurementAgentTypeById(procurementAgentType.getProcurementAgentTypeId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            return this.procurementAgentDao.updateProcurementAgentType(procurementAgentType, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -57,8 +73,23 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentTypeList(active, curUser);
+    }
+
+    @Override
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            return pa;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public ProcurementAgentType getProcurementAgentTypeById(int procurementAgentTypeId, CustomUserDetails curUser) {
+        ProcurementAgentType pa = this.procurementAgentDao.getProcurementAgentTypeById(procurementAgentTypeId, curUser);
         if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return pa;
         } else {
@@ -74,6 +105,19 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.procurementAgentDao.getProcurementAgentByRealm(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeByRealm(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.procurementAgentDao.getProcurementAgentTypeByRealm(realmId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -128,6 +172,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<ProcurementAgentType> getProcurementAgentTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentTypeListForSync(lastSyncDate, curUser);
     }
 
     @Override
