@@ -15,5 +15,5 @@ VALUES (
     0, 0, 0, 0, 1,
     1, now(), 1, now());
 
-SELECT LAST_INSERT_ID() INTO @MAX
-INSERT INTO `fasp`.`rm_realm_problem` (`REALM_ID`, `PROBLEM_ID`, `PROBLEM_TYPE_ID`, `CRITICALITY_ID` `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES ('1', @MAX, '2', '1', '3', '1', now(), '1', now());
+SELECT LAST_INSERT_ID() INTO @MAX;
+INSERT INTO `fasp`.`rm_realm_problem` (`REALM_ID`, `PROBLEM_ID`, `PROBLEM_TYPE_ID`, `CRITICALITY_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES ('1', @MAX, '2', '1', '3', '1', now(), '1', now());
