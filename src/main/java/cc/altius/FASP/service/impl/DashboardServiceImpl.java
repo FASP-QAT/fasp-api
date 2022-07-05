@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.DashboardDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.service.DashboardService;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +41,9 @@ public class DashboardServiceImpl implements DashboardService {
         map.put("TECHNICAL_AREA_COUNT", this.dashboardDao.getHealthAreaCount(curUser));
         map.put("REGION_COUNT", this.dashboardDao.getRegionCount(curUser));
         map.put("ORGANIZATION_COUNT", this.dashboardDao.getOrganisationCount(curUser));
-        map.put("PROGRAM_COUNT", this.dashboardDao.getProgramCount(curUser));
+        ProgramCount programCount = this.dashboardDao.getProgramCount(curUser);
+        map.put("PROGRAM_COUNT", programCount.getProgramCount()); // ProgramType = 1 
+        map.put("DATASET_COUNT", programCount.getDatasetCount()); // ProgramType = 2
         map.put("SUPPLY_PLAN_COUNT", this.dashboardDao.getSupplyPlanPendingCount(curUser));
         return map;
     }
