@@ -74,7 +74,9 @@ public class ProgramData extends BaseModel implements Serializable {
     private int requestedProgramVersion;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<SimplePlanningUnitForSupplyPlanObject> planningUnitList;
-
+    @JsonView(Views.InternalView.class)
+    private List<SimpleCodeObject> procurementAgentList;
+    
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
     }
@@ -338,6 +340,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setPlanningUnitList(List<SimplePlanningUnitForSupplyPlanObject> planningUnitList) {
         this.planningUnitList = planningUnitList;
+    }
+
+    public List<SimpleCodeObject> getProcurementAgentList() {
+        return procurementAgentList;
+    }
+
+    public void setProcurementAgentList(List<SimpleCodeObject> procurementAgentList) {
+        this.procurementAgentList = procurementAgentList;
     }
 
     @Override
