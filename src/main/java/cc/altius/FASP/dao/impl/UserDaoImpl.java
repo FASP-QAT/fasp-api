@@ -81,6 +81,24 @@ public class UserDaoImpl implements UserDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    private final static String userAccessString = "SELECT a1.USER_ID FROM (SELECT      "
+            + "    `user`.`USER_ID`, "
+            + "    BIT_or(IF( "
+            + "            (cuacl.REALM_COUNTRY_ID=acl.REALM_COUNTRY_ID OR cuacl.REALM_COUNTRY_ID is null) AND  "
+            + "            (cuacl.HEALTH_AREA_ID=acl.HEALTH_AREA_ID OR cuacl.HEALTH_AREA_ID is null) AND "
+            + "            (cuacl.ORGANISATION_ID=acl.ORGANISATION_ID OR cuacl.ORGANISATION_ID is null) AND "
+            + "            (cuacl.PROGRAM_ID=acl.PROGRAM_ID OR cuacl.PROGRAM_ID is null) "
+            + "        , 1,0)) access "
+            + "FROM us_user `user`      "
+            + "LEFT JOIN us_user_acl acl ON `user`.`USER_ID`=acl.`USER_ID`      "
+            + "LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL      "
+            + "LEFT JOIN us_user_acl cuacl ON cu.USER_ID=cuacl.USER_ID "
+            + "WHERE  "
+            + "    cu.USER_ID=:curUser   "
+            + "    AND (-1=:realmId OR user.REALM_ID=:realmId)   "
+            + "    AND (-1=:userRealmId OR user.REALM_ID=:userRealmId)   "
+            + "group by user.USER_ID "
+            + "having access) a1";
     private final static String customUserString = " SELECT "
             + " `user`.`USER_ID`,`user`.`AGREEMENT_ACCEPTED`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
             + " `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
@@ -410,7 +428,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
-            params.put("userRealmId", curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
         params.put("curUser", curUser.getUserId());
@@ -420,7 +438,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(this.userString)
+        StringBuilder sb = new StringBuilder(this.userCommonString).append(this.userList)
                 .append(" AND user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
                         + "FROM vw_all_program p "
                         + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
@@ -434,7 +452,8 @@ public class UserDaoImpl implements UserDao {
                         + "    AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID) "
                         + "    AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID)) "
                         + "    AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) "
-                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)");
+                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)")
+                .append(this.userOrderBy);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
