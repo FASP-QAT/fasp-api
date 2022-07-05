@@ -1,27 +1,27 @@
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_planningUnitSplit`(
-    VAR_USER_ID INT(10), 
-    VAR_REALM_ID INT(10), 
-    VAR_START_DATE DATE, 
-    VAR_STOP_DATE DATE, 
-    VAR_REALM_COUNTRY_IDS TEXT, 
+    VAR_USER_ID INT(10),
+    VAR_REALM_ID INT(10),
+    VAR_START_DATE DATE,
+    VAR_STOP_DATE DATE,
+    VAR_REALM_COUNTRY_IDS TEXT,
     VAR_PROGRAM_IDS TEXT,  
-    VAR_FUNDING_SOURCE_IDS TEXT, 
-    VAR_PLANNING_UNIT_IDS TEXT, 
-    VAR_SHIPMENT_STATUS_IDS VARCHAR(255), 
+    VAR_FUNDING_SOURCE_IDS TEXT,
+    VAR_PLANNING_UNIT_IDS TEXT,
+    VAR_SHIPMENT_STATUS_IDS VARCHAR(255),
     VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
-	
+
  -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  -- Report no 20 - Part 2 PlanningUnit Split
  -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
  -- Only Month and Year will be considered for StartDate and StopDate
  -- Must be a valid RealmId that you want to see the Global Report for
- -- RealmCountryIds is the list of Realm Countries you want to run the report for 
+ -- RealmCountryIds is the list of Realm Countries you want to run the report for
  -- Empty RealmCountryIds means you want to run the report for all the Realm Countries
  -- ProgramIds is the list of the Programs that you want to run the report for
  -- Empty ProgramIds means you want to run the report for all the Programs in the Realm
- -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
+ -- PlanningUnitIds is the list of Planning Units you want to run the report for.
  -- Empty PlanningUnitIds means you want to run the report for all the Planning Units
  -- FundingSourceIds is the list of Funding Sources that you want to run the report for
  -- Empty FundingSourceIds means you want to run for all the Funding Sources
@@ -35,10 +35,10 @@ BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    
+   
     SET @aclSqlString = CONCAT("       AND (FALSE ");
     OPEN cursor_acl;
-	read_loop: LOOP
+read_loop: LOOP
         FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
         IF done THEN
             LEAVE read_loop;
@@ -53,7 +53,7 @@ BEGIN
     END LOOP;
     CLOSE cursor_acl;
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
-    
+   
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
     SET @realmId = VAR_REALM_ID;
@@ -102,7 +102,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
     SET @sqlString = CONCAT(@sqlString, "	AND (LENGTH(@fundingSourceIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID,@fundingSourceIds)) ");
     SET @sqlString = CONCAT(@sqlString, "	GROUP BY st.PLANNING_UNIT_ID");
-	
+
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
 END
