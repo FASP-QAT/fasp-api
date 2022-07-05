@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -15,28 +17,34 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     private int procurementAgentId;
     private SimpleCodeObject realm;
+    private SimpleCodeObject procurementAgentType;
     private Label label;
     private String procurementAgentCode;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private String colorHtmlCode;
+    List<SimpleObject> programList;
 
     public ProcurementAgent() {
+        this.programList = new LinkedList<>();
     }
 
     public ProcurementAgent(int procurementAgentId, Label label, String procurementAgentCode) {
         this.procurementAgentId = procurementAgentId;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
+        this.programList = new LinkedList<>();
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, SimpleCodeObject procurementAgentType, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
+        this.procurementAgentType = procurementAgentType;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
+        this.programList = new LinkedList<>();
     }
 
     public int getProcurementAgentId() {
@@ -53,6 +61,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
+    }
+
+    public SimpleCodeObject getProcurementAgentType() {
+        return procurementAgentType;
+    }
+
+    public void setProcurementAgentType(SimpleCodeObject procurementAgentType) {
+        this.procurementAgentType = procurementAgentType;
     }
 
     public Label getLabel() {
@@ -93,6 +109,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setColorHtmlCode(String colorHtmlCode) {
         this.colorHtmlCode = colorHtmlCode;
+    }
+
+    public List<SimpleObject> getProgramList() {
+        return programList;
+    }
+
+    public void setProgramList(List<SimpleObject> programList) {
+        this.programList = programList;
     }
 
     @Override
