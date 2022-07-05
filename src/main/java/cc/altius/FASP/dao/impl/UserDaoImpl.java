@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -26,6 +27,8 @@ import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.rest.controller.UserRestController;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -116,7 +119,7 @@ public class UserDaoImpl implements UserDao {
 
     private static final String customUserOrderBy = "  ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,bf.`BUSINESS_FUNCTION_ID`,acl.`USER_ACL_ID`";
 
-    private static final String userString = "SELECT "
+    private static final String userCommonString = "SELECT "
             + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`ORG_AND_COUNTRY`, `user`.`PASSWORD`, "
             + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, `user`.`DEFAULT_MODULE_ID`, "
             + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
@@ -150,10 +153,9 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
             + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
-            + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID "
-            + "    LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL "
-            + "    WHERE cu.USER_ID=:curUser ";
-
+            + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID ";
+    private static final String userByUserId = "    WHERE user.USER_ID=:userId ";
+    private static final String userList = "    WHERE user_role.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ";
     private static final String userOrderBy = " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
 
     /**
@@ -228,48 +230,6 @@ public class UserDaoImpl implements UserDao {
         return this.namedParameterJdbcTemplate.queryForList(sqlString, params, String.class);
     }
 
-//    @Override
-//    public Map<String, Object> checkIfUserExists(String username, String password) {
-//        CustomUserDetails customUserDetails = null;
-//        Map<String, Object> responseMap = new HashMap<>();
-//        String sql = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
-//                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
-//                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
-//                + " WHERE user.USERNAME=:username";
-//        try {
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("username", username);
-//            customUserDetails = this.namedParameterJdbcTemplate.query(sql, params, new CustomUserDetailsResultSetExtractorBasic());
-//            PasswordEncoder encoder = new BCryptPasswordEncoder();
-//            if (encoder.matches(password, customUserDetails.getPassword())) {
-//                if (!customUserDetails.isActive()) {
-//                    responseMap.put("customUserDetails", null);
-//                    responseMap.put("message", "User is not active");
-//                    return responseMap;
-//                } else if (customUserDetails.getFailedAttempts() >= 3) {
-//                    responseMap.put("customUserDetails", null);
-//                    responseMap.put("message", "User account is locked");
-//                    return responseMap;
-//                } else {
-//                    customUserDetails.setBusinessFunction(this.getBusinessFunctionsForUserId(customUserDetails.getUserId()));
-//                    responseMap.put("customUserDetails", customUserDetails);
-//                    responseMap.put("message", "Login successful");
-//                    this.resetFailedAttemptsByUsername(username);
-//                }
-//            } else {
-//                this.updateFailedAttemptsByUserId(username);
-//                responseMap.put("customUserDetails", null);
-//                responseMap.put("message", "Password is invalid");
-//                return responseMap;
-//            }
-//        } catch (Exception i) {
-//            logger.error("Error", i);
-//            responseMap.put("customUserDetails", null);
-//            responseMap.put("message", "User does not exists");
-//            return responseMap;
-//        }
-//        return responseMap;
-//    }
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         try {
@@ -341,9 +301,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    @Transactional
-    public int addNewUser(User user, int curUser) {
-        SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingColumns("REALM_ID", "AGREEMENT_ACCEPTED", "USERNAME", "PASSWORD", "EMAIL_ID", "ORG_AND_COUNTRY", "LANGUAGE_ID", "ACTIVE", "FAILED_ATTEMPTS", "EXPIRES_ON", "SYNC_EXPIRES_ON", "LAST_LOGIN_DATE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("USER_ID");
+    @Transactional (rollbackFor = IncorrectAccessControlException.class)
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
+        String sqlString = "INSERT INTO us_user (`REALM_ID`, `AGREEMENT_ACCEPTED`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `ORG_AND_COUNTRY`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_ID, :AGREEMENT_ACCEPTED, :USERNAME, :PASSWORD, :EMAIL_ID, :ORG_AND_COUNTRY, :LANGUAGE_ID, :ACTIVE, :FAILED_ATTEMPTS, :EXPIRES_ON, :SYNC_EXPIRES_ON, :LAST_LOGIN_DATE, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", ((user.getRealm() == null || user.getRealm().getRealmId() == null ? null : (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null))));
@@ -359,12 +319,14 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
-        map.put("CREATED_BY", curUser);
+        map.put("CREATED_BY", curUser.getUserId());
         map.put("CREATED_DATE", curDate);
-        map.put("LAST_MODIFIED_BY", curUser);
+        map.put("LAST_MODIFIED_BY", curUser.getUserId());
         map.put("LAST_MODIFIED_DATE", curDate);
-        int userId = insert.executeAndReturnKey(map).intValue();
-        String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
+        this.namedParameterJdbcTemplate.update(sqlString, map);
+        int userId = this.namedParameterJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", map, Integer.class);
+
+        sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
         Map<String, Object>[] paramArray = new HashMap[user.getRoles().length];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
@@ -372,26 +334,78 @@ public class UserDaoImpl implements UserDao {
             params = new HashMap<>();
             params.put("userId", userId);
             params.put("roleId", role);
-            params.put("curUser", curUser);
+            params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
+        user.setUserId(userId);
+        int row = 0, count;
+        x = 0;
+        params.clear();
+        paramArray = null;
+        paramArray = new HashMap[user.getUserAcls().length];
+        if (user.getUserAcls() != null && user.getUserAcls().length > 1) {
+            for (UserAcl userAcl : user.getUserAcls()) {
+                count = 0;
+                if (userAcl.getRealmCountryId() == -1) {
+                    count++;
+                }
+                if (userAcl.getHealthAreaId() == -1) {
+                    count++;
+                }
+                if (userAcl.getOrganisationId() == -1) {
+                    count++;
+                }
+                if (userAcl.getProgramId() == -1) {
+                    count++;
+                }
+                if (count == 4) {
+                    throw new IncorrectAccessControlException();
+                }
+            }
+
+        }
+        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
+            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+            params.put("userId", user.getUserId());
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+            paramArray = new HashMap[user.getUserAcls().length];
+            for (UserAcl userAcl : user.getUserAcls()) {
+                params = new HashMap<>();
+                params.put("userId", user.getUserId());
+                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
+                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                paramArray[x] = params;
+                x++;
+            }
+            row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+        }
+        if (row == 0) {
+            throw new IncorrectAccessControlException();
+        }
         return userId;
     }
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
-        String sql = this.userString + this.userOrderBy;
+        String sql = this.userCommonString + this.userList + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
+        params.put("realmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userString + " AND user.REALM_ID=:realmId ";
+        String sql = this.userCommonString + this.userList + this.userOrderBy;
 
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
@@ -433,10 +447,11 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) {
-        String sql = this.userString + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
+        String sql = this.userCommonString + this.userByUserId + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("curUser", curUser.getUserId());
+        logger.info(LogUtils.buildStringForLog(sql, params));
         User u = this.namedParameterJdbcTemplate.query(sql, params, new UserResultSetExtractor());
         if (u == null) {
             throw new EmptyResultDataAccessException(1);
@@ -446,8 +461,8 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    @Transactional
-    public int updateUser(User user, int curUser) {
+    @Transactional (rollbackFor = IncorrectAccessControlException.class)
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
@@ -466,7 +481,7 @@ public class UserDaoImpl implements UserDao {
         params.put("orgAndCountry", user.getOrgAndCountry());
         params.put("languageId", user.getLanguage().getLanguageId());
         params.put("active", user.isActive());
-        params.put("lastModifiedBy", curUser);
+        params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
         params.put("userId", user.getUserId());
         int row = this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -480,12 +495,61 @@ public class UserDaoImpl implements UserDao {
             params = new HashMap<>();
             params.put("userId", user.getUserId());
             params.put("roleId", role);
-            params.put("curUser", curUser);
+            params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
+        int count = 0;
+        x = 0;
+        params.clear();
+        paramArray = null;
+        paramArray = new HashMap[user.getUserAcls().length];
+        if (user.getUserAcls() != null && user.getUserAcls().length > 1) {
+            for (UserAcl userAcl : user.getUserAcls()) {
+                count = 0;
+                if (userAcl.getRealmCountryId() == -1) {
+                    count++;
+                }
+                if (userAcl.getHealthAreaId() == -1) {
+                    count++;
+                }
+                if (userAcl.getOrganisationId() == -1) {
+                    count++;
+                }
+                if (userAcl.getProgramId() == -1) {
+                    count++;
+                }
+                if (count == 4) {
+                    throw new IncorrectAccessControlException();
+                }
+            }
+
+        }
+        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
+            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+            params.put("userId", user.getUserId());
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+            paramArray = new HashMap[user.getUserAcls().length];
+            for (UserAcl userAcl : user.getUserAcls()) {
+                params = new HashMap<>();
+                params.put("userId", user.getUserId());
+                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
+                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                paramArray[x] = params;
+                x++;
+            }
+            row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+        }
+        if (row == 0) {
+            throw new IncorrectAccessControlException();
+        }
         return row;
     }
 
@@ -772,6 +836,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    @Transactional
     public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
