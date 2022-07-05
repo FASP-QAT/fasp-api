@@ -423,7 +423,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userList + this.userOrderBy;
+        String sql = this.userCommonString + this.userList ;
 
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
