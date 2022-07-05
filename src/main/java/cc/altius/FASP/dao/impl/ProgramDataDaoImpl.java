@@ -1038,7 +1038,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_shipment_linking_7_idx` (`ORDER_NO` ASC), "
                 + "  INDEX `fk_tmp_shipment_linking_8_idx` (`PRIME_LINE_NO` ASC), "
                 + "  INDEX `fk_tmp_shipment_linking_9_idx` (`KN_SHIPMENT_NO` ASC), "
-                + "  INDEX `fk_tmp_shipment_linking_10_idx` (`VERSION_ID` ASC))"
+                + "  INDEX `fk_tmp_shipment_linking_10_idx` (`VERSION_ID` ASC)), "
                 + "  INDEX `fk_tmp_shipment_linking_11_idx` (`ORIGINAL_PLANNING_UNIT_ID` ASC))"
                 + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
