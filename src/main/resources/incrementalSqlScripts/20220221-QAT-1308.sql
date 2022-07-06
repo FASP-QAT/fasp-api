@@ -667,7 +667,7 @@ BEGIN
         pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE,
         sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, st.PLANNING_UNIT_ID QAT_PLANNING_UNIT_ID,
         pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`,
-        sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, slt.CONVERSION_FACTOR, slt.NOTES, 
+        sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, slt.CONVERSION_FACTOR,
         slt.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, slt.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`
     FROM (
 	SELECT sl.SHIPMENT_LINKING_ID, MAX(slt.VERSION_ID) MAX_VERSION_ID FROM rm_shipment_linking sl LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID WHERE (@versionId=-1 OR slt.VERSION_ID<=@versionId) AND sl.PROGRAM_ID=@programId GROUP BY slt.SHIPMENT_LINKING_ID
@@ -911,8 +911,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vea los envíos en tex
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, veja a(s) remessa(s) em texto vermelho – o programa na coluna `servidor` já está vinculado à(s) remessa(s) de ERP para a qual você está tentando vincular. Por favor, 1) desvincule sua(s) remessa(s) ou 2) solicite ao outro programa para desvincular sua(s) remessa(s).');-- pr
 
 -- Added by Akil on 28th of Jun 2022
-ALTER TABLE `fasp`.`rm_shipment_linking` 
-DROP COLUMN `CONVERSION_FACTOR`;
+ALTER TABLE `fasp`.`rm_shipment_linking` DROP COLUMN `CONVERSION_FACTOR`;
 
 ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
 ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
@@ -950,9 +949,8 @@ VIEW `vw_notification_type` AS
         LEFT JOIN `ap_label` `l` ON ((`nt`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
 
-ALTER TABLE `fasp`.`ap_notification_type` 
-ADD INDEX `fk_ap_notification_type_labelId_idx` (`LABEL_ID` ASC);
-;
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_labelId_idx` (`LABEL_ID` ASC);
+
 ALTER TABLE `fasp`.`ap_notification_type` 
 ADD CONSTRAINT `fk_ap_notification_type_labelId`
   FOREIGN KEY (`LABEL_ID`)
@@ -961,9 +959,8 @@ ADD CONSTRAINT `fk_ap_notification_type_labelId`
   ON UPDATE NO ACTION;
 
 
-ALTER TABLE `fasp`.`ap_notification_type` 
-ADD INDEX `fk_ap_notification_type_createdBy_idx` (`CREATED_BY` ASC);
-;
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_createdBy_idx` (`CREATED_BY` ASC);
+
 ALTER TABLE `fasp`.`ap_notification_type` 
 ADD CONSTRAINT `fk_ap_notification_type_createdBy`
   FOREIGN KEY (`CREATED_BY`)
@@ -972,9 +969,8 @@ ADD CONSTRAINT `fk_ap_notification_type_createdBy`
   ON UPDATE NO ACTION;
 
 
-ALTER TABLE `fasp`.`ap_notification_type` 
-ADD INDEX `fk_ap_notification_type_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
-;
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+
 ALTER TABLE `fasp`.`ap_notification_type` 
 ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy`
   FOREIGN KEY (`LAST_MODIFIED_BY`)
@@ -1023,5 +1019,72 @@ ADD CONSTRAINT `fk_rm_erp_notification_lastModifiedBy`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 
+ALTER TABLE `fasp`.`rm_shipment_linking` 
+ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `RO_PRIME_LINE_NO`, 
+ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `CONVERSION_FACTOR`;
 
+DROP TRIGGER IF EXISTS `fasp`.`rm_erp_order_consolidated_AFTER_UPDATE`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`rm_erp_order_consolidated_AFTER_UPDATE` AFTER UPDATE ON `rm_erp_order_consolidated` FOR EACH ROW
+BEGIN
+    IF NEW.PLANNING_UNIT_SKU_CODE!=OLD.PLANNING_UNIT_SKU_CODE THEN
+        SELECT sl.SHIPMENT_LINKING_ID INTO @SHIPMENT_LINKING_ID FROM rm_shipment_linking sl WHERE sl.RO_NO=NEW.RO_NO AND sl.RO_PRIME_LINE_NO=NEW.RO_PRIME_LINE_NO AND sl.ACTIVE;
+        IF @SHIPMENT_LINKING_ID IS NOT NULL THEN
+            INSERT INTO rm_erp_notification (NOTIFICATION_TYPE_ID, ADDRESSED, ACTIVE, CREATED_DATE, CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY, SHIPMENT_LINKING_ID)             VALUES (2, 0, 1, now(), 1, now(), 1, @SHIPMENT_LINKING_ID);
+        END IF;
+    END IF;
+    
+    IF NEW.ACTIVE=0 THEN
+        SELECT sl.SHIPMENT_LINKING_ID INTO @SHIPMENT_LINKING_ID FROM rm_shipment_linking sl WHERE sl.RO_NO=NEW.RO_NO AND sl.RO_PRIME_LINE_NO=NEW.RO_PRIME_LINE_NO AND sl.ACTIVE;
+        IF @SHIPMENT_LINKING_ID IS NOT NULL THEN
+            INSERT INTO rm_erp_notification (NOTIFICATION_TYPE_ID, ADDRESSED, ACTIVE, CREATED_DATE, CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY, SHIPMENT_LINKING_ID)             VALUES (1, 0, 1, now(), 1, now(), 1, @SHIPMENT_LINKING_ID);
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getShipmentLinkingNotifications`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getShipmentLinkingNotifications`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+BEGIN
+    SET @programId = PROGRAM_ID;
+    SET @planningUnitIds = PLANNING_UNIT_ID;
+    SET @procurementAgentId = 1;
+    SET @versionId = VERSION_ID;
+    IF @versionId = -1 THEN
+        SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+    END IF;
+
+SELECT 
+	n.`NOTIFICATION_ID`, n.`ADDRESSED`, s.SHIPMENT_ID, sl.`RO_NO`, sl.`RO_PRIME_LINE_NO`, 
+	st.`EXPECTED_DELIVERY_DATE`, st.`SHIPMENT_QTY`, sl.CONVERSION_FACTOR, st.NOTES, s.`PARENT_SHIPMENT_ID`,
+	pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`,	pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
+	epu.PLANNING_UNIT_ID AS ERP_PLANNING_UNIT_ID, epu.LABEL_ID `ERP_PLANNING_UNIT_LABEL_ID`, epu.LABEL_EN `ERP_PLANNING_UNIT_LABEL_EN`, epu.LABEL_FR `ERP_PLANNING_UNIT_LABEL_FR`, epu.LABEL_SP `ERP_PLANNING_UNIT_LABEL_SP`, epu.LABEL_PR `ERP_PLANNING_UNIT_LABEL_PR`
+FROM rm_erp_notification n 
+LEFT JOIN vw_notification_type nt ON n.NOTIFICATION_TYPE_ID=nt.NOTIFICATION_TYPE_ID
+LEFT JOIN rm_shipment_linking sl on n.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID
+LEFT JOIN rm_shipment s ON sl.CHILD_SHIPMENT_ID=s.SHIPMENT_ID
+LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID
+LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+LEFT JOIN rm_erp_order_consolidated o ON sl.RO_NO=o.RO_NO AND sl.RO_PRIME_LINE_NO=o.RO_PRIME_LINE_NO
+LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.SKU_CODE,12)=o.PLANNING_UNIT_SKU_CODE
+LEFT JOIN vw_planning_unit epu ON papu.PLANNING_UNIT_ID=epu.PLANNING_UNIT_ID
+WHERE 
+	n.ACTIVE AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) 
+ORDER BY n.ADDRESSED DESC, n.NOTIFICATION_ID;
+END$$
+
+DELIMITER ;
+;
 
