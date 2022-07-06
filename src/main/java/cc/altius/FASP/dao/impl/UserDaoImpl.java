@@ -26,8 +26,8 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
-import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -423,12 +423,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userList + this.userOrderBy;
+        String sql = this.userCommonString + this.userList ;
 
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
-            params.put("userRealmId", curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
         params.put("curUser", curUser.getUserId());
@@ -452,7 +452,8 @@ public class UserDaoImpl implements UserDao {
                         + "    AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID) "
                         + "    AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID)) "
                         + "    AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) "
-                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)");
+                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)")
+                .append(this.userOrderBy);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
