@@ -911,9 +911,179 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vea los envíos en tex
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, veja a(s) remessa(s) em texto vermelho – o programa na coluna `servidor` já está vinculado à(s) remessa(s) de ERP para a qual você está tentando vincular. Por favor, 1) desvincule sua(s) remessa(s) ou 2) solicite ao outro programa para desvincular sua(s) remessa(s).');-- pr
 
 -- Added by Akil on 28th of Jun 2022
-ALTER TABLE `fasp`.`rm_shipment_linking` 
-DROP COLUMN `CONVERSION_FACTOR`;
+ALTER TABLE `fasp`.`rm_shipment_linking` DROP COLUMN `CONVERSION_FACTOR`;
 
 ALTER TABLE `fasp`.`rm_shipment_linking_trans` 
 ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `SHIPMENT_LINKING_ID`,
 ADD COLUMN `NOTES` TEXT NULL AFTER `CONVERSION_FACTOR`;
+
+-- Added by Akil on 4th of Jul 2022
+ALTER TABLE `fasp`.`rm_shipment_linking` ADD COLUMN `ORIGINAL_PLANNING_UNIT_ID` INT UNSIGNED NOT NULL AFTER `RO_PRIME_LINE_NO`;
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+CHANGE COLUMN `LABEL_ID` `LABEL_ID` INT UNSIGNED NOT NULL ,
+CHANGE COLUMN `ACTIVE` `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT '1' ,
+CHANGE COLUMN `CREATED_BY` `CREATED_BY` INT UNSIGNED NOT NULL ,
+CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL ;
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `vw_notification_type` AS
+    SELECT 
+        `nt`.`NOTIFICATION_TYPE_ID` AS `NOTIFICATION_TYPE_ID`,
+        `nt`.`LABEL_ID` AS `LABEL_ID`,
+        `nt`.`ACTIVE` AS `ACTIVE`,
+        `nt`.`CREATED_DATE` AS `CREATED_DATE`,
+        `nt`.`CREATED_BY` AS `CREATED_BY`,
+        `nt`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `nt`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_notification_type` `nt`
+        LEFT JOIN `ap_label` `l` ON ((`nt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_labelId_idx` (`LABEL_ID` ASC);
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_labelId`
+  FOREIGN KEY (`LABEL_ID`)
+  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_createdBy_idx` (`CREATED_BY` ASC);
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`ap_notification_type` ADD INDEX `fk_ap_notification_type_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+CREATE TABLE `rm_erp_notification` (
+  `NOTIFICATION_ID` int unsigned NOT NULL AUTO_INCREMENT,
+  `NOTIFICATION_TYPE_ID` int UNSIGNED NOT NULL COMMENT '1-SKU CHANGE 2-CANCELLED',
+  `ADDRESSED` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+  `ACTIVE` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+  `CREATED_DATE` datetime NOT NULL,
+  `CREATED_BY` int UNSIGNED  NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int UNSIGNED NOT NULL,
+  `SHIPMENT_LINKING_ID` int UNSIGNED NOT NULL,
+  PRIMARY KEY (`NOTIFICATION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `fasp`.`rm_erp_notification` 
+ADD INDEX `fk_rm_erp_notification_notificationTypeId_idx` (`NOTIFICATION_TYPE_ID` ASC) ,
+ADD INDEX `fk_rm_erp_notification_shipmentLinkingId_idx` (`SHIPMENT_LINKING_ID` ASC) ,
+ADD INDEX `fk_rm_erp_notification_createdBy_idx` (`CREATED_BY` ASC) ,
+ADD INDEX `fk_rm_erp_notification_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC) ;
+
+ALTER TABLE `fasp`.`rm_erp_notification` 
+ADD CONSTRAINT `fk_rm_erp_notification_notificationTypeId`
+  FOREIGN KEY (`NOTIFICATION_TYPE_ID`)
+  REFERENCES `fasp`.`ap_notification_type` (`NOTIFICATION_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_shipmentLinkingId`
+  FOREIGN KEY (`SHIPMENT_LINKING_ID`)
+  REFERENCES `fasp`.`rm_shipment_linking` (`SHIPMENT_LINKING_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_erp_notification_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_shipment_linking` 
+ADD COLUMN `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NOT NULL AFTER `RO_PRIME_LINE_NO`, 
+ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `CONVERSION_FACTOR`;
+
+DROP TRIGGER IF EXISTS `fasp`.`rm_erp_order_consolidated_AFTER_UPDATE`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`localhost` TRIGGER `rm_erp_order_consolidated_AFTER_UPDATE` AFTER UPDATE ON `rm_erp_order_consolidated` FOR EACH ROW BEGIN
+	IF NEW.PLANNING_UNIT_SKU_CODE!=OLD.PLANNING_UNIT_SKU_CODE THEN
+		SELECT sl.SHIPMENT_LINKING_ID INTO @SHIPMENT_LINKING_ID FROM rm_shipment_linking sl WHERE sl.RO_NO=NEW.RO_NO AND sl.RO_PRIME_LINE_NO=NEW.RO_PRIME_LINE_NO AND sl.ORDER_NO=NEW.ORDER_NO AND sl.PRIME_LINE_NO=NEW.PRIME_LINE_NO;
+        IF @SHIPMENT_LINKING_ID IS NOT NULL THEN
+			INSERT INTO rm_erp_notification (NOTIFICATION_TYPE_ID, ADDRESSED, ACTIVE, CREATED_DATE, CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY, SHIPMENT_LINKING_ID)             VALUES (2, 0, 1, now(), 1, now(), 1, @SHIPMENT_LINKING_ID);
+        END IF;
+    END IF;
+    
+    IF NEW.ACTIVE=0 THEN
+		SELECT sl.SHIPMENT_LINKING_ID INTO @SHIPMENT_LINKING_ID FROM rm_shipment_linking sl WHERE sl.RO_NO=NEW.RO_NO AND sl.RO_PRIME_LINE_NO=NEW.RO_PRIME_LINE_NO AND sl.ORDER_NO=NEW.ORDER_NO AND sl.PRIME_LINE_NO=NEW.PRIME_LINE_NO;
+        IF @SHIPMENT_LINKING_ID IS NOT NULL THEN
+			INSERT INTO rm_erp_notification (NOTIFICATION_TYPE_ID, ADDRESSED, ACTIVE, CREATED_DATE, CREATED_BY, LAST_MODIFIED_DATE, LAST_MODIFIED_BY, SHIPMENT_LINKING_ID)             VALUES (1, 0, 1, now(), 1, now(), 1, @SHIPMENT_LINKING_ID);
+        END IF;
+	END IF;
+END$$
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getShipmentLinkingNotifications`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getShipmentLinkingNotifications`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+BEGIN
+    SET @programId = PROGRAM_ID;
+    SET @planningUnitIds = PLANNING_UNIT_ID;
+    SET @procurementAgentId = 1;
+    SET @versionId = VERSION_ID;
+    IF @versionId = -1 THEN
+        SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+    END IF;
+
+SELECT 
+	n.`NOTIFICATION_ID`, n.`ADDRESSED`, s.SHIPMENT_ID, sl.`RO_NO`, sl.`RO_PRIME_LINE_NO`, 
+	st.`EXPECTED_DELIVERY_DATE`, st.`SHIPMENT_QTY`, sl.CONVERSION_FACTOR, st.NOTES, s.`PARENT_SHIPMENT_ID`,
+	pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`,	pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
+	epu.PLANNING_UNIT_ID AS ERP_PLANNING_UNIT_ID, epu.LABEL_ID `ERP_PLANNING_UNIT_LABEL_ID`, epu.LABEL_EN `ERP_PLANNING_UNIT_LABEL_EN`, epu.LABEL_FR `ERP_PLANNING_UNIT_LABEL_FR`, epu.LABEL_SP `ERP_PLANNING_UNIT_LABEL_SP`, epu.LABEL_PR `ERP_PLANNING_UNIT_LABEL_PR`
+FROM rm_erp_notification n 
+LEFT JOIN vw_notification_type nt ON n.NOTIFICATION_TYPE_ID=nt.NOTIFICATION_TYPE_ID
+LEFT JOIN rm_shipment_linking sl on n.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID
+LEFT JOIN rm_shipment s ON sl.CHILD_SHIPMENT_ID=s.SHIPMENT_ID
+LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID
+LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+LEFT JOIN rm_erp_order_consolidated o ON sl.RO_NO=o.RO_NO AND sl.RO_PRIME_LINE_NO=o.RO_PRIME_LINE_NO
+LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.SKU_CODE,12)=o.PLANNING_UNIT_SKU_CODE
+LEFT JOIN vw_planning_unit epu ON papu.PLANNING_UNIT_ID=epu.PLANNING_UNIT_ID
+WHERE 
+	n.ACTIVE AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) 
+ORDER BY n.ADDRESSED DESC, n.NOTIFICATION_ID;
+END$$
+
+DELIMITER ;
+;
+

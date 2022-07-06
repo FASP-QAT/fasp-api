@@ -81,11 +81,6 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        return this.erpLinkingDao.getARTMISHistory(orderNo, primeLineNo);
-    }
-
-    @Override
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
         return this.erpLinkingDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
     }
@@ -211,6 +206,11 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     @Override
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
         return this.erpLinkingDao.getShipmentLinkedToOtherProgram(shipmentInput, curUser);
+    }
+    
+    @Override
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+        return this.erpLinkingDao.getARTMISHistory(orderNo, primeLineNo);
     }
 
     @Override

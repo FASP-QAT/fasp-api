@@ -55,8 +55,6 @@ public interface ErpLinkingDao {
 
     public int getNotificationCount(CustomUserDetails curUser);
 
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
-
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
 
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
@@ -79,10 +77,12 @@ public interface ErpLinkingDao {
     public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInputTab3 input, CustomUserDetails curUser);
 
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
-    
+
     public List<ShipmentLinkingOutput> getShipmentListForSync(ShipmentSyncInput shipmentSyncInput, CustomUserDetails curUser);
-    
+
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser);
-    
+
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
+
     public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
 }

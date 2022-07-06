@@ -109,73 +109,6 @@ public class ErpLinkingRestController {
         }
     }
 
-    @PostMapping("/shipmentLinkingNotification")
-    public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
-//            return new ResponseEntity("", HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/updateNotification")
-    public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (ERPNotificationDTO e : eRPNotificationDTO) {
-//                System.out.println("e-------------------*********************" + e);
-                this.erpLinkingService.updateNotification(e, curUser);
-            }
-            // Do a rebuild of the Supply Plan
-            // this.programDataService.getNewSupplyPlanList(eRPNotificationDTO[0].getProgramId(), -1, true, false);
-            return new ResponseEntity(true, HttpStatus.OK);
-//            return new ResponseEntity("", HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            e.printStackTrace();
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/getNotificationCount")
-    public ResponseEntity getNotificationCount(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotificationCount(curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/getNotificationSummary")
-    public ResponseEntity getNotificationSummary(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotificationSummary(curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/orderDetails/{roNoOrderNo}/{programId}/{erpPlanningUnitId}/{linkingType}/{parentShipmentId}")
     public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("roNoOrderNo") String roNoOrderNo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, @PathVariable("parentShipmentId") int parentShipmentId, Authentication auth) {
         try {
@@ -500,4 +433,70 @@ public class ErpLinkingRestController {
         }
     }
    
+    @PostMapping("/api/erpLinking/shipmentLinkingNotification")
+    public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
+//            return new ResponseEntity("", HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/api/erpLinking/updateNotification")
+    public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            for (ERPNotificationDTO e : eRPNotificationDTO) {
+//                System.out.println("e-------------------*********************" + e);
+                this.erpLinkingService.updateNotification(e, curUser);
+            }
+            // Do a rebuild of the Supply Plan
+            // this.programDataService.getNewSupplyPlanList(eRPNotificationDTO[0].getProgramId(), -1, true, false);
+            return new ResponseEntity(true, HttpStatus.OK);
+//            return new ResponseEntity("", HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            e.printStackTrace();
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/api/erpLinking/getNotificationCount")
+    public ResponseEntity getNotificationCount(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getNotificationCount(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/api/erpLinking/getNotificationSummary")
+    public ResponseEntity getNotificationSummary(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getNotificationSummary(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

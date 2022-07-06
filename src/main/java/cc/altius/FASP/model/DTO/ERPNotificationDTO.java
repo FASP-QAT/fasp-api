@@ -7,7 +7,6 @@ package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
