@@ -1,3 +1,5 @@
+truncate rm_program_procurement_agent;
+
 INSERT INTO `fasp`.`rm_program_procurement_agent` (`PROGRAM_ID`, `PROCUREMENT_AGENT_ID`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2007, 1, 1, now());
 INSERT INTO `fasp`.`rm_program_procurement_agent` (`PROGRAM_ID`, `PROCUREMENT_AGENT_ID`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2008, 1, 1, now());
 INSERT INTO `fasp`.`rm_program_procurement_agent` (`PROGRAM_ID`, `PROCUREMENT_AGENT_ID`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2009, 1, 1, now());
