@@ -29,7 +29,7 @@ public class ShipmentLinkingRowMapper implements RowMapper<ShipmentLinking> {
         ls.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
         ls.setChildShipmentId(rs.getInt("CHILD_SHIPMENT_ID"));
         ls.setErpPlanningUnit(new SimpleObject(rs.getInt("ERP_PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum)));
-//        ls.setErpShipmentStatus(rs.getString("ERP_SHIPMENT_STATUS"));
+        ls.setErpShipmentStatus(rs.getString("ERP_SHIPMENT_STATUS"));
         ls.setRoNo(rs.getString("RO_NO"));
         ls.setRoPrimeLineNo(rs.getString("RO_PRIME_LINE_NO"));
         ls.setOrderNo(rs.getString("ORDER_NO"));
