@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -278,12 +279,12 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompletePu/{planningUnitId}/{puName}")
-    public ResponseEntity autoCompletePu(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("puName") String puName, Authentication auth) {
+    @PostMapping("/api/erpLinking/autoCompletePu")
+    public ResponseEntity autoCompletePu(@RequestBody AutoCompletePuDTO autoCompletePuDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (puName != null && puName.length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompletePu(planningUnitId, puName, curUser), HttpStatus.OK);
+            if (autoCompletePuDTO.getPuName() != null && autoCompletePuDTO.getPuName().length() >= 4) {
+                return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO.getPlanningUnitId(), autoCompletePuDTO.getPuName(), curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<>(), HttpStatus.OK);
             }
@@ -404,7 +405,7 @@ public class ErpLinkingRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/api/erpLinking/artmisHistory/{orderNo}/{primeLineNo}")
     public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
         try {
@@ -432,7 +433,7 @@ public class ErpLinkingRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-   
+
     @PostMapping("/api/erpLinking/shipmentLinkingNotification")
     public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
         try {

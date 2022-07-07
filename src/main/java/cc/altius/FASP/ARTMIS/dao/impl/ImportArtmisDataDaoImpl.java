@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -78,7 +79,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         this.jdbcTemplate.execute(sqlString);
         // Create ERO oder table
         sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
-                //        sqlString = "CREATE TABLE `tmp_erp_order` ( "
+//        sqlString = "CREATE TABLE `tmp_erp_order` ( "
                 + "  `TEMP_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `RO_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `RO_PRIME_LINE_NO` int(11) NOT NULL, "
@@ -180,17 +181,21 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + ":PO_RELEASED_FOR_FULFILLMENT_DATE, :LATEST_ESTIMATED_DELIVERY_DATE, :REQ_DELIVERY_DATE, :REVISED_AGREED_DELIVERY_DATE, :ITEM_SUPPLIER_NAME, "
                     + ":UNIT_PRICE, :STATUS_NAME, :EXTERNAL_STATUS_STAGE, :SHIPPING_CHARGES, :FREIGHT_ESTIMATE, "
                     + ":TOTAL_ACTUAL_FREIGHT_COST, :CARRIER_SERVICE_CODE, :RECIPIENT_NAME, :RECIPIENT_COUNTRY, "
-                    + ":CHANGE_CODE, :PROGRAM_ID, :SHIPMENT_ID)";
+                    + ":CHANGE_CODE, null, null)";
             SqlParameterSource[] batchSqlParams = ArrayUtils.toArray(batchParams);
             rows1 = this.namedParameterJdbcTemplate.batchUpdate(sqlString, batchSqlParams);
-            logger.info("Successfully inserted into tmp_erp_order records---" + rows1.length);
+            int rows1Cnt = 0;
+            for (int i : rows1) {
+                rows1Cnt += i;
+            }
+            logger.info("Successfully inserted into tmp_erp_order records---" + rows1Cnt);
         }
 
         sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_shipment";
 //        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
         this.jdbcTemplate.execute(sqlString);
         sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
-                //        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
+//        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
                 + "  `TEMP_SHIPMENT_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `KN_SHIPMENT_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `ORDER_NO` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
@@ -244,8 +249,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("BATCH_NO", dataRecordElement.getElementsByTagName("batch_no").item(0).getTextContent());
                     map.put("ITEM_ID", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
                     map.put("EXPIRATION_DATE", dataRecordElement.getElementsByTagName("expiration_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("expiration_date").item(0).getTextContent());
-                    map.put("SHIPPED_QUANTITY", dataRecordElement.getElementsByTagName("shipped_quantity").item(0).getTextContent());
-                    map.put("DELIVERED_QUANTITY", dataRecordElement.getElementsByTagName("delivered_quantity").item(0).getTextContent().isBlank() ? 0 : dataRecordElement.getElementsByTagName("delivered_quantity").item(0).getTextContent());
+                    map.put("SHIPPED_QUANTITY", dataRecordElement.getElementsByTagName("shipped_quantity").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("shipped_quantity").item(0).getTextContent());
+                    map.put("DELIVERED_QUANTITY", dataRecordElement.getElementsByTagName("delivered_quantity").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("delivered_quantity").item(0).getTextContent());
                     map.put("STATUS_NAME", dataRecordElement.getElementsByTagName("status_name").item(0).getTextContent());
                     map.put("EXTERNAL_STATUS_STAGE", dataRecordElement.getElementsByTagName("external_status_stage").item(0).getTextContent());
                     map.put("ACTUAL_SHIPMENT_DATE", dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent());
@@ -258,7 +263,11 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             }
             SqlParameterSource[] batchSqlParams = ArrayUtils.toArray(batchParams);
             rows1 = this.namedParameterJdbcTemplate.batchUpdate(sqlString, batchSqlParams);
-            logger.info("Successfully inserted into tmp_erp_shipment records---" + rows1.length);
+            int rows1Cnt = 0;
+            for (int i : rows1) {
+                rows1Cnt += i;
+            }
+            logger.info("Successfully inserted into tmp_erp_shipment records---" + rows1Cnt);
         }
         sqlString = "UPDATE rm_erp_order o SET o.`FLAG`=0";
         this.jdbcTemplate.update(sqlString);
