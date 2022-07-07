@@ -66,13 +66,17 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        return this.erpLinkingDao.getNotificationList(eRPNotificationDTO);
+    public List<ERPNotificationDTO> getNotificationList(int programId, int versionId) {
+        return this.erpLinkingDao.getNotificationList(programId, versionId);
     }
 
     @Override
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-        return this.erpLinkingDao.updateNotification(eRPNotificationDTO, curUser);
+    public int updateNotification(List<ERPNotificationDTO> eRPNotificationDTOList, CustomUserDetails curUser) {
+        int count = 0;
+        for (ERPNotificationDTO eRPNotificationDTO : eRPNotificationDTOList) {
+            count += this.erpLinkingDao.updateNotification(eRPNotificationDTO, curUser);
+        }
+        return count;
     }
 
     @Override
@@ -207,7 +211,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
         return this.erpLinkingDao.getShipmentLinkedToOtherProgram(shipmentInput, curUser);
     }
-    
+
     @Override
     public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
         return this.erpLinkingDao.getARTMISHistory(orderNo, primeLineNo);

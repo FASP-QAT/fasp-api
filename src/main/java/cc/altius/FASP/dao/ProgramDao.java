@@ -97,9 +97,9 @@ public interface ProgramDao {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+//    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
 
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
+//    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
 
     public int getNotificationCount(CustomUserDetails curUser);
 

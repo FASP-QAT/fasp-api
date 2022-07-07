@@ -401,15 +401,15 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.createERPNotification(orderNo, primeLineNo, shipmentId, notificationTypeId);
     }
 
-    @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        return this.programDao.getNotificationList(eRPNotificationDTO);
-    }
+//    @Override
+//    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
+//        return this.programDao.getNotificationList(eRPNotificationDTO);
+//    }
 
-    @Override
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
-    }
+//    @Override
+//    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
+//        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
+//    }
 
     @Override
     public int getNotificationCount(CustomUserDetails curUser) {
