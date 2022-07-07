@@ -43,6 +43,7 @@ public class ShipmentLinkingOutput implements Serializable {
     private SimpleObject qatPlanningUnit;
     private boolean orderActive;
     private boolean shipmentActive;
+    private Double conversionFactor;
 
     public String getRoNo() {
         return roNo;
@@ -210,6 +211,14 @@ public class ShipmentLinkingOutput implements Serializable {
 
     public void setShipmentActive(boolean shipmentActive) {
         this.shipmentActive = shipmentActive;
+    }
+
+    public Double getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(Double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
 }

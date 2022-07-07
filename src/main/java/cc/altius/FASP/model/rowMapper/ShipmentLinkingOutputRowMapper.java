@@ -62,6 +62,7 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
         }
         so.setNotes(rs.getString("NOTES"));
         so.setShipBy(rs.getString("SHIP_BY"));
+        so.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         return so;
     }
 
