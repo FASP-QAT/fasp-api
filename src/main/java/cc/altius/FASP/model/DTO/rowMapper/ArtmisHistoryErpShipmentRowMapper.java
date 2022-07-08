@@ -25,7 +25,7 @@ public class ArtmisHistoryErpShipmentRowMapper implements RowMapper<ArtmisHistor
         s.setExpiryDate(rs.getDate("EXPIRY_DATE"));
         s.setBatchNo(rs.getString("BATCH_NO"));
         s.setChangeCode(rs.getString("CHANGE_CODE"));
-        s.setDataReceivedOn(rs.getDate("DATA_RECEIVED_ON"));
+        s.setDataReceivedOn(rs.getDate("DATA_RECEIVED_DATE"));
         return s;
     }
 

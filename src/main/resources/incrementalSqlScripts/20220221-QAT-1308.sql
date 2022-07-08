@@ -1076,3 +1076,10 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.changeCode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Change Code');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Changer de code');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambiar código');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alterar código');-- pr

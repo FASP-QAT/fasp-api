@@ -26,7 +26,7 @@ public class ArtmisHistoryErpOrderRowMapper implements RowMapper<ArtmisHistoryEr
         a.setQty(rs.getInt("QTY"));
         a.setCost(rs.getDouble("TOTAL_COST"));
         a.setChangeCode(rs.getString("CHANGE_CODE"));
-        a.setDataReceivedOn(rs.getDate("DATA_RECEIVED_ON"));
+        a.setDataReceivedOn(rs.getDate("DATA_RECEIVED_DATE"));
         return a;
     }
 
