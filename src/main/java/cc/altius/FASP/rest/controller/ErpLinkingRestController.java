@@ -245,15 +245,15 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}")
-    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
+    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}/{qatPlanningUnitId}")
+    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int erpPlanningUnitId, @PathVariable("qatPlanningUnitId") int qatPlanningUnitId, Authentication auth) {
         try {
             if (roPo.equals("0")) {
                 roPo = null;
             }
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if (roPo == null || roPo.length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, planningUnitId, curUser), HttpStatus.OK);
+                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<String>(), HttpStatus.OK);
             }
@@ -284,7 +284,7 @@ public class ErpLinkingRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if (autoCompletePuDTO.getPuName() != null && autoCompletePuDTO.getPuName().length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO.getPlanningUnitId(), autoCompletePuDTO.getPuName(), curUser), HttpStatus.OK);
+                return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<>(), HttpStatus.OK);
             }
