@@ -93,6 +93,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private ProgramCommonDao programCommonDao;
     @Autowired
     private ProgramDataDao programDataDao;
+    
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;

@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,13 +22,9 @@ public class SimpleCodeObjectRowMapper implements RowMapper<SimpleCodeObject> {
         this.prefix = prefix;
     }
 
-    public SimpleCodeObjectRowMapper() {
-        this.prefix = "";
-    }
-
     @Override
     public SimpleCodeObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new SimpleCodeObject(rs.getInt("ID"), new LabelRowMapper(prefix).mapRow(rs, rowNum), rs.getString("CODE"));
+        return new SimpleCodeObject(rs.getInt(prefix + "ID"), new LabelRowMapper(prefix).mapRow(rs, rowNum), rs.getString(prefix + "CODE"));
     }
 
 }
