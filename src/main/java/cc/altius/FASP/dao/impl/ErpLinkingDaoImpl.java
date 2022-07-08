@@ -1909,7 +1909,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "     AND (pu.`LABEL_EN` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%' OR papu.`SKU_CODE` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%')");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", autoCompletePuDTO.getPlanningUnitId());
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override
