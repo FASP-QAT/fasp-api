@@ -66,7 +66,7 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
                 if (rs.wasNull()) {
                     rd.setAdjustedConsumption(null);
                 }
-                nsp.addActualConsumptionQty(rd.getActualConsumption());
+                nsp.addAdjustedConsumptionQty(rd.getAdjustedConsumption());
                 nsp.addFinalConsumptionQty(nsp.isActualConsumptionFlag() ? rd.getActualConsumption() : rd.getForecastedConsumption());
                 rd.setStock(rs.getLong("STOCK"));
                 if (rs.wasNull()) {

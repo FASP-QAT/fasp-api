@@ -409,15 +409,15 @@ public class NewSupplyPlan implements Serializable {
     public void updateUnmetDemand() {
         if (!isAllRegionsReportedStock()) {
             if (this.closingBalance == 0) {
-                this.unmetDemand = 0 - this.expectedStock + (this.adjustedConsumptionQty - this.actualConsumptionQty);
+                this.unmetDemand = 0 - this.expectedStock + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             } else {
-                this.unmetDemand = 0 + (this.adjustedConsumptionQty - this.actualConsumptionQty);
+                this.unmetDemand = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             }
 
             if (this.closingBalanceWps == 0) {
-                this.unmetDemandWps = 0 - this.expectedStockWps + (this.adjustedConsumptionQty - this.actualConsumptionQty);
+                this.unmetDemandWps = 0 - this.expectedStockWps + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             } else {
-                this.unmetDemandWps = 0 + (this.adjustedConsumptionQty - this.actualConsumptionQty);
+                this.unmetDemandWps = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             }
         }
     }
