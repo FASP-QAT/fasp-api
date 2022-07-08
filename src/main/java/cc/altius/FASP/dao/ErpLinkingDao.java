@@ -6,7 +6,9 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
+import cc.altius.FASP.model.DTO.ArtmisHistory;
+import cc.altius.FASP.model.DTO.ArtmisHistoryErpOrder;
+import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -49,7 +51,7 @@ public interface ErpLinkingDao {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+    public List<ERPNotificationDTO> getNotificationList(int programId,int versionId);
 
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
 
@@ -68,9 +70,9 @@ public interface ErpLinkingDao {
     // ################################## New functions ###########################################
     public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
 
-    public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser);
+    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser);
+    public List<SimpleCodeObject> autoCompletePu(AutoCompletePuDTO autoCompletePuDTO, CustomUserDetails curUser);
 
     public List<ShipmentLinkingOutput> getNotLinkedErpShipments(NotLinkedErpShipmentsInputTab1 input, CustomUserDetails curUser);
 
@@ -82,7 +84,7 @@ public interface ErpLinkingDao {
 
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser);
 
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
+    public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo);
 
     public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
 }

@@ -8,7 +8,9 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ErpLinkingDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
+import cc.altius.FASP.model.DTO.ArtmisHistory;
+import cc.altius.FASP.model.DTO.ArtmisHistoryErpOrder;
+import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -66,13 +68,17 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        return this.erpLinkingDao.getNotificationList(eRPNotificationDTO);
+    public List<ERPNotificationDTO> getNotificationList(int programId, int versionId) {
+        return this.erpLinkingDao.getNotificationList(programId, versionId);
     }
 
     @Override
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-        return this.erpLinkingDao.updateNotification(eRPNotificationDTO, curUser);
+    public int updateNotification(List<ERPNotificationDTO> eRPNotificationDTOList, CustomUserDetails curUser) {
+        int count = 0;
+        for (ERPNotificationDTO eRPNotificationDTO : eRPNotificationDTOList) {
+            count += this.erpLinkingDao.updateNotification(eRPNotificationDTO, curUser);
+        }
+        return count;
     }
 
     @Override
@@ -157,14 +163,14 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<String> autoCompleteOrder(String roPo, int programId, int planningUnitId, CustomUserDetails curUser) {
+    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser) {
         this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        return this.erpLinkingDao.autoCompleteOrder(roPo, programId, planningUnitId, curUser);
+        return this.erpLinkingDao.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser);
     }
 
     @Override
-    public List<SimpleCodeObject> autoCompletePu(int planningUnitId, String puName, CustomUserDetails curUser) {
-        return this.erpLinkingDao.autoCompletePu(planningUnitId, puName, curUser);
+    public List<SimpleCodeObject> autoCompletePu(AutoCompletePuDTO autoCompletePuDTO, CustomUserDetails curUser) {
+        return this.erpLinkingDao.autoCompletePu(autoCompletePuDTO, curUser);
     }
 
     @Override
@@ -207,10 +213,10 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser) {
         return this.erpLinkingDao.getShipmentLinkedToOtherProgram(shipmentInput, curUser);
     }
-    
+
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        return this.erpLinkingDao.getARTMISHistory(orderNo, primeLineNo);
+    public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo) {
+        return this.erpLinkingDao.getArtmisHistory(roNo, roPrimeLineNo);
     }
 
     @Override

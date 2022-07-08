@@ -23,10 +23,6 @@ public class SimpleCodeObjectRowMapper implements RowMapper<SimpleCodeObject> {
         this.prefix = prefix;
     }
 
-    public SimpleCodeObjectRowMapper() {
-        this.prefix = "";
-    }
-
     @Override
     public SimpleCodeObject mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new SimpleCodeObject(rs.getInt(prefix + "ID"), new LabelRowMapper(prefix).mapRow(rs, rowNum), rs.getString(prefix + "CODE"));

@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
@@ -245,15 +246,15 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}")
-    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
+    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}/{qatPlanningUnitId}")
+    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int erpPlanningUnitId, @PathVariable("qatPlanningUnitId") int qatPlanningUnitId, Authentication auth) {
         try {
             if (roPo.equals("0")) {
                 roPo = null;
             }
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if (roPo == null || roPo.length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, planningUnitId, curUser), HttpStatus.OK);
+                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<String>(), HttpStatus.OK);
             }
@@ -284,7 +285,7 @@ public class ErpLinkingRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if (autoCompletePuDTO.getPuName() != null && autoCompletePuDTO.getPuName().length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO.getPlanningUnitId(), autoCompletePuDTO.getPuName(), curUser), HttpStatus.OK);
+                return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<>(), HttpStatus.OK);
             }
@@ -406,11 +407,11 @@ public class ErpLinkingRestController {
         }
     }
 
-    @GetMapping("/api/erpLinking/artmisHistory/{orderNo}/{primeLineNo}")
-    public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
+    @GetMapping("/api/erpLinking/artmisHistory/{roNo}/{roPrimeLineNo}")
+    public ResponseEntity artmisHistory(@PathVariable("roNo") String roNo, @PathVariable("roPrimeLineNo") int roPrimeLineNo, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getARTMISHistory(orderNo, primeLineNo), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getArtmisHistory(roNo, roPrimeLineNo), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -434,11 +435,11 @@ public class ErpLinkingRestController {
         }
     }
 
-    @PostMapping("/api/erpLinking/shipmentLinkingNotification")
-    public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
+    @GetMapping("/api/erpLinking/shipmentLinkingNotification/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity shipmentLinkingNotification(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getNotificationList(programId, versionId), HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
@@ -452,16 +453,11 @@ public class ErpLinkingRestController {
         }
     }
 
-    @PostMapping("/api/erpLinking/updateNotification")
-    public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
+    @PutMapping("/api/erpLinking/updateNotification")
+    public ResponseEntity updateNotification(@RequestBody List<ERPNotificationDTO> eRPNotificationDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (ERPNotificationDTO e : eRPNotificationDTO) {
-//                System.out.println("e-------------------*********************" + e);
-                this.erpLinkingService.updateNotification(e, curUser);
-            }
-            // Do a rebuild of the Supply Plan
-            // this.programDataService.getNewSupplyPlanList(eRPNotificationDTO[0].getProgramId(), -1, true, false);
+            this.erpLinkingService.updateNotification(eRPNotificationDTO, curUser);
             return new ResponseEntity(true, HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
