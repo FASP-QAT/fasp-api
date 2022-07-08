@@ -8,7 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ErpLinkingDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
+import cc.altius.FASP.model.DTO.ArtmisHistory;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
@@ -19,7 +19,8 @@ import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
-import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ArtmisHistoryErpOrderRowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ArtmisHistoryErpShipmentRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
@@ -2132,21 +2133,35 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     }
 
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        String sql = "SELECT "
-                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
-                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
-                + " COALESCE(es.`ACTUAL_DELIVERY_DATE`,e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY, e.QTY) AS BATCH_QTY "
-                + " FROM rm_erp_order e "
-                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
-                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
-                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
-//                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
-        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
-        List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
-        System.out.println("history---" + history);
+    public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo) {
+        ArtmisHistory history = new ArtmisHistory();
+        Map<String, Object> params = new HashMap<>();
+        params.put("roNo", roNo);
+        params.put("roPrimeLineNo", roPrimeLineNo);
+        String sql = "SELECT  "
+                + "    CONCAT(o.RO_NO, ' - ', o.RO_PRIME_LINE_NO, IF(o.RO_NO!=o.ORDER_NO AND o.ORDER_NO is not null AND o.ORDER_NO!='', CONCAT(' | ', o.ORDER_NO, ' - ', o.PRIME_LINE_NO), '')) `PROCUREMENT_AGENT_ORDER_NO`, "
+                + "    pu.LABEL_EN `PLANNING_UNIT_NAME`,  "
+                + "    COALESCE(o.`CURRENT_ESTIMATED_DELIVERY_DATE`,o.`AGREED_DELIVERY_DATE`,o.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + "    o.STATUS, o.QTY, ((o.`QTY` * o.PRICE)+o.SHIPPING_COST) AS TOTAL_COST, "
+                + "    CASE WHEN o.CHANGE_CODE=1 THEN 'Created' WHEN o.CHANGE_CODE=2 THEN 'Deleted' WHEN o.CHANGE_CODE=3 THEN 'Updated' END `CHANGE_CODE`, "
+                + "    CONCAT(MID(o.FILE_NAME, 12, 4),'-', MID(o.FILE_NAME, 16, 2),'-', MID(o.FILE_NAME, 18, 2)) DATA_RECEIVED_DATE "
+                + "FROM rm_erp_order o  "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.PROCUREMENT_AGENT_ID=1 AND LEFT(papu.SKU_CODE,12)=o.PLANNING_UNIT_SKU_CODE "
+                + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "WHERE o.RO_NO=:roNo and o.RO_PRIME_LINE_NO=:roPrimeLineNo  "
+                + "ORDER BY o.FILE_NAME, o.ERP_ORDER_ID";
+
+        history.setErpOrderList(this.namedParameterJdbcTemplate.query(sql, params, new ArtmisHistoryErpOrderRowMapper()));
+        sql = "SELECT  "
+                + "	CONCAT(s.ORDER_NO, ' - ', s.PRIME_LINE_NO,  "
+                + "			IF (s.KN_SHIPMENT_NO is not null AND s.KN_SHIPMENT_NO!='', CONCAT(' | ', s.KN_SHIPMENT_NO),'')) `PROCUREMENT_AGENT_SHIPMENT_NO`, "
+                + "    COALESCE(s.`ACTUAL_DELIVERY_DATE`,s.`ACTUAL_SHIPMENT_DATE`) `DELIVERY_DATE`, COALESCE(s.`DELIVERED_QTY`, s.`SHIPPED_QTY`) `QTY`, "
+                + "    CASE WHEN s.CHANGE_CODE=1 THEN 'Created' WHEN s.CHANGE_CODE=2 THEN 'Deleted' WHEN s.CHANGE_CODE=3 THEN 'Updated' END `CHANGE_CODE`, "
+                + "    s.EXPIRY_DATE, s.BATCH_NO, CONCAT(MID(FILE_NAME, 15, 4),'-', MID(FILE_NAME, 19, 2),'-', MID(FILE_NAME, 21, 2)) DATA_RECEIVED_DATE "
+                + "FROM rm_erp_shipment s "
+                + "WHERE CONCAT(s.ORDER_NO ,' - ', s.PRIME_LINE_NO) IN (SELECT CONCAT(o.ORDER_NO, ' - ', o.PRIME_LINE_NO) FROM rm_erp_order o WHERE o.RO_NO=:roNo and o.RO_PRIME_LINE_NO=:roPrimeLineNo) "
+                + "ORDER BY s.FILE_NAME, s.ERP_SHIPMENT_ID";
+        history.setErpShipmentList(this.namedParameterJdbcTemplate.query(sql, params, new ArtmisHistoryErpShipmentRowMapper()));
         return history;
     }
 

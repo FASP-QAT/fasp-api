@@ -11,8 +11,6 @@ import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
@@ -21,7 +19,6 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
@@ -32,7 +29,6 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
@@ -2479,162 +2475,6 @@ public class ProgramDaoImpl implements ProgramDao {
 //        System.out.println(params);
         List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
         return StringUtils.join(emailList, ",");
-    }
-
-    @Override
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        Map<String, Object> params = new HashMap<>();
-        String sql;
-        int notificationId = 0;
-//        String sql = "select count(*) from rm_erp_notification n where n.`ORDER_NO`=? and n.`PRIME_LINE_NO`=? and n.`SHIPMENT_ID`=?;";
-//        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
-//        System.out.println("create notificatioon count---" + count);
-        logger.info("ERP Notification : create notificatioon orderNo---" + orderNo);
-        logger.info("ERP Notification : create notificatioon primeLineNo---" + primeLineNo);
-        logger.info("ERP Notification : create notificatioon shipmentId---" + shipmentId);
-//        if (count == 0) {
-        try {
-            sql = "SELECT m.`MANUAL_TAGGING_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=? AND m.`ACTIVE`;";
-            int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
-            logger.info("ERP Notification : manualTaggingId---" + manualTaggingId);
-
-            sql = "SELECT MAX(e.`ERP_ORDER_ID`) AS ERP_ORDER_ID FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
-            int erpOrderId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
-            logger.info("ERP Notification : erpOrderId---" + erpOrderId);
-
-            sql = "SELECT MAX(st.`SHIPMENT_ID`) AS SHIPMENT_ID FROM rm_shipment_trans st "
-                    + "LEFT JOIN rm_shipment  s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
-            int childShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId, orderNo, primeLineNo);
-            logger.info("ERP Notification : childShipmentId---" + childShipmentId);
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
-            params.put("ORDER_NO", orderNo);
-            params.put("PRIME_LINE_NO", primeLineNo);
-            params.put("NOTIFICATION_TYPE_ID", notificationTypeId);
-            params.put("SHIPMENT_ID", shipmentId);
-            params.put("ADDRESSED", 0);
-            params.put("ACTIVE", 1);
-            params.put("CREATED_BY", 1);
-            params.put("CREATED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", 1);
-            params.put("LAST_MODIFIED_DATE", curDate);
-            params.put("ERP_ORDER_ID", erpOrderId);
-            params.put("CHILD_SHIPMENT_ID", childShipmentId);
-            params.put("MANUAL_TAGGING_ID", manualTaggingId);
-            logger.info("ERP Notification : params---" + params);
-            notificationId = si.executeAndReturnKey(params).intValue();
-        } catch (Exception e) {
-            logger.info("ERP Notification : Notification creation error---" + e);
-            e.printStackTrace();
-        }
-        logger.info("ERP Notification : NotificationId Id " + notificationId + " created");
-        return notificationId;
-//        } else {
-//            return -1;
-//        }
-    }
-
-//    @Override
-//    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-//        String sql = "";
-//        List<ERPNotificationDTO> list = null;
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("planningUnitId", eRPNotificationDTO.getPlanningUnitIdsString());
-//        params.put("programId", eRPNotificationDTO.getProgramId());
-//        sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
-//        list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
-////        System.out.println("list---" + list);
-//        return list;
-//    }
-
-//    @Override
-//
-//    @Transactional
-//    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-//
-//        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-//        logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
-//        String sql = "";
-//        int id;
-////        sql = "SELECT MAX(m.`MANUAL_TAGGING_ID`) as MANUAL_TAGGING_ID FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=?;";
-////        int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo(), eRPNotificationDTO.getParentShipmentId());
-//
-//        if (eRPNotificationDTO.getNotificationType().getId() == 2 || eRPNotificationDTO.getNotificationType().getId() == 3) {
-//            logger.info("ERP Notification : Product change notification---");
-//            sql = " UPDATE rm_erp_notification n "
-//                    + " LEFT JOIN rm_erp_order e ON e.`ERP_ORDER_ID`=n.`ERP_ORDER_ID` "
-//                    + " LEFT JOIN rm_manual_tagging  m ON m.`MANUAL_TAGGING_ID`=n.`MANUAL_TAGGING_ID` "
-//                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
-//                    + " WHERE n.`NOTIFICATION_ID`=?;";
-//            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
-//            logger.info("ERP Notification : rows updated---" + id);
-//            try {
-//                sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
-//                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-//                        + "WHERE s.`SHIPMENT_ID`=? "
-//                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-//
-//                Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, eRPNotificationDTO.getShipmentId());
-//                logger.info("ERP Notification : shipment trans details---" + map);
-//
-//                sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-//                        + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-//                        + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-//                long convertedQty = (long) Math.round((double) eRPNotificationDTO.getShipmentQty() * eRPNotificationDTO.getConversionFactor());
-//                logger.info("ERP Notification : notification convertedQty---" + convertedQty);
-//                double rate = Double.parseDouble(map.get("RATE").toString());
-//                double productCost = rate * (double) convertedQty;
-//                logger.info("ERP Notification : Product cost---" + productCost);
-//                this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
-//            } catch (Exception e) {
-//                logger.info("ERP Notification : notification error for deactivated shipment---" + e);
-//            }
-//        } else {
-//            logger.info("ERP Notification : cancelled shipment notification---");
-//            sql = " UPDATE rm_erp_notification n "
-//                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
-//                    + " WHERE n.`NOTIFICATION_ID`=?;";
-//            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
-//            logger.info("ERP Notification : rows updated---" + id);
-//
-//        }
-//        return id;
-//    }
-
-    @Override
-    public int getNotificationCount(CustomUserDetails curUser) {
-        String programIds = "", sql;
-        List<Program> programList = this.getProgramList(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true);
-        for (Program p : programList) {
-            programIds = programIds + p.getProgramId() + ",";
-        }
-        programIds = programIds.substring(0, programIds.lastIndexOf(","));
-//        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
-        sql = "SELECT COUNT(*) FROM ( "
-                + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
-                + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
-                + " WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
-        return this.jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
-    @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        String sql = "SELECT "
-                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
-                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
-                + " COALESCE(e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,IF(es.`DELIVERED_QTY`!=0,COALESCE(es.`DELIVERED_QTY`,es.`SHIPPED_QTY`),es.`SHIPPED_QTY`) AS BATCH_QTY "
-                + " FROM rm_erp_order e "
-                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
-                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
-                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
-//                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
-//        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
-        List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
-//        System.out.println("history---" + history);
-        return history;
     }
 
     @Override

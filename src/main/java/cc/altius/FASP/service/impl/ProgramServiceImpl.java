@@ -16,12 +16,9 @@ import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
@@ -397,31 +394,6 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
-        return this.programDao.createERPNotification(orderNo, primeLineNo, shipmentId, notificationTypeId);
-    }
-
-//    @Override
-//    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-//        return this.programDao.getNotificationList(eRPNotificationDTO);
-//    }
-
-//    @Override
-//    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-//        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
-//    }
-
-    @Override
-    public int getNotificationCount(CustomUserDetails curUser) {
-        return this.programDao.getNotificationCount(curUser);
-    }
-
-    @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        return this.programDao.getARTMISHistory(orderNo, primeLineNo);
-    }
-
-    @Override
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
         return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
     }
@@ -429,11 +401,6 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
         return this.programDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
-    }
-
-    @Override
-    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
-        return this.programDao.getNotificationSummary(curUser);
     }
 
     @Override

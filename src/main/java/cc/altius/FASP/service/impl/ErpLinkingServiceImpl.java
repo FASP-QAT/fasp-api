@@ -8,7 +8,8 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ErpLinkingDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
+import cc.altius.FASP.model.DTO.ArtmisHistory;
+import cc.altius.FASP.model.DTO.ArtmisHistoryErpOrder;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -214,8 +215,8 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        return this.erpLinkingDao.getARTMISHistory(orderNo, primeLineNo);
+    public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo) {
+        return this.erpLinkingDao.getArtmisHistory(roNo, roPrimeLineNo);
     }
 
     @Override
