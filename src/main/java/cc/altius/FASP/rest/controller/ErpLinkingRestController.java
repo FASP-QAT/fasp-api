@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
@@ -434,11 +435,11 @@ public class ErpLinkingRestController {
         }
     }
 
-    @PostMapping("/api/erpLinking/shipmentLinkingNotification")
-    public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
+    @GetMapping("/api/erpLinking/shipmentLinkingNotification/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity shipmentLinkingNotification(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getNotificationList(programId, versionId), HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
@@ -452,16 +453,11 @@ public class ErpLinkingRestController {
         }
     }
 
-    @PostMapping("/api/erpLinking/updateNotification")
-    public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
+    @PutMapping("/api/erpLinking/updateNotification")
+    public ResponseEntity updateNotification(@RequestBody List<ERPNotificationDTO> eRPNotificationDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (ERPNotificationDTO e : eRPNotificationDTO) {
-//                System.out.println("e-------------------*********************" + e);
-                this.erpLinkingService.updateNotification(e, curUser);
-            }
-            // Do a rebuild of the Supply Plan
-            // this.programDataService.getNewSupplyPlanList(eRPNotificationDTO[0].getProgramId(), -1, true, false);
+            this.erpLinkingService.updateNotification(eRPNotificationDTO, curUser);
             return new ResponseEntity(true, HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {

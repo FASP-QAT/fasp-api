@@ -50,7 +50,7 @@ public interface ErpLinkingDao {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+    public List<ERPNotificationDTO> getNotificationList(int programId,int versionId);
 
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
 

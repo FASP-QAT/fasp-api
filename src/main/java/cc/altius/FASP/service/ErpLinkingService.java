@@ -50,9 +50,9 @@ public interface ErpLinkingService {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+    public List<ERPNotificationDTO> getNotificationList(int programId,int versionId);
 
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
+    public int updateNotification(List<ERPNotificationDTO> eRPNotificationDTOList, CustomUserDetails curUser);
 
     public int getNotificationCount(CustomUserDetails curUser);
 

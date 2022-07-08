@@ -2535,72 +2535,72 @@ public class ProgramDaoImpl implements ProgramDao {
 //        }
     }
 
-    @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        String sql = "";
-        List<ERPNotificationDTO> list = null;
-        Map<String, Object> params = new HashMap<>();
-        params.put("planningUnitId", eRPNotificationDTO.getPlanningUnitIdsString());
-        params.put("programId", eRPNotificationDTO.getProgramId());
-        sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
-        list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
-//        System.out.println("list---" + list);
-        return list;
-    }
+//    @Override
+//    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
+//        String sql = "";
+//        List<ERPNotificationDTO> list = null;
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("planningUnitId", eRPNotificationDTO.getPlanningUnitIdsString());
+//        params.put("programId", eRPNotificationDTO.getProgramId());
+//        sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
+//        list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
+////        System.out.println("list---" + list);
+//        return list;
+//    }
 
-    @Override
-
-    @Transactional
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
-        String sql = "";
-        int id;
-//        sql = "SELECT MAX(m.`MANUAL_TAGGING_ID`) as MANUAL_TAGGING_ID FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=?;";
-//        int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo(), eRPNotificationDTO.getParentShipmentId());
-
-        if (eRPNotificationDTO.getNotificationType().getId() == 2 || eRPNotificationDTO.getNotificationType().getId() == 3) {
-            logger.info("ERP Notification : Product change notification---");
-            sql = " UPDATE rm_erp_notification n "
-                    + " LEFT JOIN rm_erp_order e ON e.`ERP_ORDER_ID`=n.`ERP_ORDER_ID` "
-                    + " LEFT JOIN rm_manual_tagging  m ON m.`MANUAL_TAGGING_ID`=n.`MANUAL_TAGGING_ID` "
-                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
-            logger.info("ERP Notification : rows updated---" + id);
-            try {
-                sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
-                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                        + "WHERE s.`SHIPMENT_ID`=? "
-                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-
-                Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, eRPNotificationDTO.getShipmentId());
-                logger.info("ERP Notification : shipment trans details---" + map);
-
-                sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-                        + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-                        + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-                long convertedQty = (long) Math.round((double) eRPNotificationDTO.getShipmentQty() * eRPNotificationDTO.getConversionFactor());
-                logger.info("ERP Notification : notification convertedQty---" + convertedQty);
-                double rate = Double.parseDouble(map.get("RATE").toString());
-                double productCost = rate * (double) convertedQty;
-                logger.info("ERP Notification : Product cost---" + productCost);
-                this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
-            } catch (Exception e) {
-                logger.info("ERP Notification : notification error for deactivated shipment---" + e);
-            }
-        } else {
-            logger.info("ERP Notification : cancelled shipment notification---");
-            sql = " UPDATE rm_erp_notification n "
-                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
-            logger.info("ERP Notification : rows updated---" + id);
-
-        }
-        return id;
-    }
+//    @Override
+//
+//    @Transactional
+//    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
+//
+//        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+//        logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
+//        String sql = "";
+//        int id;
+////        sql = "SELECT MAX(m.`MANUAL_TAGGING_ID`) as MANUAL_TAGGING_ID FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=?;";
+////        int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo(), eRPNotificationDTO.getParentShipmentId());
+//
+//        if (eRPNotificationDTO.getNotificationType().getId() == 2 || eRPNotificationDTO.getNotificationType().getId() == 3) {
+//            logger.info("ERP Notification : Product change notification---");
+//            sql = " UPDATE rm_erp_notification n "
+//                    + " LEFT JOIN rm_erp_order e ON e.`ERP_ORDER_ID`=n.`ERP_ORDER_ID` "
+//                    + " LEFT JOIN rm_manual_tagging  m ON m.`MANUAL_TAGGING_ID`=n.`MANUAL_TAGGING_ID` "
+//                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
+//                    + " WHERE n.`NOTIFICATION_ID`=?;";
+//            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+//            logger.info("ERP Notification : rows updated---" + id);
+//            try {
+//                sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+//                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+//                        + "WHERE s.`SHIPMENT_ID`=? "
+//                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+//
+//                Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, eRPNotificationDTO.getShipmentId());
+//                logger.info("ERP Notification : shipment trans details---" + map);
+//
+//                sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+//                        + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+//                        + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+//                long convertedQty = (long) Math.round((double) eRPNotificationDTO.getShipmentQty() * eRPNotificationDTO.getConversionFactor());
+//                logger.info("ERP Notification : notification convertedQty---" + convertedQty);
+//                double rate = Double.parseDouble(map.get("RATE").toString());
+//                double productCost = rate * (double) convertedQty;
+//                logger.info("ERP Notification : Product cost---" + productCost);
+//                this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+//            } catch (Exception e) {
+//                logger.info("ERP Notification : notification error for deactivated shipment---" + e);
+//            }
+//        } else {
+//            logger.info("ERP Notification : cancelled shipment notification---");
+//            sql = " UPDATE rm_erp_notification n "
+//                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
+//                    + " WHERE n.`NOTIFICATION_ID`=?;";
+//            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
+//            logger.info("ERP Notification : rows updated---" + id);
+//
+//        }
+//        return id;
+//    }
 
     @Override
     public int getNotificationCount(CustomUserDetails curUser) {
