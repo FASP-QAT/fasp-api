@@ -1888,6 +1888,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("erpPlanningUnitId", erpPlanningUnitId);
+        params.put("qatPlanningUnitId", qatPlanningUnitId);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
     }
 

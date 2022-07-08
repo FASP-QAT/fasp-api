@@ -1003,11 +1003,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // ###########################  Shipment Linking  ####################################
         params.clear();
         int slCnt = 0;
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_linking`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_linking`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_linking`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_linking`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_linking` ( "
-                        sqlString = "CREATE TABLE `tmp_shipment_linking` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_linking` ( "
+//                        sqlString = "CREATE TABLE `tmp_shipment_linking` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_LINKING_ID` INT(10) UNSIGNED NULL, "
                 + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL, "
