@@ -1083,3 +1083,19 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Change Code');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Changer de code');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambiar código');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alterar código');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.orderDetails','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Order Details');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'détails de la commande');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Detalles del pedido');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'detalhes do pedido');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.newShipmentNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This is a new shipment created through ERP linking');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Il s`agit d`un nouvel envoi créé via la liaison ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Este es un nuevo envío creado a través de la vinculación de ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta é uma nova remessa criada através da vinculação do ERP');-- pr
