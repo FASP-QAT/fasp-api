@@ -168,11 +168,11 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tnd.setPuNode(new TreeNodeDataPu());
                 TreeNodeDataPu tndp = tnd.getPuNode();
                 tndp.setNodeDataPuId(nodeDataPuId);
-                tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
+                tndp.setRefillMonths(rs.getDouble("REFILL_MONTHS"));
                 if (rs.wasNull()) {
                     tndp.setRefillMonths(null);
                 }
-                tndp.setPuPerVisit(rs.getInt("PU_PER_VISIT"));
+                tndp.setPuPerVisit(rs.getDouble("PU_PER_VISIT"));
                 if (rs.wasNull()) {
                     tndp.setPuPerVisit(null);
                 }
