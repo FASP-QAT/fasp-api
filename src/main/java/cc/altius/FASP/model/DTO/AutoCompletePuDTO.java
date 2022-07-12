@@ -15,6 +15,7 @@ public class AutoCompletePuDTO implements Serializable {
 
     private int planningUnitId;
     private String puName;
+    private int programId;
 
     public int getPlanningUnitId() {
         return planningUnitId;
@@ -30,6 +31,14 @@ public class AutoCompletePuDTO implements Serializable {
 
     public void setPuName(String puName) {
         this.puName = puName;
+    }
+
+    public int getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(int programId) {
+        this.programId = programId;
     }
 
 }

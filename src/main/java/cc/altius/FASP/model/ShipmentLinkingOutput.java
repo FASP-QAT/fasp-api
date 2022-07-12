@@ -44,6 +44,7 @@ public class ShipmentLinkingOutput implements Serializable {
     private boolean orderActive;
     private boolean shipmentActive;
     private Double conversionFactor;
+    private int tracerCategoryId;
 
     public String getRoNo() {
         return roNo;
@@ -219,6 +220,14 @@ public class ShipmentLinkingOutput implements Serializable {
 
     public void setConversionFactor(Double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    public int getTracerCategoryId() {
+        return tracerCategoryId;
+    }
+
+    public void setTracerCategoryId(int tracerCategoryId) {
+        this.tracerCategoryId = tracerCategoryId;
     }
 
 }
