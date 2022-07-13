@@ -69,7 +69,7 @@ public class CommitRequestRestController {
                     .create();
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
-                boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(0);
+                boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
                 if (!checkIfRequestExists) {
                     CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
                     int commitRequestId = this.commitRequestService.saveProgramData(programData, gson.toJson(programData), curUser);
