@@ -978,6 +978,8 @@ ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 
+ALTER TABLE fasp.rm_erp_notification RENAME TO  fasp.rm_erp_notification_old ;
+
 CREATE TABLE `rm_erp_notification` (
   `NOTIFICATION_ID` int unsigned NOT NULL AUTO_INCREMENT,
   `NOTIFICATION_TYPE_ID` int UNSIGNED NOT NULL COMMENT '1-SKU CHANGE 2-CANCELLED',
@@ -1099,3 +1101,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This is a new shipment
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Il s`agit d`un nouvel envoi créé via la liaison ERP');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Este es un nuevo envío creado a través de la vinculación de ERP');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta é uma nova remessa criada através da vinculação do ERP');-- pr
+
+insert into us_role_business_function values (NULL,'ROLE_INTERNAL_USER','ROLE_BF_MANUAL_TAGGING',1,now(),1,now());
+insert into us_role_business_function values (NULL,'ROLE_REALM_ADMIN','ROLE_BF_MANUAL_TAGGING',1,now(),1,now());
+
+truncate tmp_erp_delinked_programs;
