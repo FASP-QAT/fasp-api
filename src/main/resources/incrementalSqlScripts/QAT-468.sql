@@ -190,3 +190,198 @@ DELIMITER ;
 ALTER TABLE `fasp`.`rm_supply_plan_amc` ADD COLUMN `ADJUSTED_CONSUMPTION_QTY` BIGINT NULL AFTER `ACTUAL_CONSUMPTION_QTY`;
 UPDATE rm_supply_plan_amc SET ADJUSTED_CONSUMPTION_QTY=ACTUAL_CONSUMPTION_QTY;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Projected Inventory = Opening balance + Adjustments + Shipments in account - Adjusted Consumptions - Expired stock'
+where l.LABEL_CODE='static.supplyPlanFormula.endingBalance1' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Inventaire prévisionnel = Solde d`ouverture + Ajustement + Expéditions dans les comptes - Consommation ajustée - Stock périmé'
+where l.LABEL_CODE='static.supplyPlanFormula.endingBalance1' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Inventario Proyectado = Saldo inicial + Ajuste + Envíos en cuentas - Consumo ajustado - Stock vencido'
+where l.LABEL_CODE='static.supplyPlanFormula.endingBalance1' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Estoque Projetado = Saldo inicial + Ajuste + Remessas em contas - Consumo Ajustado - Estoque vencido'
+where l.LABEL_CODE='static.supplyPlanFormula.endingBalance1' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumption in Feb 2020 = 5,000'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx4' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation en février 2020 = 5 000'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx4' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo en febrero de 2020 = 5.000'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx4' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo em fevereiro de 2020 = 5.000'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx4' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Adjusted Consumption in March 2020 = 6,890'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx5' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation ajustée en mars 2020 = 6 890'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx5' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado en marzo de 2020 = 6.890'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx5' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo Ajustado em março de 2020 = 6.890'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx5' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Adjusted Consumption in April 2020 = 6,907'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx6' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation ajustée en avril 2020 = 6 907'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx6' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo Ajustado en Abril 2020 = 6,907'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx6' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo Ajustado em abril de 2020 = 6.907'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx6' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Adjusted Consumption in May 2020 = 7,087'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx7' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation ajustée en mai 2020 = 7 087'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx7' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo Ajustado en Mayo 2020 = 7,087'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx7' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado em maio de 2020 = 7.087'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx7' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Adjusted Consumption in Jun 2020 = 5,678'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx8' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation ajustée en juin 2020 = 5 678'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx8' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado en junio de 2020 = 5678'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx8' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado em junho de 2020 = 5.678'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx8' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Adjusted Consumption in July 2020 = 6,789'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx9' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consommation ajustée en juillet 2020 = 6 789'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx9' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado en julio de 2020 = 6.789'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx9' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Consumo ajustado em julho de 2020 = 6.789'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx9' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = Adjusted Consumption in No. of MONTHS_IN_PAST + Adjusted Consumption in No. of MONTHS_IN_FUTURE/ number of months'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx10' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = Consommation ajustée en nombre de MONTHS_IN_PAST + Consommation ajustée en nombre de MONTHS_IN_FUTURE/nombre de mois'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx10' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = Consumo ajustado en número de MESES_EN_PASADO + Consumo ajustado en número de MESES_EN_FUTURO/ número de meses'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx10' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = Consumo Ajustado no Nº de MONTHS_IN_PAST + Consumo Ajustado no Nº de MONTHS_IN_FUTURE/ número de meses'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx10' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = (Adjusted Consumption for Feb,March,April,May 2020 + June & July 2020) / 6'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx11' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = (Consommation ajustée pour février, mars, avril, mai 2020 + juin et juillet 2020) / 6'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx11' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = (Consumo ajustado para febrero, marzo, abril, mayo de 2020 + junio y julio de 2020) / 6'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx11' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='AMC = (Consumo ajustado para fevereiro, março, abril, maio de 2020 + junho e julho de 2020) / 6'
+where l.LABEL_CODE='static.supplyPlanFormula.amcEx11' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlanFormula.forecastConsumption','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Consumption');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévoir la consommation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão de Consumo');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlanFormula.noOfDaysInMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No Of Days In Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de jours dans le mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de días en el mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de dias no mês');
