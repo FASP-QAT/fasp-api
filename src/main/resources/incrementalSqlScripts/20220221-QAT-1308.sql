@@ -1109,3 +1109,18 @@ insert into us_role_business_function values (NULL,'ROLE_INTERNAL_USER','ROLE_BF
 insert into us_role_business_function values (NULL,'ROLE_REALM_ADMIN','ROLE_BF_MANUAL_TAGGING',1,now(),1,now());
 
 truncate tmp_erp_delinked_programs;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.changeOrderOrder','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Created = New order line created by ERP system.\nUpdated = Order line updated by ERP system.\nDeleted = Order line deleted by ERP system');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Created = Nouvelle ligne de commande créée par le système ERP.\nUpdated = Ligne de commande mise à jour par le système ERP.\nDeleted = Ligne de commande supprimée par le système ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Creado = Nueva línea de pedido creada por el sistema ERP.\nActualizado = Línea de pedido actualizada por el sistema ERP.\nDeleted = Línea de pedido eliminada por el sistema ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criado = Nova linha de pedido criada pelo sistema ERP.\nAtualizado = Linha de pedido atualizada pelo sistema ERP.\nDeleted = Linha de pedido excluída pelo sistema ERP');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.changeOrderShipment','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Created = New shipment or batch line created by ERP system.\nUpdated = Shipment or batch line updated by ERP system\nDeleted = Shipment or batch line deleted by ERP system');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créé = Nouvelle expédition ou ligne de lot créée par le système ERP.\nUpdated = Ligne d`expédition ou de lot mise à jour par le système ERP\nDeleted = Ligne d`expédition ou de lot supprimée par le système ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Creado = Nuevo envío o línea de lote creado por el sistema ERP.\nActualizado = Envío o línea de lote actualizado por el sistema ERP\nDeleted = Envío o línea de lote eliminado por el sistema ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criado = Nova remessa ou linha de lote criada pelo sistema ERP.\nAtualizado = Remessa ou linha de lote atualizada pelo sistema ERP\nDeleted = Remessa ou linha de lote excluída pelo sistema ERP');-- pr
