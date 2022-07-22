@@ -38,8 +38,8 @@ public class SimplePlanningUnitWithPricesListResultSetExtractor implements Resul
                     new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, 1), rs.getString("FUU_CODE")),
                     rs.getInt("FORECASTING_UNIT_ID"),
                     new LabelRowMapper("FU_").mapRow(rs, 1),
-                    new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, 1)),
-                    new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1))
+                    new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)),
+                    new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, 1))
             );
             pu.setForecastingUnit(fu);
             pu.setMultiplier(rs.getDouble("MULTIPLIER"));
