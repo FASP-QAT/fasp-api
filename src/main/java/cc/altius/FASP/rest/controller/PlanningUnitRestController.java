@@ -428,11 +428,11 @@ public class PlanningUnitRestController {
         }
     }
     
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}/programId/{programId}")
-    public ResponseEntity getPlanningUnitForProductCategoryAndProgram(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
+    @GetMapping("/planningUnit/withPricing/productCategory/{productCategoryId}")
+    public ResponseEntity getPlanningUnitWithPricingForProductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategoryAndProgram(productCategoryId, programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitWithPricingListForProductCategory(productCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

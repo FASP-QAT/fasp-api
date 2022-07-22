@@ -17,7 +17,6 @@ import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -223,8 +222,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimplePlanningUnitWithPrices> getPlanningUnitListForProductCategoryAndProgram(int productCategoryId, int programId, CustomUserDetails curUser) {
-        return this.planningUnitDao.getPlanningUnitListForProductCategoryAndProgram(productCategoryId, programId, curUser);
+    public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser);
     }
 
 }
