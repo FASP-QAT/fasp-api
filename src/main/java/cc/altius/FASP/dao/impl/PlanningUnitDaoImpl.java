@@ -443,14 +443,14 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     // TODO 
     // Once Program - Procurement Agent has gone live then uncomment the lines 
     @Override
-    public List<SimplePlanningUnitWithPrices> getPlanningUnitListForProductCategoryAndProgram(int productCategoryId, int programId, CustomUserDetails curUser) {
+    public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    puu.UNIT_ID PUU_UNIT_ID, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE PUU_CODE, "
                 + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
                 + "    fu.UNIT_ID FUU_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
-                + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `tc_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
+                + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
                 + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "
                 + "    fuu.UNIT_ID FUU_UNIT_ID, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, fuu.UNIT_CODE FUU_CODE, "
                 + "    pu.MULTIPLIER, papu.CATALOG_PRICE "
@@ -465,10 +465,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "WHERE "
                 + "    pu.ACTIVE"
                 + "    AND (fu.PRODUCT_CATEGORY_ID=:productCategoryId OR :productCategoryId=-1) "
-                + "    AND fu.TRACER_CATEGORY_ID IN "
-                + "         (SELECT tc.TRACER_CATEGORY_ID FROM vw_all_program p LEFT JOIN rm_tracer_category tc on FIND_IN_SET(tc.HEALTH_AREA_ID,p.HEALTH_AREA_ID) WHERE p.PROGRAM_ID=:programId)");
+        //                + "    AND fu.TRACER_CATEGORY_ID IN "
+        //                + "         (SELECT tc.TRACER_CATEGORY_ID FROM vw_all_program p LEFT JOIN rm_tracer_category tc on FIND_IN_SET(tc.HEALTH_AREA_ID,p.HEALTH_AREA_ID) WHERE p.PROGRAM_ID=:programId)")
+        );
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
+//        params.put("programId", programId);
         params.put("productCategoryId", productCategoryId);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimplePlanningUnitWithPricesListResultSetExtractor());
     }

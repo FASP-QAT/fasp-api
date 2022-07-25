@@ -10,7 +10,6 @@ import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import java.text.ParseException;
 import java.util.List;
@@ -57,5 +56,5 @@ public interface PlanningUnitService {
 
     public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser);
 
-    public List<SimplePlanningUnitWithPrices> getPlanningUnitListForProductCategoryAndProgram(int productCategoryId, int programId, CustomUserDetails curUser);
+    public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser);
 }
