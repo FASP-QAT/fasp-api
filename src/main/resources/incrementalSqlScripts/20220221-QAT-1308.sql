@@ -1124,3 +1124,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Created = New shipment
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créé = Nouvelle expédition ou ligne de lot créée par le système ERP.\nUpdated = Ligne d`expédition ou de lot mise à jour par le système ERP\nDeleted = Ligne d`expédition ou de lot supprimée par le système ERP');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Creado = Nuevo envío o línea de lote creado por el sistema ERP.\nActualizado = Envío o línea de lote actualizado por el sistema ERP\nDeleted = Envío o línea de lote eliminado por el sistema ERP');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criado = Nova remessa ou linha de lote criada pelo sistema ERP.\nAtualizado = Remessa ou linha de lote atualizada pelo sistema ERP\nDeleted = Remessa ou linha de lote excluída pelo sistema ERP');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.tooltipHistory','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Bold - Latest record received from ERP system');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gras - Dernier enregistrement reçu du système ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Negrita: último registro recibido del sistema ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Negrito - Último registro recebido do sistema ERP');-- pr
