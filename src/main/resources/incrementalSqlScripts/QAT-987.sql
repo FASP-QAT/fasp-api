@@ -18,7 +18,22 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Replanejar o Plano de 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.newlyAddedShipment','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Newly Added Shipment');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Envoi nouvellement ajouté');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envío recién agregado');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessa recém-adicionada');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Re-Planned Shipment');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expédition replanifiée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envío replanificado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessa Replanejada');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.currentShipmentSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current Shipment Settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Paramètres d`envoi actuels');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Configuración de envío actual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Configurações de envio atuais');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.replannedShipmentSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Re-Planned Shipment Settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Paramètres d`envoi replanifié');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Configuración de envíos replanificados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Configurações de Remessa Replanejada');-- pr
