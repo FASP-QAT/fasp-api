@@ -108,6 +108,8 @@ public class Shipment implements Serializable {
     @JsonView({Views.InternalView.class})
     private Integer tempParentShipmentId;
     @JsonView({Views.InternalView.class})
+    private Integer tempParentLinkedShipmentId;
+    @JsonView({Views.InternalView.class})
     private Integer tempShipmentId;
 
     public Shipment() {
@@ -440,6 +442,14 @@ public class Shipment implements Serializable {
 
     public void setTempParentShipmentId(Integer tempParentShipmentId) {
         this.tempParentShipmentId = tempParentShipmentId;
+    }
+
+    public Integer getTempParentLinkedShipmentId() {
+        return tempParentLinkedShipmentId;
+    }
+
+    public void setTempParentLinkedShipmentId(Integer tempParentLinkedShipmentId) {
+        this.tempParentLinkedShipmentId = tempParentLinkedShipmentId;
     }
 
     public Integer getTempShipmentId() {
