@@ -51,6 +51,10 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
+            s.setParentLinkedShipmentId(rs.getInt("PARENT_LINKED_SHIPMENT_ID"));
+            if(rs.wasNull()) {
+                s.setParentLinkedShipmentId(null);
+            }
             s.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
             s.setSuggestedQty(rs.getLong("SUGGESTED_QTY"));
             s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));

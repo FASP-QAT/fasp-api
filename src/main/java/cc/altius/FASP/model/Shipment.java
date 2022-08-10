@@ -25,6 +25,8 @@ public class Shipment implements Serializable {
     private int shipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Integer parentShipmentId;
+    @JsonView({Views.InternalView.class})
+    private Integer parentLinkedShipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -126,6 +128,14 @@ public class Shipment implements Serializable {
 
     public void setParentShipmentId(Integer parentShipmentId) {
         this.parentShipmentId = parentShipmentId;
+    }
+
+    public Integer getParentLinkedShipmentId() {
+        return parentLinkedShipmentId;
+    }
+
+    public void setParentLinkedShipmentId(Integer parentLinkedShipmentId) {
+        this.parentLinkedShipmentId = parentLinkedShipmentId;
     }
 
     public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
