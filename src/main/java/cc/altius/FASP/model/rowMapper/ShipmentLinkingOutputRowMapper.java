@@ -60,6 +60,10 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
         if (rs.wasNull()) {
             so.setChildShipmentId(null);
         }
+        so.setParentLinkedShipmentId(rs.getInt("PARENT_LINKED_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            so.setParentLinkedShipmentId(null);
+        }
         so.setNotes(rs.getString("NOTES"));
         so.setShipBy(rs.getString("SHIP_BY"));
         so.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
