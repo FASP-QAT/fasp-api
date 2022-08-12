@@ -38,7 +38,7 @@ public class ShipmentLinkingOutput implements Serializable {
     private String shipBy;
     private SimpleObject qatEquivalentShipmentStatus;
     private Integer parentShipmentId;
-    private Integer parentLinkedShipmentId;
+    private String parentLinkedShipmentId;
     private Integer childShipmentId;
     private String notes;
     private SimpleObject qatPlanningUnit;
@@ -231,11 +231,11 @@ public class ShipmentLinkingOutput implements Serializable {
         this.tracerCategoryId = tracerCategoryId;
     }
 
-    public Integer getParentLinkedShipmentId() {
+    public String getParentLinkedShipmentId() {
         return parentLinkedShipmentId;
     }
 
-    public void setParentLinkedShipmentId(Integer parentLinkedShipmentId) {
+    public void setParentLinkedShipmentId(String parentLinkedShipmentId) {
         this.parentLinkedShipmentId = parentLinkedShipmentId;
     }
 
