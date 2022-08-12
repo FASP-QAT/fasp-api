@@ -28,6 +28,7 @@ import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.ShipmentLinking;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -101,5 +102,7 @@ public interface ProgramDataDao {
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
+
+    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
 
 }
