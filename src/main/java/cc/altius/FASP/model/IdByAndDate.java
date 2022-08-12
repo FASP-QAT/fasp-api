@@ -17,15 +17,17 @@ public class IdByAndDate implements Serializable {
     private int id;
     private Integer tempId;
     private Integer tempParentId;
+    private Integer tempParentLinkedId;
     private int createdBy;
     private Date createdDate;
     private int lastModifiedBy;
     private Date lastModifiedDate;
 
-    public IdByAndDate(int id, Integer tempId,Integer tempParentId, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
+    public IdByAndDate(int id, Integer tempId, Integer tempParentId, Integer tempParentLinkedId, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
         this.id = id;
         this.tempId = (tempId == 0 ? null : tempId);
         this.tempParentId = (tempParentId == 0 ? null : tempParentId);
+        this.tempParentLinkedId = (tempParentLinkedId == 0 ? null : tempParentLinkedId);
         this.createdBy = createdBy;
         this.createdDate = createdDate;
         this.lastModifiedBy = lastModifiedBy;
@@ -47,13 +49,21 @@ public class IdByAndDate implements Serializable {
     public void setTempId(Integer tempId) {
         this.tempId = (tempId == 0 ? null : tempId);
     }
-    
+
     public Integer getTempParentId() {
         return tempParentId;
     }
 
     public void setTempParentId(Integer tempParentId) {
         this.tempParentId = (tempParentId == 0 ? null : tempParentId);
+    }
+
+    public Integer getTempParentLinkedId() {
+        return tempParentLinkedId;
+    }
+
+    public void setTempParentLinkedId(Integer tempParentLinkedId) {
+        this.tempParentLinkedId = (tempParentLinkedId == 0 ? null : tempParentLinkedId);
     }
 
     public int getCreatedBy() {
@@ -92,7 +102,5 @@ public class IdByAndDate implements Serializable {
     public String toString() {
         return "IdByAndDate{" + "id=" + id + ", tempId=" + tempId + ", tempParentId=" + tempParentId + '}';
     }
-    
-    
 
 }
