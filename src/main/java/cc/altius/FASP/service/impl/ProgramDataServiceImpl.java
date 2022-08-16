@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
@@ -24,6 +25,7 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -51,6 +53,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private ProgramDao programDao;
     @Autowired
+    private ProcurementAgentDao procurementAgentDao;
+    @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
     private ProblemService problemService;
@@ -69,6 +73,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
+        pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
         return pd;
     }
 
@@ -87,6 +92,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
+            pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             programDataList.add(pd);
         });
         return programDataList;
@@ -247,6 +253,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
         return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
+    }
+
+    @Override
+    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
     }
 
 }
