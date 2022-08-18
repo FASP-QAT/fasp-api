@@ -296,7 +296,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_FundingSourceDateSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -472,7 +472,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentCountrySplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -649,7 +649,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentDateSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -826,7 +826,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentTypeCountrySplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1004,7 +1004,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentTypeDateSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1182,7 +1182,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ShipmentList`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1311,7 +1311,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentOverview_fundingSourceSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1429,7 +1429,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentOverview_planningUnitSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1546,7 +1546,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentOverview_procurementAgentSplit`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -1712,7 +1712,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS ``;
+DROP procedure IF EXISTS `shipmentOverview_procurementAgentTypeSplit`;
 
 DELIMITER $$
 USE `fasp`$$
