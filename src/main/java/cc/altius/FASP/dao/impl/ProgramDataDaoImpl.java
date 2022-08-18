@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
@@ -43,6 +44,7 @@ import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -137,7 +139,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException {
         Map<String, Object> params = new HashMap<>();
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
@@ -148,11 +150,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+        // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
+        String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", p.getProgramId());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            // This is a delinked Program
+            for (Shipment s : pd.getShipmentList()) {
+                if (s.isErpFlag()) {
+                    throw new CouldNotSaveException("You are trying to commit a program that has ERP linked Shipments but this program has been delinked already");
+                }
+            }
+        }
+
         // Check which records have changed
         params.clear();
         logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
@@ -2490,6 +2507,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("STATUS", 1); // New request
         int commitRequestId = si.executeAndReturnKey(params).intValue();
         return commitRequestId;
+    }
+
+    @Override
+    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC, "
+                + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
+                + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pv.PROGRAM_ID=:programId AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", datasetVersionListInput.getProgramId());
+        params.put("versionTypeId", datasetVersionListInput.getVersionTypeId());
+        params.put("startDate", datasetVersionListInput.getStartDate());
+        params.put("stopDate", datasetVersionListInput.getStopDate());
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new VersionRowMapper());
     }
 
 }

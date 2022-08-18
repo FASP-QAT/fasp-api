@@ -20,11 +20,7 @@ import cc.altius.FASP.service.UserService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -42,7 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -66,15 +61,12 @@ public class CommitRequestRestController {
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody ProgramData programData, Authentication auth) {
         try {
-//            String json = IOUtils.toString(request.getReader());
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
                     .setDateFormat("yyyy-MM-dd HH:mm:ss")
                     .setLenient()
                     .create();
-//            ProgramData programData = gson.fromJson(json, new TypeToken<ProgramData>() {
-//            }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
@@ -119,6 +111,7 @@ public class CommitRequestRestController {
             String emptyFuNodeString5 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
             String emptyFuNodeString6 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":null,\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{\"id\":18},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
             String emptyFuNodeString7 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{\"id\":18},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
+
             json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
             json = json.replace(emptyFuNodeString2, "\"fuNode\": null");
             json = json.replace(emptyFuNodeString3, "\"fuNode\": null");
@@ -187,9 +180,10 @@ public class CommitRequestRestController {
     }
 
     // Part 2 of the Commit Request
-    @GetMapping("/processCommitRequest")
+//    @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
-    @Scheduled(cron = "00 */1 * * * *")
+//    @Scheduled(cron = "00 */1 * * * *")
+     @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
     public ResponseEntity processCommitRequest() {
         try {
             logger.info("Starting the Commit request scheduler");
