@@ -1877,3 +1877,21 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.shipment.shipmentProcurementAgentType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment Procurement Agent Type');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type d`agent d`approvisionnement d`expédition');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de Agente de Aquisição de Remessa');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de agente de compras de envío');-- sp
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.shipment.groupByProcurementAgentType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Group by Procurement Agent Type');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Regrouper par type d`agent d`approvisionnement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agrupar por tipo de agente de aquisição');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agrupar por tipo de agente de compras');-- sp
+
