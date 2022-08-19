@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.dao.PlanningUnitDao;
+import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
@@ -42,6 +44,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.UserAcl;
@@ -61,7 +64,9 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
+import cc.altius.utils.PassPhrase;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,7 +102,9 @@ public class ProgramDaoImpl implements ProgramDao {
     private ProgramCommonDao programCommonDao;
     @Autowired
     private ProgramDataDao programDataDao;
-    
+    @Autowired
+    private PlanningUnitDao planningUnitDao;
+
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
@@ -182,7 +189,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE ";
-    
+
     public String sqlListStringForSimplePlanningUnit = "SELECT "
             + "    pu.PLANNING_UNIT_ID    `PU_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_PR `PU_LABEL_PR`, pu.LABEL_SP `PU_LABEL_SP`, pu.MULTIPLIER, "
             + "    puu.UNIT_ID `PU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PU_UNIT_CODE`, "
@@ -485,7 +492,7 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
     }
-    
+
     @Override
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForSimplePlanningUnit).append(" AND ppu.PROGRAM_ID=:programId");
@@ -512,9 +519,10 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    @Transactional
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
-        List<SqlParameterSource> insertList = new ArrayList<>();
+        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
         List<SqlParameterSource> updateList = new ArrayList<>();
         List<Integer> programIds = new ArrayList<>();
         int rowsEffected = 0;
@@ -538,7 +546,34 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("LAST_MODIFIED_DATE", curDate);
                 params.put("LAST_MODIFIED_BY", curUser.getUserId());
                 params.put("ACTIVE", true);
-                insertList.add(new MapSqlParameterSource(params));
+                // insert the ProgramPlanningUnit
+                si.executeAndReturnKey(params);
+                rowsEffected++;
+                Program p = this.programCommonDao.getProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
+                params.clear();
+                params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+                params.put("planningUnitId", ppu.getPlanningUnit().getId());
+                params.put("multiplier", 1);
+                int activeCount = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                if (activeCount == 0) {
+                    PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(ppu.getPlanningUnit().getId(), curUser);
+                    String skuCode = new StringBuilder(ppu.getProgram().getIdString()).append("-").append(SuggestedDisplayName.getAlphaNumericString(pu.getLabel().getLabel_en(), SuggestedDisplayName.REALM_COUNTRY_PLANNING_UNIT_LENGTH)).append("_").append(PassPhrase.getPassword(4).toUpperCase()).toString();
+                    int rcpuLabelId = this.labelDao.addLabel(pu.getLabel(), LabelConstants.RM_REALM_COUNTRY_PLANNING_UNIT, curUser.getUserId());
+                    params.clear();
+                    params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
+                    params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
+                    params.put("LABEL_ID", rcpuLabelId);
+                    params.put("SKU_CODE", skuCode);
+                    params.put("UNIT_ID", pu.getUnit().getId());
+                    params.put("MULTIPLIER", 1);
+                    params.put("CREATED_DATE", curDate);
+                    params.put("CREATED_BY", curUser.getUserId());
+                    params.put("LAST_MODIFIED_DATE", curDate);
+                    params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                    params.put("ACTIVE", true);
+                    rcpuSi.execute(params);
+                }
             } else {
                 // Update
                 params = new HashMap<>();
@@ -559,10 +594,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 }
             }
         }
-        if (insertList.size() > 0) {
-            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
-            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
-        }
+//        if (insertList.size() > 0) {
+//            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+//            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+//        }
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
@@ -571,7 +606,7 @@ public class ProgramDaoImpl implements ProgramDao {
         for (Integer pId : programIds) {
             CommitRequest s = new CommitRequest();
             SimpleCodeObject program = new SimpleCodeObject();
-            program.setId(pId);
+            program.setId(pId);//
             s.setProgram(program);
             s.setCommittedVersionId(-1);
             s.setSaveData(false);
