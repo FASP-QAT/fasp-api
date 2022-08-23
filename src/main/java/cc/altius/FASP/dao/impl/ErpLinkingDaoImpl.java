@@ -1985,7 +1985,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
                 + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL   "
                 + "    AND sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID   "
-                + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
+                + "ORDER BY COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`),e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
         Map<String, Object> params = new HashMap<>();
         params.put("versionId", input.getVersionId());
         params.put("shipmentProgramId", input.getProgramId());
@@ -2016,7 +2016,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_order_consolidated e ON c.LABEL_EN=e.RECPIENT_COUNTRY  "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE  "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,:planningUnitIds) OR :planningUnitIds='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE  "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.STATUS, e.STATUS)  "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE  "
                 + "LEFT JOIN rm_shipment sh ON sl.CHILD_SHIPMENT_ID=sh.SHIPMENT_ID "

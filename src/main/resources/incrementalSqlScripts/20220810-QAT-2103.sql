@@ -168,7 +168,7 @@ DELIMITER ;
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.showAllShipments','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show All Shipments');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher tous les envois');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar todos los envíos');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar todas as remessas');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show all shipments for');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher toutes les expéditions pour');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar todos los envíos de');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar todos os envios para');-- pr
