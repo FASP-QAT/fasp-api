@@ -6,8 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -94,16 +92,6 @@ public interface ProgramDao {
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
 
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
-
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
-
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
-
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
-
-    public int getNotificationCount(CustomUserDetails curUser);
-
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
 
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 

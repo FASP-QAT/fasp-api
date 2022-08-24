@@ -15,13 +15,17 @@ import java.util.Date;
 public class IdByAndDate implements Serializable {
 
     private int id;
+    private Integer tempId;
+    private Integer tempParentId;
     private int createdBy;
     private Date createdDate;
     private int lastModifiedBy;
     private Date lastModifiedDate;
 
-    public IdByAndDate(int id, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
+    public IdByAndDate(int id, Integer tempId,Integer tempParentId, int createdBy, Date createdDate, int lastModifiedBy, Date lastModifiedDate) {
         this.id = id;
+        this.tempId = (tempId == 0 ? null : tempId);
+        this.tempParentId = (tempParentId == 0 ? null : tempParentId);
         this.createdBy = createdBy;
         this.createdDate = createdDate;
         this.lastModifiedBy = lastModifiedBy;
@@ -34,6 +38,22 @@ public class IdByAndDate implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Integer getTempId() {
+        return tempId;
+    }
+
+    public void setTempId(Integer tempId) {
+        this.tempId = (tempId == 0 ? null : tempId);
+    }
+    
+    public Integer getTempParentId() {
+        return tempParentId;
+    }
+
+    public void setTempParentId(Integer tempParentId) {
+        this.tempParentId = (tempParentId == 0 ? null : tempParentId);
     }
 
     public int getCreatedBy() {
@@ -67,5 +87,12 @@ public class IdByAndDate implements Serializable {
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
+
+    @Override
+    public String toString() {
+        return "IdByAndDate{" + "id=" + id + ", tempId=" + tempId + ", tempParentId=" + tempParentId + '}';
+    }
+    
+    
 
 }

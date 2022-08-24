@@ -28,6 +28,7 @@ import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -45,6 +46,8 @@ public interface ProgramDataDao {
     public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
 
     public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
+    
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
 
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
 
