@@ -170,6 +170,14 @@ DELIMITER ;
 -- group by st.SHIPMENT_TRANS_ID
 -- HAVING COUNT(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID)!=1) s1 GROUP BY s1.REALM_COUNTRY_ID, s1.PLANNING_UNIT_ID ORDER BY CNT, SKU_CODE, RCPU_ID;
 
+-- Libre office function to determine what to do
+-- =IF(AND(ISBLANK(E2),ISBLANK(H2)), "Activate", IF(AND(ISBLANK(E2),G2=0), "Create with SKU", IF(G2=0, "Create", IF(G2>=2,"Deactivate","Some other problem"))))
+
+-- Create	insert into ap_label VALUES (null, '', null, null, null, 1, now(), 1, now(), 32);	SELECT LAST_INSERT_ID() into @labelId;	INSERT INTO rm_realm_country_planning_unit VALUES (null, , , @labelId, '', , 1, null, 1, 1, now(), 1, now());
+-- Activate	UPDATE rm_realm_country_planning_unit rcpu SET ACTIVE=1, LAST_MODIFIED_DATE=now(), LAST_MODIFIED_BY=1 WHERE rcpu.REALM_COUNTRY_ID= AND rcpu.PLANNING_UNIT_ID=;		
+-- Deactivate	UPDATE rm_realm_country_planning_unit rcpu SET rcpu.ACTIVE=0, rcpu.LAST_MODIFIED_BY=1, rcpu.LAST_MODIFIED_DATE=now() WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=;	UPDATE rm_consumption_trans ct SET ct.REALM_COUNTRY_PLANNING_UNIT_ID= WHERE ct.REALM_COUNTRY_PLANNING_UNIT_ID=;	UPDATE rm_inventory_trans ct SET ct.REALM_COUNTRY_PLANNING_UNIT_ID= WHERE ct.REALM_COUNTRY_PLANNING_UNIT_ID=;
+
+-- If you need to delete the created ARU's and start again
 -- DELETE rcpu.* FROM rm_realm_country_planning_unit rcpu where rcpu.CREATED_DATE>='2022-08-24';
 -- DELETE l.* FROM ap_label l WHERE l.CREATED_DATE>'2022-08-24' and l.SOURCE_ID=32;
 
