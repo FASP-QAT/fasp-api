@@ -2523,9 +2523,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pv.PROGRAM_ID=:programId AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate");
+                + "WHERE (:programIds='' OR FIND_IN_SET(pv.PROGRAM_ID, :programIds)) AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate");
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", datasetVersionListInput.getProgramId());
+        params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));
         params.put("versionTypeId", datasetVersionListInput.getVersionTypeId());
         params.put("startDate", datasetVersionListInput.getStartDate());
         params.put("stopDate", datasetVersionListInput.getStopDate());
