@@ -69,7 +69,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       FROM ");
     SET @sqlString = CONCAT(@sqlString, "           ( ");
     SET @sqlString = CONCAT(@sqlString, "       SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID ");
-    SET @sqlString = CONCAT(@sqlString, "       FROM rm_program p ");
+    SET @sqlString = CONCAT(@sqlString, "       FROM vw_program p ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID         ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=@planningUnitId");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID");
