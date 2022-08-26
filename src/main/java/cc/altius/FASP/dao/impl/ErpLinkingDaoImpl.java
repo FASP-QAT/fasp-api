@@ -1985,7 +1985,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
                 + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL   "
                 + "    AND sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID   "
-                + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
+                + "ORDER BY COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`),e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
         Map<String, Object> params = new HashMap<>();
         params.put("versionId", input.getVersionId());
         params.put("shipmentProgramId", input.getProgramId());
@@ -2016,7 +2016,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_order_consolidated e ON c.LABEL_EN=e.RECPIENT_COUNTRY  "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE  "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,:planningUnitIds) OR :planningUnitIds='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE  "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.STATUS, e.STATUS)  "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE  "
                 + "LEFT JOIN rm_shipment sh ON sl.CHILD_SHIPMENT_ID=sh.SHIPMENT_ID "
@@ -2059,12 +2059,13 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                    sl.KN_SHIPMENT_NO, null as BATCH_NO, NULL as EXPIRY_DATE, TRUE `SHIPMENT_ACTIVE`, "
                 + "                    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
                 + "                    pu2.PLANNING_UNIT_ID `QAT_PLANNING_UNIT_ID`, pu2.LABEL_ID `QAT_PU_LABEL_ID`, pu2.LABEL_EN `QAT_PU_LABEL_EN`, pu2.LABEL_FR `QAT_PU_LABEL_FR`, pu2.LABEL_SP `QAT_PU_LABEL_SP`, pu2.LABEL_PR `QAT_PU_LABEL_PR`, "
+                + "                    rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `QAT_RCPU_ID`, rcpu.LABEL_ID `QAT_RCPU_LABEL_ID`, rcpu.LABEL_EN `QAT_RCPU_LABEL_EN`, rcpu.LABEL_FR `QAT_RCPU_LABEL_FR`, rcpu.LABEL_SP `QAT_RCPU_LABEL_SP`, rcpu.LABEL_PR `QAT_RCPU_LABEL_PR`, rcpu.MULTIPLIER `QAT_RCPU_MULTIPLIER`, "
                 + "                    e.PRICE, e.SHIPPING_COST, "
                 + "                    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
                 + "                    sl.PARENT_SHIPMENT_ID, group_concat(DISTINCT(s2t.SHIPMENT_ID)) as PARENT_LINKED_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, s2t.NOTES, e.SHIP_BY, slt.`CONVERSION_FACTOR` CONVERSION_FACTOR,null `TRACER_CATEGORY_ID`                      "
                 + "                FROM  rm_shipment_linking sl"
-                + "                LEFT JOIN rm_erp_order_consolidated e ON sl.RO_NO=e.RO_NO AND sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND e.ACTIVE"
-                + "                LEFT JOIN rm_erp_shipment_consolidated s ON s.ORDER_NO=e.ORDER_NO AND s.PRIME_LINE_NO=e.PRIME_LINE_NO AND s.KN_SHIPMENT_NO=sl.KN_SHIPMENT_NO AND s.ACTIVE "
+                + "                LEFT JOIN rm_erp_order_consolidated e ON sl.RO_NO=e.RO_NO AND sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO and sl.ORDER_NO=e.ORDER_NO and sl.PRIME_LINE_NO=e.PRIME_LINE_NO AND e.ACTIVE"
+                + "                LEFT JOIN rm_erp_shipment_consolidated s ON s.ORDER_NO=sl.ORDER_NO AND s.PRIME_LINE_NO=sl.PRIME_LINE_NO AND s.KN_SHIPMENT_NO=sl.KN_SHIPMENT_NO AND s.ACTIVE "
                 + "                LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE "
                 + "                LEFT JOIN rm_procurement_agent_planning_unit papu on papu.PROCUREMENT_AGENT_ID=1 AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE "
                 + "                LEFT JOIN rm_program p ON p.PROGRAM_ID=sl.PROGRAM_ID and p.PROGRAM_ID=:programId "
@@ -2073,7 +2074,10 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID                 "
                 + "                LEFT JOIN rm_shipment s2 ON sl.PARENT_SHIPMENT_ID=s2.SHIPMENT_ID  "
                 + "                LEFT JOIN rm_shipment_trans s2t ON s2t.PARENT_LINKED_SHIPMENT_ID=s2.SHIPMENT_ID AND s2.MAX_VERSION_ID=s2t.VERSION_ID "
+                + "                LEFT JOIN rm_shipment cs2 ON sl.CHILD_SHIPMENT_ID=cs2.SHIPMENT_ID  "
+                + "                LEFT JOIN rm_shipment_trans cs2t ON cs2t.SHIPMENT_ID=cs2.SHIPMENT_ID AND cs2.MAX_VERSION_ID=cs2t.VERSION_ID "
                 + "                LEFT JOIN vw_planning_unit pu2 ON s2t.PLANNING_UNIT_ID=pu2.PLANNING_UNIT_ID "
+                + "                LEFT JOIN vw_realm_country_planning_unit rcpu ON cs2t.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID "
                 + "                WHERE "
                 + "                     p.PROGRAM_ID IS NOT NULL "
                 + "    AND (FIND_IN_SET(pu.PLANNING_UNIT_ID, :planningUnitIds) OR :planningUnitIds='') "

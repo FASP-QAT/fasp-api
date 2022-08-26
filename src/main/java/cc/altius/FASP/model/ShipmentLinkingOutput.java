@@ -42,6 +42,7 @@ public class ShipmentLinkingOutput implements Serializable {
     private Integer childShipmentId;
     private String notes;
     private SimpleObject qatPlanningUnit;
+    private SimpleObjectWithMultiplier qatRealmCountryPlanningUnit;
     private boolean orderActive;
     private boolean shipmentActive;
     private Double conversionFactor;
@@ -197,6 +198,14 @@ public class ShipmentLinkingOutput implements Serializable {
 
     public void setQatPlanningUnit(SimpleObject qatPlanningUnit) {
         this.qatPlanningUnit = qatPlanningUnit;
+    }
+
+    public SimpleObjectWithMultiplier getQatRealmCountryPlanningUnit() {
+        return qatRealmCountryPlanningUnit;
+    }
+
+    public void setQatRealmCountryPlanningUnit(SimpleObjectWithMultiplier qatRealmCountryPlanningUnit) {
+        this.qatRealmCountryPlanningUnit = qatRealmCountryPlanningUnit;
     }
 
     public boolean isOrderActive() {
