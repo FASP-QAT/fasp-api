@@ -90,7 +90,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID  ");
-    SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_procurement_agent pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID  ");
+    SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       WHERE ");
     SET @sqlString = CONCAT(@sqlString, "           st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 ");
