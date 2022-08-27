@@ -2529,18 +2529,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
                     + "FROM rm_tree_template_node_data_modeling ttndm "
                     + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
-                    + "WHERE ttndm.NODE_DATA_ID = :nodeDataId";
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
         } else {
             sql = "SELECT "
                     + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                     + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
                     + "FROM rm_forecast_tree_node_data_modeling ttndm "
                     + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
-                    + "WHERE ttndm.NODE_DATA_ID = :nodeDataId";
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
         }
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeDataId", nodeDataId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new NodeDataModelingRowMapper(false));
+        return this.jdbcTemplate.query(sql, new NodeDataModelingRowMapper(isTemplate), nodeDataId);
     }
 
     @Override
@@ -2548,10 +2546,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String sql = "SELECT "
                 + "	ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE` "
                 + "FROM rm_forecast_tree_node_data_mom ndm "
-                + "WHERE ndm.NODE_DATA_ID=:nodeDataId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeDataId", nodeDataId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new NodeDataMomRowMapper());
+                + "WHERE ndm.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataMomRowMapper(), nodeDataId);
     }
 
     @Override
@@ -2563,9 +2559,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "FROM rm_tree_template_node_data_override ttndo "
                     + "WHERE ttndo.NODE_DATA_ID=?";
         } else {
-            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC` "
-                    + "FROM rm_forecast_tree_node_data_override ndo "
-                    + "WHERE ndo.NODE_DATA_ID=?";
+            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC` FROM rm_forecast_tree_node_data_override ndo WHERE ndo.NODE_DATA_ID=?";
         }
         return this.jdbcTemplate.query(sql, new NodeDataOverrideRowMapper(isTemplate), nodeDataId);
     }
@@ -2578,10 +2572,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "FROM rm_forecast_tree_node_data_extrapolation nde "
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
                 + "LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
-                + "WHERE nde.NODE_DATA_ID=:nodeDataId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeDataId", nodeDataId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new NodeDataExtrapolationResultSetExtractor());
+                + "WHERE nde.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationResultSetExtractor(), nodeDataId);
     }
 
     @Override
@@ -2592,10 +2584,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
-                + "WHERE ndeo.NODE_DATA_ID=:nodeDataId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeDataId", nodeDataId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new NodeDataExtrapolationOptionRowMapper());
+                + "WHERE ndeo.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionRowMapper(), nodeDataId);
     }
 
 }
