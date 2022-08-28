@@ -61,7 +61,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.`UNIT_CODE`, "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `R_LABEL_ID`,  r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
             + "    fm.FORECAST_METHOD_ID, fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, fm.FORECAST_METHOD_TYPE_ID, "
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
+            + "    tt.BRANCH "
             + "FROM vw_tree_template tt  "
             + "LEFT JOIN vw_tree_template_level tl ON tt.TREE_TEMPLATE_ID=tl.TREE_TEMPLATE_ID "
             + "LEFT JOIN vw_unit u ON tl.UNIT_ID=u.UNIT_ID "
@@ -71,9 +72,11 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
-        String sql = treeTemplateSql + "ORDER BY tt.LABEL_EN";
-        return this.namedParameterJdbcTemplate.query(sql, new TreeTemplateListResultSetExtractor());
+    public List<TreeTemplate> getTreeTemplateList(boolean isBranch, CustomUserDetails curUser) {
+        String sql = treeTemplateSql + "WHERE tt.BRANCH=:isBranch ORDER BY tt.LABEL_EN";
+        Map<String, Object> params = new HashMap<>();
+        params.put("isBranch", isBranch);
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());
     }
 
     // To change this query to match with the new method of extraction
@@ -148,6 +151,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         params.put("ACTIVE", 1);
+        params.put("BRANCH", tt.isBranch());
         params.put("NOTES", tt.getNotes());
         int treeTemplateId = si.executeAndReturnKey(params).intValue();
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
@@ -334,7 +338,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             params.replace("levelNo", l);
             this.namedParameterJdbcTemplate.update("DELETE ttn.* FROM rm_tree_template_node ttn WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId AND ttn.LEVEL_NO=:levelNo", params);
         }
-        
+
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
@@ -478,10 +482,11 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     }
 
     @Override
-    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sql = treeTemplateSql + " WHERE tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
+    public List<TreeTemplate> getTreeTemplateListForSync(boolean isBranch, String lastSyncDate, CustomUserDetails curUser) {
+        String sql = treeTemplateSql + " WHERE tt.BRANCH=:isBranch AND tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
+        params.put("isBranch", isBranch);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());
     }
 
