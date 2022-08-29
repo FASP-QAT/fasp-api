@@ -106,7 +106,7 @@
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
-    <logger name="cc.altius.FASP" level="debug" additivity="false">
+    <logger name="cc.altius.FASP" level="info" additivity="false">
         <appender-ref ref="RootFile" />
         <appender-ref ref="SpringBootFile" />
     </logger>
