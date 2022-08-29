@@ -39,6 +39,8 @@ import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -109,6 +111,21 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
         dd.getTreeList().forEach(t -> {
             t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
+            t.getTree().getFlatList().forEach(n -> {
+                n.getPayload().getNodeDataMap().values().forEach(s -> {
+                    s.forEach(nd -> {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                            nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
+                            nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
+                        }
+                        nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
+                        if (nd.isExtrapolation()) {
+                            nd.setNodeDataExtrapolation(this.programDataDao.getNodeDataExtrapolationForNodeDataId(nd.getNodeDataId()));
+                            nd.setNodeDataExtrapolationOptionList(this.programDataDao.getNodeDataExtrapolationOptionForNodeDataId(nd.getNodeDataId()));
+                        }
+                    });
+                });
+            });
         });
         dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
         dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
