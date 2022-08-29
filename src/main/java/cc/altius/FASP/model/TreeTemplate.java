@@ -100,14 +100,8 @@ public class TreeTemplate extends BaseModel implements Serializable {
         this.notes = notes;
     }
 
-    public ForecastNode<TreeNode>[] getFlatList() {
-        if (this.tree != null) {
-            List<ForecastNode<TreeNode>> nodeList = this.tree.getFlatList();
-            ForecastNode[] nodeArray = new ForecastNode[nodeList.size()];
-            return nodeList.toArray(nodeArray);
-        } else {
-            return null;
-        }
+    public List<ForecastNode<TreeNode>> getFlatList() {
+        return this.tree.getFlatList();
     }
 
     public void setFlatList(ForecastNode<TreeNode>[] flatList) throws Exception {
@@ -153,6 +147,6 @@ public class TreeTemplate extends BaseModel implements Serializable {
             return false;
         }
         return true;
-    }    
+    }
 
 }
