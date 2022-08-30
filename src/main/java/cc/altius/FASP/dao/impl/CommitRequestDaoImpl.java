@@ -126,7 +126,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
-        params.put("JSON", json);
+//        params.put("JSON", json);
         int commitRequestId = si.executeAndReturnKey(params).intValue();
         try {
             Path path = FileSystems.getDefault().getPath(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH, commitRequestId + ".json");
