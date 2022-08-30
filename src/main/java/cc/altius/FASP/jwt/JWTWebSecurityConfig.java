@@ -112,6 +112,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //                .and().ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui")
                 .and().ignoring().antMatchers("/api/locales/*/**")
                 .and().ignoring().antMatchers("/api/forgotPassword/**")
+                .and().ignoring().antMatchers("/api/coreui/version/**")
                 .and().ignoring().antMatchers("/api/getForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/confirmForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/updatePassword/**")
