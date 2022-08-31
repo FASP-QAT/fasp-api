@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
@@ -24,6 +25,7 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -37,6 +39,8 @@ import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -50,6 +54,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private ProgramDataDao programDataDao;
     @Autowired
     private ProgramDao programDao;
+    @Autowired
+    private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
@@ -69,6 +75,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
+        pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
         return pd;
     }
 
@@ -87,6 +94,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
+            pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             programDataList.add(pd);
         });
         return programDataList;
@@ -103,6 +111,21 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
         dd.getTreeList().forEach(t -> {
             t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
+            t.getTree().getFlatList().forEach(n -> {
+                n.getPayload().getNodeDataMap().values().forEach(s -> {
+                    s.forEach(nd -> {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                            nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
+                            nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
+                        }
+                        nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
+                        if (nd.isExtrapolation()) {
+                            nd.setNodeDataExtrapolation(this.programDataDao.getNodeDataExtrapolationForNodeDataId(nd.getNodeDataId()));
+                            nd.setNodeDataExtrapolationOptionList(this.programDataDao.getNodeDataExtrapolationOptionForNodeDataId(nd.getNodeDataId()));
+                        }
+                    });
+                });
+            });
         });
         dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
         dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
@@ -247,6 +270,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
         return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
+    }
+
+    @Override
+    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
     }
 
 }

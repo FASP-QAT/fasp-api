@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.ProgramCount;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public interface DashboardDao {
 
     public int getRegionCount(CustomUserDetails curUser);
 
-    public int getProgramCount(CustomUserDetails curUser);
+    public ProgramCount getProgramCount(CustomUserDetails curUser);
 
     public int getSupplyPlanPendingCount(CustomUserDetails curUser);
 
