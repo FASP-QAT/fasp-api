@@ -274,3 +274,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ARU');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ARU');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ARU');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'ARU');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.erpProduct','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Product');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Produit ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Producto ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Produto ERP');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualTagging.erpQty','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Qty');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Qtde ERP');-- pr
