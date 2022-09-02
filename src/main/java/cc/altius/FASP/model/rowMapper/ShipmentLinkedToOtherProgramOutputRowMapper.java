@@ -8,6 +8,8 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,6 +33,8 @@ public class ShipmentLinkedToOtherProgramOutputRowMapper implements RowMapper<Sh
         }
         so.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         so.setProgramManager(new BasicUser(rs.getInt("USER_ID"), rs.getString("USERNAME")));
+        so.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum)));
+        so.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("RCPU_").mapRow(rs, rowNum),rs.getDouble("RCPU_MULTIPLIER")));
         return so;
     }
 
