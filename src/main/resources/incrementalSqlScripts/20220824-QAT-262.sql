@@ -297,3 +297,32 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion Factor (ERP
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion (ERP à QAT PU)');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Factor de conversión (ERP a QAT PU)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão (ERP para QAT PU)');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.planShipmentsByDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Plan shipments by date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Planifier les expéditions par date');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Planificar envíos por fecha');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Planeje as remessas por data');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.plan','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Plan');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Planifier');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plan');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Plano');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.planByDateNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned by date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Planifié par date');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Planificado por fecha');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Planejado por data');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.listOfNewShipmentsCreated','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'List of new shipments created');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Liste des nouvelles expéditions créées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Lista de nuevos envíos creados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lista de novas remessas criadas');-- pr
