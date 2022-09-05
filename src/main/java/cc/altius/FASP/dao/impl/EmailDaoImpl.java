@@ -170,9 +170,8 @@ public class EmailDaoImpl implements EmailDao {
     }
 
     @Override
-    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String[] subjectParam, String[] bodyParam) {
+    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam) {
         EmailTemplate emailTemplate = this.getEmailTemplateByEmailTemplateId(emailTemplateId);
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.GMT);
         String subjectString = emailTemplate.getSubject();
         String emailBodyString = emailTemplate.getEmailBody();
         if (subjectParam.length != 0) {
@@ -195,6 +194,7 @@ public class EmailDaoImpl implements EmailDao {
         emailer.setSubject(subjectString);
         emailer.setToSend(toSend);
         emailer.setCcToSend(ccTo);
+        emailer.setBccToSend(bccTo);
         emailer.setAttempts(0);
 
         return emailer;
