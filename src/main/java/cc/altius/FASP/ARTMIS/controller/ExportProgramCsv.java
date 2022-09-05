@@ -120,7 +120,7 @@ public class ExportProgramCsv {
             } else {
                 subjectParam = new String[]{"QAT Program Data", "Directory does not exists"};
                 bodyParam = new String[]{"QAT Program Data", date, "Directory does not exists", "Directory does not exists"};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -130,7 +130,7 @@ public class ExportProgramCsv {
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"QAT Program Data", "File not found"};
             bodyParam = new String[]{"QAT Program Data", date, "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -139,7 +139,7 @@ public class ExportProgramCsv {
         } catch (IOException e) {
             subjectParam = new String[]{"QAT Program Data", "Input/Output error"};
             bodyParam = new String[]{"QAT Program Data", date, "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -148,7 +148,7 @@ public class ExportProgramCsv {
         } catch (BadSqlGrammarException e) {
             subjectParam = new String[]{"QAT Program Data", "SQL Exception"};
             bodyParam = new String[]{"QAT Program Data", date, "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -157,7 +157,7 @@ public class ExportProgramCsv {
         } catch (Exception e) {
             subjectParam = new String[]{"QAT Program Data", e.getClass().getName().toString()};
             bodyParam = new String[]{"QAT Program Data", date, e.getClass().getName().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

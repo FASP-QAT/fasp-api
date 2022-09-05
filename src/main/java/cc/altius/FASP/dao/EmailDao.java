@@ -29,7 +29,7 @@ public interface EmailDao {
 
     public void sendMail(Emailer emailer);
 
-    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String[] subjectParam, String[] bodyParam);
+    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam);
 
     public int insertIntoFileStoreUnique(String fileName);
 }
