@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class DatasetVersionListInput implements Serializable {
 
     @JsonView(Views.InternalView.class)
-    private int programId;  // -1 for all
+    private String[] programIds;  // empty for all
     @JsonView(Views.InternalView.class)
     private int versionTypeId;  // -1 for all
     @JsonView(Views.InternalView.class)
@@ -23,12 +23,12 @@ public class DatasetVersionListInput implements Serializable {
     @JsonView(Views.InternalView.class)
     private String stopDate;
 
-    public int getProgramId() {
-        return programId;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public int getVersionTypeId() {
