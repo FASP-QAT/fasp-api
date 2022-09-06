@@ -105,7 +105,7 @@ public interface ProgramDataDao {
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
-    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
 
     public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate);
 
