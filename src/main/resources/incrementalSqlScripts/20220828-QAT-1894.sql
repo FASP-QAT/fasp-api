@@ -28,3 +28,10 @@ VIEW `vw_tree_template` AS
     FROM
         (`rm_tree_template` `tt`
         LEFT JOIN `ap_label` `l` ON ((`tt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` 
+ADD COLUMN `START_DATE` DATE NULL AFTER `NOTES`,
+ADD COLUMN `STOP_DATE` DATE NULL AFTER `START_DATE`;
+
+UPDATE rm_forecast_tree_node_data_extrapolation nde LEFT JOIN rm_forecast_tree_node_data nd ON nde.NODE_DATA_ID=nd.NODE_DATA_ID SET nde.START_DATE=DATE_SUB(nd.MONTH, INTERVAL 24 MONTH), nde.STOP_DATE=DATE_SUB(nd.MONTH, INTERVAL 1 MONTH);
