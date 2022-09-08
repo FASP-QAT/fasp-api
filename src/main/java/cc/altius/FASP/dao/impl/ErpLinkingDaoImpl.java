@@ -2076,7 +2076,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                LEFT JOIN rm_shipment_trans s2t ON s2t.PARENT_LINKED_SHIPMENT_ID=s2.SHIPMENT_ID AND s2.MAX_VERSION_ID=s2t.VERSION_ID "
                 + "                LEFT JOIN rm_shipment cs2 ON sl.CHILD_SHIPMENT_ID=cs2.SHIPMENT_ID  "
                 + "                LEFT JOIN rm_shipment_trans cs2t ON cs2t.SHIPMENT_ID=cs2.SHIPMENT_ID AND cs2.MAX_VERSION_ID=cs2t.VERSION_ID "
-                + "                LEFT JOIN vw_planning_unit pu2 ON s2t.PLANNING_UNIT_ID=pu2.PLANNING_UNIT_ID "
+                + "                LEFT JOIN vw_planning_unit pu2 ON cs2t.PLANNING_UNIT_ID=pu2.PLANNING_UNIT_ID "
                 + "                LEFT JOIN vw_realm_country_planning_unit rcpu ON cs2t.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID "
                 + "                WHERE "
                 + "                     p.PROGRAM_ID IS NOT NULL "
