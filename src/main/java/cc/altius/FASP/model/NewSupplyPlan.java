@@ -419,6 +419,9 @@ public class NewSupplyPlan implements Serializable {
             } else {
                 this.unmetDemandWps = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             }
+        } else {
+            this.unmetDemand = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
+            this.unmetDemandWps = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
         }
     }
 
