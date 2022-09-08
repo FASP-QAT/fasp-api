@@ -35,3 +35,30 @@ ADD COLUMN `START_DATE` DATE NULL AFTER `NOTES`,
 ADD COLUMN `STOP_DATE` DATE NULL AFTER `START_DATE`;
 
 UPDATE rm_forecast_tree_node_data_extrapolation nde LEFT JOIN rm_forecast_tree_node_data nd ON nde.NODE_DATA_ID=nd.NODE_DATA_ID SET nde.START_DATE=DATE_SUB(nd.MONTH, INTERVAL 24 MONTH), nde.STOP_DATE=DATE_SUB(nd.MONTH, INTERVAL 1 MONTH);
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.BranchTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Branch Template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle de branche');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de rama');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de Filial');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.createBranchTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Create Branch Template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créer un modèle de branche');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Crear plantilla de sucursal');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar modelo de filial');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.selectBranchTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un modèle');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar plantilla');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecionar modelo');
