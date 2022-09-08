@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -50,6 +52,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -90,39 +93,45 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Override
     @Transactional
     public int addProcurementAgent(ProcurementAgent p, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        Map<String, Object> params = new HashMap<>();
-        params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
-        params.put("COLOR_HTML_CODE", p.getColorHtmlCode());
-        params.put("REALM_ID", curUser.getRealm().getRealmId());
-        int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT, curUser.getUserId());
-        params.put("LABEL_ID", labelId);
-        params.put("PROCUREMENT_AGENT_TYPE_ID", p.getProcurementAgentType().getId());
-        params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
-        params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        int procurementAgentId = si.executeAndReturnKey(params).intValue();
-        MapSqlParameterSource[] batchParams;
-        batchParams = new MapSqlParameterSource[p.getProgramList().size()];
-        si = null;
-        int x = 0;
-        si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
-        for (SimpleObject program : p.getProgramList()) {
-            params = new HashMap<>();
-            params.put("PROGRAM_ID", program.getId());
-            params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+        try {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            Map<String, Object> params = new HashMap<>();
+            params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
+            params.put("COLOR_HTML_CODE", p.getColorHtmlCode());
+            params.put("REALM_ID", curUser.getRealm().getRealmId());
+            int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT, curUser.getUserId());
+            params.put("LABEL_ID", labelId);
+            params.put("PROCUREMENT_AGENT_TYPE_ID", p.getProcurementAgentType().getId());
+            params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
+            params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
+            params.put("ACTIVE", true);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
-            batchParams[x] = new MapSqlParameterSource(params);
-            x++;
+            int procurementAgentId = si.executeAndReturnKey(params).intValue();
+            MapSqlParameterSource[] batchParams;
+            batchParams = new MapSqlParameterSource[p.getProgramList().size()];
+            si = null;
+            int x = 0;
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+            for (SimpleObject program : p.getProgramList()) {
+                params = new HashMap<>();
+                params.put("PROGRAM_ID", program.getId());
+                params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                batchParams[x] = new MapSqlParameterSource(params);
+                x++;
+            }
+            si.executeBatch(batchParams);
+            return procurementAgentId;
+        } catch (Exception e) {
+            logger.error("Error while trying to add Procurement Agent in dao impl", e);
+
+            return 0;
         }
-        si.executeBatch(batchParams);
-        return procurementAgentId;
     }
 
     @Override
