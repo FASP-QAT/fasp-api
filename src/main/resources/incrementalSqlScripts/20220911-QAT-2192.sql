@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `getSupplyPlanActualConsumption`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getSupplyPlanActualConsumption`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanActualConsumption`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_LIST TEXT, REGION_LIST VARCHAR(255), START_DATE DATE, STOP_DATE DATE)
 BEGIN
 	SET @programId = PROGRAM_ID;
@@ -28,8 +37,12 @@ BEGIN
 		LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID
 		LEFT JOIN vw_region r ON ct.REGION_ID=r.REGION_ID
 		WHERE ct.CONSUMPTION_DATE BETWEEN @startDate AND @stopDate   
-		AND FIND_IN_SET(ct.PLANNING_UNIT_ID, @planningUnitList) 
+		AND FIND_IN_SET(ct.PLANNING_UNIT_ID, @planningUnitList)  
 		AND ct.ACTIVE AND ct.ACTUAL_FLAG AND FIND_IN_SET(ct.REGION_ID, @regionList)
 		ORDER BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE) as c1 ON mn.MONTH=c1.CONSUMPTION_DATE
         WHERE mn.MONTH BETWEEN @startDate AND @stopDate;
-END
+END$$
+
+DELIMITER ;
+;
+
