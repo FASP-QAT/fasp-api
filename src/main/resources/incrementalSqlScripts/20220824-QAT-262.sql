@@ -326,3 +326,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'List of new shipments 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Liste des nouvelles expéditions créées');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Lista de nuevos envíos creados');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lista de novas remessas criadas');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.planMultiplePusByDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Plan multiple PUs by date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Planifier plusieurs PU par date');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Planifique múltiples PU por fecha');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Planeje várias PUs por data');-- pr
