@@ -93,10 +93,8 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Override
     @Transactional
     public int addProcurementAgent(ProcurementAgent p, CustomUserDetails curUser) {
-        logger.info("add Procurement Agent in dao impl 1" + p);
-        logger.info("add Procurement Agent in dao impl 2" + p.getProcurementAgentType().getId());
-        SimpleJdbcInsert si;
 //        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
+        SimpleJdbcInsert si;
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent")
                 .usingColumns("PROCUREMENT_AGENT_CODE", "COLOR_HTML_CODE", "REALM_ID", "LABEL_ID", "PROCUREMENT_AGENT_TYPE_ID", "SUBMITTED_TO_APPROVED_LEAD_TIME",
                         "APPROVED_TO_SHIPPED_LEAD_TIME", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE")
