@@ -30,13 +30,13 @@ public class ProblemReport implements Serializable {
     @JsonView(Views.InternalView.class)
     private RealmProblem realmProblem;
     @JsonView(Views.InternalView.class)
-    private String dt;
+    private String dt;                  // data1
     @JsonView(Views.InternalView.class)
-    private SimpleObject region;
+    private SimpleObject region;        // data2
     @JsonView(Views.InternalView.class)
-    private SimpleObject planningUnit;
+    private SimpleObject planningUnit;  // data3
     @JsonView(Views.InternalView.class)
-    private Integer shipmentId;
+    private Integer shipmentId;         // data4
     @JsonView(Views.InternalView.class)
     private String data5;
     @JsonView(Views.InternalView.class)
