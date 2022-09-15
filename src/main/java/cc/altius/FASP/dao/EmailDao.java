@@ -32,4 +32,6 @@ public interface EmailDao {
     public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam);
 
     public int insertIntoFileStoreUnique(String fileName);
+    
+    public Emailer getEmailByEmailerId(int emailerId);
 }
