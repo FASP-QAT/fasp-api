@@ -73,6 +73,11 @@ import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
@@ -2407,15 +2412,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
                 + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
-                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
-                + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
-                + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
-                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
-                + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
-                + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
-                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE`, "
-                + "          ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR` "
                 + "      FROM vw_forecast_tree_node ttn "
                 + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
                 + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
@@ -2431,16 +2428,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      LEFT JOIN rm_forecast_tree_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
                 + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_modeling ttndm on ttnd.NODE_DATA_ID=ttndm.NODE_DATA_ID "
-                + "      LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_mom ndm ON ttnd.NODE_DATA_ID=ndm.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_override ndo ON ttnd.NODE_DATA_ID=ndo.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation nde ON ttnd.NODE_DATA_ID=nde.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option ndeo ON ttnd.NODE_DATA_ID=ndeo.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
-                + "      LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
-                + "      LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "      WHERE ttn.TREE_ID=? "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
 //        Map<String, Object> params = new HashMap<>();
@@ -2524,27 +2511,105 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC, "
-                + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
-                + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-                + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT  "
+                + "     pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
+                + "     p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
+                + "     rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, "
+                + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, "
+                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_SP `ORGANISATION_LABEL_SP`, o.LABEL_PR `ORGANISATION_LABEL_PR`, "
+                + "     vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "     vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR` "
                 + "FROM rm_program_version pv  "
-                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
-                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
-                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "LEFT JOIN vw_dataset p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+                + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
                 + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pv.PROGRAM_ID=:programId AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate");
+                + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "WHERE TRUE "
+                + "AND (:programIds='' OR FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
+                + "AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) "
+                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_DATASET);
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", datasetVersionListInput.getProgramId());
+        params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));
         params.put("versionTypeId", datasetVersionListInput.getVersionTypeId());
         params.put("startDate", datasetVersionListInput.getStartDate());
         params.put("stopDate", datasetVersionListInput.getStopDate());
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new VersionRowMapper());
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionResultSetExtractor());
+    }
+
+    @Override
+    public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate) {
+        String sql = "";
+        if (isTemplate) {
+            sql = "SELECT "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "FROM rm_tree_template_node_data_modeling ttndm "
+                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
+        } else {
+            sql = "SELECT "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "FROM rm_forecast_tree_node_data_modeling ttndm "
+                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
+        }
+        return this.jdbcTemplate.query(sql, new NodeDataModelingRowMapper(isTemplate), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "	ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE` "
+                + "FROM rm_forecast_tree_node_data_mom ndm "
+                + "WHERE ndm.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataMomRowMapper(), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataOverride> getOverrideDataForNodeDataId(int nodeDataId, boolean isTemplate) {
+        String sql = "";
+        if (isTemplate) {
+            sql = "SELECT "
+                    + "ttndo.`NODE_DATA_OVERRIDE_ID`, ttndo.`MONTH_NO` `OVERRIDE_MONTH_NO`, date_add(CONCAT(LEFT(NOW(),7),'-01'), INTERVAL ttndo.`MONTH_NO` MONTH) `OVERRIDE_MONTH`, ttndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ttndo.`SEASONALITY_PERC` `OVERRIDE_SEASONALITY_PERC` "
+                    + "FROM rm_tree_template_node_data_override ttndo "
+                    + "WHERE ttndo.NODE_DATA_ID=?";
+        } else {
+            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC` FROM rm_forecast_tree_node_data_override ndo WHERE ndo.NODE_DATA_ID=?";
+        }
+        return this.jdbcTemplate.query(sql, new NodeDataOverrideRowMapper(isTemplate), nodeDataId);
+    }
+
+    @Override
+    public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "     nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
+                + "     nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE` "
+                + "FROM rm_forecast_tree_node_data_extrapolation nde "
+                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
+                + "LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "WHERE nde.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationResultSetExtractor(), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
+                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
+                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
+                + "WHERE ndeo.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionRowMapper(), nodeDataId);
     }
 
 }

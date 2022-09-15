@@ -28,6 +28,11 @@ import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.NodeDataExtrapolation;
+import cc.altius.FASP.model.NodeDataExtrapolationOption;
+import cc.altius.FASP.model.NodeDataModeling;
+import cc.altius.FASP.model.NodeDataMom;
+import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -100,6 +105,16 @@ public interface ProgramDataDao {
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
-    public List<Version> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
+
+    public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate);
+
+    public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId);
+
+    public List<NodeDataOverride> getOverrideDataForNodeDataId(int nodeDataId, boolean isTemplate);
+
+    public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId);
+
+    public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId);
 
 }
