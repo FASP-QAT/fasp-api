@@ -12,7 +12,6 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
 import cc.altius.utils.DateUtils;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +116,8 @@ public class EmailDaoImpl implements EmailDao {
         String from = "QAT_noreply@quantificationanalytics.org";
 //        String from = "fasptestemail@gmail.com";
         String password = "#RockyMountains#";
-//        String password = "pass123%$";
+//        String password = "bzczjrnpdkhrzxhf";
+//        pass123%$";
         try {
             Properties props = System.getProperties();
             props.setProperty("mail.smtp.starttls.enable", "true");
@@ -142,8 +142,11 @@ public class EmailDaoImpl implements EmailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
-            if (emailer.getCcToSend() != null && emailer.getCcToSend() != "") {
+            if (emailer.getCcToSend() != null && !emailer.getCcToSend().equals("")) {
                 message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
+            }
+            if (emailer.getBccToSend() != null && !emailer.getBccToSend().equals("")) {
+                message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(emailer.getBccToSend()));
             }
             message.setSubject(emailer.getSubject());
             message.setContent(emailer.getBody(), "text/html");
@@ -222,6 +225,11 @@ public class EmailDaoImpl implements EmailDao {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public Emailer getEmailByEmailerId(int emailerId) {
+        return this.jdbcTemplate.queryForObject("SELECT * FROM em_emailer e where e.EMAILER_ID=?", new EmailerRowMapper(), emailerId);
     }
 
 }
