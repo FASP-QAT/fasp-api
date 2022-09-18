@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
@@ -5,7 +14,7 @@ CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`(
     VAR_REALM_COUNTRY_IDS TEXT, 
     VAR_PROGRAM_IDS TEXT, 
     VAR_TRACER_CATEGORY_IDS TEXT, 
-    VAR_PLANNING_UNIT_IDS TEXT, 
+    VAR_PLANNING_UNIT_IDS TEXT,  
     VAR_PREVIOUS_MONTHS INT(10), 
     VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
@@ -130,4 +139,9 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "GROUP BY fm.PROGRAM_ID, fm.VERSION_ID, fm.PLANNING_UNIT_ID;");
     PREPARE S3 FROM @sqlString;
     EXECUTE S3;
-END
+END$$
+
+DELIMITER ;
+;
+
+
