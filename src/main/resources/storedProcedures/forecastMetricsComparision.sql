@@ -1,3 +1,9 @@
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
@@ -69,7 +75,7 @@ BEGIN
     
     SET @sqlString = "";
     
-    SET @sqlString = CONCAT(@sqlString, "CREATE TEMPORARY TABLE ",@tableName," (");
+    SET @sqlString = CONCAT(@sqlString, "CREATE TABLE ",@tableName," (");
 	SET @sqlString = CONCAT(@sqlString, "  `PROGRAM_ID` int unsigned NOT NULL,");
 	SET @sqlString = CONCAT(@sqlString, "  `VERSION_ID` int unsigned NOT NULL,");
 	SET @sqlString = CONCAT(@sqlString, "  `PLANNING_UNIT_ID` int unsigned NOT NULL,");
@@ -110,6 +116,7 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "		AND spa.TRANS_DATE BETWEEN SUBDATE(@startDate, INTERVAL @previousMonths MONTH) AND @startDate;");
     PREPARE S2 FROM @sqlString;
     EXECUTE S2;
+    
 	
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
@@ -130,4 +137,13 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "GROUP BY fm.PROGRAM_ID, fm.VERSION_ID, fm.PLANNING_UNIT_ID;");
     PREPARE S3 FROM @sqlString;
     EXECUTE S3;
-END
+    SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "DROP TABLE ",@tableName);
+    PREPARE S4 FROM @sqlString;
+    EXECUTE S4;
+
+END$$
+
+DELIMITER ;
+
+
