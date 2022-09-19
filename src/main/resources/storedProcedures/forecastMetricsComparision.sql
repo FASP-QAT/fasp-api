@@ -5,7 +5,7 @@ CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`(
     VAR_REALM_COUNTRY_IDS TEXT, 
     VAR_PROGRAM_IDS TEXT, 
     VAR_TRACER_CATEGORY_IDS TEXT, 
-    VAR_PLANNING_UNIT_IDS TEXT, 
+    VAR_PLANNING_UNIT_IDS TEXT,  
     VAR_PREVIOUS_MONTHS INT(10), 
     VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
@@ -124,7 +124,7 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "FROM ",@tableName," fm ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON fm.PROGRAM_ID=p.PROGRAM_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_planning_unit pu ON fm.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
-	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN tmp_forecastingMetric fm2 ON fm.PROGRAM_ID=fm2.PROGRAM_ID AND fm.VERSION_ID=fm2.VERSION_ID AND fm.PLANNING_UNIT_ID=fm2.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN ",@tblName," fm2 ON fm.PROGRAM_ID=fm2.PROGRAM_ID AND fm.VERSION_ID=fm2.VERSION_ID AND fm.PLANNING_UNIT_ID=fm2.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "WHERE fm.TRANS_DATE=@startDate ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
 	SET @sqlString = CONCAT(@sqlString, "GROUP BY fm.PROGRAM_ID, fm.VERSION_ID, fm.PLANNING_UNIT_ID;");
