@@ -28,6 +28,9 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private double catalogPrice;
     private int monthsInFutureForAmc;
     private int monthsInPastForAmc;
+    private int planBasedOn; //1- MoS , 2- Qty
+    private int minQty;
+    private double distributionLeadTime;
     private List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices;
 
     public ProgramPlanningUnit() {
@@ -161,6 +164,30 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setProgramPlanningUnitProcurementAgentPrices(List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices) {
         this.programPlanningUnitProcurementAgentPrices = programPlanningUnitProcurementAgentPrices;
+    }
+
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
+    }
+
+    public int getMinQty() {
+        return minQty;
+    }
+
+    public void setMinQty(int minQty) {
+        this.minQty = minQty;
+    }
+
+    public double getDistributionLeadTime() {
+        return distributionLeadTime;
+    }
+
+    public void setDistributionLeadTime(double distributionLeadTime) {
+        this.distributionLeadTime = distributionLeadTime;
     }
 
     @Override

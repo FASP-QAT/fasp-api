@@ -34,6 +34,9 @@ public class ProgramPlanningUnitRowMapper implements RowMapper<ProgramPlanningUn
                 rs.getInt("MONTHS_IN_PAST_FOR_AMC"),
                 rs.getInt("MONTHS_IN_FUTURE_FOR_AMC")
         );
+        ppu.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
+        ppu.setMinQty(rs.getInt("MIN_QTY"));
+        ppu.setDistributionLeadTime(rs.getDouble("DISTRIBUTION_LEAD_TIME"));
         ppu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return ppu;
     }
