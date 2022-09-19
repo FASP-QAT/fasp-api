@@ -2202,8 +2202,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "        spa.AMC_COUNT=amc.AMC_COUNT, "
                     + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
                     + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
-                    + "        spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
-                    + "        spa.MAX_STOCK_MOS = IF( "
+                    + "        spa.MIN_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), ppu.MIN_QTY/amc.AMC), "
+                    + "        spa.MAX_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF( "
                     + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                IF ( "
@@ -2211,9 +2211,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
-                    + "                            ), "
-                    + "        spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
-                    + "        spa.MAX_STOCK_QTY = IF( "
+                    + "                            ), ppu.MIN_QTY/amc.AMC + ppu.REORDER_FREQUENCY_IN_MONTHS),"
+                    + "        spa.MIN_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, ppu.MIN_QTY), "
+                    + "        spa.MAX_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF( "
                     + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                IF ( "
@@ -2221,7 +2221,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
-                    + "                            ) * amc.AMC "
+                    + "                            ), ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC), * amc.AMC "
                     + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
 //            msp.printSupplyPlan();

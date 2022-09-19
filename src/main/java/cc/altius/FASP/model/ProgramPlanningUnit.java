@@ -21,23 +21,23 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private SimpleObject productCategory;
     private SimpleObject forecastingUnit;
     private double multiplier;
-    private int reorderFrequencyInMonths;
-    private int minMonthsOfStock;
+    private int reorderFrequencyInMonths; 
+    private Integer minMonthsOfStock; 
     private double localProcurementLeadTime;
-    private int shelfLife;
-    private double catalogPrice;
-    private int monthsInFutureForAmc;
-    private int monthsInPastForAmc;
-    private int planBasedOn; //1- MoS , 2- Qty
-    private int minQty;
-    private double distributionLeadTime;
+    private int shelfLife; 
+    private double catalogPrice; 
+    private int monthsInFutureForAmc; 
+    private int monthsInPastForAmc; 
+    private int planBasedOn; //1- MoS , 2- Qty 
+    private Integer minQty; 
+    private Double distributionLeadTime; 
     private List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices;
 
     public ProgramPlanningUnit() {
         programPlanningUnitProcurementAgentPrices = new LinkedList<>();
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, double multiplier, SimpleObject forecastingUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, double multiplier, SimpleObject forecastingUnit, SimpleObject productCategory, int reorderFrequencyInMonths, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
@@ -45,7 +45,6 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.forecastingUnit = forecastingUnit;
         this.productCategory = productCategory;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
-        this.minMonthsOfStock = minMonthsOfStock;
         this.localProcurementLeadTime = localProcurementLeadTime;
         this.shelfLife = shelfLife;
         this.catalogPrice = catalogPrice;
@@ -110,11 +109,11 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
     }
 
-    public int getMinMonthsOfStock() {
+    public Integer getMinMonthsOfStock() {
         return minMonthsOfStock;
     }
 
-    public void setMinMonthsOfStock(int minMonthsOfStock) {
+    public void setMinMonthsOfStock(Integer minMonthsOfStock) {
         this.minMonthsOfStock = minMonthsOfStock;
     }
 
@@ -174,19 +173,19 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.planBasedOn = planBasedOn;
     }
 
-    public int getMinQty() {
+    public Integer getMinQty() {
         return minQty;
     }
 
-    public void setMinQty(int minQty) {
+    public void setMinQty(Integer minQty) {
         this.minQty = minQty;
     }
 
-    public double getDistributionLeadTime() {
+    public Double getDistributionLeadTime() {
         return distributionLeadTime;
     }
 
-    public void setDistributionLeadTime(double distributionLeadTime) {
+    public void setDistributionLeadTime(Double distributionLeadTime) {
         this.distributionLeadTime = distributionLeadTime;
     }
 

@@ -109,6 +109,10 @@ public class SimplifiedSupplyPlan implements Serializable {
     private Double mos;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mosWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private double minQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private double maxQty;
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
@@ -480,6 +484,22 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setConversionFactor(double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    public double getMinQty() {
+        return minQty;
+    }
+
+    public void setMinQty(double minQty) {
+        this.minQty = minQty;
+    }
+
+    public double getMaxQty() {
+        return maxQty;
+    }
+
+    public void setMaxQty(double maxQty) {
+        this.maxQty = maxQty;
     }
 
     @Override
