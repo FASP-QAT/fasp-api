@@ -27,7 +27,7 @@ public class ShipmentGlobalDemandInput implements Serializable {
     private Date stopDate;
     private String[] realmCountryIds;
     private int planningUnitId;
-    private int reportView; // 1 = Funding Source, 2 = Procurement Agent
+    private int reportView; // 1 = Funding Source, 2 = Procurement Agent, 3 = Procurement Agent Type
     private String[] fundingSourceProcurementAgentIds;
     private boolean useApprovedSupplyPlanOnly;
     private boolean includePlannedShipments;
