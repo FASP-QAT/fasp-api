@@ -90,7 +90,12 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Override
     @Transactional
     public int addProcurementAgent(ProcurementAgent p, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
+//        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
+        SimpleJdbcInsert si;
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent")
+                .usingColumns("PROCUREMENT_AGENT_CODE", "COLOR_HTML_CODE", "REALM_ID", "LABEL_ID", "PROCUREMENT_AGENT_TYPE_ID", "SUBMITTED_TO_APPROVED_LEAD_TIME",
+                        "APPROVED_TO_SHIPPED_LEAD_TIME", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE")
+                .usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
