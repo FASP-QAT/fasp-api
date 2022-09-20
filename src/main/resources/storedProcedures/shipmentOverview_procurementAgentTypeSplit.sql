@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_procurementAgentSplit`(
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_procurementAgentTypeSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -12,7 +12,7 @@ CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_procurementAgentSplit`
 BEGIN
         
  -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- -- Report no 20 - Part 3 ProcurementAgent Split
+ -- Report no 20 - Part 3 ProcurementAgentType Split
  -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
  -- Only Month and Year will be considered for StartDate and StopDate
@@ -35,7 +35,7 @@ BEGIN
     DECLARE curHealthAreaId INT;
     DECLARE curOrganisationId INT;
     DECLARE curProgramId INT;
-    DECLARE procurement_cursor CURSOR FOR SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE
+    DECLARE procurement_cursor CURSOR FOR SELECT pat.PROCUREMENT_AGENT_TYPE_ID, pat.PROCUREMENT_AGENT_TYPE_CODE
         FROM 
             (
             SELECT pv.PROGRAM_ID, pv.VERSION_ID, s.SHIPMENT_ID, MAX(st.VERSION_ID) `MAX_VERSION_ID` 
@@ -70,7 +70,8 @@ BEGIN
         LEFT JOIN rm_shipment s ON s1.SHIPMENT_ID=s.SHIPMENT_ID 
         LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID 
         LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID
-        GROUP BY st.PROCUREMENT_AGENT_ID;
+        LEFT JOIN rm_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID
+        GROUP BY pa.PROCUREMENT_AGENT_TYPE_ID;
     DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     
@@ -110,7 +111,7 @@ BEGIN
         IF done = 1 THEN 
             LEAVE getProcurementAgent;
         END IF;
-        SET @sqlStringProcurementAgent = CONCAT(@sqlStringProcurementAgent, " ,SUM(IF(st.PROCUREMENT_AGENT_ID=",procurementAgentId,", st.SHIPMENT_QTY, 0)) `PA_",procurementAgentCode,"` ");
+        SET @sqlStringProcurementAgent = CONCAT(@sqlStringProcurementAgent, " ,SUM(IF(pa.PROCUREMENT_AGENT_TYPE_ID=",procurementAgentId,", st.SHIPMENT_QTY, 0)) `PA_",procurementAgentCode,"` ");
     END LOOP getProcurementAgent;
     
     SET @sqlString = "";
@@ -142,6 +143,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_program p ON s1.PROGRAM_ID=p.PROGRAM_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_shipment s ON s1.SHIPMENT_ID=s.SHIPMENT_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND pu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "       WHERE pu.ACTIVE AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL AND ppu.ACTIVE AND ");
