@@ -175,6 +175,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
+            + "    ppu.PLAN_BASED_ON, ppu.MIN_QTY, ppu.DISTRIBUTION_LEAD_TIME, "
             + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE  "
             + " FROM  rm_program_planning_unit ppu   "
             + " LEFT JOIN vw_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID  "
@@ -208,6 +209,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
+            + "    ppu.PLAN_BASED_ON, ppu.MIN_QTY, ppu.DISTRIBUTION_LEAD_TIME, "
             + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE,  "
             + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
             + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PRICE `PROCUREMENT_AGENT_PRICE`, "
@@ -537,6 +539,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("CATALOG_PRICE", ppu.getCatalogPrice());
                 params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
                 params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
+                params.put("PLAN_BASED_ON", ppu.getPlanBasedOn());
+                params.put("MIN_QTY", ppu.getMinQty());
+                params.put("DISTRIBUTION_LEAD_TIME", ppu.getDistributionLeadTime());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
@@ -581,6 +586,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("catalogPrice", ppu.getCatalogPrice());
                 params.put("monthsInPastForAmc", ppu.getMonthsInPastForAmc());
                 params.put("monthsInFutureForAmc", ppu.getMonthsInFutureForAmc());
+                params.put("planBasedOn", ppu.getPlanBasedOn());
+                params.put("minQty", ppu.getMinQty());
+                params.put("distributionLeadTime", ppu.getDistributionLeadTime());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
@@ -596,7 +604,7 @@ public class ProgramDaoImpl implements ProgramDao {
 //        }
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
-            String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
+            String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.PLAN_BASED_ON=:planBasedOn, ppu.MIN_QTY=:minQty, ppu.DISTRIBUTION_LEAD_TIME=:distributionLeadTime, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
         for (Integer pId : programIds) {
@@ -951,7 +959,8 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : Going to check manual tagging order no ---" + orderNo);
         logger.info("ERP Linking : Going to check manual tagging prime line no ---" + primeLineNo);
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                orderNo, primeLineNo);
 
         logger.info("ERP Linking : manual tagging count---" + count);
         return count;
@@ -985,7 +994,8 @@ public class ProgramDaoImpl implements ProgramDao {
 //        double rate = Double.parseDouble(map.get("RATE").toString());
         sql = "SELECT e.`PRICE` FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
                 + " ORDER BY e.`ERP_ORDER_ID` DESC LIMIT 1;";
-        double rate = this.jdbcTemplate.queryForObject(sql, Double.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        double rate = this.jdbcTemplate.queryForObject(sql, Double.class,
+                manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         logger.info("ERP Linking : calculated rate---" + rate);
         double finalRate = (rate / manualTaggingOrderDTO.getConversionFactor());
         logger.info("ERP Linking : calculated final rate---" + finalRate);
@@ -1121,7 +1131,8 @@ public class ProgramDaoImpl implements ProgramDao {
                                 + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ERP_FLAG=1 AND st.ACTIVE";
                         try {
                             logger.info("ERP Linking : Trying to see if the ShipmentTrans exists with the same orderNo, primeLineNo and parentShipmentId");
-                            int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                            int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
+                            );
                             logger.info("ERP Linking : ShipmentTransId " + shipmentTransId + " found so going to update that with latest information");
                             // TODO shipment found therefore update it with all the information
                             sql = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID "
@@ -1894,7 +1905,8 @@ public class ProgramDaoImpl implements ProgramDao {
         int parentShipmentId = 0;
         Map<String, Object> params = new HashMap<>();
         sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
 
         logger.info("ERP Linking : manual tagging order no---" + manualTaggingOrderDTO.getOrderNo());
         logger.info("ERP Linking : manual tagging prime line no.---" + manualTaggingOrderDTO.getPrimeLineNo());
@@ -2250,25 +2262,36 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "WHERE s.`PARENT_SHIPMENT_ID`=? ORDER BY st.`SHIPMENT_TRANS_ID` DESC) AS a "
                 + "GROUP BY a.SHIPMENT_ID) AS b WHERE b.active;";
         logger.info("delinking parenshipment id----------" + parentShipmentId);
-        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
+        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class,
+                parentShipmentId);
         logger.info("ERP Linking : shipment id list to delink---" + shipmentIdList);
 //        if (shipmentIdList.size() == 1 && erpOrderDTO.getShipmentId() == shipmentIdList.get(0)) {
         if (shipmentIdList.size() == 1) {
             logger.info("ERP Linking : one shipment id found to delink---");
 //            for (int shipmentId1 : shipmentIdList) {
-            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
-                logger.info("inside if--------------------" + erpOrderDTO);
-                logger.info("ERP Linking : Going to check tab3 shipments table for parent--------------------" + parentShipmentId);
+            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
+                    erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
+                logger.info(
+                        "inside if--------------------" + erpOrderDTO);
+                logger.info(
+                        "ERP Linking : Going to check tab3 shipments table for parent--------------------" + parentShipmentId);
                 sql = "SELECT COUNT(*) FROM rm_erp_tab3_shipments s WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`;";
                 int count = this.jdbcTemplate.queryForObject(sql, Integer.class, parentShipmentId);
-                logger.info("ERP Linking : Going to check tab3 shipments count--------------------" + count);
+
+                logger.info(
+                        "ERP Linking : Going to check tab3 shipments count--------------------" + count);
 //                    logger.info("ERP Linking : Going to check tab3 shipments count is 0 so activate parent--------------------");
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-                logger.info("ERP Linking : 1st max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : 1st max trans id---" + maxTransId);
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=?,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
-                this.jdbcTemplate.update(sql, (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
-                if (count > 0) {
+
+                this.jdbcTemplate.update(sql,
+                        (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
+                if (count
+                        > 0) {
                     logger.info("ERP Linking : Going to check tab3 shipments count is greater than 0 so leave parent as is and deactivate in tab3 shipment table--------------------");
                     sql = "UPDATE rm_erp_tab3_shipments s SET s.`ACTIVE`=0,s.`LAST_MODIFIED_BY`=?,s.`LAST_MODIFIED_DATE`=? WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`; ";
                     this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, parentShipmentId);
@@ -2276,24 +2299,33 @@ public class ProgramDaoImpl implements ProgramDao {
                 }
 
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-                logger.info("ERP Linking : 2nd max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : 2nd max trans id---" + maxTransId);
 
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
+
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                logger.info("ERP Linking : Update completed---");
+                logger.info(
+                        "ERP Linking : Update completed---");
             } else {
                 System.out.println("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
-            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
+            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
+                    erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-                logger.info("ERP Linking : max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : max trans id---" + maxTransId);
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
+
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println("delinking inside else else----------" + maxTransId);
+                System.out.println(
+                        "delinking inside else else----------" + maxTransId);
             }
         }
 //        }
@@ -2388,7 +2420,8 @@ public class ProgramDaoImpl implements ProgramDao {
         program.setCurrentPage(page);
         params.clear();
         params.put("programId", programId);
-        int versionCount = this.namedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId", params, Integer.class);
+        int versionCount = this.namedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId", params, Integer.class
+        );
         params.put("versionCount", versionCount);
         params.put("offsetNo", page * 5);
         int showCount = 0;
@@ -2409,7 +2442,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("realmId", realmId);
         params.put("programId", programId);
         params.put("programCode", programCode);
-        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) == 0);
+        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
+        ) == 0);
     }
 
     @Override
@@ -2509,7 +2543,8 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
 //        System.out.println(sb.toString());
 //        System.out.println(params);
-        List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+        List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class
+        );
         return StringUtils.join(emailList, ",");
     }
 
@@ -2566,7 +2601,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LIMIT 2) t "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=t.PLANNING_UNIT_SKU_CODE "
                 + "ORDER BY t.ERP_ORDER_ID ASC LIMIT 1;";
-        return this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        return this.jdbcTemplate.queryForObject(sql, Integer.class,
+                orderNo, primeLineNo);
     }
 
     @Override
@@ -2589,7 +2625,8 @@ public class ProgramDaoImpl implements ProgramDao {
 
     public String getMaxERPOrderIdFromERPShipment(String orderNo, int primeLineNo) {
         String sql = "SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=? AND s.`PRIME_LINE_NO`=?;";
-        return this.jdbcTemplate.queryForObject(sql, String.class, orderNo, primeLineNo);
+        return this.jdbcTemplate.queryForObject(sql, String.class,
+                orderNo, primeLineNo);
     }
 
     @Override
