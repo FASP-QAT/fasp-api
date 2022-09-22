@@ -246,3 +246,5 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Variable');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variable');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Variable');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Variável');-- pr
+
+update rm_program_planning_unit pu SET pu.PLAN_BASED_ON=1,pu.LAST_MODIFIED_DATE=now();
