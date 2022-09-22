@@ -2392,7 +2392,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 i++;
             }
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc");
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID","VERSION_ID","PLANNING_UNIT_ID","TRANS_DATE","OPENING_BALANCE","OPENING_BALANCE_WPS","MANUAL_PLANNED_SHIPMENT_QTY","MANUAL_SUBMITTED_SHIPMENT_QTY","MANUAL_APPROVED_SHIPMENT_QTY","MANUAL_SHIPPED_SHIPMENT_QTY","MANUAL_RECEIVED_SHIPMENT_QTY","MANUAL_ONHOLD_SHIPMENT_QTY","ERP_PLANNED_SHIPMENT_QTY","ERP_SUBMITTED_SHIPMENT_QTY","ERP_APPROVED_SHIPMENT_QTY","ERP_SHIPPED_SHIPMENT_QTY","ERP_RECEIVED_SHIPMENT_QTY","ERP_ONHOLD_SHIPMENT_QTY","SHIPMENT_QTY","FORECASTED_CONSUMPTION_QTY","ACTUAL_CONSUMPTION_QTY","ADJUSTED_CONSUMPTION_QTY","ACTUAL","ADJUSTMENT_MULTIPLIED_QTY","STOCK_MULTIPLIED_QTY","REGION_COUNT","REGION_COUNT_FOR_STOCK","NATIONAL_ADJUSTMENT","NATIONAL_ADJUSTMENT_WPS","EXPIRED_STOCK","EXPIRED_STOCK_WPS","CLOSING_BALANCE","CLOSING_BALANCE_WPS","UNMET_DEMAND","UNMET_DEMAND_WPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
