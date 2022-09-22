@@ -548,10 +548,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("LAST_MODIFIED_BY", curUser.getUserId());
                 params.put("ACTIVE", true);
                 // insert the ProgramPlanningUnit
-                si.executeAndReturnKey(params);
+                si.execute(params);
                 rowsEffected++;
                 Program p = this.programCommonDao.getProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
+                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
                 params.clear();
                 params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
                 params.put("planningUnitId", ppu.getPlanningUnit().getId());
