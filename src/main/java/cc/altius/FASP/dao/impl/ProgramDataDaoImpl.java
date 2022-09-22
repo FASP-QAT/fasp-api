@@ -2442,7 +2442,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
-                    + "                            ), ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC), * amc.AMC "
+                    + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
                     + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
 //            msp.printSupplyPlan();
