@@ -54,9 +54,9 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Choose `quantity` for products where months of stock (MOS) planning doesn’t make sense (ie products that are high expiry, low consumption)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Choisissez ""quantité"" pour les produits pour lesquels la planification des mois de stock (MOS) n'a pas de sens (c'est-à-dire les produits dont la date de péremption est élevée et la faible consommation)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Elija 'cantidad' para productos en los que la planificación de meses de existencias (MOS) no tiene sentido (es decir, productos que tienen una caducidad alta, un consumo bajo)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Escolha 'quantidade' para produtos em que o planejamento de meses de estoque (MOS) não faz sentido (ou seja, produtos com prazo de validade alto, baixo consumo)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Choisissez `quantité` pour les produits pour lesquels la planification des mois de stock (MOS) n`a pas de sens (c`est-à-dire les produits dont la date de péremption est élevée et la faible consommation)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Elija `cantidad` para productos en los que la planificación de meses de existencias (MOS) no tiene sentido (es decir, productos que tienen una caducidad alta, un consumo bajo)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Escolha `quantidade` para produtos em que o planejamento de meses de estoque (MOS) não faz sentido (ou seja, produtos com prazo de validade alto, baixo consumo)');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.plannedBy','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -246,3 +246,5 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Variable');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variable');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Variable');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Variável');-- pr
+
+update rm_program_planning_unit pu SET pu.PLAN_BASED_ON=1,pu.LAST_MODIFIED_DATE=now();
