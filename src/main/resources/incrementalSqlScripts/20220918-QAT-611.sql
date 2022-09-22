@@ -248,3 +248,116 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Variable');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Variável');-- pr
 
 update rm_program_planning_unit pu SET pu.PLAN_BASED_ON=1,pu.LAST_MODIFIED_DATE=now();
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQty','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Quantity');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité maximale');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad máxima');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min Qty for current month = 7,000');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté min pour le mois en cours = 7,000');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mínima para el mes actual = 7,000');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mínima para o mês atual = 7,000');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Reorder Frequency = 3');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fréquence de réapprovisionnement = 3');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Frecuencia de pedido = 3');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Frequência de Reordenamento = 3');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula3','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Qty = Min Qty + Reorder Frequency * AMC');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté Max = Qté Min + Fréquence de réapprovisionnement * AMC');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cant. máx. = Cant. mín. + Frecuencia de pedido * AMC');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima = Quantidade mínima + Frequência de reordenamento * AMC');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula4','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Qty = 7,000 + 3 * 6,392');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté max = 7,000 + 3 * 6,392');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad máxima = 7,000 + 3 * 6,392');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima = 7,000 + 3 * 6,392');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula5','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Qty = 7,000 + 19,176');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté max = 7,000 + 19,176');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad máxima = 7,000 + 19,176');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima = 7,000 + 19,176');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula6','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Qty = 26,176');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté max = 26,176');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad máxima = 26,176');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima = 26,176');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'a. If Plan Based on is MOS');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'un. Si le plan basé sur est MOS');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'una. Si el plan basado en es MOS');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'uma. Se o plano baseado em é MOS');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'b. If Plan Based on is Quantity');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'b. Si le plan basé sur est la quantité');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'b. Si el plan se basa en la cantidad');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'b. Se o plano baseado na quantidade');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty3','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Closing Balance for current month + X months (Distribution Lead Time) = 7,000');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Solde de clôture pour le mois en cours + X mois (Délai de distribution) = 7,000');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Saldo de cierre del mes actual + X meses (Tiempo de entrega de distribución) = 7,000');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Saldo de fechamento do mês atual + X meses (prazo de distribuição) = 7,000');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty4','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Clsoing Balance for 1st month = 6,000');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Solde de clôture pour le 1er mois = 6,000');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Saldo de cierre del primer mes = 6,000');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Saldo de Fechamento do 1º mês = 6,0000');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty5','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Clsoing Balance for 2nd month = 6,500');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Solde de clôture pour le 2ème mois = 6,500');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Saldo de cierre del segundo mes = 6,500');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Saldo de fechamento do 2º mês = 6,500');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty6','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min Quantity= 8,000');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité minimale = 8,000');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mínima = 8,000');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mínima = 8,000');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.whenToSuggestQty7','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Since Closing Balance for all the three months is less than Min Quantity , therefore');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Étant donné que le solde de clôture pour les trois mois est inférieur à la quantité minimale, par conséquent');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Dado que el Saldo de cierre para los tres meses es menor que la Cantidad mínima, por lo tanto');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Como o saldo final para todos os três meses é menor que a quantidade mínima, portanto');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.suggestedMaxQty1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max Quantity for current month + X months (Distribution Lead Time) = 44,744');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité maximale pour le mois en cours + X mois (Délai de distribution) = 44,744');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad máxima para el mes actual + X meses (Tiempo de entrega de distribución) = 44,744');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima para o mês atual + X meses (prazo de distribuição) = 44,744');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.suggestedMaxQty2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Suggested Order Qty = (Max Qty - Ending balance + Unmet Demand)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité de commande suggérée = (Qté max - Solde final + Demande non satisfaite)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de pedido sugerida = (cantidad máxima - saldo final + demanda no satisfecha)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade sugerida do pedido = (quantidade máxima - saldo final + demanda não atendida)');-- pr
