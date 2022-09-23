@@ -14,3 +14,32 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Online');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'En ligne');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'En línea');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conectadas');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.login.confirmSessionChange','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'In order to switch to online mode, you need to log in again.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour passer en mode en ligne, vous devez vous reconnecter.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para cambiar al modo en línea, debe iniciar sesión nuevamente.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para mudar para o modo online, você precisa fazer login novamente.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.login.goToLogin','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Go to Login');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aller à Connexion');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ir a Iniciar sesión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ir para Entrar');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.login.goOffline','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Go Offline');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Se déconnecter');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Salir de línea');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Desconecte');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.login.goOnline','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Go Online');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aller en ligne');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ir en línea');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fique online');-- pr
