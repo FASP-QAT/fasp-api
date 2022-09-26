@@ -43,3 +43,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Go Online');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aller en ligne');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ir en línea');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fique online');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.login.loginAgain','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please login again to access QAT in online mode.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez vous reconnecter pour accéder au QAT en mode en ligne.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vuelva a iniciar sesión para acceder a QAT en modo en línea.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Faça login novamente para acessar o QAT no modo online.');-- pr
