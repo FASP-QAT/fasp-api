@@ -16,6 +16,7 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
     private SimpleCodeObject program;
     private BasicUser programManager;
     private int shipmentId;
+    private String parentLinkedShipmentId;
     private String roNo;
     private String roPrimeLineNo;
     private double conversionFactor;
@@ -42,6 +43,14 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
 
     public void setShipmentId(int shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public String getParentLinkedShipmentId() {
+        return parentLinkedShipmentId;
+    }
+
+    public void setParentLinkedShipmentId(String parentLinkedShipmentId) {
+        this.parentLinkedShipmentId = parentLinkedShipmentId;
     }
 
     public String getRoNo() {
