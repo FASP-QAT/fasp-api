@@ -20,6 +20,8 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
     private String roNo;
     private String roPrimeLineNo;
     private double conversionFactor;
+    private SimpleObject planningUnit;
+    private SimpleObjectWithMultiplier realmCountryPlanningUnit;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -75,6 +77,22 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
 
     public void setConversionFactor(double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
+    }
+
+    public SimpleObjectWithMultiplier getRealmCountryPlanningUnit() {
+        return realmCountryPlanningUnit;
+    }
+
+    public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
+        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
     }
 
 }

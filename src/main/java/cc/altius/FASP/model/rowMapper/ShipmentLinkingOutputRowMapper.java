@@ -7,6 +7,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -39,6 +40,16 @@ public class ShipmentLinkingOutputRowMapper implements RowMapper<ShipmentLinking
                 so.setQatPlanningUnit(null);
             } else {
                 so.setQatPlanningUnit(new SimpleObject(rs.getInt("QAT_PLANNING_UNIT_ID"), new LabelRowMapper("QAT_PU_").mapRow(rs, rowNum)));
+            }
+        } catch (SQLException s) {
+            so.setQatPlanningUnit(null);
+        }
+        try {
+            int tmpPuId = rs.getInt("QAT_RCPU_ID");
+            if (rs.wasNull() || tmpPuId == 0) {
+                so.setQatRealmCountryPlanningUnit(null);
+            } else {
+                so.setQatRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("QAT_RCPU_ID"), new LabelRowMapper("QAT_RCPU_").mapRow(rs, rowNum), rs.getDouble("QAT_RCPU_MULTIPLIER")));
             }
         } catch (SQLException s) {
             so.setQatPlanningUnit(null);

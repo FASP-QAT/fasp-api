@@ -29,6 +29,8 @@ public class Shipment implements Serializable {
     private Integer parentLinkedShipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
+    @JsonView({Views.InternalView.class})
+    private SimpleObjectWithMultiplier realmCountryPlanningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -45,6 +47,8 @@ public class Shipment implements Serializable {
     private SimpleObject supplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private long shipmentQty;
+    @JsonView({Views.InternalView.class})
+    private long shipmentRcpuQty;
     @JsonView({Views.GfpVanView.class})
     private double conversionFactor;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -111,8 +115,6 @@ public class Shipment implements Serializable {
     private Integer tempParentLinkedShipmentId;
     @JsonView({Views.InternalView.class})
     private Integer tempShipmentId;
-    @JsonView({Views.InternalView.class})
-    private Integer tempParentLinkedShipmentId;
 
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
@@ -462,12 +464,20 @@ public class Shipment implements Serializable {
         this.tempShipmentId = tempShipmentId;
     }
 
-    public Integer getTempParentLinkedShipmentId() {
-        return tempParentLinkedShipmentId;
+    public SimpleObjectWithMultiplier getRealmCountryPlanningUnit() {
+        return realmCountryPlanningUnit;
     }
 
-    public void setTempParentLinkedShipmentId(Integer tempParentLinkedShipmentId) {
-        this.tempParentLinkedShipmentId = tempParentLinkedShipmentId;
+    public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
+        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+    }
+
+    public long getShipmentRcpuQty() {
+        return shipmentRcpuQty;
+    }
+
+    public void setShipmentRcpuQty(long shipmentRcpuQty) {
+        this.shipmentRcpuQty = shipmentRcpuQty;
     }
 
     @Override
