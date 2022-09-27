@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
 //            System.out.println("token---" + token);
             bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

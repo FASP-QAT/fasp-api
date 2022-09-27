@@ -118,7 +118,7 @@ public class ExportSupplyPlanJson {
                     
                     subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
                     bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Directory does not exist for " + iDto.getIntegrationName(), "Directory does not exist for " + iDto.getIntegrationName()};
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
@@ -128,7 +128,7 @@ public class ExportSupplyPlanJson {
             } catch (FileNotFoundException e) {
                 subjectParam = new String[]{"supply plan", "File not found"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "File not found", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 sb.append("File not found exception occured").append(newLine).append(newLine);
@@ -136,7 +136,7 @@ public class ExportSupplyPlanJson {
             } catch (IOException e) {
                 subjectParam = new String[]{"supply plan", "Input/Output error"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Input/Output error", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -145,7 +145,7 @@ public class ExportSupplyPlanJson {
             } catch (BadSqlGrammarException e) {
                 subjectParam = new String[]{"supply plan", "SQL Exception"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "SQL Exception", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -154,7 +154,7 @@ public class ExportSupplyPlanJson {
             } catch (Exception e) {
                 subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), e.getClass().getName().toString(), e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);

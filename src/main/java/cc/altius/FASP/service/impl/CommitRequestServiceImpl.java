@@ -114,8 +114,10 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                 if (spcr.getVersionType().getId() == 2) {
                                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
                                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
+                                    List<NotificationUser> bccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "BCc");
                                     StringBuilder sbToEmails = new StringBuilder();
                                     StringBuilder sbCcEmails = new StringBuilder();
+                                    StringBuilder sbBccEmails = new StringBuilder();
                                     if (toEmailIdsList.size() > 0) {
                                         for (NotificationUser ns : toEmailIdsList) {
                                             sbToEmails.append(ns.getEmailId()).append(",");
@@ -124,6 +126,11 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     if (ccEmailIdsList.size() > 0) {
                                         for (NotificationUser ns : ccEmailIdsList) {
                                             sbCcEmails.append(ns.getEmailId()).append(",");
+                                        }
+                                    }
+                                    if (bccEmailIdsList.size() > 0) {
+                                        for (NotificationUser ns : bccEmailIdsList) {
+                                            sbBccEmails.append(ns.getEmailId()).append(",");
                                         }
                                     }
 //                                if (sbToEmails.length() != 0) {
@@ -138,7 +145,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     Emailer emailer = new Emailer();
                                     subjectParam = new String[]{spcr.getProgram().getCode()};
                                     bodyParam = new String[]{spcr.getProgram().getCode(), String.valueOf(version.getVersionId()), spcr.getNotes()};
-                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
                                     this.emailService.sendMail(emailer);
@@ -213,6 +220,5 @@ public class CommitRequestServiceImpl implements CommitRequestService {
         spcr = this.commitRequestDao.getCommitRequestByCommitRequestId(commitRequestId);
         return spcr;
     }
-
 
 }
