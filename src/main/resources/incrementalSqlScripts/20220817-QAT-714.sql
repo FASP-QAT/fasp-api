@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_CountryShipmentSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 

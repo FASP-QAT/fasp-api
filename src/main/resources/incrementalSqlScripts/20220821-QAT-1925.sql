@@ -35,7 +35,7 @@ DROP procedure IF EXISTS `fasp`.`getSupplyPlanNotificationToList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationToList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getSupplyPlanNotificationToList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
 BEGIN
     -- This SP is only called for Final Supply Plan submissions not for Draft
     SET @programId = VAR_PROGRAM_ID;
@@ -83,7 +83,7 @@ DROP procedure IF EXISTS `fasp`.`getSupplyPlanNotificationCcList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationCcList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getSupplyPlanNotificationCcList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
 BEGIN
     -- This SP is only called for Final Supply Plan submissions not for Draft
     SET @programId = VAR_PROGRAM_ID;
@@ -121,7 +121,7 @@ DROP procedure IF EXISTS `fasp`.`getSupplyPlanNotificationBccList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationBccList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getSupplyPlanNotificationBccList`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_STATUS_ID INT(10))
 BEGIN 
     -- This SP is only called for Final Supply Plan submissions not for Draft
     SET @programId = VAR_PROGRAM_ID;
