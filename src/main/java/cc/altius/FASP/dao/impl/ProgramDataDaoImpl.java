@@ -2110,6 +2110,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("SHIPMENT_QTY", nsp.getManualShipmentTotal() + nsp.getErpShipmentTotal());
                 a1.addValue("FORECASTED_CONSUMPTION_QTY", nsp.getForecastedConsumptionQty());
                 a1.addValue("ACTUAL_CONSUMPTION_QTY", nsp.getActualConsumptionQty());
+                a1.addValue("ADJUSTED_CONSUMPTION_QTY", nsp.getAdjustedConsumptionQty());
                 a1.addValue("ACTUAL", nsp.isActualConsumptionFlag());
                 a1.addValue("ADJUSTMENT_MULTIPLIED_QTY", nsp.getAdjustmentQty());
                 a1.addValue("STOCK_MULTIPLIED_QTY", nsp.getStockQty());
@@ -2185,7 +2186,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 i++;
             }
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc");
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID","VERSION_ID","PLANNING_UNIT_ID","TRANS_DATE","OPENING_BALANCE","OPENING_BALANCE_WPS","MANUAL_PLANNED_SHIPMENT_QTY","MANUAL_SUBMITTED_SHIPMENT_QTY","MANUAL_APPROVED_SHIPMENT_QTY","MANUAL_SHIPPED_SHIPMENT_QTY","MANUAL_RECEIVED_SHIPMENT_QTY","MANUAL_ONHOLD_SHIPMENT_QTY","ERP_PLANNED_SHIPMENT_QTY","ERP_SUBMITTED_SHIPMENT_QTY","ERP_APPROVED_SHIPMENT_QTY","ERP_SHIPPED_SHIPMENT_QTY","ERP_RECEIVED_SHIPMENT_QTY","ERP_ONHOLD_SHIPMENT_QTY","SHIPMENT_QTY","FORECASTED_CONSUMPTION_QTY","ACTUAL_CONSUMPTION_QTY","ADJUSTED_CONSUMPTION_QTY","ACTUAL","ADJUSTMENT_MULTIPLIED_QTY","STOCK_MULTIPLIED_QTY","REGION_COUNT","REGION_COUNT_FOR_STOCK","NATIONAL_ADJUSTMENT","NATIONAL_ADJUSTMENT_WPS","EXPIRED_STOCK","EXPIRED_STOCK_WPS","CLOSING_BALANCE","CLOSING_BALANCE_WPS","UNMET_DEMAND","UNMET_DEMAND_WPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
@@ -2201,8 +2202,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
                     + "    LEFT JOIN ( "
                     + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
-                    + "            SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
                     + "        FROM rm_supply_plan_amc spa "
                     + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
                     + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
