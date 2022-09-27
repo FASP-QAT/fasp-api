@@ -140,7 +140,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
             bodyParam = new String[]{"Order/Shipment", errorCode, exceptionMessage};
             logger.info(errorCode + " " + exceptionMessage);
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
