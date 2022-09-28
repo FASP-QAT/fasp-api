@@ -89,6 +89,10 @@ public class StockStatusMatrixOutputRowMapper implements RowMapper<StockStatusMa
         ssmo.setOctStock(rs.getLong("Oct Stock"));
         ssmo.setNovStock(rs.getLong("Nov Stock"));
         ssmo.setDecStock(rs.getLong("Dec Stock"));
+        ssmo.setMaxStock(rs.getDouble("MAX_STOCK_QTY"));
+        if (rs.wasNull()) {
+            ssmo.setMaxStock(null);
+        }
         return ssmo;
     }
 
