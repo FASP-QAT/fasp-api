@@ -81,6 +81,8 @@ public class StockStatusMatrixOutput implements Serializable {
     private long decStock;
     @JsonView(Views.ReportView.class)
     private int planBasedOn;
+    @JsonView(Views.ReportView.class)
+    private Double maxStock;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -336,6 +338,14 @@ public class StockStatusMatrixOutput implements Serializable {
 
     public void setDecStock(long decStock) {
         this.decStock = decStock;
+    }
+
+    public Double getMaxStock() {
+        return maxStock;
+    }
+
+    public void setMaxStock(Double maxStock) {
+        this.maxStock = maxStock;
     }
 
 }
