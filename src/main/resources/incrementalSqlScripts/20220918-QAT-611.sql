@@ -259,10 +259,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade máxima');-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula1','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min Qty for current month = 7,000');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté min pour le mois en cours = 7,000');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mínima para el mes actual = 7,000');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mínima para o mês atual = 7,000');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min qty (planning unit setting) = 7,000');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Qté min (réglage de l`unité de planification) = 7,000');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mínima (configuración de la unidad de planificación) = 7,000');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mínima (configuração da unidade de planejamento) = 7,000');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.maxQtyFormula2','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -406,7 +406,7 @@ BEGIN
         s2.`MAX_MONTHS_OF_STOCK`,
         s2.MIN_STOCK_QTY,
         s2.MAX_STOCK_QTY,
-        s2.PLAN_BASED_ON,
+        s2.PLAN_BASED_ON,s2.DISTRIBUTION_LEAD_TIME,
         s2.`SHIPMENT_ID`, s2.`SHIPMENT_QTY`, s2.`EDD`, s2.`NOTES`,
         s2.`FUNDING_SOURCE_ID`, s2.`FUNDING_SOURCE_CODE`, s2.`FUNDING_SOURCE_LABEL_ID`, s2.`FUNDING_SOURCE_LABEL_EN`, s2.`FUNDING_SOURCE_LABEL_FR`, s2.`FUNDING_SOURCE_LABEL_SP`, s2.`FUNDING_SOURCE_LABEL_PR`, 
         s2.PROCUREMENT_AGENT_ID, s2.PROCUREMENT_AGENT_CODE, s2.`PROCUREMENT_AGENT_LABEL_ID`, s2.`PROCUREMENT_AGENT_LABEL_EN`, s2.`PROCUREMENT_AGENT_LABEL_FR`, s2.`PROCUREMENT_AGENT_LABEL_SP`, s2.`PROCUREMENT_AGENT_LABEL_PR`, 
@@ -428,6 +428,7 @@ BEGIN
         sma.AMC, sma.UNMET_DEMAND,sma.REGION_COUNT,sma.REGION_COUNT_FOR_STOCK,
         sma.MOS `MoS`,
         ppu.PLAN_BASED_ON,
+        ppu.DISTRIBUTION_LEAD_TIME,
         IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) `MIN_MONTHS_OF_STOCK`, 
         IF(
             IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, 
@@ -492,3 +493,60 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT converts max/min M
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT convertit le MOS max/min en quantités en multipliant le nombre par l`AMC pour le mois en cours.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'QAT convierte el MOS máximo/mínimo en cantidades multiplicando el número por el AMC para el mes actual.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'QAT converte MOS max/min em quantidades multiplicando o número pelo AMC para o mês atual.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.planByTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Should minimum and maximum inventory parameters be based on quantity or months of stock (MOS)? Most products are better planned by MOS, while some low consumption, higher expiry products are better planned by quantity.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les paramètres d`inventaire minimum et maximum doivent-ils être basés sur la quantité ou les mois de stock (MOS) ? La plupart des produits sont mieux planifiés par MOS, tandis que certains produits à faible consommation et à péremption plus élevée sont mieux planifiés par quantité.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Los parámetros de inventario mínimo y máximo deben basarse en la cantidad o los meses de existencias (MOS)? La mayoría de los productos están mejor planificados por MOS, mientras que algunos productos de bajo consumo y mayor vencimiento están mejor planificados por cantidad.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os parâmetros de estoque mínimo e máximo devem ser baseados na quantidade ou meses de estoque (MOS)? A maioria dos produtos é melhor planejada pelo MOS, enquanto alguns produtos de baixo consumo e prazo de validade mais alto são melhor planejados pela quantidade.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.reorderFrequencyTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'How many months between shipments?');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Combien de mois entre les expéditions ?');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Cuántos meses entre envíos?');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantos meses entre os envios?');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.minMonthsOfStockTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Required if planning by MOS. Note that maximum MOS = min MOS + reorder interval.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Obligatoire si planification par MOS. Notez que MOS maximum = MOS min + intervalle de commande.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Obligatorio si está planificado por MOS. Tenga en cuenta que MOS máximo = MOS mínimo + intervalo de reorden.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Necessário se planejamento por MOS. Observe que MOS máximo = MOS mínimo + intervalo de reordenação.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.minQtyTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Required if planning by quantity. Note that maximum MOS = min MOS + reorder interval. * AMC');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Obligatoire si planification par quantité. Notez que MOS maximum = MOS min + intervalle de commande. * AMC');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Obligatorio si se planifica por cantidad. Tenga en cuenta que MOS máximo = MOS mínimo + intervalo de reorden. * AMC');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Obrigatório se planejar por quantidade. Observe que MOS máximo = MOS mínimo + intervalo de reordenação. * AMC');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.monthsInFutureTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'How many months should be used for calculating the average monthly consumption (AMC)? Include more months in the past if the past data is more reliable and predicts the future.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Combien de mois faut-il utiliser pour calculer la consommation mensuelle moyenne (AMC) ? Inclure plus de mois dans le passé si les données passées sont plus fiables et prédisent l`avenir.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Cuántos meses se deben usar para calcular el consumo promedio mensual (AMC)? Incluya más meses en el pasado si los datos del pasado son más confiables y predicen el futuro.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantos meses devem ser usados ​​para calcular o consumo médio mensal (AMC)? Inclua mais meses no passado se os dados passados ​​forem mais confiáveis ​​e preverem o futuro.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.monthsInPastTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'How many months should be used for calculating the average monthly consumption (AMC)? Include more months in the future if the forecast data is better basis for stock calculations, such as in the case of seasonal products.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Combien de mois faut-il utiliser pour calculer la consommation mensuelle moyenne (AMC) ? Inclure plus de mois à l`avenir si les données prévisionnelles constituent une meilleure base pour les calculs de stock, comme dans le cas des produits saisonniers.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Cuántos meses se deben usar para calcular el consumo promedio mensual (AMC)? Incluya más meses en el futuro si los datos de pronóstico son una mejor base para los cálculos de existencias, como en el caso de los productos de temporada.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantos meses devem ser usados ​​para calcular o consumo médio mensal (AMC)? Inclua mais meses no futuro se os dados de previsão forem uma melhor base para cálculos de estoque, como no caso de produtos sazonais.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.distributionLeadTimeTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Required if planning by quantity. How many months does it take between shipment receipt and the product to be distributed down to the lowest level? Used for suggested shipments ahead of understock.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Obligatoire si planification par quantité. Combien de mois s`écoule-t-il entre la réception de l'expédition et le produit à distribuer jusqu'au niveau le plus bas ? Utilisé pour les expéditions suggérées avant le sous-stock.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Obligatorio si se planifica por cantidad. ¿Cuántos meses transcurren entre la recepción del envío y la distribución del producto hasta el nivel más bajo? Se utiliza para envíos sugeridos antes de que se agoten las existencias.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Obrigatório se planejar por quantidade. Quantos meses leva entre o recebimento da remessa e o produto a ser distribuído até o nível mais baixo? Usado para remessas sugeridas antes do estoque insuficiente.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.stockStatusMatrixMaxTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If planning by quantity, the max value is calculated every month by min + reorder interval* AMC. The value displayed here is the average for the year.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si planification par quantité, la valeur max est calculée chaque mois par min + intervalle de commande* AMC. La valeur affichée ici est la moyenne de l`année.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se planifica por cantidad, el valor máximo se calcula cada mes por intervalo mínimo de pedido* AMC. El valor que se muestra aquí es el promedio del año.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se estiver planejando por quantidade, o valor máximo é calculado todo mês por mín + intervalo de reabastecimento* AMC. O valor exibido aqui é a média do ano.');-- pr

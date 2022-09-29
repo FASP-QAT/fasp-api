@@ -92,6 +92,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 ssv.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
                 ssv.setRegionCount(rs.getInt("REGION_COUNT"));
                 ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
+                ssv.setDistributionLeadTime(rs.getInt("DISTRIBUTION_LEAD_TIME"));
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);
