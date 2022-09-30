@@ -550,3 +550,25 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If planning by quantit
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si planification par quantité, la valeur max est calculée chaque mois par min + intervalle de commande* AMC. La valeur affichée ici est la moyenne de l`année.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se planifica por cantidad, el valor máximo se calcula cada mes por intervalo mínimo de pedido* AMC. El valor que se muestra aquí es el promedio del año.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se estiver planejando por quantidade, o valor máximo é calculado todo mês por mín + intervalo de reabastecimento* AMC. O valor exibido aqui é a média do ano.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.localProcurementAgentTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lead time from planned to received. Used for shipments where `local procurement` is selected.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Délai de livraison entre prévu et reçu. Utilisé pour les expéditions où `l`approvisionnement local` est sélectionné.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Délai de livraison entre prévu et reçu. Utilisé pour les expéditions où `l`approvisionnement local` est sélectionné.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lead time do planejado ao recebido. Usado para remessas em que `aquisição local` é selecionada.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.shelfLifeTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Time from shipment receipt (status = received) to expiry. Used for new batches created via shipments, but actual expiry date for any shipment can be updated by the user.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Délai entre la réception de l`envoi (statut = reçu) et l`expiration. Utilisé pour les nouveaux lots créés via des expéditions, mais la date d`expiration réelle de toute expédition peut être mise à jour par l`utilisateur.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Délai entre la réception de l`envoi (statut = reçu) et l`expiration. Utilisé pour les nouveaux lots créés via des expéditions, mais la date d`expiration réelle de toute expédition peut être mise à jour par l`utilisateur.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tempo desde o recebimento da remessa (status = recebido) até o vencimento. Usado para novos lotes criados por meio de remessas, mas a data de validade real de qualquer remessa pode ser atualizada pelo usuário.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.catalogPriceTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This default catalog price is used for any new shipments created, unless the procurement agent specific price is provided. The actual price for any shipment can be by the user.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce prix catalogue par défaut est utilisé pour toute nouvelle expédition créée, sauf si le prix spécifique à l`agent d`approvisionnement est fourni. Le prix réel pour tout envoi peut être par l`utilisateur.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ce prix catalogue par défaut est utilisé pour toute nouvelle expédition créée, sauf si le prix spécifique à l`agent d`approvisionnement est fourni. Le prix réel pour tout envoi peut être par l`utilisateur.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esse preço de catálogo padrão é usado para quaisquer novas remessas criadas, a menos que o preço específico do agente de compras seja fornecido. O preço real de qualquer remessa pode ser pelo usuário.');-- pr
