@@ -14,6 +14,7 @@ public class RegionData {
     private int regionId;
     private Long forecastedConsumption;
     private Long actualConsumption;
+    private Long adjustedConsumption;
     private Long stock;
     private Long adjustment;
 
@@ -42,6 +43,14 @@ public class RegionData {
 
     public void setActualConsumption(Long actualConsumption) {
         this.actualConsumption = actualConsumption;
+    }
+
+    public Long getAdjustedConsumption() {
+        return adjustedConsumption;
+    }
+
+    public void setAdjustedConsumption(Long adjustedConsumption) {
+        this.adjustedConsumption = adjustedConsumption;
     }
 
     public Long getStock() {
