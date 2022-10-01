@@ -37,6 +37,7 @@ public class StockStatusForProgramOutputRowMapper implements RowMapper<StockStat
             sspo.setAmc(null);
         }
         sspo.setLastStockCount(rs.getDate("STOCK_COUNT_DATE"));
+        sspo.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
         return sspo;
     }
     
