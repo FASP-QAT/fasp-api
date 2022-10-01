@@ -15,6 +15,7 @@ public class SuggestedDisplayName {
     public static final int HEALTH_AREA_LENGTH = 4;
     public static final int PROCUREMENT_AGENT_LENGTH = 8;
     public static final int ORGANISATION_LENGTH = 2;
+    public static final int REALM_COUNTRY_PLANNING_UNIT_LENGTH = 12;
 
     public static final String getAlphaNumericString(String name, int length) {
         StringBuilder finalString = new StringBuilder();

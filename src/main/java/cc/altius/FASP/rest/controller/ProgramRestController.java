@@ -7,11 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.CommitRequest;
-import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
-import cc.altius.FASP.model.DTO.ManualTaggingDTO;
-import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
@@ -26,7 +21,6 @@ import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +31,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,8 +53,6 @@ public class ProgramRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ProgramDataService programDataService;
     @Autowired
     private RealmCountryService realmCountryService;
 
