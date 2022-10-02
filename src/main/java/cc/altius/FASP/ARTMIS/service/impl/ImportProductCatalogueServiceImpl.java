@@ -67,7 +67,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             } else {
                 subjectParam = new String[]{"Product Catalog", "Directory does not exists"};
                 bodyParam = new String[]{"Product Catalog", "Directory does not exists", "Directory does not exists"};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -77,7 +77,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"Product Catalog", "File not found"};
             bodyParam = new String[]{"Product Catalog", "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -87,7 +87,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (SAXException e) {
             subjectParam = new String[]{"Product Catalog", "Xml syntax error"};
             bodyParam = new String[]{"Product Catalog", "Xml syntax error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -97,7 +97,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (IOException e) {
             subjectParam = new String[]{"Product Catalog", "Input/Output error"};
             bodyParam = new String[]{"Product Catalog", "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -107,7 +107,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
             subjectParam = new String[]{"Product Catalog", "SQL Exception"};
             bodyParam = new String[]{"Product Catalog", "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -117,7 +117,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (Exception e) {
             subjectParam = new String[]{"Product Catalog", e.getClass().toString()};
             bodyParam = new String[]{"Product Catalog", e.getClass().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

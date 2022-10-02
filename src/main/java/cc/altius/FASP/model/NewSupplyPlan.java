@@ -29,6 +29,7 @@ public class NewSupplyPlan implements Serializable {
     private int shelfLife;
     private Long actualConsumptionQty;
     private Long forecastedConsumptionQty;
+    private Long adjustedConsumptionQty;
     private Long finalConsumptionQty;
     private boolean actualConsumptionFlag;
     private long plannedShipmentsTotalData;
@@ -126,6 +127,20 @@ public class NewSupplyPlan implements Serializable {
                 this.forecastedConsumptionQty = forecastedConsumptionQty;
             } else {
                 this.forecastedConsumptionQty += forecastedConsumptionQty;
+            }
+        }
+    }
+
+    public Long getAdjustedConsumptionQty() {
+        return adjustedConsumptionQty;
+    }
+
+    public void addAdjustedConsumptionQty(Long adjustedConsumptionQty) {
+        if (adjustedConsumptionQty != null) {
+            if (this.adjustedConsumptionQty == null) {
+                this.adjustedConsumptionQty = adjustedConsumptionQty;
+            } else {
+                this.adjustedConsumptionQty += adjustedConsumptionQty;
             }
         }
     }
@@ -394,16 +409,19 @@ public class NewSupplyPlan implements Serializable {
     public void updateUnmetDemand() {
         if (!isAllRegionsReportedStock()) {
             if (this.closingBalance == 0) {
-                this.unmetDemand = 0 - this.expectedStock;
+                this.unmetDemand = 0 - this.expectedStock + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             } else {
-                this.unmetDemand = 0;
+                this.unmetDemand = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             }
 
             if (this.closingBalanceWps == 0) {
-                this.unmetDemandWps = 0 - this.expectedStockWps;
+                this.unmetDemandWps = 0 - this.expectedStockWps + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             } else {
-                this.unmetDemandWps = 0;
+                this.unmetDemandWps = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
             }
+        } else {
+            this.unmetDemand = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
+            this.unmetDemandWps = 0 + ((this.adjustedConsumptionQty != null ? this.adjustedConsumptionQty : 0) - (this.actualConsumptionQty != null ? this.actualConsumptionQty : 0));
         }
     }
 
@@ -549,7 +567,7 @@ public class NewSupplyPlan implements Serializable {
 
     public void updateExpiredStock() {
         this.batchDataList.forEach(bd -> {
-            if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate().substring(0,7)+"-01", this.transDate) <= 0) {
+            if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) <= 0) {
                 bd.setExpiredStock(Optional.ofNullable(bd.getShipment()).orElse(0L) + bd.getOpeningBalance());
                 this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0L) + bd.getExpiredStock();
                 bd.setExpiredStockWps(Optional.ofNullable(bd.getShipmentWps()).orElse(0L) + bd.getOpeningBalanceWps());

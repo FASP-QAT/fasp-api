@@ -55,6 +55,34 @@ public class StockStatusMatrixOutput implements Serializable {
     private Double nov;
     @JsonView(Views.ReportView.class)
     private Double dec;
+    @JsonView(Views.ReportView.class)
+    private long janStock;
+    @JsonView(Views.ReportView.class)
+    private long febStock;
+    @JsonView(Views.ReportView.class)
+    private long marStock;
+    @JsonView(Views.ReportView.class)
+    private long aprStock;
+    @JsonView(Views.ReportView.class)
+    private long mayStock;
+    @JsonView(Views.ReportView.class)
+    private long junStock;
+    @JsonView(Views.ReportView.class)
+    private long julStock;
+    @JsonView(Views.ReportView.class)
+    private long augStock;
+    @JsonView(Views.ReportView.class)
+    private long sepStock;
+    @JsonView(Views.ReportView.class)
+    private long octStock;
+    @JsonView(Views.ReportView.class)
+    private long novStock;
+    @JsonView(Views.ReportView.class)
+    private long decStock;
+    @JsonView(Views.ReportView.class)
+    private int planBasedOn;
+    @JsonView(Views.ReportView.class)
+    private Double maxStock;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -208,5 +236,116 @@ public class StockStatusMatrixOutput implements Serializable {
         this.dec = dec;
     }
 
-    
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
+    }
+
+    public long getJanStock() {
+        return janStock;
+    }
+
+    public void setJanStock(long janStock) {
+        this.janStock = janStock;
+    }
+
+    public long getFebStock() {
+        return febStock;
+    }
+
+    public void setFebStock(long febStock) {
+        this.febStock = febStock;
+    }
+
+    public long getMarStock() {
+        return marStock;
+    }
+
+    public void setMarStock(long marStock) {
+        this.marStock = marStock;
+    }
+
+    public long getAprStock() {
+        return aprStock;
+    }
+
+    public void setAprStock(long aprStock) {
+        this.aprStock = aprStock;
+    }
+
+    public long getMayStock() {
+        return mayStock;
+    }
+
+    public void setMayStock(long mayStock) {
+        this.mayStock = mayStock;
+    }
+
+    public long getJunStock() {
+        return junStock;
+    }
+
+    public void setJunStock(long junStock) {
+        this.junStock = junStock;
+    }
+
+    public long getJulStock() {
+        return julStock;
+    }
+
+    public void setJulStock(long julStock) {
+        this.julStock = julStock;
+    }
+
+    public long getAugStock() {
+        return augStock;
+    }
+
+    public void setAugStock(long augStock) {
+        this.augStock = augStock;
+    }
+
+    public long getSepStock() {
+        return sepStock;
+    }
+
+    public void setSepStock(long sepStock) {
+        this.sepStock = sepStock;
+    }
+
+    public long getOctStock() {
+        return octStock;
+    }
+
+    public void setOctStock(long octStock) {
+        this.octStock = octStock;
+    }
+
+    public long getNovStock() {
+        return novStock;
+    }
+
+    public void setNovStock(long novStock) {
+        this.novStock = novStock;
+    }
+
+    public long getDecStock() {
+        return decStock;
+    }
+
+    public void setDecStock(long decStock) {
+        this.decStock = decStock;
+    }
+
+    public Double getMaxStock() {
+        return maxStock;
+    }
+
+    public void setMaxStock(Double maxStock) {
+        this.maxStock = maxStock;
+    }
+
 }
