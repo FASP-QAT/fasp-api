@@ -75,7 +75,7 @@ import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
@@ -2819,7 +2819,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
-        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionRowMapper(), nodeDataId);
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);
     }
 
 }
