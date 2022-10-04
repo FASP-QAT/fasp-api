@@ -100,7 +100,7 @@ public class IdByAndDate implements Serializable {
 
     @Override
     public String toString() {
-        return "IdByAndDate{" + "id=" + id + ", tempId=" + tempId + ", tempParentId=" + tempParentId + '}';
+        return "IdByAndDate{" + "id=" + id + ", tempId=" + tempId + ", tempParentId=" + tempParentId + ", tempParentLinkedId=" + tempParentLinkedId + '}';
     }
 
 }
