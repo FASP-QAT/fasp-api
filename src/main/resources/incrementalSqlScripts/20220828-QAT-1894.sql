@@ -4,7 +4,7 @@ ADD COLUMN `BRANCH` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `NOTES`;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_tree_template` AS
     SELECT 

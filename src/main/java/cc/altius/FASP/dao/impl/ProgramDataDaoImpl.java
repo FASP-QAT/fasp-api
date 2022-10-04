@@ -75,7 +75,7 @@ import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
@@ -993,7 +993,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("lastModifiedBy", tmpId.getLastModifiedBy());
                 params.put("lastModifiedDate", tmpId.getLastModifiedDate());
                 params.put("tempParentShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentId()));
-                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, IF(ts.TEMP_PARENT_SHIPMENT_ID IS NULL,ts.PARENT_SHIPMENT_ID,:tempParentShipmentId), ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                params.put("tempParentLinkedShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentLinkedId()));
+                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, PARENT_LINKED_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, IF(ts.TEMP_PARENT_SHIPMENT_ID IS NULL,ts.PARENT_SHIPMENT_ID,:tempParentShipmentId), IF(ts.TEMP_PARENT_LINKED_SHIPMENT_ID IS NULL,ts.PARENT_LINKED_SHIPMENT_ID,:tempParentLinkedShipmentId), ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {
@@ -2818,7 +2819,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
-        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionRowMapper(), nodeDataId);
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);
     }
 
 }

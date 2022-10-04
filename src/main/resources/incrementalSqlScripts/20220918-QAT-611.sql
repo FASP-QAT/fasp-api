@@ -540,7 +540,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Required if planning by quantity. How many months does it take between shipment receipt and the product to be distributed down to the lowest level? Used for suggested shipments ahead of understock.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Obligatoire si planification par quantité. Combien de mois s`écoule-t-il entre la réception de l'expédition et le produit à distribuer jusqu'au niveau le plus bas ? Utilisé pour les expéditions suggérées avant le sous-stock.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Obligatoire si planification par quantité. Combien de mois s`écoule-t-il entre la réception de l`expédition et le produit à distribuer jusqu`au niveau le plus bas ? Utilisé pour les expéditions suggérées avant le sous-stock.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Obligatorio si se planifica por cantidad. ¿Cuántos meses transcurren entre la recepción del envío y la distribución del producto hasta el nivel más bajo? Se utiliza para envíos sugeridos antes de que se agoten las existencias.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Obrigatório se planejar por quantidade. Quantos meses leva entre o recebimento da remessa e o produto a ser distribuído até o nível mais baixo? Usado para remessas sugeridas antes do estoque insuficiente.');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.stockStatusMatrixMaxTooltip','1'); 
@@ -550,3 +550,47 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If planning by quantit
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si planification par quantité, la valeur max est calculée chaque mois par min + intervalle de commande* AMC. La valeur affichée ici est la moyenne de l`année.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se planifica por cantidad, el valor máximo se calcula cada mes por intervalo mínimo de pedido* AMC. El valor que se muestra aquí es el promedio del año.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se estiver planejando por quantidade, o valor máximo é calculado todo mês por mín + intervalo de reabastecimento* AMC. O valor exibido aqui é a média do ano.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.localProcurementAgentTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lead time from planned to received. Used for shipments where `local procurement` is selected.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Délai de livraison entre prévu et reçu. Utilisé pour les expéditions où `l`approvisionnement local` est sélectionné.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Délai de livraison entre prévu et reçu. Utilisé pour les expéditions où `l`approvisionnement local` est sélectionné.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lead time do planejado ao recebido. Usado para remessas em que `aquisição local` é selecionada.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.shelfLifeTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Time from shipment receipt (status = received) to expiry. Used for new batches created via shipments, but actual expiry date for any shipment can be updated by the user.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Délai entre la réception de l`envoi (statut = reçu) et l`expiration. Utilisé pour les nouveaux lots créés via des expéditions, mais la date d`expiration réelle de toute expédition peut être mise à jour par l`utilisateur.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Délai entre la réception de l`envoi (statut = reçu) et l`expiration. Utilisé pour les nouveaux lots créés via des expéditions, mais la date d`expiration réelle de toute expédition peut être mise à jour par l`utilisateur.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tempo desde o recebimento da remessa (status = recebido) até o vencimento. Usado para novos lotes criados por meio de remessas, mas a data de validade real de qualquer remessa pode ser atualizada pelo usuário.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programPU.catalogPriceTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This default catalog price is used for any new shipments created, unless the procurement agent specific price is provided. The actual price for any shipment can be by the user.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce prix catalogue par défaut est utilisé pour toute nouvelle expédition créée, sauf si le prix spécifique à l`agent d`approvisionnement est fourni. Le prix réel pour tout envoi peut être par l`utilisateur.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ce prix catalogue par défaut est utilisé pour toute nouvelle expédition créée, sauf si le prix spécifique à l`agent d`approvisionnement est fourni. Le prix réel pour tout envoi peut être par l`utilisateur.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esse preço de catálogo padrão é usado para quaisquer novas remessas criadas, a menos que o preço específico do agente de compras seja fornecido. O preço real de qualquer remessa pode ser pelo usuário.');-- pr
+
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='You might have an older version. You should clear site and control+F5 now.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Vous avez peut-être une version plus ancienne. Vous devez effacer le site et contrôler + F5 maintenant.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Es posible que tenga una versión anterior. Debería borrar el sitio y controlar + F5 ahora.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Você pode ter uma versão mais antiga. Você deve limpar o site e controlar + F5 agora.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=4;

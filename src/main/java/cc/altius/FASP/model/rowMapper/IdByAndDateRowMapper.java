@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class IdByAndDateRowMapper implements RowMapper<IdByAndDate>{
+public class IdByAndDateRowMapper implements RowMapper<IdByAndDate> {
 
     @Override
     public IdByAndDate mapRow(ResultSet rs, int i) throws SQLException {
@@ -28,5 +28,5 @@ public class IdByAndDateRowMapper implements RowMapper<IdByAndDate>{
                 rs.getInt("LAST_MODIFIED_BY"), 
                 rs.getTimestamp("LAST_MODIFIED_DATE"));
     }
-    
+
 }
