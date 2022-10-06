@@ -994,7 +994,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("lastModifiedDate", tmpId.getLastModifiedDate());
                 params.put("tempParentShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentId()));
                 params.put("tempParentLinkedShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentLinkedId()));
-                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, PARENT_LINKED_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, IF(ts.TEMP_PARENT_SHIPMENT_ID IS NULL,ts.PARENT_SHIPMENT_ID,:tempParentShipmentId), IF(ts.TEMP_PARENT_LINKED_SHIPMENT_ID IS NULL,ts.PARENT_LINKED_SHIPMENT_ID,:tempParentLinkedShipmentId), ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, IF(ts.TEMP_PARENT_SHIPMENT_ID IS NULL,ts.PARENT_SHIPMENT_ID,:tempParentShipmentId), ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {

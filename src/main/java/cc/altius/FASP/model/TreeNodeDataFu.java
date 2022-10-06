@@ -25,7 +25,7 @@ public class TreeNodeDataFu implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int noOfPersons;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private int noOfForecastingUnitsPerPerson;
+    private double noOfForecastingUnitsPerPerson;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean oneTimeUsage;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -77,11 +77,11 @@ public class TreeNodeDataFu implements Serializable {
         this.noOfPersons = noOfPersons;
     }
 
-    public int getNoOfForecastingUnitsPerPerson() {
+    public double getNoOfForecastingUnitsPerPerson() {
         return noOfForecastingUnitsPerPerson;
     }
 
-    public void setNoOfForecastingUnitsPerPerson(int noOfForecastingUnitsPerPerson) {
+    public void setNoOfForecastingUnitsPerPerson(double noOfForecastingUnitsPerPerson) {
         this.noOfForecastingUnitsPerPerson = noOfForecastingUnitsPerPerson;
     }
 
