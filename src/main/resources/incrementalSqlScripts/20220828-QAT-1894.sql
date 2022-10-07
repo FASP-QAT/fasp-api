@@ -62,3 +62,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Template');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un modèle');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar plantilla');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecionar modelo');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.addBranchTemplate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Branch Template Added Successfully');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle de branche ajouté avec succès');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de rama añadida con éxito');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de filial adicionado com sucesso');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.editBranchTemplate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Branch Template Updated Successfully');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle de branche mis à jour avec succès');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de sucursal actualizada con éxito');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de filial atualizado com sucesso');-- pr
