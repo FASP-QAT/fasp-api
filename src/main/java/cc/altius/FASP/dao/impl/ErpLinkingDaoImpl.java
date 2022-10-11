@@ -1875,7 +1875,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND e.ACTIVE "
-                + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+                + "    AND ("
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+//                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
         );
         if (roPo != null) {
@@ -1902,7 +1906,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND e.ACTIVE "
-                + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+                + "    AND ("
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+//                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
         );
         if (roPo != null) {
@@ -1938,7 +1946,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                WHERE  "
                 + "                    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "                    AND e.ACTIVE "
-                + "                    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+                + "                    AND ("
+//                + "                    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+//                + "                    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
+//                + "                    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "                    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "                    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
                 + "     AND (pu.`LABEL_EN` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%' OR papu.`SKU_CODE` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%') AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL group by pu.PLANNING_UNIT_ID");
         Map<String, Object> params = new HashMap<>();
@@ -1982,10 +1994,14 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "	o1.RO_NO IS NOT NULL  "
                 + "    AND (papu.PLANNING_UNIT_ID = :filterPlanningUnitId OR :filterPlanningUnitId = 0) AND e.RECPIENT_COUNTRY=c.LABEL_EN  "
                 + "    AND e.ACTIVE   "
-                + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
+                + "    AND ("
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+//                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
                 + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL   "
                 + "    AND sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID   "
-                + "ORDER BY COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`),e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
+                + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
         Map<String, Object> params = new HashMap<>();
         params.put("versionId", input.getVersionId());
         params.put("shipmentProgramId", input.getProgramId());
@@ -2028,7 +2044,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "WHERE  "
                 + "    rc.REALM_COUNTRY_ID=:realmCountryId  "
                 + "    AND e.ACTIVE  "
-                + "    AND (COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+                + "    AND ("
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+//                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
+//                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL  "
                 + "    AND pu.PLANNING_UNIT_ID IS NOT NULL  ");
         int count = 1;
