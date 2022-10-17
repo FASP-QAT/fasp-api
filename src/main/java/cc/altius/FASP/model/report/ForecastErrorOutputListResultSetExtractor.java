@@ -31,15 +31,14 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             if (idx1 == -1) {
                 feList.add(fe);
                 RegionForecastErrorOutput re = new RegionForecastErrorOutput(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper().mapRow(rs, 1)));
-                re.setActualQty(rs.getDouble("ACTUAL_QTY"));
+                re.setActualQty(rs.getDouble("AVG_ADJUSTED_ACTUAL_CONSUMPTION"));
                 if (rs.wasNull()) {
                     re.setActualQty(null);
                 }
-                re.setForecastQty(rs.getDouble("FORECAST_QTY"));
+                re.setForecastQty(rs.getDouble("AVG_FORECASTED_CONSUMPTION"));
                 if (rs.wasNull()) {
                     re.setForecastQty(null);
                 }
-                re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
                 fe.addRegionData(re);
             }
         }

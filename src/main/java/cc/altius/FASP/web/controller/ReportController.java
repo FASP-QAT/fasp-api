@@ -841,14 +841,7 @@ public class ReportController {
      * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-     * -- dt is the month for which you want to run the report
-     * -- includePlannedShipments = 1 means that you want to include the shipments that are still in the Planned stage while running this report.
-     * -- includePlannedShipments = 0 means that you want to exclude the shipments that are still in the Planned stage while running this report.
-     * -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
-     * -- Current month is always included in AMC
-     * -- if a Month does not have Consumption then it is excluded from the AMC calculations
-     * -- MinMonthsOfStock is Max of MinMonth of Stock taken from the Program-planning Unit and 3
-     * -- MaxMonthsOfStock is Min of Min of MinMonthOfStock+ReorderFrequency and 15
+     * -- Need to fill out the correct notes
      * </pre>
      *
      * @param sspi
@@ -862,7 +855,7 @@ public class ReportController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("/api/report/stockStatusAcrossProducts", e);
+            logger.error("/api/report/forecastError", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
