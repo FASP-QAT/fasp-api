@@ -876,19 +876,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        try {
         logger.info(sCnt + " records imported into the tmp table");
-//        sqlString = "UPDATE tmp_shipment s LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=s.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 SET s.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, s.SHIPMENT_RCPU_QTY=s.SHIPMENT_QTY WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
-//        params.clear();
-//        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
-//        int rcpuFixCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
-//        logger.info("RCPU fixed for " + rcpuFixCnt);
+        sqlString = "UPDATE tmp_shipment s LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=s.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 SET s.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, s.SHIPMENT_RCPU_QTY=s.SHIPMENT_QTY WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
+        params.clear();
+        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+        int rcpuFixCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("RCPU fixed for " + rcpuFixCnt);
 
-        sqlString = "SELECT COUNT(*) FROM tmp_shipment s WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
-        int stillMissingSCPU = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
-        if (stillMissingSCPU > 0) {
-            throw new CouldNotSaveException("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
-        }
-
+//        sqlString = "SELECT COUNT(*) FROM tmp_shipment s WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
+//        int stillMissingSCPU = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+//        logger.info("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
+//        if (stillMissingSCPU > 0) {
+//            throw new CouldNotSaveException("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
+//        }
 //        } catch (Exception e) {
 //            logger.info("Could not load the tmp shipment records going to throw a CouldNotSaveException");
 //            throw new CouldNotSaveException("Could not save Shipment data - " + e.getMessage());
