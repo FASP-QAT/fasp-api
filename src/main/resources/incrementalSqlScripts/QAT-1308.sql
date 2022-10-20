@@ -94,5 +94,23 @@ END$$
 DELIMITER ;
 ;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='You might have an older version. You should control+F5 now.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=1;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Vous avez peut-être une version plus ancienne. Vous devriez contrôler + F5 maintenant.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Es posible que tenga una versión anterior. Deberías controlar+F5 ahora.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Você pode ter uma versão mais antiga. Você deve controlar + F5 agora.'
+where l.LABEL_CODE='static.coreui.oldVersion' and ll.LANGUAGE_ID=4;
 
