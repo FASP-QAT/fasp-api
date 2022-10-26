@@ -1588,7 +1588,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
                         // Step 3H -- Add the Node Data Modelling values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
-                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling");
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
@@ -1605,7 +1605,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                                 nodeDataParams.put("ACTIVE", 1);
-                                ni.execute(nodeDataParams);
+                                ndm.setNodeDataModelingId(ni.executeAndReturnKey(nodeDataParams).intValue());
                             }
                         }
 
@@ -1688,7 +1688,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
 
                 batchList.clear();
-                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_ID=:nodeDataId";
+                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_MODELING_ID=:nodeDataModelingId";
                 // go back and update the TransferNodeDataId's
                 for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
                     for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
@@ -1696,7 +1696,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
                                 batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
-                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tnd.getNodeDataId())));
+                                batchParams.put("nodeDataModelingId",tndm.getNodeDataModelingId());
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
