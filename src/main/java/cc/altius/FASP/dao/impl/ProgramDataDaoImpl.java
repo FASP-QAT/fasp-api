@@ -1407,6 +1407,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation").usingGeneratedKeyColumns("CONSUMPTION_EXTRAPOLATION_ID");
         SimpleJdbcInsert siData = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation_data");
         for (ForecastConsumptionExtrapolation fce : dd.getConsumptionExtrapolation()) {
+            batchList.clear();
             params.clear();
             params.put("PROGRAM_ID", spcr.getProgram().getId());
             params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
