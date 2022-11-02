@@ -1396,6 +1396,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_actual_consumption");
+        System.out.println("batchList@@@@@@" + batchList);
         si.executeBatch(batchList.toArray(batchArray));
 
         batchList.clear();
@@ -1476,7 +1477,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -1541,7 +1542,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                             nodeDataParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                             nodeDataParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                            nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
+                            nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_CONTINUOUS ? false : tnd.getFuNode().isOneTimeUsage());
                             nodeDataParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
                             nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
@@ -1699,7 +1700,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
                                 batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
-                                batchParams.put("nodeDataModelingId",tndm.getNodeDataModelingId());
+                                batchParams.put("nodeDataModelingId", tndm.getNodeDataModelingId());
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
