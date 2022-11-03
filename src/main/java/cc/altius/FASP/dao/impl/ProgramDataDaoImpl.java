@@ -1697,7 +1697,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
                                 batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
-                                batchParams.put("nodeDataModelingId",tndm.getNodeDataModelingId());
+                                batchParams.put("nodeDataModelingId", tndm.getNodeDataModelingId());
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
@@ -1775,6 +1775,34 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", spcr.getProgram().getId());
         params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // Step 6 -- Remove duplicates from rm_forecast_extrapolation_data
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_extrapolation_data`( `CONSUMPTION_EXTRAPOLATION_DATA_ID` INT ); ";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "INSERT INTO `tmp_consumption_extrapolation_data` "
+                + "SELECT fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` "
+                + "FROM `rm_forecast_consumption_extrapolation_data` fced "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation fce "
+                + "ON fced.CONSUMPTION_EXTRAPOLATION_ID=fce.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId AND fce.VERSION_ID=:versionId "
+                + "AND fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` NOT IN ( "
+                + "SELECT MIN(fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID`) "
+                + "FROM `rm_forecast_consumption_extrapolation_data` fced "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation fce "
+                + "ON fced.CONSUMPTION_EXTRAPOLATION_ID=fce.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId AND fce.VERSION_ID=:versionId "
+                + "GROUP BY fced.`CONSUMPTION_EXTRAPOLATION_ID`,fced.`MONTH`);";
+        params.clear();
+        params.put("programId", spcr.getProgram().getId());
+        params.put("versionId", version.getVersionId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DELETE fced.* FROM `rm_forecast_consumption_extrapolation_data` fced \n"
+                + "WHERE fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` IN (SELECT * FROM `tmp_consumption_extrapolation_data`);";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`; ";
+        this.jdbcTemplate.update(sqlString);
         return version;
     }
 
