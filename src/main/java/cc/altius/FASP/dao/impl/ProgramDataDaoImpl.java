@@ -1396,7 +1396,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_actual_consumption");
-        System.out.println("batchList@@@@@@" + batchList);
         si.executeBatch(batchList.toArray(batchArray));
 
         batchList.clear();

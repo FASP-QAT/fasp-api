@@ -10,7 +10,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab1;
+import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
@@ -311,11 +311,11 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @PostMapping("/api/erpLinking/notLinkedErpShipments/tab1")
-    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInputTab1 input, Authentication auth) {
+    @PostMapping("/api/erpLinking/notLinkedErpShipments")
+    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInput input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipmentsTab1AndTab3(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to get list of not linked ERP shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -338,10 +338,10 @@ public class ErpLinkingRestController {
      * @return
      */
     @PostMapping("/api/erpLinking/notLinkedErpShipments/tab3")
-    public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInputTab3 input, Authentication auth) {
+    public ResponseEntity getNonLinkedErpShipmentsTab3(@RequestBody NotLinkedErpShipmentsInputTab3 input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipments(input, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipmentsTab3(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to get list of QAT Linked shipments", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
