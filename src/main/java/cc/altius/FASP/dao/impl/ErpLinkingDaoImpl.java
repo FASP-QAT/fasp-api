@@ -1974,7 +1974,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID   "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID   "
                 + "LEFT JOIN rm_program p ON p.PROGRAM_ID=:shipmentProgramId   "
-                + "LEFT JOIN rm_realm_country rc ON (p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID OR rc.REALM_COUNTRY_ID=:realmCounttyId)  "
+                + "LEFT JOIN rm_realm_country rc ON (p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID OR rc.REALM_COUNTRY_ID=:realmCountryId)  "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID   "
                 + "LEFT JOIN vw_planning_unit spu ON spu.PLANNING_UNIT_ID=:shipmentPlanningUnitId   "
                 + "LEFT JOIN rm_forecasting_unit sfu ON spu.FORECASTING_UNIT_ID=sfu.FORECASTING_UNIT_ID   "

@@ -175,7 +175,9 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
 
     @Override
     public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
-        this.programService.getProgramById(input.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (input.getProgramId() != 0) {
+            this.programService.getProgramById(input.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        }
         return this.erpLinkingDao.getNotLinkedErpShipmentsTab1AndTab3(input, curUser);
     }
 
