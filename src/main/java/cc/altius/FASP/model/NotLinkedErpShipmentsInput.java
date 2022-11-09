@@ -9,13 +9,14 @@ package cc.altius.FASP.model;
  *
  * @author akil
  */
-public class NotLinkedErpShipmentsInputTab1 {
+public class NotLinkedErpShipmentsInput {
 
     private int programId;
     private int versionId;
     private int shipmentPlanningUnitId;
     private String roNo;
     private int filterPlanningUnitId;
+    private int realmCountryId;
 
     public int getProgramId() {
         return programId;
@@ -55,6 +56,14 @@ public class NotLinkedErpShipmentsInputTab1 {
 
     public void setFilterPlanningUnitId(int filterPlanningUnitId) {
         this.filterPlanningUnitId = filterPlanningUnitId;
+    }
+
+    public int getRealmCountryId() {
+        return realmCountryId;
+    }
+
+    public void setRealmCountryId(int realmCountryId) {
+        this.realmCountryId = realmCountryId;
     }
 
     @Override
