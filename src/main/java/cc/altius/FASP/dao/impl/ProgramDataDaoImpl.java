@@ -1476,7 +1476,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId()==null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -1578,6 +1578,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
+                        nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                         nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                         nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -2835,7 +2836,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "FROM rm_tree_template_node_data_override ttndo "
                     + "WHERE ttndo.NODE_DATA_ID=?";
         } else {
-            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC` FROM rm_forecast_tree_node_data_override ndo WHERE ndo.NODE_DATA_ID=?";
+            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.`SEASONALITY_PERC` `OVERRIDE_SEASONALITY_PERC` FROM rm_forecast_tree_node_data_override ndo WHERE ndo.NODE_DATA_ID=?";
         }
         return this.jdbcTemplate.query(sql, new NodeDataOverrideRowMapper(isTemplate), nodeDataId);
     }
