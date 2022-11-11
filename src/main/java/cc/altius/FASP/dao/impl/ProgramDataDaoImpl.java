@@ -1386,6 +1386,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.put("REGION_ID", fac.getRegion().getId());
             batchParams.put("MONTH", fac.getMonth());
             batchParams.put("AMOUNT", fac.getAmount());
+            batchParams.put("REPORTING_RATE", fac.getReportingRate());
             batchParams.put("DAYS_OF_STOCK_OUT", fac.getDaysOfStockOut());
             batchParams.put("ADJUSTED_AMOUNT", fac.getAdjustedAmount());
             batchParams.put("PU_AMOUNT", fac.getPuAmount());
