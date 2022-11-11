@@ -1476,7 +1476,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId()==null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
