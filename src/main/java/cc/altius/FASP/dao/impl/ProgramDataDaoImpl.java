@@ -1579,6 +1579,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
+                        nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                         nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                         nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
