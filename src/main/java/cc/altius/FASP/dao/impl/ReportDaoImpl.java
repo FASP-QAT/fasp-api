@@ -593,7 +593,7 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
     }
 
-    // Report no 30
+    // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
@@ -604,9 +604,10 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", fei.getViewBy());
         params.put("unitId", fei.getUnitId());
         params.put("regionIds", fei.getRegionIdString());
+        params.put("previousMonths", fei.getPreviusMonths());
+        params.put("daysOfStockOut", fei.isDaysOfStockOut());
         params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
-        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId); ";
-        System.out.println(LogUtils.buildStringForLog(sql, params));
+        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut); ";
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         for (ForecastErrorOutput fe : feList) {
             fe.calcErrorPerc();
