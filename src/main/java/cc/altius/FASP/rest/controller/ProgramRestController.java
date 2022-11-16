@@ -116,6 +116,18 @@ public class ProgramRestController {
         }
     }
 
+    @JsonView(Views.InternalView.class)
+    @GetMapping("/programForDropDown/programType/{programTypeId}")
+    public ResponseEntity getProgramForDropDown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(programTypeId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/program/all")
     public ResponseEntity getProgramAll(Authentication auth) {
         try {
@@ -160,7 +172,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/program/{programId}/tracerCategory/simple/planningUnit")
     public ResponseEntity getSimplePlanningUnitForProgramTracerCategory(@PathVariable("programId") int programId, @RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
@@ -375,7 +387,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @PostMapping("/manualTagging")
 //    public ResponseEntity getShipmentListForManualTagging(@RequestBody ManualTaggingDTO manualTaggingDTO, Authentication auth) {
 //        try {
@@ -393,7 +404,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @PostMapping("/shipmentLinkingNotification")
 //    public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
 //        try {
@@ -411,7 +421,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @PostMapping("/updateNotification")
 //    public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
 //        try {
@@ -437,7 +446,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/getNotificationCount")
 //    public ResponseEntity getNotificationCount(Authentication auth) {
 //        try {
@@ -448,7 +456,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/getNotificationSummary")
 //    public ResponseEntity getNotificationSummary(Authentication auth) {
 //        try {
@@ -459,7 +466,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/manualTagging/notLinkedShipments/{programId}/{linkingType}")
 //    public ResponseEntity getNotLinkedShipmentListForManualTagging(@PathVariable("programId") int programId, @PathVariable("linkingType") int linkingType, Authentication auth) {
 //        try {
@@ -477,7 +483,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/artmisHistory/{orderNo}/{primeLineNo}")
 //    public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
 //        try {
@@ -494,7 +499,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/searchErpOrderData/{term}/{programId}/{erpPlanningUnitId}/{linkingType}")
 //    public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, Authentication auth) {
 //        try {
@@ -511,7 +515,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/orderDetails/{roNoOrderNo}/{programId}/{erpPlanningUnitId}/{linkingType}/{parentShipmentId}")
 //    public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("roNoOrderNo") String roNoOrderNo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, @PathVariable("parentShipmentId") int parentShipmentId, Authentication auth) {
 //        try {
@@ -532,7 +535,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @PostMapping("/linkShipmentWithARTMIS/")
 //    @Transactional
 //    public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO[] erpOrderDTO, Authentication auth) {
@@ -563,7 +565,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/shipmentListForDelinking/{programId}/{planningUnitId}")
 //    public ResponseEntity getShipmentListForDelinking(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
 //        try {
@@ -580,7 +581,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @PostMapping("/delinkShipment/")
 //    public ResponseEntity delinkShipment(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
 //        try {
@@ -601,7 +601,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @GetMapping("loadProgram")
     @JsonView(Views.InternalView.class)
     public ResponseEntity getLoadProgram(Authentication auth) {
