@@ -321,11 +321,9 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" UNION ")
-                .append("     SELECT pu.PLANNING_UNIT_ID "
+                .append("     SELECT dpu.PLANNING_UNIT_ID "
                         + "      FROM vw_dataset p "
-                        + "      LEFT JOIN rm_tracer_category tc ON find_in_set(tc.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
-                        + "      LEFT JOIN rm_forecasting_unit fu ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
-                        + "      LEFT JOIN vw_planning_unit pu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID "
+                        + "      LEFT JOIN rm_dataset_planning_unit dpu ON p.PROGRAM_ID=dpu.PROGRAM_ID"
                         + "      LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                         + "      WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
