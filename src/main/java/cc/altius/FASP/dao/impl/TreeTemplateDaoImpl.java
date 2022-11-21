@@ -163,7 +163,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", tl.getUnit().getId());
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
@@ -348,7 +348,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", tl.getUnit().getId());
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
