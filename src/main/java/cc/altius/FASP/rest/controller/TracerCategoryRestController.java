@@ -118,40 +118,39 @@ public class TracerCategoryRestController {
         }
     }
     
-    
-    @GetMapping("/tracerCategory/realmId/{realmId}/programId/{programId}")
-    public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programId, false, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException er) {
-            logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
-    @PostMapping("/tracerCategory/realmId/{realmId}/programIds")
-    public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programIds, false, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException er) {
-            logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/tracerCategory/realmId/{realmId}/programId/{programId}")
+//    public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programId, false, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get TracerCategory list", er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException er) {
+//            logger.error("Error while trying to get TracerCategory list", er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get TracerCategory list", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//    
+//    @PostMapping("/tracerCategory/realmId/{realmId}/programIds")
+//    public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programIds, false, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get TracerCategory list", er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException er) {
+//            logger.error("Error while trying to get TracerCategory list", er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get TracerCategory list", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @GetMapping(value = "/sync/tracerCategory/{lastSyncDate}")
     public ResponseEntity getTracerCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {

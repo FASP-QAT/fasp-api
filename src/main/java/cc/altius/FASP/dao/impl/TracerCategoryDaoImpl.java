@@ -118,48 +118,48 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
-    @Override
-    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId AND pha.PROGRAM_ID=:programId ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        params.put("programId", programId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
-        if (active) {
-            sqlStringBuilder.append(" AND tc.ACTIVE ");
-        }
-        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
-    }
-
-    @Override
-    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
-        String programIdsString = "";
-        if (programIds == null) {
-            programIdsString = "";
-        } else {
-            String opt = String.join("','", programIds);
-            if (programIds.length > 0) {
-                programIdsString = "'" + opt + "'";
-            } else {
-                programIdsString = opt;
-            }
-        }
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId ");
-        if (programIds.length > 0) {
-            sqlStringBuilder.append(" AND pha.PROGRAM_ID IN (").append(programIdsString).append(") ");
-        }
-        Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
-        if (active) {
-            sqlStringBuilder.append(" AND tc.ACTIVE ");
-        }
-        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
-    }
+//    @Override
+//    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId AND pha.PROGRAM_ID=:programId ");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("realmId", realmId);
+//        params.put("programId", programId);
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+//        if (active) {
+//            sqlStringBuilder.append(" AND tc.ACTIVE ");
+//        }
+//        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
+//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
+//    }
+//
+//    @Override
+//    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
+//        String programIdsString = "";
+//        if (programIds == null) {
+//            programIdsString = "";
+//        } else {
+//            String opt = String.join("','", programIds);
+//            if (programIds.length > 0) {
+//                programIdsString = "'" + opt + "'";
+//            } else {
+//                programIdsString = opt;
+//            }
+//        }
+//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId ");
+//        if (programIds.length > 0) {
+//            sqlStringBuilder.append(" AND pha.PROGRAM_ID IN (").append(programIdsString).append(") ");
+//        }
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("realmId", realmId);
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+//        if (active) {
+//            sqlStringBuilder.append(" AND tc.ACTIVE ");
+//        }
+//        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
+//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
+//    }
 
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
