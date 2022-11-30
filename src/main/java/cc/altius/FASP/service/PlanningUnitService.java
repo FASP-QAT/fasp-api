@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import java.text.ParseException;
 import java.util.List;
@@ -23,6 +24,8 @@ public interface PlanningUnitService {
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitList(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser);
 
