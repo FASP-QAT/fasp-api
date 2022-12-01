@@ -30,10 +30,10 @@ import cc.altius.FASP.service.AclService;
  */
 @Repository
 public class TracerCategoryDaoImpl implements TracerCategoryDao {
-
+    
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
-
+    
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -43,7 +43,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     private LabelDao labelDao;
     @Autowired
     private AclService aclService;
-
+    
     private final String sqlListString = "SELECT  "
             + "    tc.TRACER_CATEGORY_ID,  "
             + "    tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR, "
@@ -55,7 +55,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
             + "LEFT JOIN vw_health_area ha ON tc.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
             + "LEFT JOIN us_user cb ON tc.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON tc.LAST_MODIFIED_BY=lmb.USER_ID ";
-
+    
     @Override
     @Transactional
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
@@ -65,6 +65,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         params.put("REALM_ID", m.getRealm().getId());
         int labelId = this.labelDao.addLabel(m.getLabel(), LabelConstants.RM_TRACER_CATEGORY, curUser.getUserId());
         params.put("LABEL_ID", labelId);
+        params.put("HEALTH_AREA_ID", m.getHealthArea().getId());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -72,13 +73,14 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
     }
-
+    
     @Override
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_tracer_category m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "SET  "
                 + "m.`ACTIVE`=:active, "
+                + "m.`HEALTH_AREA_ID`=:healthAreaId, "
                 + "m.`LAST_MODIFIED_BY`=:curUser, "
                 + "m.`LAST_MODIFIED_DATE`=:curDate, "
                 + "ml.LABEL_EN=:labelEn, "
@@ -87,13 +89,14 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
                 + " WHERE m.`TRACER_CATEGORY_ID`=:tracerCategoryId";
         Map<String, Object> params = new HashMap<>();
         params.put("tracerCategoryId", m.getTracerCategoryId());
+        params.put("healthAreaId", m.getHealthArea().getId());
         params.put("active", m.isActive());
         params.put("curDate", curDate);
         params.put("curUser", curUser.getUserId());
         params.put("labelEn", m.getLabel().getLabel_en());
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
-
+    
     @Override
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE ");
@@ -104,7 +107,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.REALM_ID=:realmId ");
@@ -117,7 +120,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId AND pha.PROGRAM_ID=:programId ");
@@ -132,7 +135,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
         String programIdsString = "";
@@ -160,7 +163,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.`TRACER_CATEGORY_ID`=:tracerCategoryId ");
@@ -169,7 +172,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
     @Override
     public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.LAST_MODIFIED_DATE>:lastSyncDate ");
@@ -178,5 +181,5 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-
+    
 }
