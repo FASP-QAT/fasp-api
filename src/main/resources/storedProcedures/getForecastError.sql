@@ -50,6 +50,7 @@ FROM (
 		LEFT JOIN rm_planning_unit pu ON ct.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID`
 		WHERE
 			ct.CONSUMPTION_DATE BETWEEN @startDate AND @stopDate
+                        AND ct.ACTIVE
 			AND (@regionIds='' OR FIND_IN_SET(ct.`REGION_ID`, @regionIds) )
 			AND ((@viewBy=1 AND ct.PLANNING_UNIT_ID=@unitId) OR (@viewBy=2 AND pu.`FORECASTING_UNIT_ID`=@unitId))
 			group by ct.CONSUMPTION_DATE, ct.REGION_ID, ct.PLANNING_UNIT_ID
@@ -77,6 +78,7 @@ LEFT JOIN (
 		LEFT JOIN rm_planning_unit pu ON ct.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID`
 		WHERE
 			ct.CONSUMPTION_DATE BETWEEN SUBDATE(@startDate, INTERVAL @previousMonths MONTH) AND @stopDate
+                        AND ct.ACTIVE
 			AND (@regionIds='' OR FIND_IN_SET(ct.`REGION_ID`, @regionIds) )
 			AND ((@viewBy=1 AND ct.PLANNING_UNIT_ID=@unitId) OR (@viewBy=2 AND pu.`FORECASTING_UNIT_ID`=@unitId))
 			group by ct.CONSUMPTION_DATE, ct.REGION_ID, ct.PLANNING_UNIT_ID
