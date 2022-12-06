@@ -69,31 +69,31 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
         }
     }
     
-    @Override
-    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
-        Realm r = this.realmDao.getRealmById(realmId, curUser);
-        if (r == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.tracerCategoryDao.getTracerCategoryListForRealm(realmId, programId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
-
-    @Override
-    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
-        Realm r = this.realmDao.getRealmById(realmId, curUser);
-        if (r == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.tracerCategoryDao.getTracerCategoryListForRealm(realmId, programIds, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
+//    @Override
+//    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+//        Realm r = this.realmDao.getRealmById(realmId, curUser);
+//        if (r == null) {
+//            throw new EmptyResultDataAccessException(1);
+//        }
+//        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+//            return this.tracerCategoryDao.getTracerCategoryListForRealm(realmId, programId, active, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
+//    }
+//
+//    @Override
+//    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
+//        Realm r = this.realmDao.getRealmById(realmId, curUser);
+//        if (r == null) {
+//            throw new EmptyResultDataAccessException(1);
+//        }
+//        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+//            return this.tracerCategoryDao.getTracerCategoryListForRealm(realmId, programIds, active, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
+//    }
 
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
