@@ -17,6 +17,7 @@ import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -61,6 +62,11 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListBasic(curUser);
     }
 
     @Override

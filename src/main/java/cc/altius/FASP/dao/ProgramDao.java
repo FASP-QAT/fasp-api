@@ -10,13 +10,13 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
 
     public int addProgram(Program p, int realmId, CustomUserDetails curUser);
 
