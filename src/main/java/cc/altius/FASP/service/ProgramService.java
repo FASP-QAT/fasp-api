@@ -9,7 +9,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
@@ -18,6 +17,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface ProgramService {
 
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
 
     public int addProgram(Program p, CustomUserDetails curUser);
 
