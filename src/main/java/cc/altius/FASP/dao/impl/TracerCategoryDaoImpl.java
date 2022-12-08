@@ -30,10 +30,10 @@ import cc.altius.FASP.service.AclService;
  */
 @Repository
 public class TracerCategoryDaoImpl implements TracerCategoryDao {
-    
+
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
-    
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -43,7 +43,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     private LabelDao labelDao;
     @Autowired
     private AclService aclService;
-    
+
     private final String sqlListString = "SELECT  "
             + "    tc.TRACER_CATEGORY_ID,  "
             + "    tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR, "
@@ -55,11 +55,11 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
             + "LEFT JOIN vw_health_area ha ON tc.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
             + "LEFT JOIN us_user cb ON tc.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON tc.LAST_MODIFIED_BY=lmb.USER_ID ";
-    
+
     @Override
     @Transactional
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingColumns("REALM_ID", "LABEL_ID", "HEALTH_AREA_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getId());
@@ -73,7 +73,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
     }
-    
+
     @Override
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -96,7 +96,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         params.put("labelEn", m.getLabel().getLabel_en());
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
-    
+
     @Override
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE ");
@@ -107,7 +107,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-    
+
     @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.REALM_ID=:realmId ");
@@ -163,7 +163,6 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
 //        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
 //        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
 //    }
-
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.`TRACER_CATEGORY_ID`=:tracerCategoryId ");
@@ -172,7 +171,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-    
+
     @Override
     public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.LAST_MODIFIED_DATE>:lastSyncDate ");
@@ -181,5 +180,5 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
-    
+
 }
