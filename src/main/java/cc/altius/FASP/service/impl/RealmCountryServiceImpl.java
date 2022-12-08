@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
@@ -129,7 +130,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
         return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
     }
 
