@@ -62,11 +62,3 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Catégorie de traceur 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Categoría del rastreador de pronóstico');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Categoria do Rastreador de Previsão');-- pr
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'');-- pr
-
