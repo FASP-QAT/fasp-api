@@ -192,12 +192,15 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int rowsEffected = this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch(CouldNotSaveException cnse) {
+        } catch (CouldNotSaveException cnse) {
             logger.error("Error while trying to update PlanningUnit for Country", cnse);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
-        }catch (AccessDeniedException e) {
+        } catch (AccessDeniedException e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException de) {
+            logger.error("Error while trying to update PlanningUnit for Country", de);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
