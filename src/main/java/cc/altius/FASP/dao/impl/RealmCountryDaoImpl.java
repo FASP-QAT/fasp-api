@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -18,21 +19,17 @@ import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
-import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -50,6 +47,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
     @Autowired
     private LabelDao labelDao;
     @Autowired
@@ -61,6 +59,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     private final String sqlListStringBase = "SELECT "
@@ -279,7 +278,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     @Transactional
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
@@ -287,6 +286,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         Version version = null;
+        StringBuilder updatedPUList = new StringBuilder();
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
@@ -307,6 +307,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 insertList.add(new MapSqlParameterSource(params));
             } else {
                 // Update
+                updatedPUList.append(rcpu.getPlanningUnit().getId()).append(",");
                 params = new HashMap<>();
                 params.put("realmCountryPlanningUnitId", rcpu.getRealmCountryPlanningUnitId());
                 params.put("skuCode", rcpu.getSkuCode());
@@ -424,6 +425,21 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 //            }
 //            sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_realm_country_planning_unit`";
 //            this.namedParameterJdbcTemplate.update(sqlString, params);
+        }
+
+        // Checking if any of the updated RCPU's that was disabled was the only RCPU for that PU with Multiplier 1
+        if (updatedPUList.length() > 0) {
+            updatedPUList.setLength(updatedPUList.length() - 1);
+            StringBuilder sqlStringBuilder = new StringBuilder("SELECT count(*) "
+                    + "FROM rm_program_planning_unit ppu "
+                    + "LEFT JOIN rm_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                    + "LEFT JOIN rm_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 "
+                    + "WHERE rcpu.ACTIVE=0 AND ppu.PLANNING_UNIT_ID in (");
+            sqlStringBuilder.append(updatedPUList).append(")");
+            int inactivatedPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
+            if (inactivatedPUs > 0) {
+                throw new CouldNotSaveException("You cannot deactivate a default ARU");
+            }
         }
         return rowsEffected;
     }
