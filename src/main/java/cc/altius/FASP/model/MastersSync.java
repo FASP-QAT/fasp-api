@@ -56,6 +56,7 @@ public class MastersSync implements Serializable {
     private List<ForecastMethod> forecastMethodList;
     private List<UsageTemplate> usageTemplateList;
     private List<TreeTemplate> treeTemplateList;
+    private List<TreeTemplate> branchTemplateList;
     private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
     private List<ExtrapolationMethod> extrapolationMethodList;
     private List<ProcurementAgentType> procurementAgentyType;
@@ -386,6 +387,14 @@ public class MastersSync implements Serializable {
 
     public void setTreeTemplateList(List<TreeTemplate> treeTemplateList) {
         this.treeTemplateList = treeTemplateList;
+    }
+
+    public List<TreeTemplate> getBranchTemplateList() {
+        return branchTemplateList;
+    }
+
+    public void setBranchTemplateList(List<TreeTemplate> branchTemplateList) {
+        this.branchTemplateList = branchTemplateList;
     }
 
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList() {
