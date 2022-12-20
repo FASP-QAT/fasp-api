@@ -30,6 +30,8 @@ public class NodeDataExtrapolationResultSetExtractor implements ResultSetExtract
                 nde = new NodeDataExtrapolation(rs.getInt("NODE_DATA_EXTRAPOLATION_ID"));
                 nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
                 nde.setNotes(rs.getString("EM_NOTES"));
+                nde.setStartDate(rs.getDate("EXTRAPOLATION_START_DATE"));
+                nde.setStopDate(rs.getDate("EXTRAPOLATION_STOP_DATE"));
                 isFirst = false;
             }
             // Check if Extrapolation Data exists

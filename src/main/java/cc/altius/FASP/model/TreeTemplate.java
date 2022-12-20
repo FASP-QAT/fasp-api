@@ -26,6 +26,7 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private ForecastTree<TreeNode> tree;
     private String notes;
     private List<TreeLevel> levelList;
+    private boolean branch;
 
     public TreeTemplate() {
         this.levelList = new LinkedList<>();
@@ -114,6 +115,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
             }
             isFirst = false;
         }
+    }
+
+    public boolean isBranch() {
+        return branch;
+    }
+
+    public void setBranch(boolean branch) {
+        this.branch = branch;
     }
 
     public List<TreeLevel> getLevelList() {
