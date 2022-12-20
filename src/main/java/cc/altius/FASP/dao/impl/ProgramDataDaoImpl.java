@@ -75,7 +75,7 @@ import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
@@ -1404,7 +1404,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         batchArray = null;
         si = null;
 
-        // Step 2 -- Inser Consumption Extrapolation and Data
+        // Step 2 -- Insert Consumption Extrapolation and Data
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation").usingGeneratedKeyColumns("CONSUMPTION_EXTRAPOLATION_ID");
         SimpleJdbcInsert siData = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation_data");
         for (ForecastConsumptionExtrapolation fce : dd.getConsumptionExtrapolation()) {
@@ -1642,6 +1642,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("NODE_DATA_ID", nodeDataId);
                             nodeDataParams.put("EXTRAPOLATION_METHOD_ID", nde.getExtrapolationMethod().getId());
                             nodeDataParams.put("NOTES", nde.getNotes());
+                            nodeDataParams.put("START_DATE", nde.getStartDate());
+                            nodeDataParams.put("STOP_DATE", nde.getStopDate());
                             int ndeId = ni.executeAndReturnKey(nodeDataParams).intValue();
                             SimpleJdbcInsert di = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecast_tree_node_data_extrapolation_data");
                             for (ExtrapolationDataReportingRate edrr : nde.getExtrapolationDataList()) {
@@ -2843,7 +2845,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId) {
         String sql = "SELECT "
-                + "     nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
+                + "     nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, nde.`START_DATE` `EXTRAPOLATION_START_DATE`, nde.`STOP_DATE` `EXTRAPOLATION_STOP_DATE`, "
                 + "     nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE` "
                 + "FROM rm_forecast_tree_node_data_extrapolation nde "
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
@@ -2861,7 +2863,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
-        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionRowMapper(), nodeDataId);
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);
     }
 
 }
