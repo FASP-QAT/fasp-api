@@ -86,10 +86,10 @@ public class EmailServiceImpl implements EmailService {
 //        System.out.println("schedulerActive---"+schedulerActive);
 //        schedulerActive ="1";
         try {
-//            if (schedulerActive.equals("1")) {
+            if (schedulerActive.equals("1")) {
 //                System.out.println("---------------send email------------------");
                 this.emailDao.sendMail(emailer);
-//            }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
