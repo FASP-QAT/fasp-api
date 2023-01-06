@@ -32,8 +32,8 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser) {
-        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(curUser);
+    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, boolean isBranch, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(isBranch, curUser);
         if (nodeData) {
             ttList.forEach(tt -> {
                 tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
@@ -86,8 +86,8 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
 
     @Override
-    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateListForSync(lastSyncDate, curUser);
+    public List<TreeTemplate> getTreeTemplateListForSync(boolean isBranch, String lastSyncDate, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateListForSync(isBranch, lastSyncDate, curUser);
         ttList.forEach(tt -> {
             tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
             tt.getFlatList().forEach(n -> {

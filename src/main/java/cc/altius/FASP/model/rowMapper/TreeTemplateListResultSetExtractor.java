@@ -43,6 +43,7 @@ public class TreeTemplateListResultSetExtractor implements ResultSetExtractor<Li
                 }
                 tt.setNotes(rs.getString("NOTES"));
                 tt.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+                tt.setBranch(rs.getBoolean("BRANCH"));
                 ttList.add(tt);
             } else {
                 tt = ttList.get(indx);

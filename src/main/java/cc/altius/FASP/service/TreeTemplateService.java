@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface TreeTemplateService {
 
-    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser);
+    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, boolean isBranch, CustomUserDetails curUser);
     
     public TreeTemplate getTreeTemplateById(int treeTemplateId, boolean nodeData, CustomUserDetails curUser);
     
@@ -23,6 +23,6 @@ public interface TreeTemplateService {
     
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
     
-    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<TreeTemplate> getTreeTemplateListForSync(boolean isBranch, String lastSyncDate, CustomUserDetails curUser);
 
 }
