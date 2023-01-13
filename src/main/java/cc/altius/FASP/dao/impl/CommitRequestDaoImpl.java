@@ -105,6 +105,8 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         try {
             Path path = FileSystems.getDefault().getPath(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH, commitRequestId + ".json");
             Files.writeString(path, json, StandardOpenOption.CREATE);
+            Files.writeString(path, json, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(path, json, StandardOpenOption.CREATE);
             return commitRequestId;
         } catch (Exception ex) {
             logger.error("Could not write the CommitRequest file", ex);
@@ -130,6 +132,8 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         int commitRequestId = si.executeAndReturnKey(params).intValue();
         try {
             Path path = FileSystems.getDefault().getPath(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH, commitRequestId + ".json");
+            Files.writeString(path, json, StandardOpenOption.CREATE);
+            Files.writeString(path, json, StandardOpenOption.TRUNCATE_EXISTING);
             Files.writeString(path, json, StandardOpenOption.CREATE);
             return commitRequestId;
         } catch (Exception ex) {
