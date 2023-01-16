@@ -1,0 +1,1 @@
+UPDATE rm_equivalency_unit_mapping eum SET eum.PROGRAM_ID=null where eum.PROGRAM_ID=0;
