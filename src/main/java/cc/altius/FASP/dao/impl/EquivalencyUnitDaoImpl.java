@@ -83,7 +83,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             + "LEFT JOIN vw_forecasting_unit fu ON eum.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
             + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
             + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
-            + "LEFT JOIN vw_dataset p ON p.PROGRAM_ID=eum.PROGRAM_ID "
+            + "LEFT JOIN vw_all_program p ON p.PROGRAM_ID=eum.PROGRAM_ID "
             + "WHERE TRUE ";
 
     @Override
@@ -183,9 +183,10 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         if (active) {
             sqlStringBuilder.append(" AND eum.ACTIVE ");
         }
-        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         return namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new EquivalencyUnitMappingResultSetExtractor());
     }
 
