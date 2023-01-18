@@ -29,7 +29,7 @@ public class ForecastErrorInput {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private int equivalencyUnitId; // 0 if no Equivalency unit
-    private int previusMonths;  // the number of months that we need to include to calculate Average for WAPE
+    private int previousMonths;  // the number of months that we need to include to calculate Average for WAPE
     private boolean daysOfStockOut;
 
     public int getProgramId() {
@@ -109,12 +109,12 @@ public class ForecastErrorInput {
         }
     }
 
-    public int getPreviusMonths() {
-        return previusMonths;
+    public int getPreviousMonths() {
+        return previousMonths;
     }
 
-    public void setPreviusMonths(int previusMonths) {
-        this.previusMonths = previusMonths;
+    public void setPreviousMonths(int previousMonths) {
+        this.previousMonths = previousMonths;
     }
 
     public boolean isDaysOfStockOut() {
