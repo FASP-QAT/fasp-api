@@ -12,7 +12,6 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser) {
         if (programId != 0) {
-            this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            this.programCommonDao.getBasicProgramById(programId, -1, curUser);
         }
         return this.equivalencyUnitDao.getEquivalencyUnitMappingForForecastingUnit(fuId, programId, curUser);
     }
