@@ -15,4 +15,7 @@ import cc.altius.FASP.model.Program;
 public interface ProgramCommonDao {
 
     public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+
+    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+
 }
