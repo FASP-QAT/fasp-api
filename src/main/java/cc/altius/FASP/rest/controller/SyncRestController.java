@@ -206,7 +206,7 @@ public class SyncRestController {
 //            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
 //            masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));
 //            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(false, lastSyncDate, curUser));
-            masters.setBranchTemplateList(this.treeTemplateService.getTreeTemplateListForSync(true, lastSyncDate, curUser));
+//            masters.setBranchTemplateList(this.treeTemplateService.getTreeTemplateListForSync(true, lastSyncDate, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
