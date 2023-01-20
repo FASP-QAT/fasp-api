@@ -13,7 +13,7 @@ DROP COLUMN `BRANCH`;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_tree_template` AS
     SELECT 
