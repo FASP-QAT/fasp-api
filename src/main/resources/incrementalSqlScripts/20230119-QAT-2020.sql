@@ -1,7 +1,7 @@
 ALTER TABLE `fasp`.`rm_equivalency_unit` 
 ADD COLUMN `PROGRAM_ID` INT UNSIGNED NULL AFTER `REALM_ID`,
-ADD INDEX `fk_rm_equivalency_unit_programId_idx` (`PROGRAM_ID` ASC) VISIBLE;
-;
+ADD INDEX `fk_rm_equivalency_unit_programId_idx` (`PROGRAM_ID` ASC);
+
 ALTER TABLE `fasp`.`rm_equivalency_unit` 
 ADD CONSTRAINT `fk_rm_equivalency_unit_programId`
   FOREIGN KEY (`PROGRAM_ID`)
@@ -17,7 +17,7 @@ ADD COLUMN `NOTES` TEXT NULL AFTER `LABEL_ID`;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_equivalency_unit` AS
     SELECT 
