@@ -76,3 +76,6 @@ VIEW `vw_all_program` AS
 
 UPDATE rm_equivalency_unit_mapping eum SET eum.PROGRAM_ID=null where eum.PROGRAM_ID=0;
 UPDATE rm_equivalency_unit eum SET eum.PROGRAM_ID=null where eum.PROGRAM_ID=0;
+
+UPDATE rm_equivalency_unit_mapping eum SET eum.LAST_MODIFIED_DATE=now();
+UPDATE rm_equivalency_unit eum  SET eum.LAST_MODIFIED_DATE=now();
