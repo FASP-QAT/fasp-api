@@ -59,12 +59,13 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     @Override
     @Transactional
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingColumns("REALM_ID","LABEL_ID","HEALTH_AREA_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getId());
         int labelId = this.labelDao.addLabel(m.getLabel(), LabelConstants.RM_TRACER_CATEGORY, curUser.getUserId());
         params.put("LABEL_ID", labelId);
+        params.put("HEALTH_AREA_ID", m.getHealthArea().getId());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -79,6 +80,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         String sqlString = "UPDATE rm_tracer_category m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "SET  "
                 + "m.`ACTIVE`=:active, "
+                + "m.`HEALTH_AREA_ID`=:healthAreaId, "
                 + "m.`LAST_MODIFIED_BY`=:curUser, "
                 + "m.`LAST_MODIFIED_DATE`=:curDate, "
                 + "ml.LABEL_EN=:labelEn, "
@@ -87,6 +89,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
                 + " WHERE m.`TRACER_CATEGORY_ID`=:tracerCategoryId";
         Map<String, Object> params = new HashMap<>();
         params.put("tracerCategoryId", m.getTracerCategoryId());
+        params.put("healthAreaId", m.getHealthArea().getId());
         params.put("active", m.isActive());
         params.put("curDate", curDate);
         params.put("curUser", curUser.getUserId());

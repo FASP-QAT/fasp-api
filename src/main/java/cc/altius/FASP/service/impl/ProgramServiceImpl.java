@@ -19,7 +19,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
@@ -31,6 +30,7 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
@@ -75,8 +75,8 @@ public class ProgramServiceImpl implements ProgramService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForDropdown(programTypeId, curUser);
     }
 
     @Override

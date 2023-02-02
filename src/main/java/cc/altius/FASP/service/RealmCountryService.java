@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
@@ -28,19 +29,19 @@ public interface RealmCountryService {
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser);
 
     public List<RealmCountryPlanningUnit> getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser);
-    
+
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForProgramList(String[] programIds, CustomUserDetails curUser);
 
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser);
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, int programTypeId, CustomUserDetails curUser);
 
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<RealmCountry> getRealmCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
 }
