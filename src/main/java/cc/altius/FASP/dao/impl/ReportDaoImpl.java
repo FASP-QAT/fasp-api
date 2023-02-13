@@ -44,6 +44,7 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputResultSetExtractor;
 import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryInfoRowMapper;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
@@ -239,13 +240,16 @@ public class ReportDaoImpl implements ReportDao {
 
     // Report no 9
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", it.getProgramId());
-        params.put("versionId", it.getVersionId());
+        params.put("realmCountryIdString", it.getRealmCountryIdString());
+        params.put("productCategoryIdString", it.getProductCategoryIdString());
         params.put("dt", it.getDt());
+        params.put("viewBy", it.getViewBy());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
-        String sql = "CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)";
+        String sql = "CALL inventoryTurns(:dt, :viewBy, :realmCountryIdString, :productCategoryIdString, :includePlannedShipments)";
+        System.out.println(sql);
+        System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 

@@ -20,7 +20,10 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
     @Override
     public InventoryTurnsOutput mapRow(ResultSet rs, int i) throws SQLException {
         return new InventoryTurnsOutput(
-                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, i)), 
+                new SimpleObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("RC_").mapRow(rs, i)), 
+                new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("P_").mapRow(rs, i)), 
+                new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, i)), 
+                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, i)), 
                 rs.getLong("TOTAL_CONSUMPTION"), 
                 rs.getDouble("AVG_STOCK"),
                 rs.getInt("NO_OF_MONTHS"),

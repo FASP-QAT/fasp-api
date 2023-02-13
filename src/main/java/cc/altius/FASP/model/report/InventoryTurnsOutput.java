@@ -17,6 +17,12 @@ import java.io.Serializable;
 public class InventoryTurnsOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
+    private SimpleObject realmCountry;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject program;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject productCategory;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
     private long totalConsumption;
@@ -30,13 +36,17 @@ public class InventoryTurnsOutput implements Serializable {
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+        this.realmCountry = realmCountry;
+        this.program = program;
+        this.productCategory = productCategory;
         this.planningUnit = planningUnit;
         this.totalConsumption = totalConsumption;
         this.avergeStock = avergeStock;
         this.noOfMonths = noOfMonths;
         this.inventoryTurns = inventoryTurns;
     }
+
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
