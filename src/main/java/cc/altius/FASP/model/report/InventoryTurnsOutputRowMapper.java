@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -21,7 +22,7 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
     public InventoryTurnsOutput mapRow(ResultSet rs, int i) throws SQLException {
         return new InventoryTurnsOutput(
                 new SimpleObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("RC_").mapRow(rs, i)), 
-                new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("P_").mapRow(rs, i)), 
+                new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("P_").mapRow(rs, i), rs.getString("PROGRAM_CODE")), 
                 new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, i)), 
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, i)), 
                 rs.getLong("TOTAL_CONSUMPTION"), 

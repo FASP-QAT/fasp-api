@@ -22,9 +22,9 @@ public class InventoryTurnsInput implements Serializable {
      * dt is the date that you want to run the report for viewBy = 1 View by
      * RealmCountry, ViewBy = 2 View by ProductCategory
      *
-     * realmCountryIds is the list of RealmCountryIds that should be included in
-     * the final output, cannot be empty you must pass the RealmCountryIds that
-     * you want to view it by
+     * programIds is the list of Programs that should be included in the final
+     * output, cannot be empty you must pass the ProgramsIds that you want to
+     * view it by
      *
      * productCategoryIds is the list of ProductCategoryIds that should be
      * included in the final output, cannot be empty if you want to select all
@@ -40,7 +40,7 @@ public class InventoryTurnsInput implements Serializable {
      * current month) / Avg Stock during that period
      *
      */
-    private String[] realmCountryIds;
+    private String[] programIds;
     private String[] productCategoryIds;
     private int viewBy;
 
@@ -49,12 +49,12 @@ public class InventoryTurnsInput implements Serializable {
     private Date dt;
     private boolean includePlannedShipments;
 
-    public String[] getRealmCountryIds() {
-        return realmCountryIds;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setRealmCountryIds(String[] realmCountryIds) {
-        this.realmCountryIds = realmCountryIds;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public String[] getProductCategoryIds() {
@@ -89,21 +89,4 @@ public class InventoryTurnsInput implements Serializable {
         this.includePlannedShipments = includePlannedShipments;
     }
 
-    public String getRealmCountryIdString() {
-        if (this.realmCountryIds == null) {
-            return "";
-        } else {
-            String opt = String.join(",", this.realmCountryIds);
-            return opt;
-        }
-    }
-
-    public String getProductCategoryIdString() {
-        if (this.productCategoryIds == null) {
-            return "";
-        } else {
-            String opt = String.join(",", this.productCategoryIds);
-            return opt;
-        }
-    }
 }

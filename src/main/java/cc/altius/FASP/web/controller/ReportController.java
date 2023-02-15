@@ -318,8 +318,8 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"realmCountryIds":"5,6,51", "productCategoryIds":"1", "viewBy":1, "dt":"2022-04-01", "includePlannedShipments":1}
-     * * {"realmCountryIds":"5,6,51", "productCategoryIds":"0", "viewBy":2, "dt":"2022-04-01", "includePlannedShipments":1}
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"1", "viewBy":1, "dt":"2022-04-01", "includePlannedShipments":1}
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"0", "viewBy":2, "dt":"2022-04-01", "includePlannedShipments":1}
      * -- StartDate is the date that you want to run the report for
      * -- ViewBy = 1 View by RealmCountry, ViewBy = 2 View by ProductCategory
      * -- RealmCountryIds is the list of RealmCountryIds that should be included in the final output, cannot be empty you must pass the RealmCountryIds that you want to view it by

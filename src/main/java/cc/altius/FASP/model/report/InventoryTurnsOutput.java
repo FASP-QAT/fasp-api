@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -19,7 +20,7 @@ public class InventoryTurnsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject realmCountry;
     @JsonView(Views.ReportView.class)
-    private SimpleObject program;
+    private SimpleCodeObject program;
     @JsonView(Views.ReportView.class)
     private SimpleObject productCategory;
     @JsonView(Views.ReportView.class)
@@ -36,7 +37,7 @@ public class InventoryTurnsOutput implements Serializable {
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
         this.realmCountry = realmCountry;
         this.program = program;
         this.productCategory = productCategory;
@@ -47,6 +48,29 @@ public class InventoryTurnsOutput implements Serializable {
         this.inventoryTurns = inventoryTurns;
     }
 
+    public SimpleObject getRealmCountry() {
+        return realmCountry;
+    }
+
+    public void setRealmCountry(SimpleObject realmCountry) {
+        this.realmCountry = realmCountry;
+    }
+
+    public SimpleCodeObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleCodeObject program) {
+        this.program = program;
+    }
+
+    public SimpleObject getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(SimpleObject productCategory) {
+        this.productCategory = productCategory;
+    }
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -87,5 +111,8 @@ public class InventoryTurnsOutput implements Serializable {
     public void setInventoryTurns(double inventoryTurns) {
         this.inventoryTurns = inventoryTurns;
     }
+
+
+    
 
 }

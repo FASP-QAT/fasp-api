@@ -106,6 +106,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -242,12 +243,12 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("realmCountryIdString", it.getRealmCountryIdString());
-        params.put("productCategoryIdString", it.getProductCategoryIdString());
+        params.put("programIdString", ArrayUtils.convertArrayToString(it.getProgramIds()));
+        params.put("productCategoryIdString", ArrayUtils.convertArrayToString(it.getProductCategoryIds()));
         params.put("dt", it.getDt());
         params.put("viewBy", it.getViewBy());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
-        String sql = "CALL inventoryTurns(:dt, :viewBy, :realmCountryIdString, :productCategoryIdString, :includePlannedShipments)";
+        String sql = "CALL inventoryTurns(:dt, :viewBy, :programIdString, :productCategoryIdString, :includePlannedShipments)";
         System.out.println(sql);
         System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
