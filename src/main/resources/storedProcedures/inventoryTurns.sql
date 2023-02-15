@@ -30,7 +30,7 @@ BEGIN
 	SELECT GROUP_CONCAT(pc.PRODUCT_CATEGORY_ID) INTO @finalProductCategoryIds FROM rm_product_category pc LEFT JOIN (SELECT CONCAT(pc1.SORT_ORDER,'%') `SO` FROM rm_product_category pc1 WHERE FIND_IN_SET(pc1.PRODUCT_CATEGORY_ID, VAR_PRODUCT_CATEGORY_IDS)) pc2 ON pc.SORT_ORDER LIKE pc2.SO WHERE pc2.SO IS NOT NULL;
     
 	DROP TABLE IF EXISTS tmp_inventory_turns;
-	CREATE TABLE `fasp`.`tmp_inventory_turns` (
+	CREATE TEMPORARY TABLE `fasp`.`tmp_inventory_turns` (
 		`PROGRAM_ID` INT NOT NULL,
         `PLANNING_UNIT_ID` INT NOT NULL,
         `TOTAL_CONSUMPTION` DOUBLE(16,2) NULL,
