@@ -36,3 +36,11 @@ VIEW `vw_tree_template` AS
     FROM
         (`rm_tree_template` `tt`
         LEFT JOIN `ap_label` `l` ON ((`tt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.treeTemplate.startNode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Start Node');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Noeud de démarrage');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nodo de inicio');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nó inicial');-- pr
