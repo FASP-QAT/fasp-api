@@ -44,3 +44,32 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Start Node');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Noeud de démarrage');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nodo de inicio');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nó inicial');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.branchTemplateNotes1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You are adding a child node to a');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vous ajoutez un nœud enfant à un');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Está agregando un nodo secundario a un');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você está adicionando um nó filho a um');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.branchTemplateNotes2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'node, therefore only templates starting with');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'nœud, donc uniquement les modèles commençant par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'nodo, por lo tanto, solo las plantillas que comienzan con');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'nó, portanto, apenas modelos começando com');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.branchTemplateNotes3','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'are shown. See');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'sont indiqués. Voir');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'son exhibidos. Ver');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'são mostrados. Ver');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.branchTemplateNotes4','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'for the full list.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'pour la liste complète.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'para la lista completa.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'para a lista completa.');-- pr
