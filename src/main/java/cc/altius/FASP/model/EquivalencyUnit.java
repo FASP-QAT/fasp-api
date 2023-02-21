@@ -17,17 +17,25 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
 
     private int equivalencyUnitId;
     private SimpleCodeObject realm;
+    private SimpleCodeObject program;
     private List<SimpleCodeObject> healthAreaList;
     private Label label;
+    private String notes;
 
     public EquivalencyUnit() {
         healthAreaList = new LinkedList<>();
     }
 
-    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, Label label) {
+    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, SimpleCodeObject program, Label label, String notes) {
         this.equivalencyUnitId = equivalencyUnitId;
         this.realm = realm;
+        if (program == null || program.getId() == 0 || program.getId() == null) {
+            this.program = null;
+        } else {
+            this.program = program;
+        }
         this.label = label;
+        this.notes = notes;
         healthAreaList = new LinkedList<>();
     }
 
@@ -47,6 +55,14 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
         this.realm = realm;
     }
 
+    public SimpleCodeObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleCodeObject program) {
+        this.program = program;
+    }
+
     public List<SimpleCodeObject> getHealthAreaList() {
         return healthAreaList;
     }
@@ -61,6 +77,14 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override
