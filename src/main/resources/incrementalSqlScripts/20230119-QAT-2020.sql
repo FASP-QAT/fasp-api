@@ -17,7 +17,7 @@ ADD COLUMN `NOTES` TEXT NULL AFTER `LABEL_ID`;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_equivalency_unit` AS
     SELECT 
@@ -47,7 +47,7 @@ VIEW `vw_equivalency_unit` AS
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_all_program` AS
     SELECT 
