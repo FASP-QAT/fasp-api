@@ -35,6 +35,9 @@ public class ShipmentLinkedToOtherProgramOutputRowMapper implements RowMapper<Sh
         so.setProgramManager(new BasicUser(rs.getInt("USER_ID"), rs.getString("USERNAME")));
         so.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum)));
         so.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("RCPU_").mapRow(rs, rowNum),rs.getDouble("RCPU_MULTIPLIER")));
+        so.setShipmentQty(rs.getDouble("SHIPMENT_QTY"));
+        so.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
+        so.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
         return so;
     }
 
