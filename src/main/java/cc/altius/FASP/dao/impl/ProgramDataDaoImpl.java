@@ -1478,7 +1478,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId()==null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -2530,42 +2530,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
-        String sqlString = "SELECT li.INT_PROGRAM_VERSION_TRANS_ID PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  li.INT_VERSION_ID VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
-                + "FROM ( "
-                + "         SELECT MAX(pvte.PROGRAM_VERSION_TRANS_ID) INT_PROGRAM_VERSION_TRANS_ID, pvte.PROGRAM_ID, ip.INTEGRATION_ID, MAX(pvte.VERSION_ID) INT_VERSION_ID, max(pvte.LAST_MODIFIED_DATE) INT_LAST_MODIFIED_DATE "
-                + "         FROM rm_integration_program ip "
-                + "         LEFT JOIN ( "
-                + "                  SELECT pvt.PROGRAM_VERSION_TRANS_ID, pvt.LAST_MODIFIED_DATE, pv.PROGRAM_ID, pv.VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID "
-                + "                  FROM rm_program_version_trans pvt "
-                + "                  LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         ) pvte ON ip.PROGRAM_ID=pvte.PROGRAM_ID and ip.VERSION_TYPE_ID=pvte.VERSION_TYPE_ID AND ip.VERSION_STATUS_ID=pvte.VERSION_STATUS_ID "
-                + "         WHERE ip.ACTIVE AND pvte.PROGRAM_VERSION_TRANS_ID IS NOT  NULL "
-                + "         GROUP BY pvte.PROGRAM_ID, ip.INTEGRATION_ID "
-                + ") li "
-                + "LEFT JOIN ( "
-                + "         SELECT pv.PROGRAM_ID, ipc.INTEGRATION_ID, MAX(pv.VERSION_ID) LAST_COMPLETED_VERSION_ID "
-                + "         FROM rm_integration_program_completed ipc "
-                + "         LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
-                + "         LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         GROUP BY pv.PROGRAM_ID, ipc.INTEGRATION_ID "
-                + ") lic ON li.PROGRAM_ID=lic.PROGRAM_ID AND li.INTEGRATION_ID=lic.INTEGRATION_ID "
-                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=li.PROGRAM_ID "
-                + "LEFT JOIN rm_program_version_trans pvt ON pvt.PROGRAM_VERSION_TRANS_ID=li.INT_PROGRAM_VERSION_TRANS_ID "
+        String sqlString = "SELECT "
+                + "	ipc.PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pvt.VERSION_TYPE_ID, "
+                + "    pvt.VERSION_STATUS_ID, ipc.INTEGRATION_PROGRAM_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, "
+                + "    i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+                + "FROM rm_integration_program_completed ipc "
+                + "LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "LEFT JOIN ap_integration i ON li.INTEGRATION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_integration i ON ipc.INTEGRATION_ID=i.INTEGRATION_ID "
                 + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
-                + "WHERE li.INT_VERSION_ID>lic.LAST_COMPLETED_VERSION_ID OR lic.LAST_COMPLETED_VERSION_ID IS NULL";
+                + "WHERE ipc.PROGRAM_VERSION_TRANS_ID IN (SELECT max(pvt.PROGRAM_VERSION_TRANS_ID) PVT FROM rm_integration_program_completed `ipc` LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID WHERE `ipc`.COMPLETED_DATE IS NULL GROUP BY pv.PROGRAM_ID, `ipc`.INTEGRATION_ID)";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
     @Override
-    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+    public boolean updateSupplyPlanAsExported(int integrationProgramId, int integrationId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("programVersionTransId", programVersionTransId);
+        params.put("integrationProgramId", integrationProgramId);
         params.put("integrationId", integrationId);
         params.put("curDate", curDate);
-        return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
+        return (this.namedParameterJdbcTemplate.update("UPDATE rm_integration_program_completed ipc SET ipc.COMPLETED_DATE=:curDate WHERE ipc.COMPLETED_DATE IS NULL AND ipc.INTEGRATION_PROGRAM_ID=:integrationProgramId AND ipc.INTEGRATION_ID=:integrationId ", params) > 0);
     }
 
     @Override
