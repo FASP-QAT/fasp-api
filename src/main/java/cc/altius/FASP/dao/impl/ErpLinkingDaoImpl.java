@@ -2101,7 +2101,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                LEFT JOIN vw_realm_country_planning_unit rcpu ON cs2t.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID "
                 + "                WHERE "
                 + "                     p.PROGRAM_ID IS NOT NULL "
-                + "    AND (FIND_IN_SET(pu.PLANNING_UNIT_ID, :planningUnitIds) OR :planningUnitIds='') "
+                + "    AND (FIND_IN_SET(pu2.PLANNING_UNIT_ID, :planningUnitIds) OR :planningUnitIds='') "
                 + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NOT NULL group by sl.CHILD_SHIPMENT_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
