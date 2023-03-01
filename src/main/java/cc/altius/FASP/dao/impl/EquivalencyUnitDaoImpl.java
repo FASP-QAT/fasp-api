@@ -231,8 +231,9 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "     )";
         int updatedRows = 0;
         for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
+            eum.setEquivalencyUnit(this.getEquivalencyUnitById(eum.getEquivalencyUnit().getEquivalencyUnitId(), curUser));
             if (eum.getEquivalencyUnitMappingId() == 0) {
-                if (!eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId())) {
+                if (eum.getProgram() != null && eum.getProgram().getId() != null && eum.getProgram().getId() != 0 && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId())) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
                 MapSqlParameterSource params = new MapSqlParameterSource();
@@ -249,7 +250,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 params.addValue("LAST_MODIFIED_DATE", dt);
                 updatedRows += si.execute(params);
             } else {
-                if (!eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId())) {
+                if (eum.getProgram() != null && eum.getProgram().getId() != null && eum.getProgram().getId() != 0 && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId())) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
                 MapSqlParameterSource params = new MapSqlParameterSource();
