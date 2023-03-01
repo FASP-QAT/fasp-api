@@ -63,7 +63,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             + "LEFT JOIN vw_all_program p ON eu.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_health_area ha on FIND_IN_SET(ha.HEALTH_AREA_ID,eu.HEALTH_AREA_ID) "
             + "LEFT JOIN us_user cb ON cb.USER_ID=eu.CREATED_BY "
-            + "LEFT JOIN us_user lmb ON lmb.USER_ID=eu.LAST_MODIFIED_BY ";
+            + "LEFT JOIN us_user lmb ON lmb.USER_ID=eu.LAST_MODIFIED_BY WHERE TRUE ";
     private static final String EQUIVALENCY_UNIT_MAPPING_SELECT = "SELECT  "
             + "    eum.EQUIVALENCY_UNIT_MAPPING_ID, eum.CONVERT_TO_EU, eum.NOTES,  "
             + "    eum.ACTIVE, eum.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, eum.`LAST_MODIFIED_DATE`, eum.LAST_MODIFIED_BY, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
@@ -97,9 +97,10 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         if (active) {
             sqlStringBuilder.append(" AND eu.ACTIVE ");
         }
-        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         return namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new EquivalencyUnitListResultSetExtractor());
     }
 
