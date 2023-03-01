@@ -286,7 +286,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         Version version = null;
-        StringBuilder updatedPUList = new StringBuilder();
+        StringBuilder updatedRCPUList = new StringBuilder();
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
@@ -307,7 +307,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 insertList.add(new MapSqlParameterSource(params));
             } else {
                 // Update
-                updatedPUList.append(rcpu.getPlanningUnit().getId()).append(",");
+                updatedRCPUList.append(rcpu.getRealmCountryPlanningUnitId()).append(",");
                 params = new HashMap<>();
                 params.put("realmCountryPlanningUnitId", rcpu.getRealmCountryPlanningUnitId());
                 params.put("skuCode", rcpu.getSkuCode());
@@ -428,16 +428,14 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         }
 
         // Checking if any of the updated RCPU's that was disabled was the only RCPU for that PU with Multiplier 1
-        if (updatedPUList.length() > 0) {
-            updatedPUList.setLength(updatedPUList.length() - 1);
+        if (updatedRCPUList.length() > 0) {
+            updatedRCPUList.setLength(updatedRCPUList.length() - 1);
             StringBuilder sqlStringBuilder = new StringBuilder("SELECT count(*) "
-                    + "FROM rm_program_planning_unit ppu "
-                    + "LEFT JOIN rm_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
-                    + "LEFT JOIN rm_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 "
-                    + "WHERE rcpu.ACTIVE=0 AND ppu.PLANNING_UNIT_ID in (");
-            sqlStringBuilder.append(updatedPUList).append(")");
-            int inactivatedPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
-            if (inactivatedPUs > 0) {
+                    + "FROM rm_realm_country_planning_unit rcpu "
+                    + "WHERE rcpu.ACTIVE=0 AND rcpu.MULTIPLIER=1 AND rcpu.REALM_COUNTRY_PLANNING_UNIT_ID in (");
+            sqlStringBuilder.append(updatedRCPUList).append(")");
+            int inactivatedRCPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
+            if (inactivatedRCPUs > 0) {
                 throw new CouldNotSaveException("You cannot deactivate a default ARU");
             }
         }
