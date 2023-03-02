@@ -7,3 +7,4 @@ INSERT INTO `fasp`.`us_business_function` VALUES('ROLE_BF_EDIT_EQIVALENCY_UNIT_O
 
 INSERT INTO `fasp`.`us_role_business_function` VALUES(null,'ROLE_REALM_ADMIN','ROLE_BF_EDIT_EQIVALENCY_UNIT_ALL',1,now(),1,now());
 INSERT INTO `fasp`.`us_role_business_function` VALUES(null,'ROLE_DATASET_ADMIN','ROLE_BF_EDIT_EQIVALENCY_UNIT_OWN',1,now(),1,now());
+INSERT INTO `fasp`.`us_role_business_function` VALUES(null,'ROLE_TRAINER_ADMIN','ROLE_BF_EDIT_EQIVALENCY_UNIT_ALL',1,now(),1,now());

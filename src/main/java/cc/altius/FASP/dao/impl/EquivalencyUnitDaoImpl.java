@@ -234,7 +234,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             eum.setEquivalencyUnit(this.getEquivalencyUnitById(eum.getEquivalencyUnit().getEquivalencyUnitId(), curUser));
             if (eum.getEquivalencyUnitMappingId() == 0) {
                 if (
-                        (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()==null) || 
+                        (eum.getProgram()==null && eum.getEquivalencyUnit().getProgram()!=null) || 
                         (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()!=null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
@@ -253,7 +253,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 updatedRows += si.execute(params);
             } else {
                 if (
-                        (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()==null) || 
+                        (eum.getProgram()==null && eum.getEquivalencyUnit().getProgram()!=null) || 
                         (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()!=null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
@@ -289,7 +289,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
 
     @Override
     public EquivalencyUnit getEquivalencyUnitById(int equivalencyUnitId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(EQUVALENCY_UNIT_SELECT).append(" WHERE eu.EQUIVALENCY_UNIT_ID=:equivalencyUnitId");
+        StringBuilder sqlStringBuilder = new StringBuilder(EQUVALENCY_UNIT_SELECT).append(" AND eu.EQUIVALENCY_UNIT_ID=:equivalencyUnitId");
         Map<String, Object> params = new HashMap<>();
         params.put("equivalencyUnitId", equivalencyUnitId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
