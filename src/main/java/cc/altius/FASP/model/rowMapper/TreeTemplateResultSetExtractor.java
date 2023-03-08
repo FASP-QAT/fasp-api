@@ -40,7 +40,6 @@ public class TreeTemplateResultSetExtractor implements ResultSetExtractor<TreeTe
                     tt.setMonthsInFuture(null);
                 }
                 tt.setNotes(rs.getString("NOTES"));
-                tt.setBranch((rs.getBoolean("BRANCH")));
                 tt.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 isFirst = false;
             }
