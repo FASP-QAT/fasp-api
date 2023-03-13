@@ -72,7 +72,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
     @Override
     public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
-        String sql = treeTemplateSql + "ORDER BY tt.LABEL_EN";
+        String sql = treeTemplateSql + " ORDER BY tt.LABEL_EN";
         return this.namedParameterJdbcTemplate.query(sql, new TreeTemplateListResultSetExtractor());
     }
 
@@ -163,7 +163,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId() == null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
@@ -334,7 +334,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             params.replace("levelNo", l);
             this.namedParameterJdbcTemplate.update("DELETE ttn.* FROM rm_tree_template_node ttn WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId AND ttn.LEVEL_NO=:levelNo", params);
         }
-        
+
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
@@ -348,7 +348,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId() == null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
