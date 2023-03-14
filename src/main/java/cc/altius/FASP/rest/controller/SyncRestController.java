@@ -204,7 +204,8 @@ public class SyncRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
 //            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
+//            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
+            masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
@@ -263,8 +264,7 @@ public class SyncRestController {
             masters.setModelingTypeList(this.modelingTypeService.getModelingTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
             masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
-            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(false, lastSyncDate, curUser));
-            masters.setBranchTemplateList(this.treeTemplateService.getTreeTemplateListForSync(true, lastSyncDate, curUser));
+            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
             masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));

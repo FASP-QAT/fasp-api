@@ -152,7 +152,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/programIds/planningUnit")
+    @PostMapping("/realmCountry/programIds/planningUnit")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
