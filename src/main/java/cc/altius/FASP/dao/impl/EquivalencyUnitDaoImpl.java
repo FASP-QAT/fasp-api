@@ -180,6 +180,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 param.put("curUser", curUser.getUserId());
                 param.put("dt", dt);
                 param.put("rowsEffected", rowsEffected);
+                param.put("notes", ut.getNotes());
                 if (namedParameterJdbcTemplate.update(sql, param) > 0) {
                     rows++;
                 }
