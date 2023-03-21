@@ -39,8 +39,6 @@ import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -203,8 +201,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         ss.setProgramId(programId);
         ss.setVersionId(versionId);
         ss.setUserId(userId);
-        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
-        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
+//        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
+//        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
         ss.setProblemReportList(this.problemService.getProblemReportListForSync(programId, versionId, lastSyncDate));
         return ss;
     }
@@ -234,8 +232,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
-        return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
+    public boolean updateSupplyPlanAsExported(int integratiionProgramId, int integrationId) {
+        return this.programDataDao.updateSupplyPlanAsExported(integratiionProgramId, integrationId);
     }
 
     /**

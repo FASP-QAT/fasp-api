@@ -118,7 +118,6 @@ public class TracerCategoryRestController {
         }
     }
     
-    
     @GetMapping("/tracerCategory/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {

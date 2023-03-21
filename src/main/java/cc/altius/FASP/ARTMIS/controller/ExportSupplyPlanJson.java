@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import static jxl.biff.BaseCellFeatures.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +112,7 @@ public class ExportSupplyPlanJson {
                     sb.append("Export completed").append(newLine).append(newLine);
                     logger.info("Export completed");
                     logger.info("Export supply plan successful for ProgramId:" + iDto.getProgramId() + " VersionId:" + iDto.getVersionId() + " IntegrationName:" + iDto.getIntegrationName());
-                    this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId());
+                    this.programDataService.updateSupplyPlanAsExported(iDto.getIntegrationProgramId(), iDto.getIntegrationId());
                 } else {
                     
                     subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
