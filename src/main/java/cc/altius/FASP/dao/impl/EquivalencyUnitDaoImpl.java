@@ -180,6 +180,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 param.put("curUser", curUser.getUserId());
                 param.put("dt", dt);
                 param.put("rowsEffected", rowsEffected);
+                param.put("notes", ut.getNotes());
                 if (namedParameterJdbcTemplate.update(sql, param) > 0) {
                     rows++;
                 }
@@ -279,9 +280,9 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         StringBuilder sqlStringBuilder = new StringBuilder(EQUIVALENCY_UNIT_MAPPING_SELECT).append(" AND eum.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         if (programIdsString == null || programIdsString.isEmpty()) {
-            sqlStringBuilder.append(" AND eum.PROGRAM_ID = 0");
+            sqlStringBuilder.append(" AND eum.PROGRAM_ID IS NULL");
         } else {
-            sqlStringBuilder.append(" AND (eum.PROGRAM_ID = 0 OR eum.PROGRAM_ID in (").append(programIdsString).append("))");
+            sqlStringBuilder.append(" AND (eum.PROGRAM_ID IS NULL OR eum.PROGRAM_ID in (").append(programIdsString).append("))");
             params.put("programIdsString", programIdsString);
         }
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);

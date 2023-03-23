@@ -25,6 +25,7 @@ public class ProgramIntegrationDTORowMapper implements RowMapper<ProgramIntegrat
         pi.setVersionId(rs.getInt("VERSION_ID"));
         pi.setVersionTypeId(rs.getInt("VERSION_TYPE_ID"));
         pi.setVersionStatusId(rs.getInt("VERSION_STATUS_ID"));
+        pi.setIntegrationProgramId(rs.getInt("INTEGRATION_PROGRAM_ID"));
         pi.setIntegrationId(rs.getInt("INTEGRATION_ID"));
         pi.setIntegrationName(rs.getString("INTEGRATION_NAME"));
         pi.setFileName(rs.getString("FILE_NAME"));

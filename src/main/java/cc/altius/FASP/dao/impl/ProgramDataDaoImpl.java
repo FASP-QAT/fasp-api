@@ -312,7 +312,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND c.MAX_VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
 //        try {
         cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(cCnt + " records updated in tmp as changed where a direct consumption record has changed");
@@ -559,7 +559,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND i.MAX_VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
 //        try {
         iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(iCnt + " records updated in tmp as changed where a direct inventory record has changed");
@@ -909,7 +909,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.clear();
         // Flag the rows for changed records
         // Added condition for null dates
-        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_ID!=st.SHIPMENT_ID OR ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR ts.CURRENCY_ID!=s.CURRENCY_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.PARENT_LINKED_SHIPMENT_ID!=st.PARENT_LINKED_SHIPMENT_ID OR ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR ts.BUDGET_ID!=st.BUDGET_ID OR ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR ts.ERP_FLAG!=st.ERP_FLAG OR ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR ts.REALM_COUNTRY_PLANNING_UNIT_ID!=st.REALM_COUNTRY_PLANNING_UNIT_ID OR ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR ts.SUPPLIER_ID!=st.SUPPLIER_ID OR ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR ts.SHIPMENT_RCPU_QTY!=st.SHIPMENT_RCPU_QTY OR ts.RATE!=st.RATE OR ts.PRODUCT_COST!=st.PRODUCT_COST OR ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR ts.FREIGHT_COST!=st.FREIGHT_COST OR ts.PLANNED_DATE!=st.PLANNED_DATE OR (ts.PLANNED_DATE IS NULL AND st.PLANNED_DATE IS NOT NULL) OR (ts.PLANNED_DATE IS NOT NULL AND st.PLANNED_DATE IS NULL) OR ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR (ts.SUBMITTED_DATE IS NULL AND st.SUBMITTED_DATE IS NOT NULL) OR (ts.SUBMITTED_DATE IS NOT NULL AND st.SUBMITTED_DATE IS NULL) OR ts.APPROVED_DATE!=st.APPROVED_DATE OR (ts.APPROVED_DATE IS NULL AND st.APPROVED_DATE IS NOT NULL) OR (ts.APPROVED_DATE IS NOT NULL AND st.APPROVED_DATE IS NULL) OR ts.SHIPPED_DATE!=st.SHIPPED_DATE OR (ts.SHIPPED_DATE IS NULL AND st.SHIPPED_DATE IS NOT NULL) OR (ts.SHIPPED_DATE IS NOT NULL AND st.SHIPPED_DATE IS NULL) OR ts.ARRIVED_DATE!=st.ARRIVED_DATE OR (ts.ARRIVED_DATE IS NULL AND st.ARRIVED_DATE IS NOT NULL) OR (ts.ARRIVED_DATE IS NOT NULL AND st.ARRIVED_DATE IS NULL) OR ts.RECEIVED_DATE!=st.RECEIVED_DATE OR (ts.RECEIVED_DATE IS NULL AND st.RECEIVED_DATE IS NOT NULL) OR (ts.RECEIVED_DATE IS NOT NULL AND st.RECEIVED_DATE IS NULL) OR ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR ts.NOTES!=st.NOTES OR ts.ORDER_NO!=st.ORDER_NO OR ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR ts.SHIPMENT_ID IS NULL";
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_ID!=st.SHIPMENT_ID OR ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR ts.CURRENCY_ID!=s.CURRENCY_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.PARENT_LINKED_SHIPMENT_ID!=st.PARENT_LINKED_SHIPMENT_ID OR ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR ts.BUDGET_ID!=st.BUDGET_ID OR ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR ts.ERP_FLAG!=st.ERP_FLAG OR ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR ts.REALM_COUNTRY_PLANNING_UNIT_ID!=st.REALM_COUNTRY_PLANNING_UNIT_ID OR ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR ts.SUPPLIER_ID!=st.SUPPLIER_ID OR ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR ts.SHIPMENT_RCPU_QTY!=st.SHIPMENT_RCPU_QTY OR ts.RATE!=st.RATE OR ts.PRODUCT_COST!=st.PRODUCT_COST OR ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR ts.FREIGHT_COST!=st.FREIGHT_COST OR ts.PLANNED_DATE!=st.PLANNED_DATE OR (ts.PLANNED_DATE IS NULL AND st.PLANNED_DATE IS NOT NULL) OR (ts.PLANNED_DATE IS NOT NULL AND st.PLANNED_DATE IS NULL) OR ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR (ts.SUBMITTED_DATE IS NULL AND st.SUBMITTED_DATE IS NOT NULL) OR (ts.SUBMITTED_DATE IS NOT NULL AND st.SUBMITTED_DATE IS NULL) OR ts.APPROVED_DATE!=st.APPROVED_DATE OR (ts.APPROVED_DATE IS NULL AND st.APPROVED_DATE IS NOT NULL) OR (ts.APPROVED_DATE IS NOT NULL AND st.APPROVED_DATE IS NULL) OR ts.SHIPPED_DATE!=st.SHIPPED_DATE OR (ts.SHIPPED_DATE IS NULL AND st.SHIPPED_DATE IS NOT NULL) OR (ts.SHIPPED_DATE IS NOT NULL AND st.SHIPPED_DATE IS NULL) OR ts.ARRIVED_DATE!=st.ARRIVED_DATE OR (ts.ARRIVED_DATE IS NULL AND st.ARRIVED_DATE IS NOT NULL) OR (ts.ARRIVED_DATE IS NOT NULL AND st.ARRIVED_DATE IS NULL) OR ts.RECEIVED_DATE!=st.RECEIVED_DATE OR (ts.RECEIVED_DATE IS NULL AND st.RECEIVED_DATE IS NOT NULL) OR (ts.RECEIVED_DATE IS NOT NULL AND st.RECEIVED_DATE IS NULL) OR ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR ts.NOTES!=st.NOTES OR ts.ORDER_NO!=st.ORDER_NO OR ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR ts.SHIPMENT_ID IS NULL";
 //        try {
         sCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(sCnt + " records updated in tmp as changed where a direct shipment record has changed");
@@ -1140,7 +1140,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.clear();
         // Flag the rows for changed records
 //        sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID LEFT JOIN rm_shipment_linking_trans st ON ts.SHIPMENT_LINKING_ID=st.SHIPMENT_LINKING_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_LINKING_ID!=st.SHIPMENT_LINKING_ID OR ts.PROCUREMENT_AGENT_ID!=s.PROCUREMENT_AGENT_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.CHILD_SHIPMENT_ID!=s.CHILD_SHIPMENT_ID OR ts.RO_NO!=s.RO_NO OR ts.RO_PRIME_LINE_NO!=s.RO_PRIME_LINE_NO OR ts.CONVERSION_FACTOR!=s.CONVERSION_FACTOR OR ts.ORDER_NO!=s.ORDER_NO OR ts.PRIME_LINE_NO!=s.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.KN_SHIPMENT_NO!=st.KN_SHIPMENT_NO OR ts.SHIPMENT_ID IS NULL";
-        sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID LEFT JOIN rm_shipment_linking_trans st ON ts.SHIPMENT_LINKING_ID=st.SHIPMENT_LINKING_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.ACTIVE!=st.ACTIVE OR ts.SHIPMENT_LINKING_ID IS NULL";
+        sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID LEFT JOIN rm_shipment_linking_trans st ON ts.SHIPMENT_LINKING_ID=st.SHIPMENT_LINKING_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.ACTIVE!=st.ACTIVE OR ts.SHIPMENT_LINKING_ID IS NULL";
         slCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(slCnt + " records updated in tmp as changed where a direct shipment record has changed");
         // Check if there are any rows that need to be added
@@ -1478,7 +1478,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId()==null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -2450,48 +2450,48 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
             sqlString = "UPDATE rm_supply_plan_amc spa "
-                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
-                    + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
-                    + "    LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                    + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                    + "    LEFT JOIN ( "
-                    + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
-                    + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
-                    + "        FROM rm_supply_plan_amc spa "
-                    + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
-                    + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
-                    + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
-                    + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH) "
-                    + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
-                    + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
-                    + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
-                    + "    SET "
-                    + "        spa.AMC=amc.AMC, "
-                    + "        spa.AMC_COUNT=amc.AMC_COUNT, "
-                    + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
-                    + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
-                    + "        spa.MIN_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), ppu.MIN_QTY/amc.AMC), "
-                    + "        spa.MAX_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF( "
-                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                                IF ( "
-                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
-                    + "                                ) "
-                    + "                            ), ppu.MIN_QTY/amc.AMC + ppu.REORDER_FREQUENCY_IN_MONTHS),"
-                    + "        spa.MIN_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, ppu.MIN_QTY), "
-                    + "        spa.MAX_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF( "
-                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                                IF ( "
-                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
-                    + "                                ) "
-                    + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
-                    + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+                        + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                        + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
+                        + "    LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                        + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                        + "    LEFT JOIN ( "
+                        + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
+                        + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                        + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                        + "        FROM rm_supply_plan_amc spa "
+                        + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
+                        + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
+                        + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
+                        + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH) "
+                        + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
+                        + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
+                        + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
+                        + "    SET "
+                        + "        spa.AMC=amc.AMC, "
+                        + "        spa.AMC_COUNT=amc.AMC_COUNT, "
+                        + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
+                        + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                        + "        spa.MIN_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), IF(amc.AMC IS NULL OR amc.AMC=0, null, ppu.MIN_QTY/amc.AMC)), "
+                        + "        spa.MAX_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF( "
+                        + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                        + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                        + "                                IF ( "
+                        + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                        + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                        + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                        + "                                ) "
+                        + "                            ), IF(amc.AMC IS NULL OR amc.AMC=0, null, ppu.MIN_QTY/amc.AMC + ppu.REORDER_FREQUENCY_IN_MONTHS)),"
+                        + "        spa.MIN_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, ppu.MIN_QTY), "
+                        + "        spa.MAX_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF( "
+                        + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                        + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                        + "                                IF ( "
+                        + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                        + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                        + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                        + "                                ) "
+                        + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
+                        + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
 //            msp.printSupplyPlan();
         }
@@ -2530,42 +2530,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
-        String sqlString = "SELECT li.INT_PROGRAM_VERSION_TRANS_ID PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  li.INT_VERSION_ID VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
-                + "FROM ( "
-                + "         SELECT MAX(pvte.PROGRAM_VERSION_TRANS_ID) INT_PROGRAM_VERSION_TRANS_ID, pvte.PROGRAM_ID, ip.INTEGRATION_ID, MAX(pvte.VERSION_ID) INT_VERSION_ID, max(pvte.LAST_MODIFIED_DATE) INT_LAST_MODIFIED_DATE "
-                + "         FROM rm_integration_program ip "
-                + "         LEFT JOIN ( "
-                + "                  SELECT pvt.PROGRAM_VERSION_TRANS_ID, pvt.LAST_MODIFIED_DATE, pv.PROGRAM_ID, pv.VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID "
-                + "                  FROM rm_program_version_trans pvt "
-                + "                  LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         ) pvte ON ip.PROGRAM_ID=pvte.PROGRAM_ID and ip.VERSION_TYPE_ID=pvte.VERSION_TYPE_ID AND ip.VERSION_STATUS_ID=pvte.VERSION_STATUS_ID "
-                + "         WHERE ip.ACTIVE AND pvte.PROGRAM_VERSION_TRANS_ID IS NOT  NULL "
-                + "         GROUP BY pvte.PROGRAM_ID, ip.INTEGRATION_ID "
-                + ") li "
-                + "LEFT JOIN ( "
-                + "         SELECT pv.PROGRAM_ID, ipc.INTEGRATION_ID, MAX(pv.VERSION_ID) LAST_COMPLETED_VERSION_ID "
-                + "         FROM rm_integration_program_completed ipc "
-                + "         LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
-                + "         LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         GROUP BY pv.PROGRAM_ID, ipc.INTEGRATION_ID "
-                + ") lic ON li.PROGRAM_ID=lic.PROGRAM_ID AND li.INTEGRATION_ID=lic.INTEGRATION_ID "
-                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=li.PROGRAM_ID "
-                + "LEFT JOIN rm_program_version_trans pvt ON pvt.PROGRAM_VERSION_TRANS_ID=li.INT_PROGRAM_VERSION_TRANS_ID "
+        String sqlString = "SELECT "
+                + "	ipc.PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pvt.VERSION_TYPE_ID, "
+                + "    pvt.VERSION_STATUS_ID, ipc.INTEGRATION_PROGRAM_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, "
+                + "    i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+                + "FROM rm_integration_program_completed ipc "
+                + "LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "LEFT JOIN ap_integration i ON li.INTEGRATION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_integration i ON ipc.INTEGRATION_ID=i.INTEGRATION_ID "
                 + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
-                + "WHERE li.INT_VERSION_ID>lic.LAST_COMPLETED_VERSION_ID OR lic.LAST_COMPLETED_VERSION_ID IS NULL";
+                + "WHERE ipc.PROGRAM_VERSION_TRANS_ID IN (SELECT max(pvt.PROGRAM_VERSION_TRANS_ID) PVT FROM rm_integration_program_completed `ipc` LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID WHERE `ipc`.COMPLETED_DATE IS NULL GROUP BY pv.PROGRAM_ID, `ipc`.INTEGRATION_ID)";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
     @Override
-    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+    public boolean updateSupplyPlanAsExported(int integrationProgramId, int integrationId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("programVersionTransId", programVersionTransId);
+        params.put("integrationProgramId", integrationProgramId);
         params.put("integrationId", integrationId);
         params.put("curDate", curDate);
-        return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
+        return (this.namedParameterJdbcTemplate.update("UPDATE rm_integration_program_completed ipc SET ipc.COMPLETED_DATE=:curDate WHERE ipc.COMPLETED_DATE IS NULL AND ipc.INTEGRATION_PROGRAM_ID=:integrationProgramId AND ipc.INTEGRATION_ID=:integrationId ", params) > 0);
     }
 
     @Override
