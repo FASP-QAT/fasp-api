@@ -1,3 +1,11 @@
+APP Version: 2.43.3954
+Front End Version: 10309
+Date: 2023-03-22
+Tickets part of this release: 
+QAT-2842
+QAT-2754
+QAT-1308
+
 APP Version: 2.43.3946
 Front End Version: 10299
 Date: 2023-03-21
