@@ -155,4 +155,24 @@ public class InventoryTurnsOutput implements Serializable {
     public void setPlannedInventoryTurns(double plannedInventoryTurns) {
         this.plannedInventoryTurns = plannedInventoryTurns;
     }
+
+    @JsonView(Views.ReportView.class)
+    public double getDelta() {
+        return this.inventoryTurns - this.plannedInventoryTurns;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getAbsDelta() {
+        return Math.abs(getDelta());
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getMape() {
+        return Math.abs(getDelta() / getInventoryTurns());
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getMse() {
+        return getDelta() * getDelta();
+    }
 }
