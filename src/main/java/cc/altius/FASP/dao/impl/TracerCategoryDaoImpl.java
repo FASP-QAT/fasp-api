@@ -121,9 +121,14 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
-    @Override
+@Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId AND pha.PROGRAM_ID=:programId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE tc.TRACER_CATEGORY_ID IN ("
+                + "SELECT DISTINCT(fu.TRACER_CATEGORY_ID) "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_planning_unit pu on ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE) AND tc.REALM_ID=:realmId ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         params.put("programId", programId);
@@ -149,10 +154,12 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
                 programIdsString = opt;
             }
         }
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" LEFT JOIN rm_program_health_area pha ON tc.HEALTH_AREA_ID=pha.HEALTH_AREA_ID WHERE pha.HEALTH_AREA_ID IS NOT NULL AND tc.REALM_ID=:realmId ");
-        if (programIds.length > 0) {
-            sqlStringBuilder.append(" AND pha.PROGRAM_ID IN (").append(programIdsString).append(") ");
-        }
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE tc.TRACER_CATEGORY_ID IN ("
+                + "SELECT DISTINCT(fu.TRACER_CATEGORY_ID) "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_planning_unit pu on ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.ACTIVE) AND tc.REALM_ID=:realmId ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
