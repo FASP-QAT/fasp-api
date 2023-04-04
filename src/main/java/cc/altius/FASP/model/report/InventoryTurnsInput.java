@@ -19,8 +19,9 @@ import java.util.Date;
 public class InventoryTurnsInput implements Serializable {
 
     /**
-     * dt is the date that you want to run the report for viewBy = 1 View by
-     * RealmCountry, ViewBy = 2 View by ProductCategory
+     * dt is the date that you want to run the report for
+     *
+     * viewBy = 1 View by RealmCountry, ViewBy = 2 View by ProductCategory
      *
      * programIds is the list of Programs that should be included in the final
      * output, cannot be empty you must pass the ProgramsIds that you want to

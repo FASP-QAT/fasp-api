@@ -33,11 +33,19 @@ public class InventoryTurnsOutput implements Serializable {
     private int noOfMonths;
     @JsonView(Views.ReportView.class)
     private double inventoryTurns;
+    @JsonView(Views.ReportView.class)
+    private int reorderFrequencyInMonths;
+    @JsonView(Views.ReportView.class)
+    private int minMonthsOfStock;
+    @JsonView(Views.ReportView.class)
+    private int totalMonthsOfPlannedConsumption;
+    @JsonView(Views.ReportView.class)
+    private double plannedInventoryTurns;
 
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
         this.realmCountry = realmCountry;
         this.program = program;
         this.productCategory = productCategory;
@@ -46,6 +54,10 @@ public class InventoryTurnsOutput implements Serializable {
         this.avergeStock = avergeStock;
         this.noOfMonths = noOfMonths;
         this.inventoryTurns = inventoryTurns;
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+        this.minMonthsOfStock = minMonthsOfStock;
+        this.totalMonthsOfPlannedConsumption = totalMonthsOfPlannedConsumption;
+        this.plannedInventoryTurns = plannedInventoryTurns;
     }
 
     public SimpleObject getRealmCountry() {
@@ -112,7 +124,35 @@ public class InventoryTurnsOutput implements Serializable {
         this.inventoryTurns = inventoryTurns;
     }
 
+    public int getReorderFrequencyInMonths() {
+        return reorderFrequencyInMonths;
+    }
 
-    
+    public void setReorderFrequencyInMonths(int reorderFrequencyInMonths) {
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+    }
 
+    public int getMinMonthsOfStock() {
+        return minMonthsOfStock;
+    }
+
+    public void setMinMonthsOfStock(int minMonthsOfStock) {
+        this.minMonthsOfStock = minMonthsOfStock;
+    }
+
+    public int getTotalMonthsOfPlannedConsumption() {
+        return totalMonthsOfPlannedConsumption;
+    }
+
+    public void setTotalMonthsOfPlannedConsumption(int totalMonthsOfPlannedConsumption) {
+        this.totalMonthsOfPlannedConsumption = totalMonthsOfPlannedConsumption;
+    }
+
+    public double getPlannedInventoryTurns() {
+        return plannedInventoryTurns;
+    }
+
+    public void setPlannedInventoryTurns(double plannedInventoryTurns) {
+        this.plannedInventoryTurns = plannedInventoryTurns;
+    }
 }
