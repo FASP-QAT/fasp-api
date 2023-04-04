@@ -6,8 +6,10 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.rowMapper.ProgramBasicResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
@@ -38,12 +40,45 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     }
 
     @Override
-    public Program getProgramById(int programId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlListString).append(" AND p.PROGRAM_ID=:programId");
+    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder;
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListString);
+        } else {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListString);
+        }
+        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         sqlStringBuilder.append(ProgramDaoImpl.sqlOrderBy);
         Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
+        if (p == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return p;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder;
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListBasicString);
+        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListBasicString);
+        } else {
+            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlAllProgramListBasicString);
+        }
+        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        sqlStringBuilder.append(ProgramDaoImpl.sqlOrderByBasic);
+        System.out.println(sqlStringBuilder.toString());
+        System.out.println(params);
+        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramBasicResultSetExtractor());
         if (p == null) {
             throw new EmptyResultDataAccessException(1);
         }

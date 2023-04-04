@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,9 @@ import java.util.Objects;
  */
 public class RealmCountryHealthArea implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     SimpleCodeObject realmCountry;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     List<SimpleCodeObject> healthAreaList;
 
     public RealmCountryHealthArea() {

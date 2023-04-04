@@ -30,6 +30,7 @@ public class User extends BaseModel implements Serializable {
     private List<Role> roleList;
     private String[] roles;
     private Language language;
+    private int defaultModuleId;
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -121,6 +122,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setLanguage(Language language) {
         this.language = language;
+    }
+
+    public int getDefaultModuleId() {
+        return defaultModuleId;
+    }
+
+    public void setDefaultModuleId(int defaultModuleId) {
+        this.defaultModuleId = defaultModuleId;
     }
 
     public int getFaildAttempts() {

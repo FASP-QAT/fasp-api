@@ -83,11 +83,11 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendMail(Emailer emailer) {
-        System.out.println("schedulerActive---"+schedulerActive);
+//        System.out.println("schedulerActive---"+schedulerActive);
 //        schedulerActive ="1";
         try {
             if (schedulerActive.equals("1")) {
-                System.out.println("---------------send email------------------");
+//                System.out.println("---------------send email------------------");
                 this.emailDao.sendMail(emailer);
             }
         } catch (Exception e) {
@@ -96,9 +96,9 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String[] subjectParam, String[] bodyParam) {
+    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam) {
         try {
-            return this.emailDao.buildEmail(emailTemplateId, toSend, ccTo, subjectParam, bodyParam);
+            return this.emailDao.buildEmail(emailTemplateId, toSend, ccTo, bccTo, subjectParam, bodyParam);
         } catch (Exception e) {
             return null;
         }
@@ -113,4 +113,10 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public Emailer getEmailByEmailerId(int emailerId) {
+        return this.emailDao.getEmailByEmailerId(emailerId);
+    }
+
+    
 }

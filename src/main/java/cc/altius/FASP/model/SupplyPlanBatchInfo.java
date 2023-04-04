@@ -6,10 +6,8 @@
 package cc.altius.FASP.model;
 
 import cc.altius.utils.DateUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *

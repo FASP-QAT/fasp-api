@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import static jxl.biff.BaseCellFeatures.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,12 +115,12 @@ public class ExportSupplyPlanJson {
                     sb.append("Export completed").append(newLine).append(newLine);
                     logger.info("Export completed");
                     logger.info("Export supply plan successful for ProgramId:" + iDto.getProgramId() + " VersionId:" + iDto.getVersionId() + " IntegrationName:" + iDto.getIntegrationName());
-                    this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId());
+                    this.programDataService.updateSupplyPlanAsExported(iDto.getIntegrationProgramId(), iDto.getIntegrationId());
                 } else {
                     
                     subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
                     bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Directory does not exist for " + iDto.getIntegrationName(), "Directory does not exist for " + iDto.getIntegrationName()};
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
@@ -131,7 +130,7 @@ public class ExportSupplyPlanJson {
             } catch (FileNotFoundException e) {
                 subjectParam = new String[]{"supply plan", "File not found"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "File not found", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 sb.append("File not found exception occured").append(newLine).append(newLine);
@@ -139,7 +138,7 @@ public class ExportSupplyPlanJson {
             } catch (IOException e) {
                 subjectParam = new String[]{"supply plan", "Input/Output error"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Input/Output error", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -148,7 +147,7 @@ public class ExportSupplyPlanJson {
             } catch (BadSqlGrammarException e) {
                 subjectParam = new String[]{"supply plan", "SQL Exception"};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "SQL Exception", e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -157,7 +156,7 @@ public class ExportSupplyPlanJson {
             } catch (Exception e) {
                 subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
                 bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), e.getClass().getName().toString(), e.getMessage()};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);

@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.utils.DateUtils;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,6 +21,7 @@ public class ProgramIntegrationDTO implements Serializable {
     private int versionId;
     private int versionTypeId;
     private int versionStatusId;
+    private int integrationProgramId;
     private int integrationId;
     private String integrationName;
     private String fileName;
@@ -76,6 +76,14 @@ public class ProgramIntegrationDTO implements Serializable {
 
     public void setVersionStatusId(int versionStatusId) {
         this.versionStatusId = versionStatusId;
+    }
+
+    public int getIntegrationProgramId() {
+        return integrationProgramId;
+    }
+
+    public void setIntegrationProgramId(int integrationProgramId) {
+        this.integrationProgramId = integrationProgramId;
     }
 
     public int getIntegrationId() {

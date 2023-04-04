@@ -19,26 +19,32 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private SimpleObject program;
     private SimpleObject planningUnit;
     private SimpleObject productCategory;
-    private int reorderFrequencyInMonths;
-    private int minMonthsOfStock;
+    private SimpleObject forecastingUnit;
+    private double multiplier;
+    private int reorderFrequencyInMonths; 
+    private Integer minMonthsOfStock; 
     private double localProcurementLeadTime;
-    private int shelfLife;
-    private double catalogPrice;
-    private int monthsInFutureForAmc;
-    private int monthsInPastForAmc;
+    private int shelfLife; 
+    private double catalogPrice; 
+    private int monthsInFutureForAmc; 
+    private int monthsInPastForAmc; 
+    private int planBasedOn; //1- MoS , 2- Qty 
+    private Integer minQty; 
+    private Double distributionLeadTime; 
     private List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices;
 
     public ProgramPlanningUnit() {
         programPlanningUnitProcurementAgentPrices = new LinkedList<>();
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, double multiplier, SimpleObject forecastingUnit, SimpleObject productCategory, int reorderFrequencyInMonths, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
+        this.multiplier = multiplier;
+        this.forecastingUnit = forecastingUnit;
         this.productCategory = productCategory;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
-        this.minMonthsOfStock = minMonthsOfStock;
         this.localProcurementLeadTime = localProcurementLeadTime;
         this.shelfLife = shelfLife;
         this.catalogPrice = catalogPrice;
@@ -71,6 +77,22 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
+    public SimpleObject getForecastingUnit() {
+        return forecastingUnit;
+    }
+
+    public void setForecastingUnit(SimpleObject forecastingUnit) {
+        this.forecastingUnit = forecastingUnit;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
     public SimpleObject getProductCategory() {
         return productCategory;
     }
@@ -87,11 +109,11 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
     }
 
-    public int getMinMonthsOfStock() {
+    public Integer getMinMonthsOfStock() {
         return minMonthsOfStock;
     }
 
-    public void setMinMonthsOfStock(int minMonthsOfStock) {
+    public void setMinMonthsOfStock(Integer minMonthsOfStock) {
         this.minMonthsOfStock = minMonthsOfStock;
     }
 
@@ -141,6 +163,30 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setProgramPlanningUnitProcurementAgentPrices(List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices) {
         this.programPlanningUnitProcurementAgentPrices = programPlanningUnitProcurementAgentPrices;
+    }
+
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
+    }
+
+    public Integer getMinQty() {
+        return minQty;
+    }
+
+    public void setMinQty(Integer minQty) {
+        this.minQty = minQty;
+    }
+
+    public Double getDistributionLeadTime() {
+        return distributionLeadTime;
+    }
+
+    public void setDistributionLeadTime(Double distributionLeadTime) {
+        this.distributionLeadTime = distributionLeadTime;
     }
 
     @Override

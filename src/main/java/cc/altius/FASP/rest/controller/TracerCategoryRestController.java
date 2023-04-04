@@ -118,7 +118,6 @@ public class TracerCategoryRestController {
         }
     }
     
-    
     @GetMapping("/tracerCategory/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -153,19 +152,19 @@ public class TracerCategoryRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/tracerCategory/{lastSyncDate}")
-//    public ResponseEntity getTracerCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing tracerCategory", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing tracerCategory", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @GetMapping(value = "/sync/tracerCategory/{lastSyncDate}")
+    public ResponseEntity getTracerCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing tracerCategory", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing tracerCategory", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

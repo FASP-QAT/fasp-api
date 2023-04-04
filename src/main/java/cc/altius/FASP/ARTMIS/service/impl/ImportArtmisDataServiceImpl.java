@@ -22,6 +22,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.service.ImportArtmisDataService;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
@@ -44,6 +45,8 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     private ImportArtmisDataDao importArtmisDataDao;
     @Autowired
     private ProgramDataDao programDataDao;
+    @Autowired
+    private ProgramDao programDao;
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -94,7 +97,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
                             });
 
                             File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
-                            System.out.println("directory--------------" + directory.getPath());
+//                            System.out.println("directory--------------" + directory.getPath());
                             if (directory.isDirectory()) {
                                 orderFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + orderFile.getName()));
                                 shipmentFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + shipmentFile.getName()));
@@ -137,18 +140,18 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
             bodyParam = new String[]{"Order/Shipment", errorCode, exceptionMessage};
             logger.info(errorCode + " " + exceptionMessage);
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.info("Email sent out for error");
         }
         logger.info("Going to rebuild Supply Plans for any Programs that were updated");
-        System.out.println("programList----" + programList);
+//        System.out.println("programList----" + programList);
         programList.forEach(p -> {
             try {
-                System.out.println("p-----------" + p);
-                int versionId = this.programDataDao.getLatestVersionForPrograms(""+p).get(0).getVersionId();
+//                System.out.println("p-----------" + p);
+                int versionId = this.programDao.getLatestVersionForPrograms(""+p).get(0).getVersionId();
                 logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
                 this.programDataDao.getNewSupplyPlanList(p, -1, true, false);
                 logger.info("Supply plan rebuilt");

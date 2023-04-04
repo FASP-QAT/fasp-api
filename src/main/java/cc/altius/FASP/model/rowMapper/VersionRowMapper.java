@@ -29,6 +29,24 @@ public class VersionRowMapper implements RowMapper<Version> {
                 rs.getTimestamp("CREATED_DATE"),
                 new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")),
                 rs.getTimestamp("LAST_MODIFIED_DATE"));
+        v.setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
+        v.setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
+        v.setDaysInMonth(rs.getInt("DAYS_IN_MONTH"));
+        if (rs.wasNull()) {
+            v.setDaysInMonth(null);
+        }
+        v.setFreightPerc(rs.getDouble("FREIGHT_PERC"));
+        if (rs.wasNull()) {
+            v.setFreightPerc(null);
+        }
+        v.setForecastThresholdHighPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
+        if (rs.wasNull()) {
+            v.setForecastThresholdHighPerc(null);
+        }
+        v.setForecastThresholdLowPerc(rs.getDouble("FORECAST_THRESHOLD_LOW_PERC"));
+        if (rs.wasNull()) {
+            v.setForecastThresholdLowPerc(null);
+        }
         return v;
     }
 

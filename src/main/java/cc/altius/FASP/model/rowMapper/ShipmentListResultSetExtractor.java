@@ -11,9 +11,10 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.SimpleBudgetObject;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimpleObjectWithMultiplier;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleProcurementAgentObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,15 +44,19 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             }
             s.setShipmentId(rs.getInt("SHIPMENT_ID"));
             s.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
-            s.setPlanningUnit(
-                    new SimplePlanningUnitObject(
+            s.setPlanningUnit(new SimplePlanningUnitProductCategoryObject(
                             rs.getInt("PLANNING_UNIT_ID"),
                             new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1),
-                            new SimpleForecastingUnitObject(
+                            new SimpleForecastingUnitProductCategoryObject(
                                     rs.getInt("FORECASTING_UNIT_ID"),
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
+            s.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("RCPU_ID"), new LabelRowMapper("RCPU_").mapRow(rs, 1), rs.getDouble("RCPU_MULTIPLIER")));
+            s.setParentLinkedShipmentId(rs.getInt("PARENT_LINKED_SHIPMENT_ID"));
+            if(rs.wasNull()) {
+                s.setParentLinkedShipmentId(null);
+            }
             s.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
             s.setSuggestedQty(rs.getLong("SUGGESTED_QTY"));
             s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));
@@ -70,6 +75,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
             s.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
+            s.setShipmentRcpuQty(rs.getLong("SHIPMENT_RCPU_QTY"));
             s.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             s.setRate(rs.getDouble("RATE"));
             s.setProductCost(rs.getDouble("PRODUCT_COST"));

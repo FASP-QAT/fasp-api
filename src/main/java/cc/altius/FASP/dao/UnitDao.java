@@ -24,4 +24,6 @@ public interface UnitDao {
     public List<Unit> getUnitList();
 
     public Unit getUnitById(int unitId);
+    
+    public List<Unit> getUnitListByDimensionId(int dimensionId);
 }

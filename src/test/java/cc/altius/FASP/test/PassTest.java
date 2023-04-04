@@ -16,11 +16,11 @@ public class PassTest {
 
     public static void main(String[] args) {
         PasswordEncoder p = new BCryptPasswordEncoder();
-        String pass = "Pass@123";
+        String pass = "Weitl@v4";
         String encodedPass = p.encode(pass);
         System.out.println("Password = " + pass);
         System.out.println("Encoded password = " + encodedPass);
-        System.out.println(p.matches("pass", encodedPass));
+        System.out.println(p.matches("Pass@123", encodedPass));
     }
 
 }

@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -39,6 +41,23 @@ public class Version implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date forecastStartDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date forecastStopDate;
+    @JsonView(Views.InternalView.class)
+    private Integer daysInMonth;
+    @JsonView(Views.InternalView.class)
+    private Double freightPerc;
+    @JsonView(Views.InternalView.class)
+    private Double forecastThresholdHighPerc;
+    @JsonView(Views.InternalView.class)
+    private Double forecastThresholdLowPerc;
+    
 
     public Version() {
     }
@@ -127,6 +146,54 @@ public class Version implements Serializable {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+ 
+    public Date getForecastStartDate() {
+        return forecastStartDate;
+    }
+
+    public void setForecastStartDate(Date forecastStartDate) {
+        this.forecastStartDate = forecastStartDate;
+    }
+
+    public Date getForecastStopDate() {
+        return forecastStopDate;
+    }
+
+    public void setForecastStopDate(Date forecastStopDate) {
+        this.forecastStopDate = forecastStopDate;
+    }
+
+    public Integer getDaysInMonth() {
+        return daysInMonth;
+    }
+
+    public void setDaysInMonth(Integer daysInMonth) {
+        this.daysInMonth = daysInMonth;
+    }
+
+    public Double getFreightPerc() {
+        return freightPerc;
+    }
+
+    public void setFreightPerc(Double freightPerc) {
+        this.freightPerc = freightPerc;
+    }
+
+    public Double getForecastThresholdHighPerc() {
+        return forecastThresholdHighPerc;
+    }
+
+    public void setForecastThresholdHighPerc(Double forecastThresholdHighPerc) {
+        this.forecastThresholdHighPerc = forecastThresholdHighPerc;
+    }
+
+    public Double getForecastThresholdLowPerc() {
+        return forecastThresholdLowPerc;
+    }
+
+    public void setForecastThresholdLowPerc(Double forecastThresholdLowPerc) {
+        this.forecastThresholdLowPerc = forecastThresholdLowPerc;
     }
 
     @Override

@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -26,22 +28,23 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByUserId(int userId);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
-
     public List<String> getBusinessFunctionsForUserId(int userId);
 
     public int resetFailedAttemptsByUsername(String emailId);
 
     public int updateFailedAttemptsByUserId(String emailId);
 
-    public int addNewUser(User user, int curUser);
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
+    
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, int curUser);
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 
@@ -84,6 +87,8 @@ public interface UserDao {
     public int updateUserLanguage(int userId, String languageCode);
 
     public int updateUserLanguageByEmailId(String emailId, String languageCode);
+
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
 
     public int acceptUserAgreement(int userId);
 

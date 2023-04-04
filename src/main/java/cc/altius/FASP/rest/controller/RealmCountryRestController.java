@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -13,8 +15,6 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +152,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/programIds/planningUnit")
+    @PostMapping("/realmCountry/programIds/planningUnit")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -190,11 +190,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
+            int rowsEffected = this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (CouldNotSaveException cnse) {
+            logger.error("Error while trying to update PlanningUnit for Country", cnse);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException de) {
+            logger.error("Error while trying to update PlanningUnit for Country", de);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -205,7 +211,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     public ResponseEntity getRealmCountryByRealmIdForActivePrograms(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(realmId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -226,7 +232,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
                 logger.error("A User with access to multiple Realms tried to access a RealmCountry Program list without specifying a Realm");
                 return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
             }
-            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(curUser.getRealm().getRealmId(), curUser), HttpStatus.OK);
+            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

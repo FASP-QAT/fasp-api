@@ -5,13 +5,14 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -26,7 +27,6 @@ public interface UserService {
     public CustomUserDetails getCustomUserByUserId(int userId);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
-
     public int resetFailedAttemptsByUsername(String emailId);
 
     public int updateFailedAttemptsByUserId(String emailId);
@@ -35,15 +35,17 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, int curUser);
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
+
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, int curUser);
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public String checkIfUserExistsByEmailId(User user, int page);
 
@@ -80,6 +82,8 @@ public interface UserService {
     public int updateUserLanguage(int userId, String languageCode);
 
     public int updateUserLanguageByEmailId(String emailId, String languageCode);
+
+    public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
 
     public int acceptUserAgreement(int userId);
 

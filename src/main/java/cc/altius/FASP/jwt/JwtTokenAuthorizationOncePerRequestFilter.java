@@ -43,7 +43,7 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         logger.debug("Authentication Request For '{}'", request.getRequestURL());
-
+        
         final String requestTokenHeader = request.getHeader(this.tokenHeader);
         String username = null;
         String jwtToken = null;
@@ -71,4 +71,10 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
         }
         chain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return "/actuator/health".equals(request.getRequestURI());
+    }
+
 }

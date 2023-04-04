@@ -5,8 +5,10 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
@@ -36,6 +38,8 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramDataDao programDataDao;
 
     /*
     * 
@@ -126,18 +130,18 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
         return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
     }
 
     @Override
-    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, int programTypeId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.realmCountryDao.getRealmCountryListByRealmIdForActivePrograms(realmId, curUser);
+            return this.realmCountryDao.getRealmCountryListByRealmIdForActivePrograms(realmId, programTypeId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

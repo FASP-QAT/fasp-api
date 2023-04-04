@@ -107,7 +107,6 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
                 insertParams.put("CREATED_DATE", curDate);
                 insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                 insertParams.put("LAST_MODIFIED_DATE", curDate);
-                System.out.println(insertParams);
                 insertList.add(new MapSqlParameterSource(insertParams));
             } else {
                 // need to update it

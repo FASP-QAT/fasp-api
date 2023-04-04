@@ -17,6 +17,8 @@ import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
+import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
@@ -63,13 +65,18 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
+    public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListBasic(curUser);
+    }
+
+    @Override
     public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(forecastingUnitId, curUser);
         if (fu == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
-            return this.planningUnitDao.getPlanningUnitList(fu.getRealm().getId(), active, curUser);
+            return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -208,6 +215,21 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByTracerCategory(tracerCategoryId, active, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
+    }
+
+    @Override
+    public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser);
     }
 
 }
