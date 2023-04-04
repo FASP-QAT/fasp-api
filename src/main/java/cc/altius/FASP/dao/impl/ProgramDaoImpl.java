@@ -139,6 +139,19 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     pv.FORECAST_START_DATE `VT_FORECAST_START_DATE`, pv.FORECAST_STOP_DATE `VT_FORECAST_STOP_DATE`, pv.`DAYS_IN_MONTH` `VT_DAYS_IN_MONTH`, pv.`FREIGHT_PERC` `VT_FREIGHT_PERC`, pv.`FORECAST_THRESHOLD_HIGH_PERC` `VT_FORECAST_THRESHOLD_HIGH_PERC`, pv.`FORECAST_THRESHOLD_LOW_PERC` `VT_FORECAST_THRESHOLD_LOW_PERC`, "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
+    private static String sqlListBasicString = "SELECT   "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.PROGRAM_TYPE_ID, "
+            + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, "
+            + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
+            + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
+            + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
+            + "     o.ORGANISATION_ID, o.ORGANISATION_CODE,  "
+            + "     o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_PR `ORGANISATION_LABEL_PR`, o.LABEL_SP `ORGANISATION_LABEL_SP`,  "
+            + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE,  "
+            + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
+            + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
+
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -163,9 +176,24 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
+    
+    private static String sqlListBasicString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
+            + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
+            + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
+            + " LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID  "
+            + " LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "
+            + " LEFT JOIN vw_health_area ha ON pha.HEALTH_AREA_ID=ha.HEALTH_AREA_ID  "
+            + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID  "
+            + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID  "
+            + " WHERE TRUE ";
     public final static String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
     public final static String sqlProgramListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
     public final static String sqlDatasetListString = sqlListString1 + " FROM vw_dataset p   " + sqlListString2;
+
+    public final static String sqlProgramListBasicString = sqlListBasicString + " FROM vw_program p   " + sqlListBasicString2;
+    public final static String sqlDatasetListBasicString = sqlListBasicString + " FROM vw_dataset p   " + sqlListBasicString2;
+    public final static String sqlAllProgramListBasicString = sqlListBasicString + " FROM vw_all_program p   " + sqlListBasicString2;
+    public final static String sqlOrderByBasic = " ORDER BY p.PROGRAM_CODE";
 
     public String sqlListStringForProgramPlanningUnit = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
