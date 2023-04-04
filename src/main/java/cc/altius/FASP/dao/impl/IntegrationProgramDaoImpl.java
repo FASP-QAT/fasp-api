@@ -64,12 +64,13 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
     private final String sqlManualIntegration = "SELECT "
             + "	im.MANUAL_INTEGRATION_ID, "
             + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-            + "    im.VERSION_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, im.COMPLETED_DATE, "
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, im.CREATED_DATE "
+            + "    im.VERSION_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, iv.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_DESC, iv.INTEGRATION_VIEW_NAME, i.FOLDER_LOCATION, i.FILE_NAME, "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, im.CREATED_DATE, im.COMPLETED_DATE "
             + "FROM rm_integration_manual im "
             + "LEFT JOIN vw_program p ON im.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN ap_integration i ON im.INTEGRATION_ID=i.INTEGRATION_ID "
-            + "LEFT JOIN us_user cb ON im.CREATED_BY=cb.USER_ID";
+            + "LEFT JOIN us_user cb ON im.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID ";
 //    @Override
 //    public int addIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
 //        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_program").usingGeneratedKeyColumns("INTEGRATION_PROGRAM_ID");
@@ -161,14 +162,13 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
 
     @Override
     public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser) {
-
         final List<SqlParameterSource> insertList = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         for (ManualIntegration mi : manualIntegrations) {
             params.put("PROGRAM_ID", mi.getProgram().getId());
             params.put("VERSION_ID", mi.getVersionId());
-            params.put("INTEGRATION_ID", mi.getIntegration().getId());
+            params.put("INTEGRATION_ID", mi.getIntegrationId());
             params.put("CREATED_BY", curUser.getUserId());
             params.put("CREATED_DATE", curDate);
             params.put("COMPLETED_DATE", null);
@@ -188,13 +188,13 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", startDate + " 00:00:00");
         params.put("stopDate", stopDate + " 23:59:59");
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ManualIntegrationRowMapper());
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ManualIntegrationRowMapper(false));
     }
 
     @Override
     public List<ManualIntegration> getManualJsonPushForScheduler() {
         StringBuilder sb = new StringBuilder(sqlManualIntegration).append(" WHERE im.COMPLETED_DATE IS NULL");
-        return this.namedParameterJdbcTemplate.query(sb.toString(), new ManualIntegrationRowMapper());
+        return this.namedParameterJdbcTemplate.query(sb.toString(), new ManualIntegrationRowMapper(true));
     }
 
     @Override

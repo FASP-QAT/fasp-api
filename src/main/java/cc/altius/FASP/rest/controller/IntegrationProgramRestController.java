@@ -9,8 +9,10 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -27,6 +29,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,11 +92,10 @@ public class IntegrationProgramRestController {
     }
 
     /**
-     * API used to get the Integration Program for a specific
-     * IntegrationProgramId
+     * API used to get the Integration Program for a specific IntegrationProgramId
      *
-     * @param integrationProgramId IntegrationProgramId that you want the
-     * Integration Program for Object for
+     * @param integrationProgramId IntegrationProgramId that you want the Integration Program for
+     * Object for
      * @param auth
      * @return returns the list the Integration Program object based on
      * IntegrationProgramId specified
@@ -153,11 +155,11 @@ public class IntegrationProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
+
     /**
      * API used to update an IntegrationProgram
      *
-     * @param integrationPrograms Array of IntegrationProgram that you want to
-     * update
+     * @param integrationPrograms Array of IntegrationProgram that you want to update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
@@ -198,7 +200,7 @@ public class IntegrationProgramRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @PutMapping(path = "/manual")
+    @PostMapping(path = "/manualJson")
     @Operation(description = "API used to add a manual JSON push", summary = "Add manual JSON push", tags = ("integrationProgram"))
     @Parameters(
             @Parameter(name = "manualIntegrations", description = "An array of Manual Integration requests that you want to add"))
@@ -231,7 +233,8 @@ public class IntegrationProgramRestController {
      * @param auth
      * @return returns the list the Manual Json push based on the date variables
      */
-    @GetMapping(value = "/manual/{startDate}/{stopDate}")
+    @JsonView(Views.ReportView.class)
+    @GetMapping(value = "/manualJson/{startDate}/{stopDate}")
     @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push", tags = ("integrationProgram"))
     @Parameters(
             {

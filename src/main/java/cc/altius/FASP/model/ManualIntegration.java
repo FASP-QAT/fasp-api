@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -38,6 +39,16 @@ public class ManualIntegration implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date completedDate;
+    @JsonView(Views.IgnoreView.class)
+    private int integrationViewId;
+    @JsonView(Views.IgnoreView.class)
+    private String integrationViewName;
+    @JsonView(Views.IgnoreView.class)
+    private String folderName;
+    @JsonView(Views.IgnoreView.class)
+    private String fileName;
+
+    private static final SimpleDateFormat YMDHMS = new SimpleDateFormat("yyMMddHHmmss");
 
     public ManualIntegration() {
     }
@@ -115,6 +126,55 @@ public class ManualIntegration implements Serializable {
 
     public void setCompletedDate(Date completedDate) {
         this.completedDate = completedDate;
+    }
+
+    public int getIntegrationViewId() {
+        return integrationViewId;
+    }
+
+    public void setIntegrationViewId(int integrationViewId) {
+        this.integrationViewId = integrationViewId;
+    }
+
+    public String getIntegrationViewName() {
+        return integrationViewName;
+    }
+
+    public void setIntegrationViewName(String integrationViewName) {
+        this.integrationViewName = integrationViewName;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String finalFileName) {
+        this.fileName = finalFileName;
+    }
+
+    public String getFinalFileName(Date curDate) {
+        String fn = this.fileName;
+        fn = replaceString(fn, "<%PROGRAM_CODE%>", this.program.getCode());
+        fn = replaceString(fn, "<%PROGRAM_ID%>", String.format("%08d", this.program.getId()));
+        fn = replaceString(fn, "<%VERSION_ID%>", String.format("%06d", this.versionId));
+        fn = replaceString(fn, "<%YMDHMS%>", YMDHMS.format(curDate));
+        return fn;
+    }
+
+    private String replaceString(String originalString, String searchString, String replaceWith) {
+        int i = originalString.indexOf(searchString);
+        if (i > -1) {
+            originalString = originalString.substring(0, i) + replaceWith + originalString.substring(i + searchString.length(), originalString.length());
+        }
+        return originalString;
     }
 
 }
