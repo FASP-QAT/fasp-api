@@ -494,7 +494,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                         logger.info(rows + " rows updated");
 
                     } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
-                        System.out.println("---------------3--------------");
+//                        System.out.println("---------------3--------------");
                         // The ERP Flag is true and the Parent Shipment Id is null
                         logger.info("ERP Linking : ERP Flag is true and Parent Shipment Id is null");
                         logger.info("ERP Linking : Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching");
@@ -969,7 +969,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 //                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
 //                        }
                     } else {
-                        System.out.println("---------------4--------------");
+//                        System.out.println("---------------4--------------");
                         // This is a new Link request coming through
                         // So make the Shipment, Active = fasle and ERPFlag = true
                         logger.info("ERP Linking : This is a new Link request coming through.So make the Shipment, Active = fasle and ERPFlag = true");
@@ -984,7 +984,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                                 + " WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
-                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
+//                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
                         params.put("curUser", curUser.getUserId());
                         params.put("curDate", curDate);
                         params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
@@ -1670,7 +1670,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
                 logger.info("ERP Linking : Update completed---");
             } else {
-                System.out.println("delinking inside else----------" + parentShipmentId);
+//                System.out.println("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
@@ -1680,7 +1680,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println("delinking inside else else----------" + maxTransId);
+//                System.out.println("delinking inside else else----------" + maxTransId);
             }
         }
 //        }
@@ -1753,7 +1753,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         List<ERPNotificationDTO> list = null;
         sql = "CALL getShipmentLinkingNotifications(?,?)";
         list = this.jdbcTemplate.query(sql, new ShipmentNotificationDTORowMapper(), programId, versionId);
-        System.out.println("list---" + list);
+//        System.out.println("list---" + list);
         return list;
     }
 
@@ -1780,7 +1780,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+//        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT COUNT(*) FROM ( "
                 + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
@@ -1808,7 +1808,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+//        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT s.`PROGRAM_ID`,p.`LABEL_ID`,p.`LABEL_EN`,p.`LABEL_FR`,p.`LABEL_SP`,p.`LABEL_PR`, "
                 + " COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT "
                 + " FROM rm_erp_notification n "
@@ -1870,7 +1870,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_planning_unit spu ON spu.PLANNING_UNIT_ID=:qatPlanningUnitId "
                 + "LEFT JOIN rm_forecasting_unit sfu ON spu.FORECASTING_UNIT_ID=sfu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
@@ -1901,7 +1901,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_planning_unit spu ON spu.PLANNING_UNIT_ID=:qatPlanningUnitId "
                 + "LEFT JOIN rm_forecasting_unit sfu ON spu.FORECASTING_UNIT_ID=sfu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
@@ -1941,7 +1941,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                LEFT JOIN rm_planning_unit spu ON spu.PLANNING_UNIT_ID=:planningUnitId "
                 + "                LEFT JOIN rm_forecasting_unit sfu ON spu.FORECASTING_UNIT_ID=sfu.FORECASTING_UNIT_ID "
                 + "                LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + "                LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
+                + "                LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE"
                 + "                LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
                 + "                WHERE  "
                 + "                    e.RECPIENT_COUNTRY=c.LABEL_EN "
@@ -1978,7 +1978,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE   "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.STATUS, e.STATUS)   "
                 + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID   "
-                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO   "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE   "
                 + "LEFT JOIN rm_shipment sh ON sl.CHILD_SHIPMENT_ID=sh.SHIPMENT_ID "
                 + "LEFT JOIN rm_shipment_trans sht on sh.SHIPMENT_ID=sht.SHIPMENT_ID AND sh.MAX_VERSION_ID=sht.VERSION_ID "
@@ -2034,7 +2034,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE  "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,:planningUnitIds) OR :planningUnitIds='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE  "
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.STATUS, e.STATUS)  "
-                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE  "
                 + "LEFT JOIN rm_shipment sh ON sl.CHILD_SHIPMENT_ID=sh.SHIPMENT_ID "
                 + "LEFT JOIN rm_shipment_trans sht ON sh.SHIPMENT_ID=sht.SHIPMENT_ID AND sh.MAX_VERSION_ID=sht.VERSION_ID "
@@ -2185,7 +2185,8 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         sqlString = "SELECT "
                 + "    p.PROGRAM_ID, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, p.PROGRAM_CODE, "
                 + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID,  group_concat(DISTINCT(st.SHIPMENT_ID)) as PARENT_LINKED_SHIPMENT_ID, slt.CONVERSION_FACTOR, "
-                + "    pm.USER_ID, pm.USERNAME ,st2.PLANNING_UNIT_ID,st2.REALM_COUNTRY_PLANNING_UNIT_ID,pu.LABEL_ID `PU_LABEL_ID`,pu.LABEL_EN `PU_LABEL_EN`,pu.LABEL_FR `PU_LABEL_FR`,pu.LABEL_SP `PU_LABEL_SP`,pu.LABEL_PR `PU_LABEL_PR`,rcpu.LABEL_ID `RCPU_LABEL_ID`,rcpu.LABEL_EN `RCPU_LABEL_EN`,rcpu.LABEL_FR `RCPU_LABEL_FR`,rcpu.LABEL_SP `RCPU_LABEL_SP`,rcpu.LABEL_PR `RCPU_LABEL_PR`,rcpu.MULTIPLIER `RCPU_MULTIPLIER` "
+                + "    pm.USER_ID, pm.USERNAME ,st2.PLANNING_UNIT_ID,st2.REALM_COUNTRY_PLANNING_UNIT_ID,pu.LABEL_ID `PU_LABEL_ID`,pu.LABEL_EN `PU_LABEL_EN`,pu.LABEL_FR `PU_LABEL_FR`,pu.LABEL_SP `PU_LABEL_SP`,pu.LABEL_PR `PU_LABEL_PR`,rcpu.LABEL_ID `RCPU_LABEL_ID`,rcpu.LABEL_EN `RCPU_LABEL_EN`,rcpu.LABEL_FR `RCPU_LABEL_FR`,rcpu.LABEL_SP `RCPU_LABEL_SP`,rcpu.LABEL_PR `RCPU_LABEL_PR`,rcpu.MULTIPLIER `RCPU_MULTIPLIER`,"
+                + "    lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sl.LAST_MODIFIED_DATE, st.SHIPMENT_QTY "
                 + "FROM tmp_shipment_linked_to_other_programs ts "
                 + "LEFT JOIN rm_shipment_linking sl ON ts.PROGRAM_ID!=sl.PROGRAM_ID AND ts.RO_NO=sl.RO_NO AND ts.RO_PRIME_LINE_NO=sl.RO_PRIME_LINE_NO "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID AND sl.MAX_VERSION_ID=slt.VERSION_ID "
@@ -2197,6 +2198,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN vw_realm_country_planning_unit rcpu on rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=st2.REALM_COUNTRY_PLANNING_UNIT_ID "
                 + "LEFT JOIN vw_program p ON sl.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
+                + "LEFT JOIN us_user lmb ON sl.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE slt.ACTIVE";
         return this.namedParameterJdbcTemplate.query(sqlString, new ShipmentLinkedToOtherProgramOutputRowMapper());
     }

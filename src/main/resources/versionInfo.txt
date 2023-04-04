@@ -1,3 +1,34 @@
+APP Version: 2.44.3961
+Front End Version: 10353
+Date: 2023-04-04
+Tickets part of this release: 
+QAT-2987
+QAT-2984
+QAT-2983
+QAT-2982
+QAT-2969
+QAT-2966
+QAT-2948
+QAT-2944
+QAT-2941
+QAT-2936
+QAT-2935
+QAT-2933
+QAT-2931
+QAT-2930
+QAT-2915
+QAT-2903
+QAT-2902
+QAT-2715
+
+APP Version: 2.43.3954
+Front End Version: 10309
+Date: 2023-03-22
+Tickets part of this release: 
+QAT-2842
+QAT-2754
+QAT-1308
+
 APP Version: 2.43.3946
 Front End Version: 10299
 Date: 2023-03-21
