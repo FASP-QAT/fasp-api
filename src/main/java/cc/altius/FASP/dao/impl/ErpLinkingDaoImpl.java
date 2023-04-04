@@ -494,7 +494,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                         logger.info(rows + " rows updated");
 
                     } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
-                        System.out.println("---------------3--------------");
+//                        System.out.println("---------------3--------------");
                         // The ERP Flag is true and the Parent Shipment Id is null
                         logger.info("ERP Linking : ERP Flag is true and Parent Shipment Id is null");
                         logger.info("ERP Linking : Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching");
@@ -969,7 +969,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 //                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
 //                        }
                     } else {
-                        System.out.println("---------------4--------------");
+//                        System.out.println("---------------4--------------");
                         // This is a new Link request coming through
                         // So make the Shipment, Active = fasle and ERPFlag = true
                         logger.info("ERP Linking : This is a new Link request coming through.So make the Shipment, Active = fasle and ERPFlag = true");
@@ -984,7 +984,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                                 + " WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
-                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
+//                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
                         params.put("curUser", curUser.getUserId());
                         params.put("curDate", curDate);
                         params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
@@ -1670,7 +1670,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
                 logger.info("ERP Linking : Update completed---");
             } else {
-                System.out.println("delinking inside else----------" + parentShipmentId);
+//                System.out.println("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
@@ -1680,7 +1680,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println("delinking inside else else----------" + maxTransId);
+//                System.out.println("delinking inside else else----------" + maxTransId);
             }
         }
 //        }
@@ -1753,7 +1753,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         List<ERPNotificationDTO> list = null;
         sql = "CALL getShipmentLinkingNotifications(?,?)";
         list = this.jdbcTemplate.query(sql, new ShipmentNotificationDTORowMapper(), programId, versionId);
-        System.out.println("list---" + list);
+//        System.out.println("list---" + list);
         return list;
     }
 
@@ -1780,7 +1780,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+//        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT COUNT(*) FROM ( "
                 + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
@@ -1808,7 +1808,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+//        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT s.`PROGRAM_ID`,p.`LABEL_ID`,p.`LABEL_EN`,p.`LABEL_FR`,p.`LABEL_SP`,p.`LABEL_PR`, "
                 + " COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT "
                 + " FROM rm_erp_notification n "
