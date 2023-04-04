@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
+import cc.altius.FASP.model.ManualIntegration;
 import java.util.List;
 
 /**
@@ -24,4 +25,12 @@ public interface IntegrationProgramDao {
     public IntegrationProgram getIntegrationProgramById(int integrationProgramId, CustomUserDetails curUser);
     
     public List<IntegrationProgram> getIntegrationProgramListForProgramId(int programId, CustomUserDetails curUser);
+    
+    public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser);
+
+    public List<ManualIntegration> getManualJsonPushReport(String startDat, String stopDate, CustomUserDetails curUser);
+
+    public List<ManualIntegration> getManualJsonPushForScheduler();
+
+    public int updateManualIntegrationProgramAsProcessed(int manualIntegrationId);
 }

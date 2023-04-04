@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.EmailService;
+import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.DateUtils;
@@ -43,6 +44,8 @@ public class ExportSupplyPlanJson {
 
     @Autowired
     private ProgramDataService programDataService;
+    @Autowired
+    private IntegrationProgramService integrationProgramService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -163,6 +166,117 @@ public class ExportSupplyPlanJson {
             }
         }
         logger.info(" #################### Completed Export process ####################### ");
+        return sb.toString();
+    }
+    
+    @GetMapping("/exportManualJson")
+    @ResponseBody
+    public String exportManualJson(Authentication auth) {
+        logger.info(" ################ Going to start Manual Supply Plan export process ############## ");
+        String newLine = "<br/>\n";
+        StringBuilder sb = new StringBuilder();
+        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
+        String[] subjectParam = new String[]{};
+        String[] bodyParam = null;
+        Emailer emailer = new Emailer();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(1); // Super User for the Export
+        logger.info("About to pull the Supply plan list that need to be exported");
+        List<ProgramIntegrationDTO> integrationList = this.programDataService.getSupplyPlanToExportList();
+        logger.info("Found " + integrationList.size() + " supply plans");
+        sb.append("Found ").append(integrationList.size()).append(" supply plans to export").append(newLine);
+        for (ProgramIntegrationDTO iDto : integrationList) {
+            try {
+                logger.info("Creating file and folder name");
+                logger.info("Starting export for " + iDto);
+                File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + iDto.getFolderName());
+                logger.info("Folder created");
+                sb.append("Begining export for ProgramId:").append(iDto.getProgramId()).append(" VersionId:").append(iDto.getVersionId()).append(" Integeration ").append(iDto.getIntegrationName()).append(newLine);
+                sb.append("Checking if Directory exists ").append(directory).append(newLine);
+                logger.info("Checking if directory exists");
+                if (directory.isDirectory()) {
+                    sb.append("Directory exists ").append(newLine);
+                    logger.info("Directory exists");
+                    ProgramData programData = this.programDataService.getProgramData(iDto.getProgramId(), iDto.getVersionId(), curUser, true, true);
+                    sb.append("Got the Program Data").append(newLine);
+                    logger.info("Got the Program Data");
+                    ObjectMapper mapper = new ObjectMapper();
+                    String json = "";
+                    sb.append("View set for ").append(iDto.getIntegrationViewName()).append(newLine);
+                    switch (iDto.getIntegrationViewId()) {
+                        case 2:
+                            json = mapper
+                                    .writerWithView(Views.ArtmisView.class)
+                                    .writeValueAsString(programData);
+                            break;
+                        case 3:
+                            json = mapper
+                                    .writerWithView(Views.GfpVanView.class)
+                                    .writeValueAsString(programData);
+                            break;
+                    }
+                    String path = directory.getPath() + "/" + iDto.getFinalFileName(curDate);
+                    sb.append("Absolute path of File ").append(path).append(newLine);
+                    FileWriter fileWriter = new FileWriter(path);
+                    fileWriter.write(json);
+                    fileWriter.flush();
+                    fileWriter.close();
+                    sb.append("Export completed").append(newLine).append(newLine);
+                    logger.info("Export completed");
+                    logger.info("Export supply plan successful for ProgramId:" + iDto.getProgramId() + " VersionId:" + iDto.getVersionId() + " IntegrationName:" + iDto.getIntegrationName());
+                    this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId());
+                } else {
+                    
+                    subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
+                    bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Directory does not exist for " + iDto.getIntegrationName(), "Directory does not exist for " + iDto.getIntegrationName()};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+                    sb.append("Directory does not exists for " + iDto.getIntegrationName()).append(newLine).append(newLine);
+                    logger.error("Directory does not exists for " + iDto.getIntegrationName());
+                }
+            } catch (FileNotFoundException e) {
+                subjectParam = new String[]{"supply plan", "File not found"};
+                bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "File not found", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                sb.append("File not found exception occured").append(newLine).append(newLine);
+                logger.error("File not found exception occured", e);
+            } catch (IOException e) {
+                subjectParam = new String[]{"supply plan", "Input/Output error"};
+                bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Input/Output error", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+                sb.append("IO exception occured").append(newLine).append(newLine);
+                logger.error("IO exception occured", e);
+            } catch (BadSqlGrammarException e) {
+                subjectParam = new String[]{"supply plan", "SQL Exception"};
+                bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "SQL Exception", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+                sb.append("SQL exception occured").append(newLine).append(newLine);
+                logger.error("SQL exception occured", e);
+            } catch (Exception e) {
+                subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
+                bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), e.getClass().getName().toString(), e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+                sb.append("Export supply plan exception occured").append(newLine).append(newLine);
+                logger.error("Export supply plan exception occured", e);
+            }
+        }
+        logger.info(" #################### Completed Export process ####################### ");
+        
+        
         return sb.toString();
     }
 }

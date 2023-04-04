@@ -8,7 +8,9 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.IntegrationProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
+import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.rowMapper.IntegrationProgramRowMapper;
+import cc.altius.FASP.model.rowMapper.ManualIntegrationRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -59,7 +61,15 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
             + "LEFT JOIN us_user cb ON ip.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON ip.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE ";
-
+    private final String sqlManualIntegration = "SELECT "
+            + "	im.MANUAL_INTEGRATION_ID, "
+            + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
+            + "    im.VERSION_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, im.COMPLETED_DATE, "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, im.CREATED_DATE "
+            + "FROM rm_integration_manual im "
+            + "LEFT JOIN vw_program p ON im.PROGRAM_ID=p.PROGRAM_ID "
+            + "LEFT JOIN ap_integration i ON im.INTEGRATION_ID=i.INTEGRATION_ID "
+            + "LEFT JOIN us_user cb ON im.CREATED_BY=cb.USER_ID";
 //    @Override
 //    public int addIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
 //        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_program").usingGeneratedKeyColumns("INTEGRATION_PROGRAM_ID");
@@ -76,6 +86,7 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
 //        params.put("LAST_MODIFIED_DATE", curDate);
 //        return si.executeAndReturnKey(params).intValue();
 //    }
+
     @Override
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser) {
         String sql = "UPDATE rm_integration_program ip SET ip.VERSION_TYPE_ID=:versionTypeId, ip.VERSION_STATUS_ID=:versionStatusId, ip.ACTIVE=:active, ip.LAST_MODIFIED_BY=:curUser, ip.LAST_MODIFIED_DATE=:curDate WHERE ip.INTEGRATION_PROGRAM_ID=:integrationProgramId";
@@ -147,6 +158,54 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
         sqlStringBuilder.append(" AND ip.PROGRAM_ID=:programId ");
         params.put("programId", programId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new IntegrationProgramRowMapper());
+    }
+
+    @Override
+    public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser) {
+
+        final List<SqlParameterSource> insertList = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        for (ManualIntegration mi : manualIntegrations) {
+            params.put("PROGRAM_ID", mi.getProgram().getId());
+            params.put("VERSION_ID", mi.getVersionId());
+            params.put("INTEGRATION_ID", mi.getIntegration().getId());
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("COMPLETED_DATE", null);
+            insertList.add(new MapSqlParameterSource(params));
+        }
+        int rowsUpdated = 0;
+        if (!insertList.isEmpty()) {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_manual");
+            rowsUpdated += si.executeBatch(insertList.toArray(new MapSqlParameterSource[insertList.size()])).length;
+        }
+        return rowsUpdated;
+    }
+
+    @Override
+    public List<ManualIntegration> getManualJsonPushReport(String startDate, String stopDate, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(sqlManualIntegration).append(" WHERE im.CREATED_DATE BETWEEN :startDate AND :stopDate");
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", startDate + " 00:00:00");
+        params.put("stopDate", stopDate + " 23:59:59");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ManualIntegrationRowMapper());
+    }
+
+    @Override
+    public List<ManualIntegration> getManualJsonPushForScheduler() {
+        StringBuilder sb = new StringBuilder(sqlManualIntegration).append(" WHERE im.COMPLETED_DATE IS NULL");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), new ManualIntegrationRowMapper());
+    }
+
+    @Override
+    public int updateManualIntegrationProgramAsProcessed(int manualIntegrationId) {
+        String sqlString = "UPDATE rm_integration_manual im SET im.COMPLETED_DATE=:completedDate WHERE im.MANUAL_INTEGRATION_ID=:manualIntegrationId";
+        Map<String, Object> params = new HashMap<>();
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        params.put("completedDate", curDate);
+        params.put("manualIntegrationId", manualIntegrationId);
+        return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
 }
