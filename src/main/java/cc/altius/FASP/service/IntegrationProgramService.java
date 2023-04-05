@@ -7,6 +7,8 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
+import cc.altius.FASP.model.ManualIntegration;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import java.util.List;
 
 /**
@@ -16,13 +18,20 @@ import java.util.List;
 public interface IntegrationProgramService {
 
 //    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
-
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser);
-    
+
     public List<IntegrationProgram> getIntegrationProgramList(CustomUserDetails curUser);
 
     public IntegrationProgram getIntegrationProgramById(int integrationProgramId, CustomUserDetails curUser);
-    
+
     public List<IntegrationProgram> getIntegrationProgramListForProgramId(int programId, CustomUserDetails curUser);
-   
+
+    public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser);
+
+    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser);
+
+    public List<ManualIntegration> getManualJsonPushForScheduler();
+
+    public int updateManualIntegrationProgramAsProcessed(int manualIntegrationId);
+
 }
