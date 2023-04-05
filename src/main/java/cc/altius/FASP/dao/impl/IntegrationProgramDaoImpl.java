@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.IntegrationProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.model.rowMapper.IntegrationProgramRowMapper;
 import cc.altius.FASP.model.rowMapper.ManualIntegrationRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -183,12 +184,14 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
     }
 
     @Override
-    public List<ManualIntegration> getManualJsonPushReport(String startDate, String stopDate, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(sqlManualIntegration).append(" WHERE im.CREATED_DATE BETWEEN :startDate AND :stopDate");
+    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser) {
+        String sqlString = "CALL getManualJsonPushReport(:startDate, :stopDate, :realmCountryIds, :programIds)";
         Map<String, Object> params = new HashMap<>();
-        params.put("startDate", startDate + " 00:00:00");
-        params.put("stopDate", stopDate + " 23:59:59");
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ManualIntegrationRowMapper(false));
+        params.put("startDate", mi.getStartDateString() + " 00:00:00");
+        params.put("stopDate", mi.getStopDateString() + " 23:59:59");
+        params.put("realmCountryIds", mi.getRealmCountryIdsString());
+        params.put("programIds", mi.getProgramIdsString());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ManualIntegrationRowMapper(false));
     }
 
     @Override

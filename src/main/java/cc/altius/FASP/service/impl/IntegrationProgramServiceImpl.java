@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.IntegrationProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,8 @@ public class IntegrationProgramServiceImpl implements IntegrationProgramService 
     }
 
     @Override
-    public List<ManualIntegration> getManualJsonPushReport(String startDat, String stopDate, CustomUserDetails curUser) {
-        return this.integrationProgramDao.getManualJsonPushReport(startDat, stopDate, curUser);
+    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser) {
+        return this.integrationProgramDao.getManualJsonPushReport(mi, curUser);
     }
 
     @Override
