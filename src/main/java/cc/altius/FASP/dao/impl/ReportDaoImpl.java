@@ -249,8 +249,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", it.getViewBy());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
         String sql = "CALL inventoryTurns(:dt, :viewBy, :programIdString, :productCategoryIdString, :includePlannedShipments)";
-        System.out.println(sql);
-        System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 
