@@ -941,7 +941,7 @@ public class ReportController {
      * @return returns the list the Manual Json push based on the date variables
      */
     @JsonView(Views.ReportView.class)
-    @GetMapping(value = "/manualJson")
+    @PostMapping(value = "/manualJson")
     @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push", tags = ("integrationProgram"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")

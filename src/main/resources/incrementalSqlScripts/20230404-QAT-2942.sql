@@ -7,10 +7,10 @@ CREATE TABLE `fasp`.`rm_integration_manual` (
   `CREATED_DATE` DATETIME NOT NULL,
   `COMPLETED_DATE` DATETIME NULL,
   PRIMARY KEY (`MANUAL_INTEGRATION_ID`),
-  INDEX `fk_rm_integration_manual_programId_idx` (`PROGRAM_ID` ASC) VISIBLE,
-  INDEX `fk_rm_integration_manual_versionId_idx` (`PROGRAM_ID` ASC, `VERSION_ID` ASC) VISIBLE,
-  INDEX `fk_rm_integration_manual_integrationId_idx` (`INTEGRATION_ID` ASC) VISIBLE,
-  INDEX `fk_rm_integration_manual_createdBy_idx` (`CREATED_BY` ASC) VISIBLE,
+  INDEX `fk_rm_integration_manual_programId_idx` (`PROGRAM_ID` ASC) ,
+  INDEX `fk_rm_integration_manual_versionId_idx` (`PROGRAM_ID` ASC, `VERSION_ID` ASC) ,
+  INDEX `fk_rm_integration_manual_integrationId_idx` (`INTEGRATION_ID` ASC) ,
+  INDEX `fk_rm_integration_manual_createdBy_idx` (`CREATED_BY` ASC) ,
   CONSTRAINT `fk_rm_integration_manual_programId`
     FOREIGN KEY (`PROGRAM_ID`)
     REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
@@ -35,10 +35,6 @@ CREATE TABLE `fasp`.`rm_integration_manual` (
 
 USE `fasp`;
 DROP procedure IF EXISTS `getManualJsonPushReport`;
-
-USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getManualJsonPushReport`;
-;
 
 DELIMITER $$
 USE `fasp`$$
@@ -69,3 +65,51 @@ DELIMITER ;
 ;
 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.integration.manualProgramIntegration','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manual Integration');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intégration manuelle');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Integración manual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Integração manual');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.requester','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Requester');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Demandeur');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Solicitante');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Solicitante');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.jsonCreationDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'JSON Creation Date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date de création JSON');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha de creación de JSON');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data de Criação do JSON');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.addManualIntegration','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add Manual Integration');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter une intégration manuelle');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Añadir integración manual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar integração manual');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.completed','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Completed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Complété');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Terminado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Concluído');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.requested','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Requested');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Demandé');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Solicitado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Requeridos');-- pr
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Manual Integration',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'1');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_MANUAL_INTEGRATION',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_MANUAL_INTEGRATION','1',NOW(),'1',NOW());
