@@ -20,7 +20,7 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
 
     @Override
     public InventoryTurnsOutput mapRow(ResultSet rs, int i) throws SQLException {
-        return new InventoryTurnsOutput(
+        InventoryTurnsOutput io = new InventoryTurnsOutput(
                 new SimpleObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("RC_").mapRow(rs, i)),
                 new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("P_").mapRow(rs, i), rs.getString("PROGRAM_CODE")),
                 new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, i)),
@@ -28,11 +28,16 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
                 rs.getLong("TOTAL_CONSUMPTION"),
                 rs.getDouble("AVG_STOCK"),
                 rs.getInt("NO_OF_MONTHS"),
-                rs.getDouble("INVENTORY_TURNS"),
                 rs.getInt("REORDER_FREQUENCY_IN_MONTHS"),
                 rs.getInt("MIN_MONTHS_OF_STOCK"),
                 rs.getInt("TOTAL_MONTHS_OF_PLANNED_CONSUMPTION"),
                 rs.getDouble("PLANNED_INVENTORY_TURNS"));
+        io.setInventoryTurns(rs.getDouble("INVENTORY_TURNS"));
+        if (rs.wasNull()) {
+            io.setInventoryTurns(null);
+        }
+        return io;
     }
+    
 
 }

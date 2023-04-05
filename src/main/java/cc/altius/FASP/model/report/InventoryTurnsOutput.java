@@ -32,7 +32,7 @@ public class InventoryTurnsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private int noOfMonths;
     @JsonView(Views.ReportView.class)
-    private double inventoryTurns;
+    private Double inventoryTurns;
     @JsonView(Views.ReportView.class)
     private int reorderFrequencyInMonths;
     @JsonView(Views.ReportView.class)
@@ -45,7 +45,7 @@ public class InventoryTurnsOutput implements Serializable {
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
         this.realmCountry = realmCountry;
         this.program = program;
         this.productCategory = productCategory;
@@ -53,7 +53,6 @@ public class InventoryTurnsOutput implements Serializable {
         this.totalConsumption = totalConsumption;
         this.avergeStock = avergeStock;
         this.noOfMonths = noOfMonths;
-        this.inventoryTurns = inventoryTurns;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.totalMonthsOfPlannedConsumption = totalMonthsOfPlannedConsumption;
@@ -116,11 +115,11 @@ public class InventoryTurnsOutput implements Serializable {
         this.noOfMonths = noOfMonths;
     }
 
-    public double getInventoryTurns() {
+    public Double getInventoryTurns() {
         return inventoryTurns;
     }
 
-    public void setInventoryTurns(double inventoryTurns) {
+    public void setInventoryTurns(Double inventoryTurns) {
         this.inventoryTurns = inventoryTurns;
     }
 
@@ -157,22 +156,38 @@ public class InventoryTurnsOutput implements Serializable {
     }
 
     @JsonView(Views.ReportView.class)
-    public double getDelta() {
-        return this.inventoryTurns - this.plannedInventoryTurns;
+    public Double getDelta() {
+        if (this.inventoryTurns == null) {
+            return null;
+        } else {
+            return this.inventoryTurns - this.plannedInventoryTurns;
+        }
     }
 
     @JsonView(Views.ReportView.class)
-    public double getAbsDelta() {
-        return Math.abs(getDelta());
+    public Double getAbsDelta() {
+        if (getDelta() == null) {
+            return null;
+        } else {
+            return Math.abs(getDelta());
+        }
     }
 
     @JsonView(Views.ReportView.class)
-    public double getMape() {
-        return Math.abs(getDelta() / getInventoryTurns());
+    public Double getMape() {
+        if (getInventoryTurns() == 0.0 || getInventoryTurns() == null) {
+            return null;
+        } else {
+            return Math.abs(getDelta() / getInventoryTurns());
+        }
     }
 
     @JsonView(Views.ReportView.class)
-    public double getMse() {
-        return getDelta() * getDelta();
+    public Double getMse() {
+        if (getDelta() == null) {
+            return null;
+        } else {
+            return getDelta() * getDelta();
+        }
     }
 }
