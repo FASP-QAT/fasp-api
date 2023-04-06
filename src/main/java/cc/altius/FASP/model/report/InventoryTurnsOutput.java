@@ -175,7 +175,9 @@ public class InventoryTurnsOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
     public Double getMape() {
-        if (getInventoryTurns() == 0.0 || getInventoryTurns() == null) {
+        if (getInventoryTurns() == null) {
+            return null;
+        } else if (getInventoryTurns() == 0.00) {
             return null;
         } else {
             return Math.abs(getDelta() / getInventoryTurns());
