@@ -7,6 +7,23 @@ CREATE TABLE `ap_reorder_master` (
 # Static data provided by FASP
 INSERT INTO ap_reorder_master VALUES ('12', '78'), ('11', '72'), ('10', '63'), ('9', '55'), ('8', '48'), ('7', '44'), ('6', '42'), ('5', '37'), ('4', '28'), ('3', '23'), ('2', '18'), ('1', '12');
 
+#Static Labels
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.actual','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual Inventory Turns');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotations réelles des stocks');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotación de inventario real');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giros de estoque reais');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.planned','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned Inventory Turns');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks planifiée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones planificadas de inventario');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giro de estoque planejado');-- pr
+
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
 
