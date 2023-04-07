@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -17,6 +18,12 @@ import java.io.Serializable;
 public class InventoryTurnsOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
+    private SimpleObject realmCountry;
+    @JsonView(Views.ReportView.class)
+    private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject productCategory;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
     private long totalConsumption;
@@ -25,17 +32,55 @@ public class InventoryTurnsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private int noOfMonths;
     @JsonView(Views.ReportView.class)
-    private double inventoryTurns;
+    private Double inventoryTurns;
+    @JsonView(Views.ReportView.class)
+    private int reorderFrequencyInMonths;
+    @JsonView(Views.ReportView.class)
+    private int minMonthsOfStock;
+    @JsonView(Views.ReportView.class)
+    private int totalMonthsOfPlannedConsumption;
+    @JsonView(Views.ReportView.class)
+    private double plannedInventoryTurns;
 
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
+        this.realmCountry = realmCountry;
+        this.program = program;
+        this.productCategory = productCategory;
         this.planningUnit = planningUnit;
         this.totalConsumption = totalConsumption;
         this.avergeStock = avergeStock;
         this.noOfMonths = noOfMonths;
-        this.inventoryTurns = inventoryTurns;
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+        this.minMonthsOfStock = minMonthsOfStock;
+        this.totalMonthsOfPlannedConsumption = totalMonthsOfPlannedConsumption;
+        this.plannedInventoryTurns = plannedInventoryTurns;
+    }
+
+    public SimpleObject getRealmCountry() {
+        return realmCountry;
+    }
+
+    public void setRealmCountry(SimpleObject realmCountry) {
+        this.realmCountry = realmCountry;
+    }
+
+    public SimpleCodeObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleCodeObject program) {
+        this.program = program;
+    }
+
+    public SimpleObject getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(SimpleObject productCategory) {
+        this.productCategory = productCategory;
     }
 
     public SimpleObject getPlanningUnit() {
@@ -70,12 +115,81 @@ public class InventoryTurnsOutput implements Serializable {
         this.noOfMonths = noOfMonths;
     }
 
-    public double getInventoryTurns() {
+    public Double getInventoryTurns() {
         return inventoryTurns;
     }
 
-    public void setInventoryTurns(double inventoryTurns) {
+    public void setInventoryTurns(Double inventoryTurns) {
         this.inventoryTurns = inventoryTurns;
     }
 
+    public int getReorderFrequencyInMonths() {
+        return reorderFrequencyInMonths;
+    }
+
+    public void setReorderFrequencyInMonths(int reorderFrequencyInMonths) {
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+    }
+
+    public int getMinMonthsOfStock() {
+        return minMonthsOfStock;
+    }
+
+    public void setMinMonthsOfStock(int minMonthsOfStock) {
+        this.minMonthsOfStock = minMonthsOfStock;
+    }
+
+    public int getTotalMonthsOfPlannedConsumption() {
+        return totalMonthsOfPlannedConsumption;
+    }
+
+    public void setTotalMonthsOfPlannedConsumption(int totalMonthsOfPlannedConsumption) {
+        this.totalMonthsOfPlannedConsumption = totalMonthsOfPlannedConsumption;
+    }
+
+    public double getPlannedInventoryTurns() {
+        return plannedInventoryTurns;
+    }
+
+    public void setPlannedInventoryTurns(double plannedInventoryTurns) {
+        this.plannedInventoryTurns = plannedInventoryTurns;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getDelta() {
+        if (this.inventoryTurns == null) {
+            return null;
+        } else {
+            return this.inventoryTurns - this.plannedInventoryTurns;
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getAbsDelta() {
+        if (getDelta() == null) {
+            return null;
+        } else {
+            return Math.abs(getDelta());
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getMape() {
+        if (getInventoryTurns() == null) {
+            return null;
+        } else if (getInventoryTurns() == 0.00) {
+            return null;
+        } else {
+            return Math.abs(getDelta() / getInventoryTurns());
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getMse() {
+        if (getDelta() == null) {
+            return null;
+        } else {
+            return getDelta() * getDelta();
+        }
+    }
 }

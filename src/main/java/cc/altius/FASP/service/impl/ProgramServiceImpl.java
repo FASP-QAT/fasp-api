@@ -422,4 +422,16 @@ public class ProgramServiceImpl implements ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
         return this.programDao.getLatestVersionForPrograms(programIds);
     }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByRealmCountryIdList(realmCountryIds, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByProductCategoryIdList(productCategoryIds, curUser);
+    }
+    
+    
 }
