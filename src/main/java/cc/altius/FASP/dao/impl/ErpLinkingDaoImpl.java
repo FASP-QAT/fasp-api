@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ArtmisHistory;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
+import cc.altius.FASP.model.DTO.ErpAutoCompleteDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
@@ -1857,7 +1858,21 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     }
 
     @Override
-    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser) {
+    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        String sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        for (RoAndRoPrimeLineNo roAndRoPrimeLineNo : erpAutoCompleteDTO.getDelinkedList()) {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", roAndRoPrimeLineNo.getRoNo());
+            param.addValue("roPrimeLineNo", roAndRoPrimeLineNo.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        if (paramList.size() > 0) {
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        }
         StringBuilder sb = new StringBuilder("Select DISTINCT(RO_NO) FROM  (SELECT DISTINCT(e.`RO_NO`) `RO_NO` "
                 + "FROM rm_erp_order_consolidated e "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO "
@@ -1872,6 +1887,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
+                + "LEFT JOIN tmp_delinked_list dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND e.ACTIVE "
@@ -1882,11 +1898,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
         );
-        if (roPo != null) {
-            sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
+        if (erpAutoCompleteDTO.getRoPo() != null) {
+            sb.append("    AND (e.RO_NO LIKE '%").append(erpAutoCompleteDTO.getRoPo()).append("%' OR e.ORDER_NO LIKE '%").append(erpAutoCompleteDTO.getRoPo()).append("%') ");
         }
 
-        sb.append("    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL"
+        sb.append("    AND (slt.SHIPMENT_LINKING_TRANS_ID IS NULL OR dl.RO_NO IS NOT NULL) "
                 + "    AND (:erpPlanningUnitId=0 OR papu.PLANNING_UNIT_ID=:erpPlanningUnitId) "
                 + " UNION "
                 + " (SELECT DISTINCT(e.`ORDER_NO`) `RO_NO` "
@@ -1903,6 +1919,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
+                + "LEFT JOIN tmp_delinked_list dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND e.ACTIVE "
@@ -1913,22 +1930,38 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
         );
-        if (roPo != null) {
-            sb.append("    AND (e.RO_NO LIKE '%").append(roPo).append("%' OR e.ORDER_NO LIKE '%").append(roPo).append("%') ");
+        if (erpAutoCompleteDTO.getRoPo() != null) {
+            sb.append("    AND (e.RO_NO LIKE '%").append(erpAutoCompleteDTO.getRoPo()).append("%' OR e.ORDER_NO LIKE '%").append(erpAutoCompleteDTO.getRoPo()).append("%') ");
         }
-
-        sb.append("    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL"
+        sb.append("    AND (slt.SHIPMENT_LINKING_TRANS_ID IS NULL OR dl.RO_NO IS NOT NULL) "
                 + "    AND (:erpPlanningUnitId=0 OR papu.PLANNING_UNIT_ID=:erpPlanningUnitId))"
                 + " ) a");
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("erpPlanningUnitId", erpPlanningUnitId);
-        params.put("qatPlanningUnitId", qatPlanningUnitId);
-        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+        params.put("programId", erpAutoCompleteDTO.getProgramId());
+        params.put("erpPlanningUnitId", erpAutoCompleteDTO.getErpPlanningUnitId());
+        params.put("qatPlanningUnitId", erpAutoCompleteDTO.getQatPlanningUnitId());
+        List<String> outputList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        params.clear();
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return outputList;
     }
 
     @Override
     public List<SimpleCodeObject> autoCompletePu(AutoCompletePuDTO autoCompletePuDTO, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        String sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        for (RoAndRoPrimeLineNo roAndRoPrimeLineNo : autoCompletePuDTO.getDelinkedList()) {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", roAndRoPrimeLineNo.getRoNo());
+            param.addValue("roPrimeLineNo", roAndRoPrimeLineNo.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        if (paramList.size() > 0) {
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        }
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_PR, pu.LABEL_SP, papu.SKU_CODE `CODE`"
                 + "                FROM rm_erp_order_consolidated e "
                 + "                LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO "
@@ -1943,6 +1976,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + "                LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE"
                 + "                LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
+                + "                LEFT JOIN tmp_delinked_list dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
                 + "                WHERE  "
                 + "                    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "                    AND e.ACTIVE "
@@ -1952,18 +1986,21 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
                 + "                    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + "                    AND (sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID) "
-                + "     AND (pu.`LABEL_EN` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%' OR papu.`SKU_CODE` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%') AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL group by pu.PLANNING_UNIT_ID");
-        Map<String, Object> params = new HashMap<>();
+                + "     AND (pu.`LABEL_EN` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%' OR papu.`SKU_CODE` LIKE '%").append(autoCompletePuDTO.getPuName()).append("%') AND (slt.SHIPMENT_LINKING_TRANS_ID IS NULL OR dl.RO_NO IS NOT NULL) group by pu.PLANNING_UNIT_ID");
         params.put("planningUnitId", autoCompletePuDTO.getPlanningUnitId());
         params.put("programId", autoCompletePuDTO.getProgramId());
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        List<SimpleCodeObject> outputList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        params.clear();
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return outputList;
     }
 
     @Override
     @Transactional
     public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sqlString = "CREATE TABLE `tmp_delinked_list` (`RO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO`, `RO_PRIME_LINE_NO`))";
+        String sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
         List<SqlParameterSource> paramList = new LinkedList<>();
@@ -2025,9 +2062,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("roNo", input.getRoNo());
         params.put("filterPlanningUnitId", input.getFilterPlanningUnitId());
         List<ShipmentLinkingOutput> shipmentList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
-//        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
-//        params.clear();
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        params.clear();
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         return shipmentList;
     }
 

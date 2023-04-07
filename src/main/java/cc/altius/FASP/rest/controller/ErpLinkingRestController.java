@@ -246,8 +246,8 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}/{qatPlanningUnitId}")
-    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int erpPlanningUnitId, @PathVariable("qatPlanningUnitId") int qatPlanningUnitId, Authentication auth) {
+    @PostMapping("/api/erpLinking/autoCompleteOrder")
+    public ResponseEntity autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDto, Authentication auth) {
         try {
             if (roPo.equals("0")) {
                 roPo = null;
