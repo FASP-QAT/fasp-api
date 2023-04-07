@@ -105,4 +105,8 @@ public interface ProgramService {
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
+
 }
