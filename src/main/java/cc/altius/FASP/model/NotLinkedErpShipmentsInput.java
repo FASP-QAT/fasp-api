@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model;
 
+import java.util.List;
+
 /**
  *
  * @author akil
@@ -17,6 +19,7 @@ public class NotLinkedErpShipmentsInput {
     private String roNo;
     private int filterPlanningUnitId;
     private int realmCountryId;
+    private List<RoAndRoPrimeLineNo> delinkedList;
 
     public int getProgramId() {
         return programId;
@@ -64,6 +67,14 @@ public class NotLinkedErpShipmentsInput {
 
     public void setRealmCountryId(int realmCountryId) {
         this.realmCountryId = realmCountryId;
+    }
+
+    public List<RoAndRoPrimeLineNo> getDelinkedList() {
+        return delinkedList;
+    }
+
+    public void setDelinkedList(List<RoAndRoPrimeLineNo> delinkedList) {
+        this.delinkedList = delinkedList;
     }
 
     @Override

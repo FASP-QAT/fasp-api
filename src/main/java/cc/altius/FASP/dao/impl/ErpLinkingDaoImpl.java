@@ -1960,7 +1960,22 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     }
 
     @Override
+    @Transactional
     public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        String sqlString = "CREATE TABLE `tmp_delinked_list` (`RO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO`, `RO_PRIME_LINE_NO`))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        for (RoAndRoPrimeLineNo roAndRoPrimeLineNo : input.getDelinkedList()) {
+            MapSqlParameterSource param = new MapSqlParameterSource();
+            param.addValue("roNo", roAndRoPrimeLineNo.getRoNo());
+            param.addValue("roPrimeLineNo", roAndRoPrimeLineNo.getRoPrimeLineNo());
+            paramList.add(param);
+        }
+        if (paramList.size() > 0) {
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        }
         StringBuilder sqlStringBuilder = new StringBuilder(""
                 + "SELECT   "
                 + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO, e.`ACTIVE` `ORDER_ACTIVE`,   "
@@ -1980,6 +1995,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN vw_shipment_status ss ON sm.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID   "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE   "
+                + "LEFT JOIN tmp_delinked_list dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
                 + "LEFT JOIN rm_shipment sh ON sl.CHILD_SHIPMENT_ID=sh.SHIPMENT_ID "
                 + "LEFT JOIN rm_shipment_trans sht on sh.SHIPMENT_ID=sht.SHIPMENT_ID AND sh.MAX_VERSION_ID=sht.VERSION_ID "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu on left(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE   "
@@ -1999,17 +2015,20 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
                 + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
-                + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL   "
+                + "    AND (slt.SHIPMENT_LINKING_TRANS_ID IS NULL OR dl.RO_NO IS NOT NULL)  "
                 + "    AND sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID   "
                 + "ORDER BY e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO");
-        Map<String, Object> params = new HashMap<>();
         params.put("versionId", input.getVersionId());
         params.put("shipmentProgramId", input.getProgramId());
         params.put("realmCountryId", input.getRealmCountryId());
         params.put("shipmentPlanningUnitId", input.getShipmentPlanningUnitId());
         params.put("roNo", input.getRoNo());
         params.put("filterPlanningUnitId", input.getFilterPlanningUnitId());
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+        List<ShipmentLinkingOutput> shipmentList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
+//        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+//        params.clear();
+//        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return shipmentList;
     }
 
     @Override
