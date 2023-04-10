@@ -248,7 +248,7 @@ public class ErpLinkingRestController {
      * @return
      */
     @PostMapping("/api/erpLinking/autoCompleteOrder")
-    public ResponseEntity autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDto, Authentication auth) {
+    public ResponseEntity autoCompleteOrder(@RequestBody ErpAutoCompleteDTO erpAutoCompleteDto, Authentication auth) {
         try {
             if (erpAutoCompleteDto.getRoPo().equals("0")) {
                 erpAutoCompleteDto.setRoPo(null);

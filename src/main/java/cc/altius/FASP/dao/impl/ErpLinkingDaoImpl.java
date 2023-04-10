@@ -1860,7 +1860,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
     @Override
     public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        String sqlString = "CREATE TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
         List<SqlParameterSource> paramList = new LinkedList<>();
@@ -1940,7 +1940,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("erpPlanningUnitId", erpAutoCompleteDTO.getErpPlanningUnitId());
         params.put("qatPlanningUnitId", erpAutoCompleteDTO.getQatPlanningUnitId());
         List<String> outputList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
-        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        sqlString = "DROP TABLE IF EXISTS `tmp_delinked_list`";
         params.clear();
         this.namedParameterJdbcTemplate.update(sqlString, params);
         return outputList;
@@ -1990,7 +1990,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("planningUnitId", autoCompletePuDTO.getPlanningUnitId());
         params.put("programId", autoCompletePuDTO.getProgramId());
         List<SimpleCodeObject> outputList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
-        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_delinked_list`";
         params.clear();
         this.namedParameterJdbcTemplate.update(sqlString, params);
         return outputList;
@@ -2062,7 +2062,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         params.put("roNo", input.getRoNo());
         params.put("filterPlanningUnitId", input.getFilterPlanningUnitId());
         List<ShipmentLinkingOutput> shipmentList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ShipmentLinkingOutputRowMapper());
-        sqlString = "DROP TABLE IF EXISTS 'tmp_delinked_list'";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_delinked_list`";
         params.clear();
         this.namedParameterJdbcTemplate.update(sqlString, params);
         return shipmentList;
