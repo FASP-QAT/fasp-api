@@ -1857,12 +1857,15 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentListResultSetExtractor());
     }
 
+    @Transactional
     @Override
     public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sqlString = "CREATE TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        String sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
+        sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list_copy` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        
         List<SqlParameterSource> paramList = new LinkedList<>();
         for (RoAndRoPrimeLineNo roAndRoPrimeLineNo : erpAutoCompleteDTO.getDelinkedList()) {
             MapSqlParameterSource param = new MapSqlParameterSource();
@@ -1871,6 +1874,9 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
             paramList.add(param);
         }
         if (paramList.size() > 0) {
+            sqlString = "INSERT INTO tmp_delinked_list VALUES (:roNo, :roPrimeLineNo)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+            sqlString = "INSERT INTO tmp_delinked_list_copy VALUES (:roNo, :roPrimeLineNo)";
             this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         }
         StringBuilder sb = new StringBuilder("Select DISTINCT(RO_NO) FROM  (SELECT DISTINCT(e.`RO_NO`) `RO_NO` "
@@ -1919,7 +1925,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO AND sl.ACTIVE "
                 + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID  AND slt.ACTIVE "
-                + "LEFT JOIN tmp_delinked_list dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
+                + "LEFT JOIN tmp_delinked_list_copy dl ON sl.RO_NO=dl.RO_NO AND sl.RO_PRIME_LINE_NO=dl.RO_PRIME_LINE_NO "
                 + "WHERE  "
                 + "    e.RECPIENT_COUNTRY=c.LABEL_EN "
                 + "    AND e.ACTIVE "
@@ -1943,9 +1949,13 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         sqlString = "DROP TABLE IF EXISTS `tmp_delinked_list`";
         params.clear();
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TABLE IF EXISTS `tmp_delinked_list_copy`";
+        params.clear();
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         return outputList;
     }
 
+    @Transactional
     @Override
     public List<SimpleCodeObject> autoCompletePu(AutoCompletePuDTO autoCompletePuDTO, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
