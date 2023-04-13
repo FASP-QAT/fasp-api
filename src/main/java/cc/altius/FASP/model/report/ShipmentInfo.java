@@ -35,6 +35,8 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private String notes;
     @JsonView(Views.ReportView.class)
+    private String orderNo;
+    @JsonView(Views.ReportView.class)
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date receivedDate; // If Status is Not Received then ERD if Receied then Received Date
@@ -44,13 +46,14 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, Date receivedDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String orderNo, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
+        this.orderNo = orderNo;
         this.receivedDate = receivedDate;
         this.dataSource = dataSource;
     }
@@ -101,6 +104,14 @@ public class ShipmentInfo implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 
     public Date getReceivedDate() {

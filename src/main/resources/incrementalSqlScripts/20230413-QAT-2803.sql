@@ -1,4 +1,13 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusReportVertical`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`stockStatusReportVertical`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16
@@ -104,7 +113,11 @@ BEGIN
         LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID
         LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID
     WHERE
-        mn.MONTH BETWEEN @startDate AND @stopDate
+        mn.MONTH BETWEEN @startDate AND @stopDate 
     ORDER BY mn.MONTH, sh.sHIPMENT_ID) AS s2;
     
-END
+END$$
+
+DELIMITER ;
+;
+
