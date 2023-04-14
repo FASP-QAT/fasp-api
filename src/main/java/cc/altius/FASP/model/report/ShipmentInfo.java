@@ -37,6 +37,8 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private String orderNo;
     @JsonView(Views.ReportView.class)
+    private String primeLineNo;
+    @JsonView(Views.ReportView.class)
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date receivedDate; // If Status is Not Received then ERD if Receied then Received Date
@@ -46,7 +48,7 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String orderNo, Date receivedDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
@@ -54,6 +56,7 @@ public class ShipmentInfo implements Serializable {
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
         this.orderNo = orderNo;
+        this.primeLineNo = primeLineNo;
         this.receivedDate = receivedDate;
         this.dataSource = dataSource;
     }
@@ -112,6 +115,14 @@ public class ShipmentInfo implements Serializable {
 
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public String getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(String primeLineNo) {
+        this.primeLineNo = primeLineNo;
     }
 
     public Date getReceivedDate() {
