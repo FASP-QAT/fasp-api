@@ -12,6 +12,7 @@ import cc.altius.FASP.model.DTO.ArtmisHistory;
 import cc.altius.FASP.model.DTO.ArtmisHistoryErpOrder;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
+import cc.altius.FASP.model.DTO.ErpAutoCompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
@@ -163,9 +164,9 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser) {
-        this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        return this.erpLinkingDao.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser);
+    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
+        this.programService.getProgramById(erpAutoCompleteDTO.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.erpLinkingDao.autoCompleteOrder(erpAutoCompleteDTO, curUser);
     }
 
     @Override
