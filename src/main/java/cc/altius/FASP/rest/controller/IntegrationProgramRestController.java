@@ -7,9 +7,13 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
+import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -26,6 +30,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,7 +69,7 @@ public class IntegrationProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * API used to get the complete Integration Program list for a ProgramId.
      *
@@ -88,10 +93,11 @@ public class IntegrationProgramRestController {
     }
 
     /**
-     * API used to get the Integration Program for a specific IntegrationProgramId
+     * API used to get the Integration Program for a specific
+     * IntegrationProgramId
      *
-     * @param integrationProgramId IntegrationProgramId that you want the Integration Program for
-     * Object for
+     * @param integrationProgramId IntegrationProgramId that you want the
+     * Integration Program for Object for
      * @param auth
      * @return returns the list the Integration Program object based on
      * IntegrationProgramId specified
@@ -151,11 +157,11 @@ public class IntegrationProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     /**
      * API used to update an IntegrationProgram
      *
-     * @param integrationPrograms Array of IntegrationProgram that you want to update
+     * @param integrationPrograms Array of IntegrationProgram that you want to
+     * update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
@@ -187,4 +193,38 @@ public class IntegrationProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * API used to add a Manual JSON push
+     *
+     * @param integrationPrograms Array of IntegrationProgram that you want to
+     * update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PostMapping(path = "/manualJson")
+    @Operation(description = "API used to add a manual JSON push", summary = "Add manual JSON push", tags = ("integrationProgram"))
+    @Parameters(
+            @Parameter(name = "manualIntegrations", description = "An array of Manual Integration requests that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId supplied does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity addManualJsonPush(@RequestBody ManualIntegration manualIntegrations[], Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.integrationProgramService.addManualJsonPush(manualIntegrations, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to add manual Json push", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add manual Json push", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add manual Json push", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
