@@ -68,10 +68,10 @@ DELIMITER ;
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.integration.manualProgramIntegration','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manual Integration');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intégration manuelle');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Integración manual');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Integração manual');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'JSON Generation');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Génération JSON');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Generación JSON');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Geração JSON');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.requester','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -82,17 +82,17 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Solicitante');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.jsonCreationDate','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'JSON Creation Date');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date de création JSON');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha de creación de JSON');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data de Criação do JSON');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'JSON Requested Date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date demandée JSON');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha solicitada de JSON');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data solicitada JSON');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.addManualIntegration','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add Manual Integration');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter une intégration manuelle');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Añadir integración manual');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar integração manual');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Request JSON');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Demande JSON');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Solicitar JSON');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Solicitar JSON');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.manualIntegration.completed','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
