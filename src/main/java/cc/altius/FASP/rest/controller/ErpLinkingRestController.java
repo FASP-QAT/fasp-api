@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
+import cc.altius.FASP.model.DTO.ErpAutoCompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
@@ -246,15 +247,15 @@ public class ErpLinkingRestController {
      * @param auth
      * @return
      */
-    @GetMapping("/api/erpLinking/autoCompleteOrder/{programId}/{erpPlanningUnitId}/{roPo}/{qatPlanningUnitId}")
-    public ResponseEntity autoCompleteOrder(@PathVariable("roPo") String roPo, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int erpPlanningUnitId, @PathVariable("qatPlanningUnitId") int qatPlanningUnitId, Authentication auth) {
+    @PostMapping("/api/erpLinking/autoCompleteOrder")
+    public ResponseEntity autoCompleteOrder(@RequestBody ErpAutoCompleteDTO erpAutoCompleteDto, Authentication auth) {
         try {
-            if (roPo.equals("0")) {
-                roPo = null;
+            if (erpAutoCompleteDto.getRoPo().equals("0")) {
+                erpAutoCompleteDto.setRoPo(null);
             }
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (roPo == null || roPo.length() >= 4) {
-                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser), HttpStatus.OK);
+            if (erpAutoCompleteDto.getRoPo() == null || erpAutoCompleteDto.getRoPo().length() >= 4) {
+                return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(erpAutoCompleteDto, curUser), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new LinkedList<String>(), HttpStatus.OK);
             }
