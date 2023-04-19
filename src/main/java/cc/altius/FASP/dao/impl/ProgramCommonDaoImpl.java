@@ -42,10 +42,21 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     @Override
     public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder;
+        if (programTypeId == -1) {
+            Map<String, Object> param = new HashMap<>();
+            param.put("programId", programId);
+            try {
+                programTypeId = this.namedParameterJdbcTemplate.queryForObject("SELECT p.PROGRAM_TYPE_ID FROM rm_program p WHERE p.PROGRAM_ID=:programId", param, Integer.class).intValue();
+            } catch (EmptyResultDataAccessException erda) {
+                return null;
+            }
+        }
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListString);
-        } else {
+        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
             sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListString);
+        } else {
+            return null;
         }
         sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
@@ -53,7 +64,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         sqlStringBuilder.append(ProgramDaoImpl.sqlOrderBy);
         Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
         if (p == null) {
-            throw new EmptyResultDataAccessException(1);
+            return null;
         }
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return p;
