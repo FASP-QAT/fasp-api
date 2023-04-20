@@ -217,8 +217,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         for (int programId : programMap.keySet()) {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
-                Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                if (p.getCurrentVersion().getVersionId() > versionId) {
+                Program p = this.programCommonDao.getProgramById(programId, -1, curUser);
+                if (p!=null && p.getCurrentVersion().getVersionId() > versionId) {
                     newer = true;
                 }
             }
