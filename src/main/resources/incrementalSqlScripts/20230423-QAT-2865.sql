@@ -1,3 +1,21 @@
+ALTER TABLE `fasp`.`rm_supply_plan_batch_qty` ADD INDEX `idx_transDate` (`TRANS_DATE` ASC);
+ALTER TABLE `fasp`.`rm_supply_plan_batch_qty` ADD INDEX `idx_expiredStock` (`EXPIRED_STOCK` ASC);
+ALTER TABLE `fasp`.`rm_supply_plan_batch_qty` ADD INDEX `idx_expiredStockWps` (`EXPIRED_STOCK_WPS` ASC);
+-- ALTER TABLE `fasp`.`rm_batch_info` ADD COLUMN `COST` DOUBLE UNSIGNED NOT NULL AFTER `AUTO_GENERATED`;
+-- UPDATE rm_batch_info bi LEFT JOIN rm_program_planning_unit ppu ON bi.PROGRAM_ID=ppu.PROGRAM_ID AND bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID SET bi.COST=IFNULL(ppu.CATALOG_PRICE,0) WHERE bi.AUTO_GENERATED=1;
+-- UPDATE rm_batch_info bi LEFT JOIN rm_shipment_trans_batch_info stbi ON bi.BATCH_ID=stbi.BATCH_ID LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID SET 	bi.COST=IFNULL(((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))/IFNULL(IF(st.SHIPMENT_QTY=0,1,st.SHIPMENT_QTY),1)),0) WHERE bi.AUTO_GENERATED=0;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getExpiredStock`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getExpiredStock`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getExpiredStock`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_INCLUDE_PLANNED_SHIPMENTS BOOLEAN)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,7 +43,7 @@ BEGIN
         p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`,
         pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, ppu.ACTIVE `PPU_ACTIVE`,
         bi.BATCH_ID, bi.BATCH_NO, bi.AUTO_GENERATED, spbq.EXPIRY_DATE, 
--- spbq.RATE, 
+-- spbq.COST, 
         bi.CREATED_DATE, IF (@includePlannedShipments=1, spbq.EXPIRED_STOCK, spbq.EXPIRED_STOCK_WPS) `EXPIRED_STOCK`,
         timestampdiff(MONTH, CONCAT(LEFT(bi.CREATED_DATE,7),"-01"),spbq.EXPIRY_DATE) `SHELF_LIFE`,
         bTrans.TRANS_DATE `BATCH_TRANS_DATE`,
@@ -44,4 +62,8 @@ BEGIN
     WHERE pu.ACTIVE AND spbq.PROGRAM_ID=@programId AND spbq.VERSION_ID=@versionId AND spbq.TRANS_DATE BETWEEN @startDate AND @stopDate AND (@includePlannedShipments=1 AND spbq.EXPIRED_STOCK>0 OR @includePlannedShipments=0 AND spbq.EXPIRED_STOCK_WPS>0)
     ORDER BY spbq.EXPIRY_DATE, pu.LABEL_EN, spbq.BATCH_ID, bTrans.TRANS_DATE;
     
-END
+END$$
+
+DELIMITER ;
+;
+
