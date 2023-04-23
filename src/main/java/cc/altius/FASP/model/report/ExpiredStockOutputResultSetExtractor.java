@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class ExpiredStockOutputResultSetExtractor implements ResultSetExtractor<List<ExpiredStockOutput>> {
-
+    
     @Override
     public List<ExpiredStockOutput> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<ExpiredStockOutput> esList = new LinkedList<>();
@@ -30,8 +30,12 @@ public class ExpiredStockOutputResultSetExtractor implements ResultSetExtractor<
                 ExpiredStockOutput es = new ExpiredStockOutput();
                 es.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")));
                 es.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)));
-                es.setBatchInfo(new Batch(rs.getInt("BATCH_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"), rs.getDate("EXPIRY_DATE"), rs.getDouble("RATE"), rs.getTimestamp("CREATED_DATE")));
+                es.setBatchInfo(new Batch(rs.getInt("BATCH_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"), rs.getDate("EXPIRY_DATE"), rs.getTimestamp("CREATED_DATE")));
                 es.setExpiredQty(rs.getLong("EXPIRED_STOCK"));
+                es.setCost(rs.getDouble("COST"));
+                if (rs.wasNull()) {
+                    es.setCost(null);
+                }
                 int idx = esList.indexOf(es);
                 if (idx == -1) {
                     esList.add(es);
@@ -78,5 +82,5 @@ public class ExpiredStockOutputResultSetExtractor implements ResultSetExtractor<
         }
         return esList;
     }
-
+    
 }
