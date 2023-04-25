@@ -116,9 +116,12 @@ public class ExportSupplyPlanJson {
                     sb.append("Export completed").append(newLine).append(newLine);
                     logger.info("Export completed");
                     logger.info("Export supply plan successful for ProgramId:" + iDto.getProgramId() + " VersionId:" + iDto.getVersionId() + " IntegrationName:" + iDto.getIntegrationName());
-                    this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId());
+                    if (this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId())) {
+                        logger.info("Integration marked as Completed");
+                    } else {
+                        logger.info("Integration could not be marked as Completed, will be triggered again in the next cycle");
+                    }
                 } else {
-                    
                     subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
                     bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Directory does not exist for " + iDto.getIntegrationName(), "Directory does not exist for " + iDto.getIntegrationName()};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
