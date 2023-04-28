@@ -263,7 +263,7 @@ public class ReportDaoImpl implements ReportDao {
         List<ExpiredStockOutput> expiredStockList = this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
         String batchIdList = expiredStockList.stream().map(exp -> Integer.toString(exp.getBatchInfo().getBatchId())).collect(Collectors.joining(","));
         if (batchIdList != null && !batchIdList.equals("")) {
-            sql = "SELECT stbi.BATCH_ID, (st.PRODUCT_COST+IFNULL(st.FREIGHT_COST,0))/st.SHIPMENT_QTY `COST`, st.VERSION_ID "
+            sql = "SELECT stbi.BATCH_ID, st.RATE*st.SHIPMENT_QTY `COST`, st.VERSION_ID "
                     + "FROM rm_shipment_trans_batch_info stbi "
                     + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=:versionId "
                     + "WHERE stbi.BATCH_ID in (" + batchIdList + ") "
