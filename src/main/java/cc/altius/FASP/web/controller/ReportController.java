@@ -527,8 +527,8 @@ public class ReportController {
         List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (String planningUnitIdStr : ssv.getPlanningUnitIds()) {
-                ssv.setPlanningUnitId(Integer.parseInt(planningUnitIdStr));
+            for (int planningUnitId : ssv.getPlanningUnitIds()) {
+                ssv.setPlanningUnitId(planningUnitId);
                 ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
             }
             return new ResponseEntity(ssvoMultiList, HttpStatus.OK);

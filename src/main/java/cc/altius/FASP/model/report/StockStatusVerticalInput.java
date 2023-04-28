@@ -27,7 +27,7 @@ public class StockStatusVerticalInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] planningUnitIds;
+    private int[] planningUnitIds;
     @JsonIgnore
     private int planningUnitId;
 
@@ -71,11 +71,11 @@ public class StockStatusVerticalInput implements Serializable {
         this.planningUnitId = planningUnitId;
     }
 
-    public String[] getPlanningUnitIds() {
+    public int[] getPlanningUnitIds() {
         return planningUnitIds;
     }
 
-    public void setPlanningUnitIds(String[] planningUnitIds) {
+    public void setPlanningUnitIds(int[] planningUnitIds) {
         this.planningUnitIds = planningUnitIds;
     }
 
