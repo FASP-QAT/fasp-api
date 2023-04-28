@@ -7,6 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -27,6 +28,7 @@ public class StockStatusVerticalInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private String[] planningUnitIds;
+    @JsonIgnore
     private int planningUnitId;
 
     public int getProgramId() {
