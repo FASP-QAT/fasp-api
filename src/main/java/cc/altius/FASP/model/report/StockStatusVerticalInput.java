@@ -17,7 +17,7 @@ import java.util.Date;
  * @author akil
  */
 public class StockStatusVerticalInput implements Serializable {
-    
+
     private int programId;
     private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -26,8 +26,8 @@ public class StockStatusVerticalInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private String[] planningUnitIds;
     private int planningUnitId;
-    private boolean allPlanningUnits;
 
     public int getProgramId() {
         return programId;
@@ -69,18 +69,12 @@ public class StockStatusVerticalInput implements Serializable {
         this.planningUnitId = planningUnitId;
     }
 
-    public boolean isAllPlanningUnits() {
-        return allPlanningUnits;
+    public String[] getPlanningUnitIds() {
+        return planningUnitIds;
     }
 
-    public void setAllPlanningUnits(boolean allPlanningUnits) {
-        this.allPlanningUnits = allPlanningUnits;
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
     }
 
-    @Override
-    public String toString() {
-        return "StockStatusVerticalInput{" + "programId=" + programId + ", versionId=" + versionId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", planningUnitId=" + planningUnitId + "}\n";
-    }
-    
-    
 }
