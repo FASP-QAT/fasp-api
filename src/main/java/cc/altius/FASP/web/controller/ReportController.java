@@ -514,7 +514,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
      * @param ssv
@@ -527,23 +527,14 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            List<List<StockStatusVerticalOutput>> ssvoFullList = new LinkedList<>();
-            if (ssv.isAllPlanningUnits()) {
-                ssvoFullList.add(ssvoList);
-                int originalPlanningUnit = ssv.getPlanningUnitId();
-                for (ProgramPlanningUnit ppu : this.programService.getPlanningUnitListForProgramId(ssv.getProgramId(), true, curUser)) {
-                    if (!ppu.getPlanningUnit().getId().equals(originalPlanningUnit)) {
-                        ssv.setPlanningUnitId(ppu.getPlanningUnit().getId());
-                        ssvoFullList.add(this.reportService.getStockStatusVertical(ssv, curUser));
-                    }
-                }
-                return new ResponseEntity(ssvoFullList, HttpStatus.OK);
-            } else {
-                return new ResponseEntity(ssvoList, HttpStatus.OK);
+            for (int planningUnitId : ssv.getPlanningUnitIds()) {
+                ssv.setPlanningUnitId(planningUnitId);
+                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
             }
+            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
