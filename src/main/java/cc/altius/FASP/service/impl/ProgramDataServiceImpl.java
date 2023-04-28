@@ -232,8 +232,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public boolean updateSupplyPlanAsExported(int integratiionProgramId, int integrationId) {
-        return this.programDataDao.updateSupplyPlanAsExported(integratiionProgramId, integrationId);
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+        return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
     }
 
     /**

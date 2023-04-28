@@ -87,7 +87,7 @@ public interface ProgramDataDao {
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
-    public boolean updateSupplyPlanAsExported(int integrationProgramId, int integrationId);
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 
     public String getSupplyPlanReviewerEmialList(int realmCountryId);
 
