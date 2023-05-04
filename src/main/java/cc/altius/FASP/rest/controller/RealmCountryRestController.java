@@ -7,13 +7,16 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.List;
 import org.slf4j.Logger;
@@ -245,6 +248,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/realmCountry/simple")
+    public ResponseEntity getRealmCountrySimpleList(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.realmCountryService.getRealmCountryListSimple(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 //    @GetMapping(value = "/sync/realmCountry/{lastSyncDate}")
 //    public ResponseEntity getRealmCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {

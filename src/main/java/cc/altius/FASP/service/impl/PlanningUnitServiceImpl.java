@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
@@ -230,6 +231,11 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForAutoComplete(autoCompleteInput, curUser);
     }
 
 }

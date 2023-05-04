@@ -17,6 +17,7 @@ import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
@@ -117,5 +118,10 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
         } else {
             throw new AccessDeniedException("You do not have access to this Program");
         }
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListForAutoComplete(autoCompleteInput, curUser);
     }
 }
