@@ -217,8 +217,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         for (int programId : programMap.keySet()) {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
-                Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                if (p.getCurrentVersion().getVersionId() > versionId) {
+                Program p = this.programCommonDao.getProgramById(programId, -1, curUser);
+                if (p!=null && p.getCurrentVersion().getVersionId() > versionId) {
                     newer = true;
                 }
             }
@@ -232,8 +232,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public boolean updateSupplyPlanAsExported(int integratiionProgramId, int integrationId) {
-        return this.programDataDao.updateSupplyPlanAsExported(integratiionProgramId, integrationId);
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+        return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
     }
 
     /**
