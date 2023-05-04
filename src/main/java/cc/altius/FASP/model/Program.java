@@ -26,11 +26,13 @@ public class Program extends BaseModel implements Serializable {
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
+    private double roadFreightPerc;
     private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
+    private double shippedToArrivedByRoadLeadTime;
     private double arrivedToDeliveredLeadTime;
     private int programTypeId;
 
@@ -73,6 +75,14 @@ public class Program extends BaseModel implements Serializable {
 
     public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
         this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    public double getShippedToArrivedByRoadLeadTime() {
+        return shippedToArrivedByRoadLeadTime;
+    }
+
+    public void setShippedToArrivedByRoadLeadTime(double shippedToArrivedByRoadLeadTime) {
+        this.shippedToArrivedByRoadLeadTime = shippedToArrivedByRoadLeadTime;
     }
 
     public int getProgramId() {
@@ -172,6 +182,14 @@ public class Program extends BaseModel implements Serializable {
 
     public void setSeaFreightPerc(double seaFreightPerc) {
         this.seaFreightPerc = seaFreightPerc;
+    }
+
+    public double getRoadFreightPerc() {
+        return roadFreightPerc;
+    }
+
+    public void setRoadFreightPerc(double roadFreightPerc) {
+        this.roadFreightPerc = roadFreightPerc;
     }
 
     public double getPlannedToSubmittedLeadTime() {

@@ -36,6 +36,8 @@ public class ProgramLeadTimesOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double shippedToArrivedBySeaLeadTime;
     @JsonView(Views.ReportView.class)
+    private Double shippedToArrivedByRoadLeadTime;
+    @JsonView(Views.ReportView.class)
     private Double arrivedToDeliveredLeadTime;
     @JsonView(Views.ReportView.class)
     private Double localProcurementAgentLeadTime;
@@ -110,6 +112,14 @@ public class ProgramLeadTimesOutput implements Serializable {
 
     public void setShippedToArrivedBySeaLeadTime(Double shippedToArrivedBySeaLeadTime) {
         this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public Double getShippedToArrivedByRoadLeadTime() {
+        return shippedToArrivedByRoadLeadTime;
+    }
+
+    public void setShippedToArrivedByRoadLeadTime(Double shippedToArrivedByRoadLeadTime) {
+        this.shippedToArrivedByRoadLeadTime = shippedToArrivedByRoadLeadTime;
     }
 
     public Double getArrivedToDeliveredLeadTime() {

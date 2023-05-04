@@ -45,6 +45,10 @@ public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTim
         if (rs.wasNull()) {
             plt.setShippedToArrivedBySeaLeadTime(null);
         }
+        plt.setShippedToArrivedByRoadLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setShippedToArrivedByRoadLeadTime(null);
+        }
         plt.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
         if (rs.wasNull()) {
             plt.setArrivedToDeliveredLeadTime(null);
