@@ -206,18 +206,6 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @JsonView(Views.InternalView.class)
-    @PostMapping("/healthArea/simple")
-    public ResponseEntity getHealthAreaSimpleList(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.healthAreaService.getHealthAreaListSimple(curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list HealthArea", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
     
 //    @GetMapping(value = "/sync/healthArea/{lastSyncDate}")
 //    public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {

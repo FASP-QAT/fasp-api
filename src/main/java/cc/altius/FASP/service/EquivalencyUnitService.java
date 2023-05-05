@@ -9,6 +9,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
+import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
 
 /**
@@ -18,6 +19,8 @@ import java.util.List;
 public interface EquivalencyUnitService {
 
     public List<EquivalencyUnit> getEquivalencyUnitList(boolean active, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getEquivalencyUnitDropDownList(CustomUserDetails curUser);
 
     public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser);
 

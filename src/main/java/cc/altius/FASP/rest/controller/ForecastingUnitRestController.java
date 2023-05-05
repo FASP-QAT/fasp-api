@@ -184,16 +184,4 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
-    @PostMapping("/forecastingUnit/autocomplete")
-    public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoComplete(autoCompleteInput, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list ForecastingUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }

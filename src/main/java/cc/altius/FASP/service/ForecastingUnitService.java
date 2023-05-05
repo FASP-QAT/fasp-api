@@ -38,5 +38,7 @@ public interface ForecastingUnitService {
     public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
     
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser);
 
 }

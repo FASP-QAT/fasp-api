@@ -25,7 +25,7 @@ public interface RealmCountryService {
 
     public List<RealmCountry> getRealmCountryList(CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getRealmCountryListSimple(CustomUserDetails curUser);
+    public List<SimpleCodeObject> getRealmCountryDropdownList(CustomUserDetails curUser);
 
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
 

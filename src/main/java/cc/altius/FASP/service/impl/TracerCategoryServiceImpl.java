@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.TracerCategoryDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.TracerCategory;
 import cc.altius.FASP.service.AclService;
 import java.util.List;
@@ -54,6 +55,11 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
     @Override
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser) {
         return this.tracerCategoryDao.getTracerCategoryList(active, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser) {
+        return this.tracerCategoryDao.getTracerCategoryDropdownList(curUser);
     }
 
     @Override

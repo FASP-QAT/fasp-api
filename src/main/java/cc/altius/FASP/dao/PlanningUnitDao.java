@@ -62,4 +62,6 @@ public interface PlanningUnitDao {
     public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser);
 }

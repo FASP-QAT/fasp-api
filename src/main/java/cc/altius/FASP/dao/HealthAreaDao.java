@@ -22,7 +22,7 @@ public interface HealthAreaDao {
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getHealthAreaListSimple(CustomUserDetails curUser);
+    public List<SimpleCodeObject> getHealthAreaDropdownList(CustomUserDetails curUser);
     
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
 

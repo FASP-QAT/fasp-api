@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
 /**
@@ -28,4 +29,6 @@ public interface FundingSourceService {
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser);
     
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getFundingSourceDropdownList(CustomUserDetails curUser);
 }

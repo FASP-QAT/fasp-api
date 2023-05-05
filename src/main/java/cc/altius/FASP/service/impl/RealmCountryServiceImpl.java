@@ -95,8 +95,8 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public List<SimpleCodeObject> getRealmCountryListSimple(CustomUserDetails curUser) {
-        return this.realmCountryDao.getRealmCountryListSimple(curUser);
+    public List<SimpleCodeObject> getRealmCountryDropdownList(CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryDropdownList(curUser);
     }
 
     @Override

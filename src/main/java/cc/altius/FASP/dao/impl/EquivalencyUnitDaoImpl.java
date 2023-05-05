@@ -12,9 +12,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitMappingResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Arrays;
@@ -103,6 +105,15 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         return namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new EquivalencyUnitListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleObject> getEquivalencyUnitDropDownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT eu.EQUIVALENCY_UNIT_ID ID, eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR FROM vw_equivalency_unit eu where eu.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "eu", curUser);
+        stringBuilder.append(" ORDER BY eu.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
     @Override
@@ -234,9 +245,8 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
             eum.setEquivalencyUnit(this.getEquivalencyUnitById(eum.getEquivalencyUnit().getEquivalencyUnitId(), curUser));
             if (eum.getEquivalencyUnitMappingId() == 0) {
-                if (
-                        (eum.getProgram()==null && eum.getEquivalencyUnit().getProgram()!=null) || 
-                        (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()!=null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
+                if ((eum.getProgram() == null && eum.getEquivalencyUnit().getProgram() != null)
+                        || (eum.getProgram() != null && eum.getEquivalencyUnit().getProgram() != null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
                 MapSqlParameterSource params = new MapSqlParameterSource();
@@ -253,9 +263,8 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 params.addValue("LAST_MODIFIED_DATE", dt);
                 updatedRows += si.execute(params);
             } else {
-                if (
-                        (eum.getProgram()==null && eum.getEquivalencyUnit().getProgram()!=null) || 
-                        (eum.getProgram()!=null && eum.getEquivalencyUnit().getProgram()!=null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
+                if ((eum.getProgram() == null && eum.getEquivalencyUnit().getProgram() != null)
+                        || (eum.getProgram() != null && eum.getEquivalencyUnit().getProgram() != null && !eum.getProgram().getId().equals(eum.getEquivalencyUnit().getProgram().getId()))) {
                     throw new CouldNotSaveException("Program Id for Equivalency Unit Mapping should match Equivalency Unit ");
                 }
                 MapSqlParameterSource params = new MapSqlParameterSource();

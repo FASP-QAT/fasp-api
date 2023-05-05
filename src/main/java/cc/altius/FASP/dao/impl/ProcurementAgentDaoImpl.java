@@ -226,6 +226,15 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pa.PROCUREMENT_AGENT_ID `ID`, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR, pa.PROCUREMENT_AGENT_CODE `CODE` FROM vw_procurement_agent pa WHERE pa.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "pa", curUser);
+        stringBuilder.append(" ORDER BY pa.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString);
         Map<String, Object> params = new HashMap<>();

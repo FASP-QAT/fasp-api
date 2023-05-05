@@ -25,7 +25,7 @@ public interface PlanningUnitService {
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitList(int realmId, boolean active, CustomUserDetails curUser);
-    
+
     public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser);
@@ -61,6 +61,8 @@ public interface PlanningUnitService {
     public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser);
 
     public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
+
+    public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser);
 }

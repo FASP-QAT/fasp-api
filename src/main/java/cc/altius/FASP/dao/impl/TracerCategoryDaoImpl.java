@@ -22,6 +22,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import cc.altius.FASP.dao.TracerCategoryDao;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 
 /**
@@ -59,7 +61,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     @Override
     @Transactional
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingColumns("REALM_ID","LABEL_ID","HEALTH_AREA_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingColumns("REALM_ID", "LABEL_ID", "HEALTH_AREA_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getId());
@@ -109,6 +111,14 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     }
 
     @Override
+    public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT tc.TRACER_CATEGORY_ID `ID`, tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR FROM vw_tracer_category tc WHERE tc.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "tc", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE TRUE AND tc.REALM_ID=:realmId ");
         Map<String, Object> params = new HashMap<>();
@@ -121,7 +131,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
-@Override
+    @Override
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" WHERE tc.TRACER_CATEGORY_ID IN ("
                 + "SELECT DISTINCT(fu.TRACER_CATEGORY_ID) "

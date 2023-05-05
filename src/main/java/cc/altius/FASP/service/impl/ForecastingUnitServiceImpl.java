@@ -124,4 +124,10 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitListForAutoComplete(autoCompleteInput, curUser);
     }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitDropdownList(curUser);
+    }
+
 }

@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -17,6 +18,7 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorFull;
@@ -319,7 +321,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    @Transactional (rollbackFor = IncorrectAccessControlException.class)
+    @Transactional(rollbackFor = IncorrectAccessControlException.class)
     public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         String sqlString = "INSERT INTO us_user (`REALM_ID`, `AGREEMENT_ACCEPTED`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `ORG_AND_COUNTRY`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_ID, :AGREEMENT_ACCEPTED, :USERNAME, :PASSWORD, :EMAIL_ID, :ORG_AND_COUNTRY, :LANGUAGE_ID, :ACTIVE, :FAILED_ATTEMPTS, :EXPIRES_ON, :SYNC_EXPIRES_ON, :LAST_LOGIN_DATE, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
@@ -422,13 +424,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public List<BasicUser> getUserDropDownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT u.USER_ID, u.USERNAME FROM us_user u WHERE u.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "u", curUser);
+        stringBuilder.append(" ORDER BY u.USERNAME");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new BasicUserRowMapper());
+    }
+
+    @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userList ;
+        String sql = this.userCommonString + this.userList;
 
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
-        params.put("userRealmId", curUser.getRealm().getRealmId());
+            params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
         params.put("curUser", curUser.getUserId());
@@ -480,7 +491,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    @Transactional (rollbackFor = IncorrectAccessControlException.class)
+    @Transactional(rollbackFor = IncorrectAccessControlException.class)
     public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";

@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -37,6 +38,8 @@ public interface UserDao {
     public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
     public List<User> getUserList(CustomUserDetails curUser);
+    
+    public List<BasicUser> getUserDropDownList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
     

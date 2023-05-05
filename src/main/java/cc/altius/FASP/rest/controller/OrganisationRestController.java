@@ -93,19 +93,7 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @JsonView(Views.InternalView.class)
-    @PostMapping("/organisation/simple")
-    public ResponseEntity getOrganisationSimpleList(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationService.getOrganisationListSimple(curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Organisation", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
+
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     public ResponseEntity getOrganisationByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -164,8 +152,7 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
+
 //    @GetMapping(value = "/sync/organisation/{lastSyncDate}")
 //    public ResponseEntity getOrganisatiionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {

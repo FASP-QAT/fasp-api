@@ -115,18 +115,6 @@ public class ProgramRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
-    @GetMapping("/programForDropDown/programType/{programTypeId}")
-    public ResponseEntity getProgramForDropDown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(programTypeId, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/program/all")
     public ResponseEntity getProgramAll(Authentication auth) {
         try {

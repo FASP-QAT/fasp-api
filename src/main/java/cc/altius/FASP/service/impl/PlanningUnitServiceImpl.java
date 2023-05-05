@@ -238,4 +238,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getPlanningUnitListForAutoComplete(autoCompleteInput, curUser);
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitDropDownList(curUser);
+    }
+
 }
