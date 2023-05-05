@@ -544,12 +544,11 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", br.getProgramId());
-        params.put("versionId", br.getVersionId());
+        params.put("programIds", br.getProgramIdString());
         params.put("startDate", br.getStartDate());
         params.put("stopDate", br.getStopDate());
         params.put("fundingSourceIds", br.getFundingSourceIdString());
-        return this.namedParameterJdbcTemplate.query("CALL budgetReport(:programId, :versionId, :startDate, :stopDate, :fundingSourceIds)", params, new BudgetReportOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL budgetReport(:programIds, :startDate, :stopDate, :fundingSourceIds)", params, new BudgetReportOutputRowMapper());
     }
 
     // Report no 30 - Basic info

@@ -10,16 +10,22 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.LabelConstants;
-import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.BudgetListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.BudgetResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +60,9 @@ public class BudgetDaoImpl implements BudgetDao {
             + "     r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`,  "
             + "     c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`,  "
             + "	 b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE  "
-            + "FROM vw_budget b  "
-            + "LEFT JOIN vw_program p ON b.PROGRAM_ID=p.PROGRAM_ID  "
+            + "FROM vw_budget b "
+            + "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID "
+            + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID  "
             + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID  "
             + "LEFT JOIN vw_realm r ON fs.REALM_ID=r.REALM_ID  "
             + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID  "
@@ -72,7 +79,6 @@ public class BudgetDaoImpl implements BudgetDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("PROGRAM_ID", b.getProgram().getId());
         params.put("BUDGET_CODE", b.getBudgetCode());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), LabelConstants.RM_BUDGET, curUser.getUserId());
@@ -88,7 +94,18 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+        int budgetId = si.executeAndReturnKey(params).intValue();
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget_program");
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        Map<String, Object> map = new HashedMap<String, Object>();
+        for (SimpleCodeObject p : b.getPrograms()) {
+            MapSqlParameterSource paramMap = new MapSqlParameterSource();
+            paramMap.addValue("BUDGET_ID", budgetId);
+            paramMap.addValue("PROGRAM_ID", p.getId());
+            paramList.add(paramMap);
+        }
+        si.executeBatch(paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        return budgetId;
     }
 
     @Override
@@ -131,7 +148,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(sqlGroupByString);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
     @Override
@@ -142,7 +159,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" AND p.ACTIVE");
         sqlStringBuilder.append(sqlGroupByString);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
     @Override
@@ -153,7 +170,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(sqlGroupByString);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
     @Override
@@ -164,7 +181,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(sqlGroupByString);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetResultSetExtractor());
     }
 
     @Override
@@ -174,7 +191,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         sqlStringBuilder.append(this.sqlGroupByString);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
     @Override
@@ -184,7 +201,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(this.sqlGroupByString);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
 }

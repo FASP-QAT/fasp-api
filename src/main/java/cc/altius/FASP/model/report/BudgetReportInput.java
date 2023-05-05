@@ -25,8 +25,7 @@ public class BudgetReportInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private String[] fundingSourceIds;
-    private int programId;
-    private int versionId;
+    private String[] programIds;
 
     public Date getStartDate() {
         return startDate;
@@ -52,20 +51,12 @@ public class BudgetReportInput implements Serializable {
         this.fundingSourceIds = fundingSourceIds;
     }
 
-    public int getProgramId() {
-        return programId;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
+    public void setProgramId(String[] programId) {
+        this.programIds = programIds;
     }
 
     public String getFundingSourceIdString() {
@@ -80,5 +71,18 @@ public class BudgetReportInput implements Serializable {
             }
         }
     }
-    
+
+    public String getProgramIdString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
 }

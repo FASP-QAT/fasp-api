@@ -26,6 +26,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       c.CURRENCY_ID, c.CURRENCY_CODE, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`, ");
     SET @sqlString = CONCAT(@sqlString, "	b.BUDGET_AMT `BUDGET_AMT`, IFNULL(ua.PLANNED_BUDGET,0)/b.CONVERSION_RATE_TO_USD `PLANNED_BUDGET_AMT`, IFNULL(ua.ORDERED_BUDGET,0)/b.CONVERSION_RATE_TO_USD `ORDERED_BUDGET_AMT`,  b.START_DATE, b.STOP_DATE ");
     SET @sqlString = CONCAT(@sqlString, "FROM vw_budget b ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_budget_program bp ON bp.BUDGET_ID=b.BUDGET_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON b.PROGRAM_ID=p.PROGRAM_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_currency c ON c.CURRENCY_ID=b.CURRENCY_ID ");
