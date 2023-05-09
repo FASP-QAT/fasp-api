@@ -152,13 +152,15 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("VERSION_ID", versionId);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STATUS=:STATUS, spcr.FAILED_REASON=:FAILED_REASON, spcr.COMPLETED_DATE=:curDate, spcr.VERSION_ID=:VERSION_ID WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
-        
+
         params.clear();
         // Update the Current Version no in Program table
-        params.put("versionId", versionId);
-        params.put("programId", programId);
-        this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId", params);
-        this.namedParameterJdbcTemplate.update("UPDATE rm_program_version pv SET pv.VERSION_READY=1 WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId", params);
+        if (status == 2) {
+            params.put("versionId", versionId);
+            params.put("programId", programId);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId", params);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_program_version pv SET pv.VERSION_READY=1 WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId", params);
+        }
         return new Version(0, null, null, null, null, null, null, null);
     }
 
