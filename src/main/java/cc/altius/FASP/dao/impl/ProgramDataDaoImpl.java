@@ -101,6 +101,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import static jxl.biff.BaseCellFeatures.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1775,14 +1776,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         // Step 5 -- Update the Version no on the Program table
-        /** skip this step for now and do it once the compile is completed 
-        sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
-        params.clear();
-        params.put("programId", spcr.getProgram().getId());
-        params.put("versionId", version.getVersionId());
-        this.namedParameterJdbcTemplate.update(sqlString, params);
-        **/
-        
+        /**
+         * skip this step for now and do it once the compile is completed
+         * sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId
+         * WHERE p.PROGRAM_ID=:programId"; params.clear();
+         * params.put("programId", spcr.getProgram().getId());
+         * params.put("versionId", version.getVersionId());
+         * this.namedParameterJdbcTemplate.update(sqlString, params);
+        *
+         */
         // Step 6 -- Remove duplicates from rm_forecast_extrapolation_data
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`;";
         this.jdbcTemplate.update(sqlString);
@@ -2332,18 +2334,24 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.replace("versionId", versionId);
         }
+        logger.info("Version Id is " + versionId);
         if (rebuild == true) {
+            logger.info("Going to start rebuild process");
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
+            logger.info("Got the Supply Plan Region list from SP");
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            logger.info("Got the Supply Plan Batch list from SP");
             // Build the Supply Plan over here
             msp.buildPlan();
+            logger.info("Rebuilding done");
             // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
             List<MapSqlParameterSource> amcParams = new LinkedList<>();
             List<MapSqlParameterSource> batchParams = new LinkedList<>();
             int i = 0;
+            logger.info("Building the records fpr batch insert");
             for (NewSupplyPlan nsp : msp.getNspList()) {
                 MapSqlParameterSource a1 = new MapSqlParameterSource();
                 a1.addValue("PROGRAM_ID", msp.getProgramId());
@@ -2442,16 +2450,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 i++;
             }
+            logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
+            logger.info("Delete done");
             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
+            logger.info("Batch insert for supply plan amc completed");
+            logger.info("Delete the existing records from supply plan batch");
             this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
             MapSqlParameterSource[] batchParamsArray = new MapSqlParameterSource[batchParams.size()];
             batchParams.toArray(batchParamsArray);
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
+            logger.info("Batch insert for supply plan batch completed");
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
@@ -2495,12 +2508,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                ) "
                     + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
                     + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            logger.info("Going to update the supply plan amc records");
             this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info("Update completed");
 //            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {
+            logger.info("Going to get the new supply plan batch");
             List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
+            logger.info("Records retrieved");
             return sp;
         } else {
             return new LinkedList<>();
