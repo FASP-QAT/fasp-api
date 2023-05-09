@@ -2500,7 +2500,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si.executeBatch(batchParamsArray);
             logger.info("Batch insert for supply plan batch completed");
             params.clear();
-            this.namedParameterJdbcTemplate.update(sqlString, params);
+            
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
