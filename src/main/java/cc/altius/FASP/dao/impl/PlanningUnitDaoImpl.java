@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
@@ -504,6 +505,20 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     @Override
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE pu.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" ORDER BY pu.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder;
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program_planning_unit ppu LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE ");
+        } else {
+            stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program_planning_unit ppu LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE ");
+        }
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY pu.LABEL_EN");

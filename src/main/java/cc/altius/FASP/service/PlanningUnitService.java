@@ -65,4 +65,6 @@ public interface PlanningUnitService {
     public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser);
+
+    public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser);
 }

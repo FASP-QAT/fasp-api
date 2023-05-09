@@ -243,4 +243,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getPlanningUnitDropDownList(curUser);
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitProgramDropDownList(programTypeId, programId, curUser);
+    }
+
 }

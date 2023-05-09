@@ -197,7 +197,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.InternalView.class)
     @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
@@ -209,13 +209,25 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.InternalView.class)
     @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.userService.getUserDropDownList(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list User", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.InternalView.class)
+    @GetMapping("/planningUnit/programType/{programTypeId}/programId/{programId}")
+    public ResponseEntity getProgramPlanningUnitDropdownList(@PathVariable(value = "programTypeId") int programTypeId, @PathVariable(value = "programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitProgramDropDownList(programTypeId, programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list User", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
