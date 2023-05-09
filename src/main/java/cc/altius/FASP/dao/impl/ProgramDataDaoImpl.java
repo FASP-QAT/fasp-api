@@ -1361,7 +1361,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         // Get the new VersionId
-        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate)";
+        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate, 0)";
         params.clear();
         params.put("programId", spcr.getProgram().getId());
         params.put("versionTypeId", spcr.getVersionType().getId());

@@ -102,16 +102,21 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                             isStatusUpdated = true;
                         }
                         try {
+                            logger.info("Going to start building the supply plan");
                             this.programDataDao.getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
+                            logger.info("Completed building the supply plan");
                             if (version.getVersionId() != 0) {
+                                logger.info("Marking the commit request as completed and also updating the versionReady flag and CurrentVersion in Program table");
                                 this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                logger.info("Completed");
                             } else {
                                 if (!isStatusUpdated) {
                                     version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, "No new changes found", 0);
                                 }
                             }
                             if (version.getVersionId() != 0 && spcr.isSaveData()) {
-                                if (spcr.getVersionType().getId() == 2) {
+                                if (spcr.getVersionType().getId() == GlobalConstants.VERSION_TYPE_FINAL) {
+                                    logger.info("Final version so send out emails");
                                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
                                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
                                     List<NotificationUser> bccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "BCc");
@@ -149,6 +154,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
                                     this.emailService.sendMail(emailer);
+                                    logger.info("Emails sent out");
                                 }
                             }
                         } catch (ParseException pe) {
