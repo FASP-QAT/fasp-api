@@ -1775,12 +1775,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         // Step 5 -- Update the Version no on the Program table
+        /** skip this step for now and do it once the compile is completed 
         sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
         params.clear();
         params.put("programId", spcr.getProgram().getId());
         params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
-
+        **/
+        
         // Step 6 -- Remove duplicates from rm_forecast_extrapolation_data
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`;";
         this.jdbcTemplate.update(sqlString);

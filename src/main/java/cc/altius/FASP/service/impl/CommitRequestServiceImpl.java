@@ -81,7 +81,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
         if (spcr != null) {
             if (spcr.getFailedReason() != null) {
                 logger.error("Error while trying to process CommitRequest " + spcr.getFailedReason());
-                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
+                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
             } else {
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
@@ -98,16 +98,16 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                             }
                         } catch (Exception e) {
                             logger.error("Error while trying to process CommitRequest", e);
-                            version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                            version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, e.getMessage(), 0);
                             isStatusUpdated = true;
                         }
                         try {
                             this.programDataDao.getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
                             if (version.getVersionId() != 0) {
-                                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 2, "", version.getVersionId());
                             } else {
                                 if (!isStatusUpdated) {
-                                    version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                                    version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, "No new changes found", 0);
                                 }
                             }
                             if (version.getVersionId() != 0 && spcr.isSaveData()) {
@@ -170,17 +170,17 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                 version.setVersionId(spcr.getCommittedVersionId());
                             }
                         } catch (Exception e) {
-                            version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                            version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, e.getMessage(), 0);
                             isStatusUpdated = true;
                             logger.error("Error while trying to process CommitRequest", e);
                         }
                         try {
 //                        getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
                             if (version.getVersionId() != 0) {
-                                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 2, "", version.getVersionId());
                             } else {
                                 if (!isStatusUpdated) {
-                                    version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                                    version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, "No new changes found", 0);
                                 }
                             }
                             if (version.getVersionId() != 0 && spcr.isSaveData()) {
