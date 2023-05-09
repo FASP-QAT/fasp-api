@@ -2450,53 +2450,19 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 i++;
             }
-            sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc` ( "
-                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, "
-                    + "  `PROGRAM_ID` int unsigned NOT NULL, "
-                    + "  `VERSION_ID` int unsigned NOT NULL, "
-                    + "  `PLANNING_UNIT_ID` int unsigned NOT NULL, "
-                    + "  `TRANS_DATE` date NOT NULL, "
-                    + "  `AMC` decimal(24,4) DEFAULT NULL, "
-                    + "  `AMC_COUNT` int DEFAULT NULL, "
-                    + "  `MOS` decimal(24,4) DEFAULT NULL, "
-                    + "  `MOS_WPS` decimal(24,4) DEFAULT NULL, "
-                    + "  `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, "
-                    + "  `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
-                    + "  `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, "
-                    + "  `OPENING_BALANCE` bigint DEFAULT NULL, "
-                    + "  `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, "
-                    + "  `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
-                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, "
-                    + "  `ACTUAL` tinyint(1) DEFAULT NULL, "
-                    + "  `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, "
-                    + "  `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, "
-                    + "  `REGION_COUNT` int unsigned NOT NULL, "
-                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, "
-                    + "  `EXPIRED_STOCK` bigint DEFAULT NULL, "
-                    + "  `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, "
-                    + "  `CLOSING_BALANCE` bigint DEFAULT NULL, "
-                    + "  `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, "
-                    + "  `UNMET_DEMAND_WPS` bigint DEFAULT NULL, "
-                    + "  `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, "
-                    + "  `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, "
-                    + "  PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)"
-                    + ") ENGINE=InnoDB";
+            sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            
+            sqlString = "CREATE TEMPORARY IF NOT EXIST TABLE `tmp_supply_plan_amc` ( "
+                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
+                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
             
@@ -2508,7 +2474,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
-            sit.executeBatch(amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
             logger.info("Batch insert for supply plan amc completed");
             logger.info("Delete the existing records from supply plan batch");
             this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
@@ -2564,7 +2530,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             logger.info("Going to update the supply plan amc records");
             this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("Update completed, now dropping tmp table");
-            this.namedParameterJdbcTemplate.update("DROP TABLE tmp_supply_plan_amc", params);
+            this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc", params);
             logger.info("Table dropped");
 //            msp.printSupplyPlan();
         }
