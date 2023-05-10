@@ -21,12 +21,12 @@ BEGIN
             (`PROGRAM_ID`, `VERSION_ID`, `VERSION_TYPE_ID`, `VERSION_STATUS_ID`,
             `NOTES`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`,
             `SENT_TO_ARTMIS`, `FORECAST_START_DATE`, `FORECAST_STOP_DATE`, `DAYS_IN_MONTH`, `FREIGHT_PERC`,
-            `FORECAST_THRESHOLD_HIGH_PERC`, `FORECAST_THRESHOLD_LOW_PERC`)
+            `FORECAST_THRESHOLD_HIGH_PERC`, `FORECAST_THRESHOLD_LOW_PERC`, `VERSION_READY`)
         SELECT
             @programId, IFNULL(MAX(pv.VERSION_ID)+1,1), @versionTypeId, @versionStatusId, 
             @notes, @cbUserId, @createdDate, @cbUserId, @createdDate, 
             0, @forecastStartDate, @forecastStopDate, @daysInMonth, @freightPerc, 
-            @forecastThresholdHighPerc, @forecastThresholdLowPerc
+            @forecastThresholdHighPerc, @forecastThresholdLowPerc, 0
         FROM rm_program_version pv WHERE pv.`PROGRAM_ID`=@programId;
             SELECT pv.VERSION_ID INTO @versionId FROM rm_program_version pv WHERE pv.`PROGRAM_VERSION_ID`= LAST_INSERT_ID();
             UPDATE rm_program p SET p.CURRENT_VERSION_ID=@versionId WHERE p.PROGRAM_ID=@programId;
