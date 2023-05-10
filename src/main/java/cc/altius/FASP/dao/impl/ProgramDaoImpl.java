@@ -165,12 +165,12 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID  "
             + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID  "
-            + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID  "
+            + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID "
             + " LEFT JOIN vw_version_type vt ON cpv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID  "
             + " LEFT JOIN vw_version_status vs ON cpv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID  "
             + " LEFT JOIN us_user cpvcb ON cpv.CREATED_BY=cpvcb.USER_ID  "
             + " LEFT JOIN us_user cpvlmb ON cpv.LAST_MODIFIED_BY=cpvlmb.USER_ID  "
-            + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID  "
+            + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND pv.VERSION_READY "
             + " LEFT JOIN vw_version_type pvt ON pv.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID  "
             + " LEFT JOIN vw_version_status pvs ON pv.VERSION_STATUS_ID=pvs.VERSION_STATUS_ID  "
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
@@ -329,10 +329,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("notes", p.getProgramNotes());
         params.put("forecastStartDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStartDate()));
         params.put("forecastStopDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStopDate()));
-        Version version = new Version();
-        version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate)", params, new VersionRowMapper());
-        params.put("versionId", version.getVersionId());
-        this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
+        this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate,0)", params, new VersionRowMapper());
         return programId;
     }
 
@@ -2389,7 +2386,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         + "LEFT JOIN rm_health_area_country hac ON  ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID AND rc.REALM_COUNTRY_ID=hac.REALM_COUNTRY_ID "
                         + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
                         + "LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID AND rc.REALM_COUNTRY_ID=oc.REALM_COUNTRY_ID "
-                        + "LEFT JOIN (SELECT pv.PROGRAM_ID, count(*) MAX_COUNT FROM rm_program_version pv GROUP BY pv.PROGRAM_ID) pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
+                        + "LEFT JOIN (SELECT pv.PROGRAM_ID, count(*) MAX_COUNT FROM rm_program_version pv WHERE pv.VERSION_READY GROUP BY pv.PROGRAM_ID) pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
                         + "WHERE p.ACTIVE AND rc.ACTIVE AND ha.ACTIVE AND o.ACTIVE AND hac.ACTIVE AND oc.ACTIVE AND p.PROGRAM_TYPE_ID=:programTypeId");
         Map<String, Object> params = new HashMap<>();
         params.put("programTypeId", programTypeId);
@@ -2399,7 +2396,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", 0);
         for (LoadProgram lp : programList) {
             params.replace("programId", lp.getProgram().getId());
-            lp.setVersionList(this.namedParameterJdbcTemplate.query("SELECT LPAD(pv.VERSION_ID,6,'0') VERSION_ID, vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, cb.USER_ID, cb.USERNAME, pv.CREATED_DATE, pv.NOTES FROM " + programTableName + " p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID WHERE p.ACTIVE AND p.PROGRAM_ID=:programId ORDER BY pv.VERSION_ID DESC LIMIT 0,5", params, new LoadVersionRowMapper()));
+            lp.setVersionList(this.namedParameterJdbcTemplate.query("SELECT LPAD(pv.VERSION_ID,6,'0') VERSION_ID, vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, cb.USER_ID, cb.USERNAME, pv.CREATED_DATE, pv.NOTES FROM " + programTableName + " p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND pv.VERSION_READY LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID WHERE p.ACTIVE AND p.PROGRAM_ID=:programId ORDER BY pv.VERSION_ID DESC LIMIT 0,5", params, new LoadVersionRowMapper()));
         }
         return programList;
     }

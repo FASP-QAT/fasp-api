@@ -81,7 +81,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
         if (spcr != null) {
             if (spcr.getFailedReason() != null) {
                 logger.error("Error while trying to process CommitRequest " + spcr.getFailedReason());
-                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
+                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
             } else {
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
@@ -98,20 +98,25 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                             }
                         } catch (Exception e) {
                             logger.error("Error while trying to process CommitRequest", e);
-                            version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                            version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, e.getMessage(), 0);
                             isStatusUpdated = true;
                         }
                         try {
+                            logger.info("Going to start building the supply plan");
                             this.programDataDao.getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
+                            logger.info("Completed building the supply plan");
                             if (version.getVersionId() != 0) {
-                                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                logger.info("Marking the commit request as completed and also updating the versionReady flag and CurrentVersion in Program table");
+                                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                logger.info("Completed");
                             } else {
                                 if (!isStatusUpdated) {
-                                    version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                                    version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, "No new changes found", 0);
                                 }
                             }
                             if (version.getVersionId() != 0 && spcr.isSaveData()) {
-                                if (spcr.getVersionType().getId() == 2) {
+                                if (spcr.getVersionType().getId() == GlobalConstants.VERSION_TYPE_FINAL) {
+                                    logger.info("Final version so send out emails");
                                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
                                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
                                     List<NotificationUser> bccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "BCc");
@@ -149,6 +154,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
                                     this.emailService.sendMail(emailer);
+                                    logger.info("Emails sent out");
                                 }
                             }
                         } catch (ParseException pe) {
@@ -157,6 +163,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                     } else {
                         throw new AccessDeniedException("Access denied");
                     }
+                    logger.info("Supply Plan batch commit completed");
                 } else if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_DATASET) {
                     Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
                     if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
@@ -170,17 +177,17 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                 version.setVersionId(spcr.getCommittedVersionId());
                             }
                         } catch (Exception e) {
-                            version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                            version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, e.getMessage(), 0);
                             isStatusUpdated = true;
                             logger.error("Error while trying to process CommitRequest", e);
                         }
                         try {
 //                        getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
                             if (version.getVersionId() != 0) {
-                                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                                this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 2, "", version.getVersionId());
                             } else {
                                 if (!isStatusUpdated) {
-                                    version = this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                                    version = this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, "No new changes found", 0);
                                 }
                             }
                             if (version.getVersionId() != 0 && spcr.isSaveData()) {
