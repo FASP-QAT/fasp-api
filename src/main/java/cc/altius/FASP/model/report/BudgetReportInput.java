@@ -63,12 +63,7 @@ public class BudgetReportInput implements Serializable {
         if (this.fundingSourceIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.fundingSourceIds);
-            if (this.fundingSourceIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.fundingSourceIds);
         }
     }
 
@@ -76,12 +71,7 @@ public class BudgetReportInput implements Serializable {
         if (this.programIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.programIds);
-            if (this.programIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.programIds);
         }
     }
 

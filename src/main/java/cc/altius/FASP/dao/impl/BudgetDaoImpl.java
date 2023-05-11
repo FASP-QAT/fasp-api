@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -39,6 +41,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -51,26 +54,37 @@ public class BudgetDaoImpl implements BudgetDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT  "
-            + "     b.BUDGET_ID, b.BUDGET_CODE,  "
-            + "     b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR,  "
-            + "     b.BUDGET_AMT, (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT`, SUM((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*IFNULL(s.CONVERSION_RATE_TO_USD,0)) `USED_USD_AMT`, b.START_DATE, b.STOP_DATE, b.NOTES, "
-            + "     p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE,  "
-            + "     fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`,  "
-            + "     r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`,  "
-            + "     c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`,  "
-            + "	 b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE  "
+    private final String sqlListString = "SELECT "
+            + "    b.BUDGET_ID, b.BUDGET_CODE, "
+            + "    b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR, "
+            + "    b.BUDGET_AMT, (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT`, "
+            + "    IFNULL(stc.USED_AMT,0) `USED_AMT`, IFNULL(stc.USED_AMT_USD,0) `USED_USD_AMT`, "
+            + "    b.START_DATE, b.STOP_DATE, b.NOTES, "
+            + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
+            + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+            + "    r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
+            + "    c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`, "
+            + "    b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE  "
             + "FROM vw_budget b "
             + "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID "
-            + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID  "
-            + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID  "
-            + "LEFT JOIN vw_realm r ON fs.REALM_ID=r.REALM_ID  "
-            + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID  "
-            + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID  "
-            + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID  "
-            + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
-            + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID AND st.SHIPMENT_STATUS_ID!=8 AND st.ACCOUNT_FLAG=1 AND st.ACTIVE AND st.BUDGET_ID=b.BUDGET_ID "
-            + "WHERE TRUE ";
+            + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID AND p.ACTIVE "
+            + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+            + "LEFT JOIN vw_realm r ON fs.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
+            + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "LEFT JOIN (SELECT "
+            + "st.BUDGET_ID, s.CONVERSION_RATE_TO_USD * SUM(IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0)) USED_AMT_USD, SUM(IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0)) USED_AMT "
+            + "FROM rm_shipment s "
+            + "LEFT JOIN rm_shipment_trans st ON "
+            + "	s.SHIPMENT_ID=st.SHIPMENT_ID "
+            + "    AND s.MAX_VERSION_ID=st.VERSION_ID "
+            + "    AND st.SHIPMENT_STATUS_ID!=8 "
+            + "    AND st.ACCOUNT_FLAG=1 "
+            + "    AND st.ACTIVE "
+            + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
+            + "WHERE "
+            + "	TRUE  ";
     private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
 
     @Override
@@ -108,6 +122,15 @@ public class BudgetDaoImpl implements BudgetDao {
         return budgetId;
     }
 
+    /**
+     * Not updating the Programs because you cannot add a Program to a Budget
+     * assign the Shipment to that Budget and then remove the Program. Therefore
+     * Programs cannot be added or removed from when the Budget was created
+     *
+     * @param b
+     * @param curUser
+     * @return
+     */
     @Override
     public int updateBudget(Budget b, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -122,7 +145,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
         params.put("notes", b.getNotes());
-        params.put("fundingSourceId",b.getFundingSource().getFundingSourceId());
+        params.put("fundingSourceId", b.getFundingSource().getFundingSourceId());
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
@@ -144,7 +167,7 @@ public class BudgetDaoImpl implements BudgetDao {
         if (programIds.length > 0) {
             paramBuilder.setLength(paramBuilder.length() - 1);
         }
-        sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
+        sqlStringBuilder.append(" AND bp.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(sqlGroupByString);
@@ -157,7 +180,6 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" AND p.ACTIVE");
         sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
