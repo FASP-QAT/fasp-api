@@ -166,6 +166,21 @@ public class ProgramLeadTimesOutput implements Serializable {
             return d;
         }
     }
+    
+    @JsonView(Views.ReportView.class)
+    public Double getTotalRoadLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime != null ? this.plannedToSubmittedLeadTime : 0)
+                + (this.submittedToApprovedLeadTime != null ? this.submittedToApprovedLeadTime : 0)
+                + (this.approvedToShippedLeadTime != null ? this.approvedToShippedLeadTime : 0)
+                + (this.shippedToArrivedByRoadLeadTime != null ? this.shippedToArrivedByRoadLeadTime : 0)
+                + (this.arrivedToDeliveredLeadTime != null ? this.arrivedToDeliveredLeadTime : 0
+        );
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
+    }
 
     @Override
     public String toString() {
