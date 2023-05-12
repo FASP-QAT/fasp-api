@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
@@ -146,7 +147,8 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("labelEn", b.getLabel().getLabel_en());
         params.put("notes", b.getNotes());
         params.put("fundingSourceId", b.getFundingSource().getFundingSourceId());
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
+
+        int rowsEffected = this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
                 + "bl.`LAST_MODIFIED_BY`=:curUser, "
@@ -155,6 +157,31 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "b.LAST_MODIFIED_BY=:curUser, "
                 + "b.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
+
+        String programIdString = "";
+
+        List<SqlParameterSource> paramList = new LinkedList<>();
+        Map<String, Object> map = new HashedMap<String, Object>();
+        for (SimpleCodeObject p : b.getPrograms()) {
+            MapSqlParameterSource paramMap = new MapSqlParameterSource();
+            paramMap.addValue("BUDGET_ID", b.getBudgetId());
+            paramMap.addValue("PROGRAM_ID", p.getId());
+            paramList.add(paramMap);
+            if (programIdString.length() == 0) {
+                programIdString += p.getIdString();
+            } else {
+                programIdString += "," + p.getIdString();
+            }
+        }
+        params.clear();
+        params.put("budgetId", b.getBudgetId());
+        params.put("programIdString", programIdString);
+        rowsEffected += this.namedParameterJdbcTemplate.update("DELETE bp.* FROM rm_budget_program bp WHERE bp.BUDGET_ID=:budgetId AND bp.PROGRAM_ID NOT IN (:programIdString)", params);
+        int[] insertedRows = this.namedParameterJdbcTemplate.batchUpdate("INSERT IGNORE INTO rm_budgt_program (BUDGET_ID, PROGRAM_ID) VALUES (:BUDGET_ID, :PROGRAM_ID)", paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        for (int i : insertedRows) {
+            rowsEffected += i;
+        }
+        return rowsEffected;
     }
 
     @Override
