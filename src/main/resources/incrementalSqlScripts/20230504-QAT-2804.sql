@@ -16,6 +16,8 @@ CREATE TABLE `fasp`.`rm_budget_program` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
+ALTER TABLE `fasp`.`rm_budget_program` ADD UNIQUE INDEX `unq_budget_program_budgetId_programId` (`BUDGET_ID` ASC, `PROGRAM_ID` ASC);
+
 INSERT INTO rm_budget_program SELECT null, b.BUDGET_ID, b.PROGRAM_ID FROM rm_budget b;
 UPDATE rm_budget b left join rm_program p ON b.PROGRAM_ID=p.PROGRAM_ID SET b.BUDGET_CODE=CONCAT(p.PROGRAM_ID,'-',b.BUDGET_CODE) WHERE LENGTH(CONCAT(p.PROGRAM_ID,'-',b.BUDGET_CODE))<=30;
 

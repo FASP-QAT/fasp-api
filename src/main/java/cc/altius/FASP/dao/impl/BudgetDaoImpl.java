@@ -97,6 +97,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("BUDGET_CODE", b.getBudgetCode());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), LabelConstants.RM_BUDGET, curUser.getUserId());
+        params.put("REALM_ID", b.getFundingSource().getRealm().getId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
         params.put("CURRENCY_ID", b.getCurrency().getCurrencyId());
         params.put("CONVERSION_RATE_TO_USD", b.getCurrency().getConversionRateToUsd());
@@ -176,8 +177,8 @@ public class BudgetDaoImpl implements BudgetDao {
         params.clear();
         params.put("budgetId", b.getBudgetId());
         params.put("programIdString", programIdString);
-        rowsEffected += this.namedParameterJdbcTemplate.update("DELETE bp.* FROM rm_budget_program bp WHERE bp.BUDGET_ID=:budgetId AND bp.PROGRAM_ID NOT IN (:programIdString)", params);
-        int[] insertedRows = this.namedParameterJdbcTemplate.batchUpdate("INSERT IGNORE INTO rm_budgt_program (BUDGET_ID, PROGRAM_ID) VALUES (:BUDGET_ID, :PROGRAM_ID)", paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+        rowsEffected += this.namedParameterJdbcTemplate.update("DELETE bp.* FROM rm_budget_program bp WHERE bp.BUDGET_ID=:budgetId AND NOT FIND_IN_SET(bp.PROGRAM_ID ,:programIdString)", params);
+        int[] insertedRows = this.namedParameterJdbcTemplate.batchUpdate("INSERT IGNORE INTO rm_budget_program (BUDGET_ID, PROGRAM_ID) VALUES (:BUDGET_ID, :PROGRAM_ID)", paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         for (int i : insertedRows) {
             rowsEffected += i;
         }
