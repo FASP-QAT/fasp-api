@@ -24,6 +24,22 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks pl
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones planificadas de inventario');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giro de estoque planejado');-- pr
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.display','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Display report by');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher le rapport par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar informe por');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibir relatório por');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.noofplanningunits','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Number of planning units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre d unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Número de unidades de planejamento');-- pr
+
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
 
