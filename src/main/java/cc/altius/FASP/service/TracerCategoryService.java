@@ -23,6 +23,8 @@ public interface TracerCategoryService {
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser);
     
     public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleObject> getTracerCategoryDropdownListForFilterMultiplerPrograms(String programIds, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser);
 

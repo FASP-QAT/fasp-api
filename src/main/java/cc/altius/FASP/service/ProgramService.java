@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -30,6 +31,10 @@ import java.util.List;
 public interface ProgramService {
 
     public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, CustomUserDetails curUser);
 

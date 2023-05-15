@@ -37,6 +37,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
@@ -175,7 +176,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
-    
+
     private static String sqlListBasicString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -435,6 +436,54 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
+                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            sqlStringBuilder.append("FROM vw_program p ");
+        } else {
+            sqlStringBuilder.append("FROM vw_dataset p ");
+        }
+        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE ");
+        if (input.getHealthAreaId() != null) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) ");
+            params.put("healthAreaId", input.getHealthAreaId());
+        }
+        if (input.getRealmCountryId() != null) {
+            sqlStringBuilder.append(" AND p.REALM_COUNTRY_ID=:realmCountryId ");
+            params.put("realmCountryId", input.getRealmCountryId());
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
+                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            sqlStringBuilder.append("FROM vw_program p ");
+        } else {
+            sqlStringBuilder.append("FROM vw_dataset p ");
+        }
+        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE ");
+        if (realmCountryIdsStr.length() > 0) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
+            params.put("realmCountryIds", realmCountryIdsStr);
+        }
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");

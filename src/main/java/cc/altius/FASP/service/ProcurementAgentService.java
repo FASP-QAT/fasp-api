@@ -24,6 +24,8 @@ public interface ProcurementAgentService {
 
     public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser);
 
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser);
+
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser);
 
     public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser);

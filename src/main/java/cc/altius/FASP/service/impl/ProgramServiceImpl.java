@@ -17,6 +17,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -77,6 +78,16 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
         return this.programDao.getProgramListForDropdown(programTypeId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(programTypeId, input, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForMultipleRealmCountryListForDropdown(programTypeId, realmCountryIdsStr, curUser);
     }
 
     @Override

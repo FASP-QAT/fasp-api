@@ -6,6 +6,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.EquivalencyUnitService;
@@ -20,6 +21,7 @@ import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,9 +43,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/dropdown")
 public class DropDownRestController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     private ProgramService programService;
     @Autowired
@@ -65,7 +68,7 @@ public class DropDownRestController {
     private EquivalencyUnitService equivalencyUnitService;
     @Autowired
     private UserService userService;
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/program/programType/{programTypeId}")
     public ResponseEntity getProgramForDropdown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -77,7 +80,31 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/program/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
+    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(programTypeId, input, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/program/programType/{programTypeId}/filter/multipleRealmCountry")
+    public ResponseEntity getProgramWithFilterForMultipleRealmCountryForDropdown(@RequestBody String[] realmCountryIds, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramWithFilterForMultipleRealmCountryListForDropdown(programTypeId, String.join(",", realmCountryIds), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @JsonView(Views.InternalView.class)
     @PostMapping("/planningUnit/autocomplete")
     public ResponseEntity getPlanningUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
@@ -89,7 +116,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit")
     public ResponseEntity getPlanningUnitDropDownList(Authentication auth) {
@@ -101,7 +128,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @PostMapping("/forecastingUnit/autocomplete")
     public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
@@ -113,7 +140,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
@@ -125,7 +152,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/realmCountry")
     public ResponseEntity getRealmCountryDropdownList(Authentication auth) {
@@ -137,7 +164,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/healthArea")
     public ResponseEntity getHealthAreaDropdownList(Authentication auth) {
@@ -149,7 +176,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/organisation")
     public ResponseEntity getOrganisationDropdownList(Authentication auth) {
@@ -161,7 +188,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategoryDropdownList(Authentication auth) {
@@ -173,7 +200,19 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/tracerCategory/filter/multiplePrograms")
+    public ResponseEntity getTracerCategoryDropdownList(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryDropdownListForFilterMultiplerPrograms(String.join(",", programIds), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list TracerCategory", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSourceDropdownList(Authentication auth) {
@@ -185,7 +224,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgentDropdownList(Authentication auth) {
@@ -197,7 +236,19 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/procurementAgent/filter/multiplePrograms")
+    public ResponseEntity getProcurementAgentDropdownListForFilterMultiplePrograms(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentDropdownListForFilterMultiplePrograms(String.join(",", programIds), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
@@ -209,7 +260,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
@@ -221,7 +272,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit/programType/{programTypeId}/programId/{programId}")
     public ResponseEntity getProgramPlanningUnitDropdownList(@PathVariable(value = "programTypeId") int programTypeId, @PathVariable(value = "programId") int programId, Authentication auth) {

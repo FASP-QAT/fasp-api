@@ -79,6 +79,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentDropdownListForFilterMultiplePrograms(programIds, curUser);
+    }
+
+    @Override
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentTypeList(active, curUser);
     }
