@@ -10,25 +10,17 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class PlanningUnitAndTracerCategoryDTO implements Serializable {
+public class ProductCategoryAndTracerCategoryDTO implements Serializable {
 
-    private Integer planningUnitId;
+    private String productCategorySortOrder;
     private Integer tracerCategoryId;
 
-    public PlanningUnitAndTracerCategoryDTO() {
+    public String getProductCategorySortOrder() {
+        return productCategorySortOrder;
     }
 
-    public PlanningUnitAndTracerCategoryDTO(Integer planningUnitId, Integer tracerCategoryId) {
-        this.planningUnitId = planningUnitId;
-        this.tracerCategoryId = tracerCategoryId;
-    }
-
-    public Integer getPlanningUnitId() {
-        return planningUnitId;
-    }
-
-    public void setPlanningUnitId(Integer planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setProductCategorySortOrder(String productCategorySortOrder) {
+        this.productCategorySortOrder = productCategorySortOrder;
     }
 
     public Integer getTracerCategoryId() {

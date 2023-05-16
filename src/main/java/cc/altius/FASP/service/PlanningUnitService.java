@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
@@ -64,7 +65,11 @@ public interface PlanningUnitService {
 
     public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
 
+    public List<SimpleObject> getPlanningUnitListForAutoCompleteFilterForProductCategory(AutocompleteInputWithProductCategoryDTO autoCompleteInput, CustomUserDetails curUser);
+
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser);
+
+    public List<SimpleObject> getPlanningUnitDropDownListFilterProductCategory(String productCategorySortOrder, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser);
 }

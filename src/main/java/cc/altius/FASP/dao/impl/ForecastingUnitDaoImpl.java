@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
-import cc.altius.FASP.model.DTO.PlanningUnitAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
@@ -305,19 +305,19 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(PlanningUnitAndTracerCategoryDTO input, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu LEFT JOIN rm_planning_unit pu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID WHERE fu.ACTIVE AND pu.ACTIVE AND tc.ACTIVE");
+    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID WHERE fu.ACTIVE AND pc.ACTIVE AND tc.ACTIVE");
         Map<String, Object> params = new HashMap<>();
-        if (input.getPlanningUnitId() != null) {
-            stringBuilder.append(" AND pu.PLANNING_UNIT_ID=:planningUnitId ");
-            params.put("planningUnitId", input.getPlanningUnitId());
+        if (input.getProductCategorySortOrder() != null) {
+            stringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder,'%') ");
+            params.put("productCategorySortOrder", input.getProductCategorySortOrder());
         }
         if (input.getTracerCategoryId() != null) {
             stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
             params.put("tracerCategoryId", input.getTracerCategoryId());
         }
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
-        stringBuilder.append(" GROUP BY fu.FORECASTING_UNIT_ID ORDER BY fu.LABEL_EN");
+        stringBuilder.append(" ORDER BY fu.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 

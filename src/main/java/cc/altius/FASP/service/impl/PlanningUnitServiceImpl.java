@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
@@ -239,8 +240,18 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
+    public List<SimpleObject> getPlanningUnitListForAutoCompleteFilterForProductCategory(AutocompleteInputWithProductCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForAutoCompleteFilterForProductCategory(autoCompleteInput, curUser);
+    }
+
+    @Override
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitDropDownList(curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitDropDownListFilterProductCategory(String productCategorySortOrder, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitDropDownListFilterProductCategory(productCategorySortOrder, curUser);
     }
 
     @Override
