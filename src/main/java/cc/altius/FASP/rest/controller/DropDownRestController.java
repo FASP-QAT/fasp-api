@@ -6,7 +6,9 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
+import cc.altius.FASP.model.DTO.PlanningUnitAndTracerCategoryDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.EquivalencyUnitService;
@@ -142,11 +144,35 @@ public class DropDownRestController {
     }
     
     @JsonView(Views.InternalView.class)
+    @PostMapping("/forecastingUnit/autocomplete/filter/tracerCategory")
+    public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutocompleteInputWithTracerCategoryDTO autoCompleteInput, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(autoCompleteInput, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.InternalView.class)
     @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitDropdownList(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.InternalView.class)
+    @PostMapping("/forecastingUnit/filter/puAndTc")
+    public ResponseEntity getForecastingUnitDropdownListWithFilterForPuAndTc(@RequestBody PlanningUnitAndTracerCategoryDTO input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

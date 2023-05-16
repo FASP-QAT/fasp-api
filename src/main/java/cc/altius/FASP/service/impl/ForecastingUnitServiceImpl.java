@@ -18,6 +18,8 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.PlanningUnitAndTracerCategoryDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
@@ -126,8 +128,18 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
+    public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(autoCompleteInput, curUser);
+    }
+
+    @Override
     public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitDropdownList(curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(PlanningUnitAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser);
     }
 
 }

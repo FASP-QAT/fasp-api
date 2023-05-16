@@ -7,6 +7,8 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.PlanningUnitAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
@@ -39,5 +41,9 @@ public interface ForecastingUnitDao {
 
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
     
+    public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser);
+    
     public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(PlanningUnitAndTracerCategoryDTO input, CustomUserDetails curUser);
 }

@@ -21,10 +21,13 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.AutoCompleteInput;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.PlanningUnitAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -279,11 +282,42 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
+    public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE AND (fu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText '%') OR fu.FORECASTING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("searchText", autoCompleteInput.getSearchText());
+        if (autoCompleteInput.getTracerCategoryId() != null) {
+            stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+            params.put("tracerCategoryId", autoCompleteInput.getTracerCategoryId());
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" ORDER BY fu.LABEL_").append(autoCompleteInput.getLanguage());
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
     public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY fu.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(PlanningUnitAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu LEFT JOIN rm_planning_unit pu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID WHERE fu.ACTIVE AND pu.ACTIVE AND tc.ACTIVE");
+        Map<String, Object> params = new HashMap<>();
+        if (input.getPlanningUnitId() != null) {
+            stringBuilder.append(" AND pu.PLANNING_UNIT_ID=:planningUnitId ");
+            params.put("planningUnitId", input.getPlanningUnitId());
+        }
+        if (input.getTracerCategoryId() != null) {
+            stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+            params.put("tracerCategoryId", input.getTracerCategoryId());
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" GROUP BY fu.FORECASTING_UNIT_ID ORDER BY fu.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
