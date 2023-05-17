@@ -155,7 +155,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
 
         params.clear();
         // Update the Current Version no in Program table
-        if (status == 2) {
+        if (status == 2 && versionId!=-1) {
             params.put("versionId", versionId);
             params.put("programId", programId);
             this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId", params);
