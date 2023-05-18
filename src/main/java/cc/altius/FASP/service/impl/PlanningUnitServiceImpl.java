@@ -12,7 +12,9 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
+import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
@@ -215,7 +217,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(MultipleProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
     }
 
@@ -255,8 +257,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser) {
-        return this.planningUnitDao.getPlanningUnitProgramDropDownList(programTypeId, programId, curUser);
+    public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitForDatasetByProgramAndVersion(input, curUser);
     }
 
 }

@@ -10,10 +10,10 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class ProgramAndTracerCategoryDTO implements Serializable {
+public class ProgramAndVersionDTO implements Serializable {
 
     private int programId;
-    private Integer tracerCategoryId;
+    private int versionId;
 
     public int getProgramId() {
         return programId;
@@ -23,12 +23,12 @@ public class ProgramAndTracerCategoryDTO implements Serializable {
         this.programId = programId;
     }
 
-    public Integer getTracerCategoryId() {
-        return tracerCategoryId;
+    public int getVersionId() {
+        return versionId;
     }
 
-    public void setTracerCategoryId(Integer tracerCategoryId) {
-        this.tracerCategoryId = tracerCategoryId;
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
 }

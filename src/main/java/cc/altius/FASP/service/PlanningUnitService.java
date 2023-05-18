@@ -8,7 +8,8 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
-import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
@@ -55,7 +56,7 @@ public interface PlanningUnitService {
 
     public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
 
-    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser);
+    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(MultipleProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser);
 
@@ -70,6 +71,7 @@ public interface PlanningUnitService {
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitDropDownListFilterProductCategory(String productCategorySortOrder, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser);
 
-    public List<SimpleObject> getPlanningUnitProgramDropDownList(int programTypeId, int programId, CustomUserDetails curUser);
 }

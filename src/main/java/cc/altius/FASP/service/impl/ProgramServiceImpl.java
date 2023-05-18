@@ -35,6 +35,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -433,4 +434,10 @@ public class ProgramServiceImpl implements ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
         return this.programDao.getLatestVersionForPrograms(programIds);
     }
+
+    @Override
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getVersionListForProgramId(programTypeId, programId, curUser);
+    }
+
 }

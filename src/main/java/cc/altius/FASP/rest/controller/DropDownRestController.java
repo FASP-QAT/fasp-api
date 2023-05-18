@@ -4,14 +4,18 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
+import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.FundingSourceService;
@@ -69,8 +73,10 @@ public class DropDownRestController {
     private EquivalencyUnitService equivalencyUnitService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private BudgetService BudgetService;
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/program/programType/{programTypeId}")
     public ResponseEntity getProgramForDropdown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
@@ -82,7 +88,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/program/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
@@ -94,7 +100,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/program/programType/{programTypeId}/filter/multipleRealmCountry")
     public ResponseEntity getProgramWithFilterForMultipleRealmCountryForDropdown(@RequestBody String[] realmCountryIds, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
@@ -106,7 +112,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/autocomplete")
     public ResponseEntity getPlanningUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
@@ -118,7 +124,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/autocomplete/filter/productCategory")
     public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@RequestBody AutocompleteInputWithProductCategoryDTO autoCompleteInput, Authentication auth) {
         try {
@@ -130,7 +136,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/planningUnit")
     public ResponseEntity getPlanningUnitDropDownList(Authentication auth) {
         try {
@@ -142,7 +148,19 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/planningUnit/filter/productCategory")
+    public ResponseEntity getPlanningUnitFilterForProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitDropDownListFilterProductCategory(input.getProductCategorySortOrder(), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/autocomplete")
     public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
@@ -154,7 +172,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/autocomplete/filter/tracerCategory")
     public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@RequestBody AutocompleteInputWithTracerCategoryDTO autoCompleteInput, Authentication auth) {
         try {
@@ -166,7 +184,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
         try {
@@ -178,7 +196,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/filter/pcAndTc")
     public ResponseEntity getForecastingUnitDropdownListWithFilterForPcAndTc(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
@@ -190,7 +208,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/realmCountry")
     public ResponseEntity getRealmCountryDropdownList(Authentication auth) {
         try {
@@ -202,7 +220,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/healthArea")
     public ResponseEntity getHealthAreaDropdownList(Authentication auth) {
         try {
@@ -214,7 +232,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation")
     public ResponseEntity getOrganisationDropdownList(Authentication auth) {
         try {
@@ -226,7 +244,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategoryDropdownList(Authentication auth) {
         try {
@@ -238,7 +256,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/tracerCategory/filter/multiplePrograms")
     public ResponseEntity getTracerCategoryDropdownList(@RequestBody String[] programIds, Authentication auth) {
         try {
@@ -250,7 +268,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSourceDropdownList(Authentication auth) {
         try {
@@ -262,7 +280,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgentDropdownList(Authentication auth) {
         try {
@@ -274,7 +292,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @PostMapping("/procurementAgent/filter/multiplePrograms")
     public ResponseEntity getProcurementAgentDropdownListForFilterMultiplePrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
@@ -286,7 +304,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
         try {
@@ -298,7 +316,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.DropDownView.class)
     @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
         try {
@@ -310,15 +328,52 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
-    @GetMapping("/planningUnit/programType/{programTypeId}/programId/{programId}")
-    public ResponseEntity getProgramPlanningUnitDropdownList(@PathVariable(value = "programTypeId") int programTypeId, @PathVariable(value = "programId") int programId, Authentication auth) {
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/planningUnit/program/filter/multipleProgramAndTracerCategory")
+    public ResponseEntity getProgramPlanningUnitDropdownList(@RequestBody MultipleProgramAndTracerCategoryDTO input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitProgramDropDownList(programTypeId, programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitByProgramAndTracerCategory(input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list User", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/planningUnit/dataset/filter/programAndVersion")
+    public ResponseEntity getDatasetPlanningUnitDropdownList(@RequestBody ProgramAndVersionDTO input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitForDatasetByProgramAndVersion(input, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list User", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/budget/filter/multipleFundingSources")
+    public ResponseEntity getBudgetDropdownFilterMultipleFundingSources(@RequestBody String[] fundingSources, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.BudgetService.getBudgetDropdownFilterMultipleFundingSources(String.join(",", fundingSources), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/version/filter/programTypeId/{programTypeId}/programId/{programId}")
+    public ResponseEntity getVersionListForProgram(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getVersionListForProgramId(programTypeId, programId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Version", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

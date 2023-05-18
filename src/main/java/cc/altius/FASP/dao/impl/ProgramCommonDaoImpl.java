@@ -9,10 +9,13 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ProgramBasicResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +101,23 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pv.VERSION_ID, vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.CREATED_DATE FROM ");
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            stringBuilder.append("vw_program");
+        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
+            stringBuilder.append("vw_dataset");
+        } else {
+            stringBuilder.append("rm_program");
+        }
+        stringBuilder.append(" p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID WHERE p.PROGRAM_ID=:programId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new VersionDropDownRowMapper());
     }
 
 }

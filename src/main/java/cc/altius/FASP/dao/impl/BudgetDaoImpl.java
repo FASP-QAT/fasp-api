@@ -10,7 +10,9 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -105,7 +107,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
         params.put("notes", b.getNotes());
-        params.put("fundingSourceId",b.getFundingSource().getFundingSourceId());
+        params.put("fundingSourceId", b.getFundingSource().getFundingSourceId());
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
@@ -165,6 +167,15 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new BudgetRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b WHERE b.ACTIVE AND FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("fundingSourceIds", fundingSourceIds);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override

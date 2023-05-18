@@ -14,11 +14,21 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class SimpleObjectRowMapper implements RowMapper<SimpleObject>{
+public class SimpleObjectRowMapper implements RowMapper<SimpleObject> {
+
+    private final String prefix;
+
+    public SimpleObjectRowMapper() {
+        this.prefix = "";
+    }
+
+    public SimpleObjectRowMapper(String prefix) {
+        this.prefix = prefix;
+    }
 
     @Override
     public SimpleObject mapRow(ResultSet rs, int i) throws SQLException {
-        return new SimpleObject(rs.getInt("ID"), new LabelRowMapper().mapRow(rs, i));
+        return new SimpleObject(rs.getInt(prefix + "ID"), new LabelRowMapper(prefix).mapRow(rs, i));
     }
-    
+
 }
