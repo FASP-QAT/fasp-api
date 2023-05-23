@@ -39,6 +39,11 @@ public class InventoryTurnsInput implements Serializable {
      *
      * Inventory Turns = Total Consumption for the last 12 months (including
      * current month) / Avg Stock during that period
+     * 
+     * * useApprovedSupplyPlanOnly = 1 means that only final approved versions will be considered
+     *
+     * useApprovedSupplyPlanOnly = 0 means that all the versions will be considered
+     * Draft, Submitted stages will not be considered in the report
      *
      */
     private String[] programIds;
@@ -49,6 +54,7 @@ public class InventoryTurnsInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date dt;
     private boolean includePlannedShipments;
+    private boolean useApprovedSupplyPlanOnly;
 
     public String[] getProgramIds() {
         return programIds;
@@ -88,6 +94,14 @@ public class InventoryTurnsInput implements Serializable {
 
     public void setIncludePlannedShipments(boolean includePlannedShipments) {
         this.includePlannedShipments = includePlannedShipments;
+    }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
     }
 
 }
