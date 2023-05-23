@@ -35,10 +35,34 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibir relatório por'
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.noofplanningunits','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Number of planning units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No. of PUs');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre d unités de planification');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de unidades de planificación');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Número de unidades de planejamento');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.noofmonths','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No. of months in calculation');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre d unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Número de unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Número de unidades de planejamento');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.months12','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months less than 12 and greater than 6');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois inférieurs à 12 et supérieurs à 6');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses menores de 12 y mayores de 6');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses menores que 12 e maiores que 6');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.months6','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months less than 6 (Insufficient data to generate reliable turns)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois inférieurs à 6 (Données insuffisantes pour générer des rotations fiables)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses menores a 6 (Datos insuficientes para generar turnos confiables)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses menores que 6 (dados insuficientes para gerar turnos confiáveis)');-- pr
 
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
