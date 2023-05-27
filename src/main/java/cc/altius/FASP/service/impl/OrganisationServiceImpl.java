@@ -63,8 +63,8 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public List<SimpleCodeObject> getOrganisationDropdownList(CustomUserDetails curUser) {
-        return this.organisationDao.getOrganisationDropdownList(curUser);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationDropdownList(realmId, curUser);
     }
 
     @Override

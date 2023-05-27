@@ -77,11 +77,11 @@ public class DropDownRestController {
     private BudgetService BudgetService;
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/program/programType/{programTypeId}")
-    public ResponseEntity getProgramForDropdown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @GetMapping("/program/realm/{realmId}/programType/{programTypeId}")
+    public ResponseEntity getProgramForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(programTypeId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, programTypeId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,8 +89,8 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/program/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
-    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @PostMapping("/program/realm/{realmId}/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
+    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(programTypeId, input, curUser), HttpStatus.OK);
@@ -209,11 +209,11 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/realmCountry")
-    public ResponseEntity getRealmCountryDropdownList(Authentication auth) {
+    @GetMapping("/realmCountry/realm/{realmId}")
+    public ResponseEntity getRealmCountryDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -221,11 +221,11 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/healthArea")
-    public ResponseEntity getHealthAreaDropdownList(Authentication auth) {
+    @GetMapping("/healthArea/realm/{realmId}")
+    public ResponseEntity getHealthAreaDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list HealthArea", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -233,8 +233,8 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/organisation")
-    public ResponseEntity getOrganisationDropdownList(Authentication auth) {
+    @GetMapping("/organisation/realm/{realmId}")
+    public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getOrganisationDropdownList(curUser), HttpStatus.OK);

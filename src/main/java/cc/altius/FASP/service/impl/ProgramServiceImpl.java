@@ -77,13 +77,13 @@ public class ProgramServiceImpl implements ProgramService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(programTypeId, curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser);
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
-        return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(programTypeId, input, curUser);
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser);
     }
 
     @Override

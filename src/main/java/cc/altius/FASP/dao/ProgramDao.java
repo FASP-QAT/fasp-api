@@ -20,7 +20,6 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
-import cc.altius.FASP.model.Version;
 import java.util.List;
 
 /**
@@ -29,9 +28,9 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
@@ -114,5 +113,5 @@ public interface ProgramDao {
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
-    
+
 }

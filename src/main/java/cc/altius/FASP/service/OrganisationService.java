@@ -23,7 +23,7 @@ public interface OrganisationService {
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getOrganisationDropdownList(CustomUserDetails curUser);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser);
     
     public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
 
