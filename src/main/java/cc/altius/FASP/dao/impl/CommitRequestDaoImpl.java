@@ -143,14 +143,24 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
     }
 
     @Override
-    public Version updateCommitRequest(int commitRequestId, int status, String message, int versionId) {
+    @Transactional
+    public Version updateCommitRequest(int programId, int commitRequestId, int status, String message, int versionId) {
         Map<String, Object> params = new HashMap<>();
         params.put("FAILED_REASON", message != "" ? message : null);
         params.put("COMMIT_REQUEST_ID", commitRequestId);
         params.put("STATUS", status);
         params.put("VERSION_ID", versionId);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STATUS=:STATUS, spcr.FAILED_REASON=:FAILED_REASON,spcr.COMPLETED_DATE=:curDate,spcr.VERSION_ID=:VERSION_ID WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+        this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STATUS=:STATUS, spcr.FAILED_REASON=:FAILED_REASON, spcr.COMPLETED_DATE=:curDate, spcr.VERSION_ID=:VERSION_ID WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+
+        params.clear();
+        // Update the Current Version no in Program table
+        if (status == 2 && versionId!=-1) {
+            params.put("versionId", versionId);
+            params.put("programId", programId);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId", params);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_program_version pv SET pv.VERSION_READY=1 WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId", params);
+        }
         return new Version(0, null, null, null, null, null, null, null);
     }
 
