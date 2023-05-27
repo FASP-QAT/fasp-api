@@ -801,15 +801,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack, tpc.BaseUnit";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
         sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
 
         // Step 4 Match those records that are already present in the main forecasting_unit table
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN "
+        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN LEFT JOIN vw_unit ON fu.UNIT_ID=u.UNIT_ID AND tfu.BaseUnit=u.LABEL_EN "
                 + "set tfu.LABEL_ID = fu.LABEL_ID, tfu.FOUND=1, tfu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
-                + "where fu.FORECASTING_UNIT_ID is not null AND fu.REALM_ID=1";
+                + "where fu.FORECASTING_UNIT_ID is not null AND u.UNIT_ID IS NOT NULL AND fu.REALM_ID=1";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " Forecasting units found");
         sb.append(rows).append(" Forecasting units found").append(br);
