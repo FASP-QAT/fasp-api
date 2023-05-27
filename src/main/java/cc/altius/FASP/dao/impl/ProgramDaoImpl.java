@@ -436,7 +436,7 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlStringBuilder.append("FROM vw_dataset p ");
         }
         sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE AND p.REALM_ID=:realmId ");
+                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE AND rc.REALM_ID=:realmId ");
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
@@ -455,7 +455,7 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlStringBuilder.append("FROM vw_dataset p ");
         }
         sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE  AND p.REALM_ID=:realmId ");
+                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE  AND rc.REALM_ID=:realmId ");
         params.put("realmId", realmId);
         if (input.getHealthAreaId() != null) {
             sqlStringBuilder.append(" AND FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) ");

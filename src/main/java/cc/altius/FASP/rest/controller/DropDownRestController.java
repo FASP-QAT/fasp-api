@@ -93,7 +93,7 @@ public class DropDownRestController {
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(programTypeId, input, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
