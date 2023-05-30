@@ -9,6 +9,7 @@ import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,21 +21,33 @@ import java.util.Date;
  */
 public class ForecastActualConsumption implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int actualConsumptionId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private double puMultiplier;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject region;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date month;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double amount;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double reportingRate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer daysOfStockOut;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double adjustedAmount;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double puAmount;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date createdDate;
 
     public int getActualConsumptionId() {
