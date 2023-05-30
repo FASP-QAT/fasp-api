@@ -328,7 +328,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("notes", p.getProgramNotes());
         params.put("forecastStartDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStartDate()));
         params.put("forecastStopDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStopDate()));
-        this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate,0)", params, new VersionRowMapper());
+        this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate,1)", params, new VersionRowMapper());
         return programId;
     }
 
