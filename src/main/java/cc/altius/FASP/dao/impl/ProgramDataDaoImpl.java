@@ -1632,19 +1632,19 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
                                 int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                /*for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
                                     nodeDataParams.clear();
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
                                     nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
-                                }
+                                }*/
                             }
                         }
 
                         // Step 3J -- Add the Node Data Extrapolation and Data values
-                        /*if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
                             NodeDataExtrapolation nde = tnd.getNodeDataExtrapolation();
                             nodeDataParams.clear();
@@ -1664,7 +1664,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeParams.put("MANUAL_CHANGE", edrr.getManualChange());
                                 di.execute(nodeParams);
                             }
-                        }*/
+                        }
 
                         // Step 3K -- Add the Node Data Override
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_override");
