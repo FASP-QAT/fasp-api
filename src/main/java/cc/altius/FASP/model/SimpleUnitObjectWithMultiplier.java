@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
 public class SimpleUnitObjectWithMultiplier extends SimpleUnitObject {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private double multiplier;
 
     public double getMultiplier() {
