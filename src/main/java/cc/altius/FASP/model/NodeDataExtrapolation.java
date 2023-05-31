@@ -31,9 +31,11 @@ public class NodeDataExtrapolation implements Serializable {
     List<ExtrapolationDataReportingRate> extrapolationDataList;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date stopDate;
 
     public NodeDataExtrapolation() {
