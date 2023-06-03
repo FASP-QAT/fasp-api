@@ -91,6 +91,11 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
+    public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
+        return this.budgetDao.getBudgetDropdownForProgram(programId, curUser);
+    }
+
+    @Override
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
     }

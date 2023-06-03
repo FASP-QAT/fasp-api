@@ -74,7 +74,7 @@ public class DropDownRestController {
     @Autowired
     private UserService userService;
     @Autowired
-    private BudgetService BudgetService;
+    private BudgetService budgetService;
 
     @JsonView(Views.DropDownView.class)
     @GetMapping("/program/realm/{realmId}/programType/{programTypeId}")
@@ -357,7 +357,19 @@ public class DropDownRestController {
     public ResponseEntity getBudgetDropdownFilterMultipleFundingSources(@RequestBody String[] fundingSources, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.BudgetService.getBudgetDropdownFilterMultipleFundingSources(String.join(",", fundingSources), curUser), HttpStatus.OK);
+            return new ResponseEntity(this.budgetService.getBudgetDropdownFilterMultipleFundingSources(String.join(",", fundingSources), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/budget")
+    public ResponseEntity getBudgetDropdownForProgram(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.budgetService.getBudgetDropdownForProgram(-1, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

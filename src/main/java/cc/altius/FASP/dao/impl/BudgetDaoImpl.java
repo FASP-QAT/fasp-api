@@ -179,6 +179,16 @@ public class BudgetDaoImpl implements BudgetDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN vw_program p ON b.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (b.PROGRAM_ID=:programId OR :programId=-1) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND b.LAST_MODIFIED_DATE>:lastSyncDate");
         Map<String, Object> params = new HashMap<>();
