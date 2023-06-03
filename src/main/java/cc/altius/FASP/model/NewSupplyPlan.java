@@ -841,6 +841,7 @@ public class NewSupplyPlan implements Serializable {
         this.getBatchDataList().stream().filter(bd -> (bd.getOpeningBalance() == 0
                 && Optional.ofNullable(bd.getShipment()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getAdjustment()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0L) == 0
@@ -848,6 +849,7 @@ public class NewSupplyPlan implements Serializable {
                 && bd.getOpeningBalanceWps() == 0
                 && Optional.ofNullable(bd.getShipmentWps()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getAdjustment()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0L) == 0
