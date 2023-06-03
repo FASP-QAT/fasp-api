@@ -27,7 +27,7 @@ ALTER TABLE `fasp`.`rm_budget` DROP INDEX `fk_budget_programId1_idx` ;
 ALTER TABLE `fasp`.`rm_budget` CHANGE COLUMN `PROGRAM_ID` `REALM_ID` INT UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realmthat this budget is for' ;
 UPDATE rm_budget b LEFT JOIN rm_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID SET b.REALM_ID=fs.REALM_ID;
 
-ALTER TABLE `fasp`.`rm_budget` ADD INDEX `fk_rm_budget_realmId_idx` (`REALM_ID` ASC)
+ALTER TABLE `fasp`.`rm_budget` ADD INDEX `fk_rm_budget_realmId_idx` (`REALM_ID` ASC);
 
 ALTER TABLE `fasp`.`rm_budget` ADD CONSTRAINT `fk_rm_budget_realmId`
   FOREIGN KEY (`REALM_ID`)
