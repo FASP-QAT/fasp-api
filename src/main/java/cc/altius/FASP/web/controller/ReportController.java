@@ -255,7 +255,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
-    public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
+    public ResponseEntity getWarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
