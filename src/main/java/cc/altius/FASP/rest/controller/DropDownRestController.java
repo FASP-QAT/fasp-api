@@ -4,7 +4,6 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
@@ -365,11 +364,11 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/budget")
-    public ResponseEntity getBudgetDropdownForProgram(Authentication auth) {
+    @GetMapping("/budget/program/{programId}")
+    public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value="programId", required=true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.budgetService.getBudgetDropdownForProgram(-1, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.budgetService.getBudgetDropdownForProgram(programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

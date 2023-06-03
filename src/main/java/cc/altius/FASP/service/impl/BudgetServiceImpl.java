@@ -6,9 +6,11 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.BudgetDao;
+import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -34,6 +36,8 @@ public class BudgetServiceImpl implements BudgetService {
     @Autowired
     private FundingSourceDao fundingSourceDao;
     @Autowired
+    private CurrencyDao currencyDao;
+    @Autowired
     private RealmService realmService;
     @Autowired
     private ProgramService programService;
@@ -43,6 +47,9 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public int addBudget(Budget b, CustomUserDetails curUser) {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(b.getFundingSource().getFundingSourceId(), curUser);
+        b.setFundingSource(fs);
+        Currency c = this.currencyDao.getCurrencyById(b.getCurrency().getCurrencyId(), curUser);
+        b.setCurrency(c);
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
             return this.budgetDao.addBudget(b, curUser);
         } else {
