@@ -678,10 +678,10 @@ public class NewSupplyPlan implements Serializable {
         return newBatchCounter;
     }*/
     public int updateBatchData(int newBatchCounter) {
-        long unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
-        long unallocatedLEFO = 0L - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
-        long unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
-        long unallocatedLEFOWps = 0L - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
+        long unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
+        long unallocatedLEFO = 0L - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
+        long unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
+        long unallocatedLEFOWps = 0L - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
         for (int x = 0; x < getSizeOfBatchDataList(); x++) {
             BatchData bd = getBatchData(x);
             long tempOB = bd.getOpeningBalance()
@@ -691,15 +691,15 @@ public class NewSupplyPlan implements Serializable {
             long adjustment = (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
             if (Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
                 if ((tempOB + adjustment) >= 0) {
-                    unallocatedFEFO += adjustment;
-                } else {
-                    unallocatedFEFO -= tempOB;
-                }
-            } else {
-                if ((tempOB + adjustment) >= 0) {
                     unallocatedLEFO += adjustment;
                 } else {
                     unallocatedLEFO -= tempOB;
+                }
+            } else {
+                if ((tempOB + adjustment) >= 0) {
+                    unallocatedFEFO += adjustment;
+                } else {
+                    unallocatedFEFO -= tempOB;
                 }
             }
 
@@ -723,15 +723,15 @@ public class NewSupplyPlan implements Serializable {
             long adjustmentWps = (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
             if (Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
                 if ((tempOBWps + adjustmentWps) >= 0) {
-                    unallocatedFEFOWps += adjustmentWps;
-                } else {
-                    unallocatedFEFOWps -= tempOBWps;
-                }
-            } else {
-                if ((tempOBWps + adjustmentWps) >= 0) {
                     unallocatedLEFOWps += adjustmentWps;
                 } else {
                     unallocatedLEFOWps -= tempOBWps;
+                }
+            } else {
+                if ((tempOBWps + adjustmentWps) >= 0) {
+                    unallocatedFEFOWps += adjustmentWps;
+                } else {
+                    unallocatedFEFOWps -= tempOBWps;
                 }
             }
 
@@ -769,7 +769,7 @@ public class NewSupplyPlan implements Serializable {
                     BatchData bd = getBatchData(x);
                     long tempCB = bd.getClosingBalance();
                     bd.setUnallocatedLEFO(unallocatedLEFO);
-                    if (tempCB >= unallocatedLEFO) { // There is equal or more stock than Adjustment 
+                    if (tempCB >= unallocatedLEFO && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Adjustment 
                         bd.setClosingBalance(tempCB - unallocatedLEFO);
                         bd.setCalculatedLEFO(unallocatedLEFO);
                         unallocatedLEFO = 0;
@@ -801,7 +801,7 @@ public class NewSupplyPlan implements Serializable {
                     BatchData bd = getBatchData(x);
                     long tempCB = bd.getClosingBalanceWps();
                     bd.setUnallocatedLEFOWps(unallocatedLEFOWps);
-                    if (tempCB >= unallocatedLEFOWps) { // There is equal or more stock than Adjustment 
+                    if (tempCB >= unallocatedLEFOWps && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Adjustment 
                         bd.setClosingBalanceWps(tempCB - unallocatedLEFOWps);
                         bd.setCalculatedLEFOWps(unallocatedLEFOWps);
                         unallocatedLEFOWps = 0;
@@ -814,7 +814,7 @@ public class NewSupplyPlan implements Serializable {
             }
         }
 
-        if (unallocatedFEFO < 0 || unallocatedFEFOWps < 0) {
+        if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0) {
             System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
             BatchData bdNew = new BatchData();
             bdNew.setBatchId(newBatchCounter);
@@ -822,12 +822,12 @@ public class NewSupplyPlan implements Serializable {
             bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
             bdNew.setOpeningBalanceWps(0);
-            bdNew.setUnallocatedFEFO(unallocatedFEFO < 0 ? unallocatedFEFO : 0);
-            bdNew.setCalculatedFEFO(unallocatedFEFO < 0 ? unallocatedFEFO : 0);
-            bdNew.setUnallocatedFEFOWps(unallocatedFEFOWps < 0 ? unallocatedFEFOWps : 0);
-            bdNew.setCalculatedFEFOWps(unallocatedFEFOWps < 0 ? unallocatedFEFOWps : 0);
-            bdNew.setClosingBalance(unallocatedFEFO < 0 ? 0 - unallocatedFEFO : 0);
-            bdNew.setClosingBalanceWps(unallocatedFEFOWps < 0 ? 0 - unallocatedFEFOWps : 0);
+            bdNew.setUnallocatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
+            bdNew.setCalculatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
+            bdNew.setUnallocatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+            bdNew.setCalculatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+            bdNew.setClosingBalance(unallocatedLEFO < 0 ? 0 - unallocatedLEFO : 0);
+            bdNew.setClosingBalanceWps(unallocatedLEFOWps < 0 ? 0 - unallocatedLEFOWps : 0);
             bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
             bdNew.setUseAdjustment(this.isUseAdjustment());
             this.batchDataList.add(bdNew);
