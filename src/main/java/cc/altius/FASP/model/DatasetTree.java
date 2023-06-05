@@ -28,8 +28,10 @@ public class DatasetTree extends BaseModel {
     private List<TreeLevel> levelList;
     @JsonView(Views.InternalView.class)
     private List<TreeScenario> scenarioList;
+    // TODO -- Why does a Tree have many regions?
     @JsonView(Views.InternalView.class)
     private List<SimpleObject> regionList;
+    // TODO -- Notes for the entire Tree
     @JsonView(Views.InternalView.class)
     private String notes;
 

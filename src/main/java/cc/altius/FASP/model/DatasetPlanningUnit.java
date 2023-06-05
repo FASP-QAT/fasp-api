@@ -43,6 +43,7 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
     private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObjectWithMultiplier otherUnit;
+    // TODO -- Should be one Selected Forecast for each Region which means the Key for this map is the Region Id
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Map<Integer, SelectedForecast> selectedForecastMap;
     
