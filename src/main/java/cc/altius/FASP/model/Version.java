@@ -43,11 +43,11 @@ public class Version implements Serializable {
     private Date lastModifiedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class})
     private Date forecastStartDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class})
     private Date forecastStopDate;
     @JsonView(Views.InternalView.class)
     private Integer daysInMonth;
