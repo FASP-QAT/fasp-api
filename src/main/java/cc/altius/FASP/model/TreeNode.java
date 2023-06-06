@@ -28,6 +28,8 @@ public class TreeNode implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private boolean collapsed;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
     private Map<Integer, List<TreeNodeData>> nodeDataMap; 
 
@@ -35,12 +37,13 @@ public class TreeNode implements Serializable {
         this.nodeDataMap = new HashMap<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label) {
+    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label, boolean collapsed) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
         this.nodeType = nodeType;
         this.nodeUnit = nodeUnit;
         this.label = label;
+        this.collapsed = collapsed;
         this.nodeDataMap = new HashMap<>();
     }
 
@@ -82,6 +85,14 @@ public class TreeNode implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public boolean isCollapsed() {
+        return collapsed;
+    }
+
+    public void setCollapsed(boolean collapsed) {
+        this.collapsed = collapsed;
     }
 
     public Map<Integer, List<TreeNodeData>> getNodeDataMap() {
