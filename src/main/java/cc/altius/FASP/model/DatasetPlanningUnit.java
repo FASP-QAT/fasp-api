@@ -38,12 +38,13 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double lowerThenConsumptionThreshold;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String planningUnitNotes;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String consumptionNotes;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObjectWithMultiplier otherUnit;
-    // TODO -- Should be one Selected Forecast for each Region which means the Key for this map is the Region Id
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Map<Integer, SelectedForecast> selectedForecastMap;
     
@@ -133,6 +134,14 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
 
     public void setLowerThenConsumptionThreshold(Double lowerThenConsumptionThreshold) {
         this.lowerThenConsumptionThreshold = lowerThenConsumptionThreshold;
+    }
+
+    public String getPlanningUnitNotes() {
+        return planningUnitNotes;
+    }
+
+    public void setPlanningUnitNotes(String planningUnitNotes) {
+        this.planningUnitNotes = planningUnitNotes;
     }
 
     public String getConsumptionNotes() {

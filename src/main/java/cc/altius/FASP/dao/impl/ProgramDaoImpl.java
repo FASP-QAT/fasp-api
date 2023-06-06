@@ -2674,7 +2674,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId) {
         String sqlString = "SELECT "
-                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.CONSUMPTION_NOTES, dpu.HIGHER_THEN_CONSUMPTION_THRESHOLD, dpu.LOWER_THEN_CONSUMPTION_THRESHOLD, "
+                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.PLANNING_UNIT_NOTES, dpu.CONSUMPTION_NOTES, dpu.HIGHER_THEN_CONSUMPTION_THRESHOLD, dpu.LOWER_THEN_CONSUMPTION_THRESHOLD, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER_FOR_FU`, "
                 + "    puu.UNIT_ID `PUU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PUU_UNIT_CODE`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
