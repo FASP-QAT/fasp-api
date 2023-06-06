@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,8 +22,11 @@ public class ExtrapolationData implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date month;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double amount;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double ci;
 
     public ExtrapolationData() {

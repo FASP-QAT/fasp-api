@@ -1416,6 +1416,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
             params.put("REGION_ID", fce.getRegion().getId());
             params.put("EXTRAPOLATION_METHOD_ID", fce.getExtrapolationMethod().getId());
+            params.put("NOTES", fce.getNotes());
             params.put("VERSION_ID", version.getVersionId());
             params.put("JSON_PROPERTIES", fce.getJsonPropertiesString());
             params.put("CREATED_BY", fce.getCreatedBy().getUserId());
@@ -1580,6 +1581,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        if (n.getPayload().getNodeType().getId() != GlobalConstants.NODE_TYPE_NUMBER) {
+                            tnd.setExtrapolation(false);
+                        }
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
                         nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1592,7 +1596,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                        if ((n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU)
+                                && tnd.isExtrapolation() == Boolean.FALSE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
@@ -1615,7 +1623,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation() == Boolean.TRUE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
 
@@ -1625,14 +1633,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
                                 int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                /*for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
                                     nodeDataParams.clear();
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
                                     nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
-                                }
+                                }*/
                             }
                         }
 
@@ -2454,7 +2462,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.update(sqlString, params);
             sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc2";
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
@@ -2467,7 +2475,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
@@ -2480,7 +2488,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
             logger.info("Delete done");
@@ -2500,7 +2508,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si.executeBatch(batchParamsArray);
             logger.info("Batch insert for supply plan batch completed");
             params.clear();
-            
+
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
@@ -2766,7 +2774,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
-                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
+                + "     fce.JSON_PROPERTIES, fce.NOTES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
                 + "FROM rm_forecast_consumption_extrapolation fce "
                 + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
@@ -2905,10 +2913,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId) {
         String sql = "SELECT "
-                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES "
+                //                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
                 + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
-                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                //                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
         return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);

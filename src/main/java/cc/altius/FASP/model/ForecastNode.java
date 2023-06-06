@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,13 +17,19 @@ import java.util.List;
  */
 public class ForecastNode<T> implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int id;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer parent;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private T payload;
     @JsonIgnore
     private List<ForecastNode<T>> tree;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int level;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String sortOrder;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int payloadId;
 
     public ForecastNode(int id, Integer parent, T payload, int payloadId) {
