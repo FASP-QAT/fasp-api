@@ -28,7 +28,8 @@ public class TreeNode implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Map<Integer, List<TreeNodeData>> nodeDataMap; // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
+    // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
+    private Map<Integer, List<TreeNodeData>> nodeDataMap; 
 
     public TreeNode() {
         this.nodeDataMap = new HashMap<>();
