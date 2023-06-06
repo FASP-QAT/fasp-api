@@ -30,7 +30,7 @@ public class TreeNodeData implements Serializable {
     private TreeNodeDataFu fuNode;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataPu puNode;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean extrapolation;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
@@ -43,6 +43,8 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataMom> nodeDataMomList;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    // This contains the final selected Extrapolation, extrapolation notes and also the start and stop date of the extrapolation
+    // Also contains the actual data that is used in the Extrapolation
     private NodeDataExtrapolation nodeDataExtrapolation;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataExtrapolationOption> nodeDataExtrapolationOptionList;
