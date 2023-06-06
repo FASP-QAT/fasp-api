@@ -1,4 +1,4 @@
-/*
+/*  `
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -44,6 +44,7 @@ public class ForecastConsumptionExtrapolation implements Serializable {
     private Date createdDate;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<ExtrapolationData> extrapolationDataList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
