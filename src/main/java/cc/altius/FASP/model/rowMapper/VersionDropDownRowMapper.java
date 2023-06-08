@@ -22,6 +22,8 @@ public class VersionDropDownRowMapper implements RowMapper<Version> {
         v.setVersionType(new SimpleObjectRowMapper("VERSION_TYPE_").mapRow(rs, 1));
         v.setVersionStatus(new SimpleObjectRowMapper("VERSION_STATUS_").mapRow(rs, 1));
         v.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+        v.setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
+        v.setForecastStartDate(rs.getDate("FORECAST_STOP_DATE"));
         return v;
     }
 
