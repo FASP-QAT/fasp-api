@@ -91,6 +91,7 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 if (rs.wasNull()) {
                     dpu.setHigherThenConsumptionThreshold(null);
                 }
+                dpu.setPlanningUnitNotes(rs.getString("PLANNING_UNIT_NOTES"));
                 dpu.setConsumptionNotes(rs.getString("CONSUMPTION_NOTES"));
                 dpu.setActive(rs.getBoolean("ACTIVE"));
                 dpu.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
