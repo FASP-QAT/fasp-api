@@ -38,6 +38,8 @@ VIEW `vw_realm` AS
         (`rm_realm` `r`
         LEFT JOIN `ap_label` `rl` ON ((`r`.`LABEL_ID` = `rl`.`LABEL_ID`)));
 
+UPDATE `fasp`.`rm_realm` r SET r.LAST_MODIFIED_DATE=now();
+
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.realm.restrictionActualConsumption','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
