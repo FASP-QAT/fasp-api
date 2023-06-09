@@ -49,7 +49,6 @@ VIEW `vw_program` AS
 USE `fasp`;
 
 CREATE 
-    CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
