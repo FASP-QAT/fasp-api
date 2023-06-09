@@ -64,6 +64,182 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois inférieurs à 6 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses menores a 6 (Datos insuficientes para generar turnos confiables)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses menores que 6 (dados insuficientes para gerar turnos confiáveis)');-- pr
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Inventory turns at lowest level (PU)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks au niveau le plus bas (PU)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones de inventario al nivel más bajo (PU)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giro de estoque no nível mais baixo (PU)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual IT = Total Consumption for the last 12 months / Average Stock on hand over last 12 months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT réel = Consommation totale des 12 derniers mois / Stock moyen disponible des 12 derniers mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI real = Consumo total de los últimos 12 meses / Stock promedio disponible durante los últimos 12 meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI real = Consumo total dos últimos 12 meses / Estoque médio disponível nos últimos 12 meses');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned IT = Total Consumption over last 12 months / Average Stock during that period');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT planifiée = Consommation totale au cours des 12 derniers mois / Stock moyen au cours de cette période');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI planificado = Consumo total en los últimos 12 meses / Stock promedio durante ese período');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI Planejada = Consumo Total nos últimos 12 meses / Estoque Médio nesse período');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Inventory turns at program level');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks au niveau du programme');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones de inventario a nivel de programa');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giro de estoque no nível do programa');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns2L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual IT = MODE(Actual inventory turns of all Planning units under a specific program');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT réel = MODE(Rotations réelles des stocks de toutes les unités de planification dans le cadre d\'un programme spécifique');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI real = MODO (giros de inventario reales de todas las unidades de planificación bajo un programa específico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI real = MODO(giros de estoque reais de todas as unidades de planejamento em um programa específico');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns2L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned IT = MODE(Planned inventory turns of all Planning units under a specific program)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT planifiée = MODE (tours d\'inventaire planifiés de toutes les unités de planification dans le cadre d\'un programme spécifique)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI planificado = MODO (giros de inventario planificados de todas las unidades de planificación bajo un programa específico)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI planejada = MODO(giros de estoque planejados de todas as unidades de planejamento em um programa específico)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns3','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Inventory turns at country level');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks au niveau du pays');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones de inventario a nivel de país');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giros de estoque em nível de país');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns3L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual IT = MODE(Actual inventory turns of all Planning units under a specific country)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT réel = MODE (rotation réelle des stocks de toutes les unités de planification dans un pays spécifique)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI real = MODO (giros de inventario reales de todas las unidades de planificación en un país específico)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI real = MODO (giros de estoque reais de todas as unidades de planejamento em um país específico)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns3L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned IT = MODE(Planned inventory turns of all Planning units under a specific country)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT réel = MODE (rotation réelle des stocks de toutes les unités de planification dans un pays spécifique)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI real = MODO (giros de inventario reales de todas las unidades de planificación en un país específico)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI real = MODO (giros de estoque reais de todas as unidades de planejamento em um país específico)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns4','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Inventory turns at PU category level');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rotation des stocks au niveau de la catégorie PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Rotaciones de inventario a nivel de categoría de PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Giros de estoque no nível da categoria de PU');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns4L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual IT = MODE(Actual inventory turns of all Planning units under a specific PU category)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT réel = MODE (rotation des stocks réelle de toutes les unités de planification sous une catégorie PU spécifique)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI real = MODO (giros de inventario reales de todas las unidades de planificación en una categoría de PU específica)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI real = MODO (giros de estoque reais de todas as unidades de planejamento em uma categoria específica de PU)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns4L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned IT = MODE(Planned inventory turns of all Planning units under a specific PU category)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT planifiée = MODE (rotation des stocks planifiée de toutes les unités de planification sous une catégorie PU spécifique)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI planificado = MODO (giros de inventario planificados de todas las unidades de planificación en una categoría de PU específica)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI planejada = MODO(giros de estoque planejados de todas as unidades de planejamento em uma categoria específica de PU)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns5','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Error metrics (MAPE, MSE)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Métriques d\'erreur (MAPE, MSE)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Métricas de error (MAPE, MSE)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Métricas de erro (MAPE, MSE)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns5L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'MAPE = (Actual inventory turn – Planned inventory turn) / Actual inventory turn');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'MAPE = (Rotation réelle des stocks - Rotation planifiée des stocks) / Rotation réelle des stocks');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'MAPE = (Rotación de inventario real - Rotación de inventario planificada) / Rotación de inventario real');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'MAPE = (Giro de estoque real – Giro de estoque planejado) / Giro de estoque real');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns5L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'MSE = (Actual inventory turn – Planned inventory turn) * (Actual inventory turn – Planned inventory turn)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'MSE = (Rotation réelle des stocks – Rotation planifiée des stocks) * (Rotation réelle des stocks – Rotation planifiée des stocks)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'MSE = (Rotación de inventario real – Rotación de inventario planificada) * (Rotación de inventario real – Rotación de inventario planificada)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'MSE = (Giro de estoque real – Giro de estoque planejado) * (Giro de estoque real – Giro de estoque planejado)');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns6','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total consumption and average stock');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation totale et stock moyen');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo total y stock medio');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo total e estoque médio');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns6L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total consumption = Sum of all the Consumption over last 12 months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation totale = Somme de toutes les consommations des 12 derniers mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo total = Suma de todo el consumo durante los últimos 12 meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo total = Soma de todo o consumo nos últimos 12 meses');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns6L2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Average Stock = (Total months of planned consumption + (Min MOS *12)) / 12');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Stock moyen = (Total des mois de consommation planifiée + (Min MOS *12)) / 12');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Stock promedio = (Meses totales de consumo planificado + (Min MOS *12)) / 12');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque Médio = (Total de meses de consumo planejado + (Min MOS *12)) / 12');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns8','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Reorder interval and Min MOS settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intervalle de commande et paramètres Min MOS');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ajustes de intervalo de reordenamiento y MOS mínimo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Intervalo de reordenar e configurações de Min MOS');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns8L1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Update the “plan by” setting in');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mettez à jour le paramètre "planifier par" dans');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Actualice la configuración "planificar por" en');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualize a configuração "planejar até" em');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurnsNote1','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For Average calculation consider only non zero values.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le calcul de la moyenne, ne considérez que les valeurs non nulles.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el cálculo promedio, considere solo valores distintos de cero.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o cálculo da média, considere apenas valores diferentes de zero.');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurnsNote2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If maximum occurrence in calculation of MODE is less than 3 then system uses average for the calculation.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si l occurrence maximale dans le calcul de MODE est inférieure à 3, le système utilise la moyenne pour le calcul.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si la incidencia máxima en el cálculo de MODE es inferior a 3, el sistema utiliza el promedio para el cálculo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se a ocorrência máxima no cálculo do MODO for menor que 3, o sistema usará a média para o cálculo.');-- pr
+
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
 
