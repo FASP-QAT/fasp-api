@@ -24,10 +24,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique em `OK` para:')
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.sync.deleteLocalVersion','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'- DELETE local version {{programCodeLocal}}, and');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'- SUPPRIMER la version locale {{programCodeLocal}}, et');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'- ELIMINAR la versión local {{programCodeLocal}}, y');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'- EXCLUIR a versão local {{programCodeLocal}} e');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'- DELETE local version {{programCodeLocal}}');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'- SUPPRIMER la version locale {{programCodeLocal}}');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'- ELIMINAR versión local {{programCodeLocal}}');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'- EXCLUIR versão local {{programCodeLocal}}');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.sync.loseUnsubmittedChanges','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -56,3 +56,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'- Keep loaded version 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'- Conserver la version chargée {{programCodeLocal}}');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'- Mantener la versión cargada {{programCodeLocal}}');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'- Mantenha a versão carregada {{programCodeLocal}}');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.forecasting','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecasting');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'previsão');-- pr
