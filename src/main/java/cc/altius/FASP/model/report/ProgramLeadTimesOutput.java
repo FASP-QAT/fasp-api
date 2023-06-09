@@ -36,6 +36,8 @@ public class ProgramLeadTimesOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double shippedToArrivedBySeaLeadTime;
     @JsonView(Views.ReportView.class)
+    private Double shippedToArrivedByRoadLeadTime;
+    @JsonView(Views.ReportView.class)
     private Double arrivedToDeliveredLeadTime;
     @JsonView(Views.ReportView.class)
     private Double localProcurementAgentLeadTime;
@@ -112,6 +114,14 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
     }
 
+    public Double getShippedToArrivedByRoadLeadTime() {
+        return shippedToArrivedByRoadLeadTime;
+    }
+
+    public void setShippedToArrivedByRoadLeadTime(Double shippedToArrivedByRoadLeadTime) {
+        this.shippedToArrivedByRoadLeadTime = shippedToArrivedByRoadLeadTime;
+    }
+
     public Double getArrivedToDeliveredLeadTime() {
         return arrivedToDeliveredLeadTime;
     }
@@ -148,6 +158,21 @@ public class ProgramLeadTimesOutput implements Serializable {
                 + (this.submittedToApprovedLeadTime != null ? this.submittedToApprovedLeadTime : 0)
                 + (this.approvedToShippedLeadTime != null ? this.approvedToShippedLeadTime : 0)
                 + (this.shippedToArrivedByAirLeadTime != null ? this.shippedToArrivedByAirLeadTime : 0)
+                + (this.arrivedToDeliveredLeadTime != null ? this.arrivedToDeliveredLeadTime : 0
+        );
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
+    }
+    
+    @JsonView(Views.ReportView.class)
+    public Double getTotalRoadLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime != null ? this.plannedToSubmittedLeadTime : 0)
+                + (this.submittedToApprovedLeadTime != null ? this.submittedToApprovedLeadTime : 0)
+                + (this.approvedToShippedLeadTime != null ? this.approvedToShippedLeadTime : 0)
+                + (this.shippedToArrivedByRoadLeadTime != null ? this.shippedToArrivedByRoadLeadTime : 0)
                 + (this.arrivedToDeliveredLeadTime != null ? this.arrivedToDeliveredLeadTime : 0
         );
         if (d == 0) {
