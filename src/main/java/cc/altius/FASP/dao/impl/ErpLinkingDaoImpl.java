@@ -2200,7 +2200,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    e.`RO_NO`, e.`RO_PRIME_LINE_NO`, COALESCE(s.`STATUS`, e.`STATUS`) `ERP_SHIPMENT_STATUS`,  "
                 + "    e.`ORDER_NO`, e.`PRIME_LINE_NO`, COALESCE(s.`DELIVERED_QTY`, s.`SHIPPED_QTY`, e.`QTY`) `ERP_QTY`,  "
                 + "    COALESCE(s.`ACTUAL_DELIVERY_DATE`, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS `EXPECTED_DELIVERY_DATE`, e.`ACTIVE` `ORDER_ACTIVE`, "
-                + "    s.`KN_SHIPMENT_NO`, s.`BATCH_NO`, s.`EXPIRY_DATE`, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
+                + "    s.`KN_SHIPMENT_NO`, s.`BATCH_NO`, s.`EXPIRY_DATE`, COALESCE(s.`ACTIVE`,e.`ACTIVE`) `SHIPMENT_ACTIVE`, "
                 + "    pu.`PLANNING_UNIT_ID` `ERP_PLANNING_UNIT_ID`, pu.`LABEL_ID` `ERP_PU_LABEL_ID`, pu.`LABEL_EN` `ERP_PU_LABEL_EN`, pu.`LABEL_FR` `ERP_PU_LABEL_FR`, pu.`LABEL_SP` `ERP_PU_LABEL_SP`, pu.`LABEL_PR` `ERP_PU_LABEL_PR`,  "
                 + "    e.`PRICE`, e.`SHIPPING_COST`, null `PARENT_SHIPMENT_ID`, null `PARENT_LINKED_SHIPMENT_ID`, null `CHILD_SHIPMENT_ID`, null `NOTES`, e.`SHIP_BY`,  "
                 + "    ss.`SHIPMENT_STATUS_ID`, ss.`LABEL_ID` `SS_LABEL_ID`, ss.`LABEL_EN` `SS_LABEL_EN`, ss.`LABEL_FR` `SS_LABEL_FR`, ss.`LABEL_SP` `SS_LABEL_SP`, ss.`LABEL_PR`  `SS_LABEL_PR`, null CONVERSION_FACTOR ,null AS TRACER_CATEGORY_ID  "

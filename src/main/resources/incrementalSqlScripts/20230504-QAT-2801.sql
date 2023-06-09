@@ -1,5 +1,5 @@
 ALTER TABLE `fasp`.`rm_program` ADD COLUMN `ROAD_FREIGHT_PERC` DECIMAL(5,2) UNSIGNED NULL AFTER `SEA_FREIGHT_PERC`, ADD COLUMN `SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME` DECIMAL(4,2) UNSIGNED NULL AFTER `SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`;
-UPDATE rm_program p SET p.ROAD_FREIGHT_PERC=10, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=0.17;
+UPDATE rm_program p SET p.ROAD_FREIGHT_PERC=10, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME=0.17,p.LAST_MODIFIED_DATE=now();
 
 USE `fasp`;
 CREATE 
@@ -44,6 +44,53 @@ VIEW `vw_program` AS
         LEFT JOIN `ap_label` `pl` ON ((`p`.`LABEL_ID` = `pl`.`LABEL_ID`)))
     WHERE
         (`p`.`PROGRAM_TYPE_ID` = 1)
+    GROUP BY `p`.`PROGRAM_ID`;
+
+USE `fasp`;
+
+CREATE 
+    CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_dataset` AS
+    SELECT 
+        `p`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `p`.`PROGRAM_CODE` AS `PROGRAM_CODE`,
+        `p`.`REALM_COUNTRY_ID` AS `REALM_COUNTRY_ID`,
+        GROUP_CONCAT(`pha`.`HEALTH_AREA_ID`
+            SEPARATOR ',') AS `HEALTH_AREA_ID`,
+        `p`.`ORGANISATION_ID` AS `ORGANISATION_ID`,
+        `p`.`LABEL_ID` AS `LABEL_ID`,
+        `p`.`PROGRAM_MANAGER_USER_ID` AS `PROGRAM_MANAGER_USER_ID`,
+        `p`.`PROGRAM_NOTES` AS `PROGRAM_NOTES`,
+        `p`.`AIR_FREIGHT_PERC` AS `AIR_FREIGHT_PERC`,
+        `p`.`SEA_FREIGHT_PERC` AS `SEA_FREIGHT_PERC`,
+        `p`.`ROAD_FREIGHT_PERC` AS `ROAD_FREIGHT_PERC`,
+        `p`.`PLANNED_TO_SUBMITTED_LEAD_TIME` AS `PLANNED_TO_SUBMITTED_LEAD_TIME`,
+        `p`.`SUBMITTED_TO_APPROVED_LEAD_TIME` AS `SUBMITTED_TO_APPROVED_LEAD_TIME`,
+        `p`.`APPROVED_TO_SHIPPED_LEAD_TIME` AS `APPROVED_TO_SHIPPED_LEAD_TIME`,
+        `p`.`SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME` AS `SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`,
+        `p`.`SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME` AS `SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`,
+        `p`.`SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME` AS `SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME`,
+        `p`.`ARRIVED_TO_DELIVERED_LEAD_TIME` AS `ARRIVED_TO_DELIVERED_LEAD_TIME`,
+        `p`.`CURRENT_VERSION_ID` AS `CURRENT_VERSION_ID`,
+        `p`.`ACTIVE` AS `ACTIVE`,
+        `p`.`CREATED_BY` AS `CREATED_BY`,
+        `p`.`CREATED_DATE` AS `CREATED_DATE`,
+        `p`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `p`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `pl`.`LABEL_EN` AS `LABEL_EN`,
+        `pl`.`LABEL_FR` AS `LABEL_FR`,
+        `pl`.`LABEL_SP` AS `LABEL_SP`,
+        `pl`.`LABEL_PR` AS `LABEL_PR`,
+        `p`.`PROGRAM_TYPE_ID` AS `PROGRAM_TYPE_ID`
+    FROM
+        ((`rm_program` `p`
+        LEFT JOIN `rm_program_health_area` `pha` ON ((`p`.`PROGRAM_ID` = `pha`.`PROGRAM_ID`)))
+        LEFT JOIN `ap_label` `pl` ON ((`p`.`LABEL_ID` = `pl`.`LABEL_ID`)))
+    WHERE
+        (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
 
 
@@ -134,3 +181,153 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.validroadfreighttext','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter road freight percentage');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisir le pourcentage de fret routier');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introduzca el porcentaje de transporte por carretera');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira a porcentagem de frete rodoviário');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.shippedToArrivedByRoadtext','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter `Shipped to Arrived` road lead time (in months)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez le délai de livraison de la route ""Expédié à Arrivé"" (en mois)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el tiempo de entrega en carretera de 'Enviado a Llegado' (en meses)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira o prazo de entrega da estrada `Shipped to Arrived` (em meses)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.roadfreightperc','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Road freight percentage');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de fret routier');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Porcentaje de transporte por carretera');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem de frete rodoviário');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.realmcountry.shippedToArrivedRoadLeadTime','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'`Shipped to Arrived` Road Lead Time (months)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'`Expédié à Arrivé` Délai de Route (mois)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'`Enviado a Llegado` Tiempo de entrega por carretera (meses)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Prazo de entrega na estrada `Shipped to Arrived` (meses)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataentry.road','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Road');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Route');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Camino');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estrada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.shippedToArrivedRoadLeadTime','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipped to Arrived (Road)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expédié à arrivé (route)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Enviado a Llegado (carretera)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Enviado para Chegou (Estrada)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.totalRoadLeadTime','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned to Received (Road)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévu à reçu (route)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Planificado a recibido (carretera)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Planejado para Recebido (Estrada)');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sea freight percentage'
+where l.LABEL_CODE='static.program.seafreightperc' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Pourcentage de fret maritime'
+where l.LABEL_CODE='static.program.seafreightperc' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentaje de flete marítimo'
+where l.LABEL_CODE='static.program.seafreightperc' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentagem de frete marítimo'
+where l.LABEL_CODE='static.program.seafreightperc' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sea Freight Percentage'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentage' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Pourcentage de fret maritime'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentage' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentaje de flete marítimo'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentage' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentagem de Frete Marítimo'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentage' and ll.LANGUAGE_ID=4;
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sea freight percentage'
+where l.LABEL_CODE='static.program.seafreightperctext' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Pourcentage de fret maritime'
+where l.LABEL_CODE='static.program.seafreightperctext' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentaje de flete marítimo'
+where l.LABEL_CODE='static.program.seafreightperctext' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Porcentagem de frete marítimo'
+where l.LABEL_CODE='static.program.seafreightperctext' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Enter sea freight percentage'
+where l.LABEL_CODE='static.program.validseafreighttext' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Entrez le pourcentage de fret maritime'
+where l.LABEL_CODE='static.program.validseafreighttext' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ingrese el porcentaje de flete marítimo'
+where l.LABEL_CODE='static.program.validseafreighttext' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Insira a porcentagem de frete marítimo'
+where l.LABEL_CODE='static.program.validseafreighttext' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Enter sea freight percentage'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentagetext' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Entrez le pourcentage de fret maritime'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentagetext' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ingrese el porcentaje de flete marítimo'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentagetext' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Insira a porcentagem de frete marítimo'
+where l.LABEL_CODE='static.realmcountry.seaFreightPercentagetext' and ll.LANGUAGE_ID=4;
