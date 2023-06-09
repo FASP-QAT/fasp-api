@@ -2,7 +2,8 @@ ALTER TABLE `fasp`.`rm_forecast_tree_node` ADD COLUMN `COLLAPSED` TINYINT NOT NU
 ALTER TABLE `fasp`.`rm_tree_template_node` ADD COLUMN `COLLAPSED` TINYINT NOT NULL DEFAULT 0 AFTER `LABEL_ID`;
 
 USE `fasp`;
-CREATE 
+CREATE
+    OR REPLACE
     ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
@@ -29,10 +30,11 @@ VIEW `vw_tree_template_node` AS
     FROM
         (`rm_tree_template_node` `ttn`
         LEFT JOIN `ap_label` `l` ON ((`ttn`.`LABEL_ID` = `l`.`LABEL_ID`)))
-    ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`
+    ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`;
 
 USE `fasp`;
 CREATE 
+    OR REPLACE
     ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
@@ -58,4 +60,4 @@ VIEW `vw_forecast_tree_node` AS
         `l`.`LABEL_PR` AS `LABEL_PR`
     FROM
         (`rm_forecast_tree_node` `tn`
-        LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)))
+        LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
