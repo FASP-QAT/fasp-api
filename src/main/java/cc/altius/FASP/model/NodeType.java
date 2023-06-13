@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,13 +14,19 @@ import java.io.Serializable;
  */
 public class NodeType implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int id;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean modelingAllowed;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean extrapolationAllowed;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean treeTemplateAllowed;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean forecastTreeAllowed;
-    
+
     public NodeType() {
     }
 
