@@ -35,7 +35,7 @@ public class NodeDataExtrapolationOptionResultSetExtractor implements ResultSetE
                 ndeo = ndeoList.get(idx);
             }
             // Check if Extrapolation Data exists
-            idx = -1;
+            /*idx = -1;
             ExtrapolationData ed = new ExtrapolationData(rs.getDate("EO_MONTH"));
             idx = ndeo.getExtrapolationOptionDataList().indexOf(ed);
             if (idx == -1) {
@@ -49,7 +49,7 @@ public class NodeDataExtrapolationOptionResultSetExtractor implements ResultSetE
                     ed.setCi(null);
                 }
                 ndeo.getExtrapolationOptionDataList().add(ed);
-            }
+            }*/
         }
         return ndeoList;
     }

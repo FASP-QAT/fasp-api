@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,10 +14,15 @@ import java.io.Serializable;
  */
 public class SelectedForecast implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer treeId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer scenarioId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer consumptionExtrapolationId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double totalForecast;
 
     public Integer getTreeId() {
