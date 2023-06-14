@@ -9,9 +9,11 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ProgramBasicResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
@@ -119,5 +121,16 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new VersionDropDownRowMapper());
     }
+
+    @Override
+    public SimpleCodeObject getSimpleSupplyPlanProgramById(int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID ID, p.PROGRAM_CODE CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p WHERE p.PROGRAM_ID=:programId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+    
+    
 
 }

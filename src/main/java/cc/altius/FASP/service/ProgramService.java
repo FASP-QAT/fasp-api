@@ -112,5 +112,7 @@ public interface ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
     
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+    
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser);
 
 }

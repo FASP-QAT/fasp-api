@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -652,4 +653,27 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleCodeObjectRowMapper(""));
     }
 
+    @Override
+    @Transactional
+    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.namedParameterJdbcTemplate.update("DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[procurementAgentIds.length];
+        int x = 0;
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        for (int procurementAgentId : procurementAgentIds) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", programId);
+            params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        int[] resultArray = si.executeBatch(batchParams);
+        return IntStream.of(resultArray).sum();
+    }
 }

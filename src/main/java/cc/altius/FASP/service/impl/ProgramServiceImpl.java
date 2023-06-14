@@ -440,4 +440,8 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programCommonDao.getVersionListForProgramId(programTypeId, programId, curUser);
     }
 
+    @Override
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+    }
 }
