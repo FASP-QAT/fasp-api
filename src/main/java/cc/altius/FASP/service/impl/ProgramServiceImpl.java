@@ -17,6 +17,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -34,6 +35,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -75,8 +77,18 @@ public class ProgramServiceImpl implements ProgramService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(programTypeId, curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForMultipleRealmCountryListForDropdown(programTypeId, realmCountryIdsStr, curUser);
     }
 
     @Override
@@ -433,5 +445,14 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getSimpleProgramListByProductCategoryIdList(productCategoryIds, curUser);
     }
     
-    
+    @Override
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getVersionListForProgramId(programTypeId, programId, curUser);
+    }
+
+    @Override
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+    }
+
 }

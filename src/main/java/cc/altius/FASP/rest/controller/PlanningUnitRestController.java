@@ -5,8 +5,9 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ResponseCode;
@@ -371,24 +372,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @JsonView(Views.ReportView.class)
-    @PostMapping("/planningUnit/tracerCategory/program/")
-    public ResponseEntity getPlanningUnitByTracerCategoryAndProgram(@RequestBody ProgramAndTracerCategoryDTO programAndTracerCategory, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit list for ProgramAndTracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit list for ProgramAndTracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit list for ProgramAndTracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    
     @GetMapping("/planningUnit/realmCountry/{realmCountryId}")
     public ResponseEntity getPlanningUnitByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {

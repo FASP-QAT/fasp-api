@@ -22,6 +22,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import cc.altius.FASP.dao.TracerCategoryDao;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 
 /**
@@ -106,6 +108,28 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
             sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
+    }
+
+    @Override
+    public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT tc.TRACER_CATEGORY_ID `ID`, tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR FROM vw_tracer_category tc WHERE tc.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "tc", curUser);
+        sqlStringBuilder.append(" ORDER BY tc.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleObject> getTracerCategoryDropdownListForFilterMultiplerPrograms(String programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT tc.TRACER_CATEGORY_ID `ID`, tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR FROM rm_program p LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID LEFT JOIN rm_health_area ha ON pha.HEALTH_AREA_ID=ha.HEALTH_AREA_ID LEFT JOIN vw_tracer_category tc ON tc.HEALTH_AREA_ID=ha.HEALTH_AREA_ID WHERE tc.ACTIVE AND p.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        if (programIds.length() > 0) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+            params.put("programIds", programIds);
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "tc", curUser);
+        sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
     @Override

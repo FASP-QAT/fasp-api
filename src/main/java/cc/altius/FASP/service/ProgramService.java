@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -21,6 +22,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
 import java.util.List;
 
 /**
@@ -29,7 +31,11 @@ import java.util.List;
  */
 public interface ProgramService {
 
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, CustomUserDetails curUser);
 
@@ -104,6 +110,10 @@ public interface ProgramService {
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+    
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+    
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
 

@@ -14,6 +14,8 @@ import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import java.util.HashMap;
@@ -161,6 +163,17 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlListString, params, "o", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT o.ORGANISATION_ID `ID`, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR, o.ORGANISATION_CODE `CODE` FROM vw_organisation o WHERE o.ACTIVE AND o.REALM_ID=:realmId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "o", curUser);
+        this.aclService.addUserAclForOrganisation(stringBuilder, params, "o", curUser);
+        stringBuilder.append(" ORDER BY o.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override
