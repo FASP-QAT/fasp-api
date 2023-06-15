@@ -5,9 +5,11 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  *

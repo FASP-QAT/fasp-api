@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class SimpleCodeObject extends SimpleObject {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private String code;
 
     public SimpleCodeObject() {

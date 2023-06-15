@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package cc.altius.FASP.model.DTO;
 
@@ -13,39 +12,23 @@ import java.io.Serializable;
  */
 public class ProgramAndTracerCategoryDTO implements Serializable {
 
-    private String[] tracerCategoryIds;
-    private String[] programIds;
+    private int programId;
+    private Integer tracerCategoryId;
 
-    public String[] getTracerCategoryIds() {
-        return tracerCategoryIds;
+    public int getProgramId() {
+        return programId;
     }
 
-    public void setTracerCategoryIds(String[] tracerCategoryIds) {
-        this.tracerCategoryIds = tracerCategoryIds;
+    public void setProgramId(int programId) {
+        this.programId = programId;
     }
 
-    public String getTracerCategoryIdsString() {
-        if (this.tracerCategoryIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.tracerCategoryIds);
-        }
+    public Integer getTracerCategoryId() {
+        return tracerCategoryId;
     }
 
-    public String[] getProgramIds() {
-        return programIds;
-    }
-
-    public void setProgramIds(String[] programIds) {
-        this.programIds = programIds;
-    }
-
-    public String getProgramIdsString() {
-        if (this.programIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.programIds);
-        }
+    public void setTracerCategoryId(Integer tracerCategoryId) {
+        this.tracerCategoryId = tracerCategoryId;
     }
 
 }

@@ -13,6 +13,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
@@ -59,6 +60,11 @@ public class OrganisationServiceImpl implements OrganisationService {
     @Override
     public List<Organisation> getOrganisationList(CustomUserDetails curUser) {
         return organisationDao.getOrganisationList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationDropdownList(realmId, curUser);
     }
 
     @Override

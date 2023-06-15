@@ -15,10 +15,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -192,6 +194,17 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND rc.REALM_ID=:realmId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(stringBuilder, params, "rc", curUser);
+        stringBuilder.append(" ORDER BY c.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override
