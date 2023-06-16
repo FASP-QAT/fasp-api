@@ -23,6 +23,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import java.util.List;
 
 /**
@@ -112,5 +113,7 @@ public interface ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
     
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+    
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, boolean active, CustomUserDetails curUser);
 
 }

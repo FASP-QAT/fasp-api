@@ -36,6 +36,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -438,6 +439,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
         return this.programCommonDao.getVersionListForProgramId(programTypeId, programId, curUser);
+    }
+
+    @Override
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, boolean active, CustomUserDetails curUser) {
+        return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 
 }

@@ -242,6 +242,19 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/organisation/realmCountryId/{realmCountryId}")
+    public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.organisationService.getOrganisationDropdownListForRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Organisation", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @JsonView(Views.DropDownView.class)
     @GetMapping("/tracerCategory")

@@ -15,9 +15,19 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class BasicUserRowMapper implements RowMapper<BasicUser> {
 
+    private final String prefix;
+
+    public BasicUserRowMapper(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public BasicUserRowMapper() {
+        this.prefix = "";
+    }
+
     @Override
     public BasicUser mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new BasicUser(rs.getInt("USER_ID"), rs.getString("USERNAME"));
+        return new BasicUser(rs.getInt(prefix + "USER_ID"), rs.getString(prefix + "USERNAME"));
     }
 
 }

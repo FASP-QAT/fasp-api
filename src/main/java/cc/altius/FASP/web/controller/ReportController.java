@@ -6,7 +6,6 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -56,6 +55,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -937,6 +938,24 @@ public class ReportController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.integrationProgramService.getManualJsonPushReport(mi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Mod 1 or Mod 2 Report UpdateProgramInfo
+     */
+    @JsonView(Views.ReportView.class)
+    @GetMapping(value = "/updateProgramInfo/programTypeId/{programTypeId}/realmCountryId/{realmCountryId}/active/{active}")
+    @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
+    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) boolean active, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get report", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
