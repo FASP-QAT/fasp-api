@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -15,7 +16,9 @@ import java.util.Objects;
  */
 public class ExtrapolationDataReportingRate extends ExtrapolationData implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double reportingRate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double manualChange;
 
     public ExtrapolationDataReportingRate() {
