@@ -946,13 +946,18 @@ public class ReportController {
 
     /**
      * Mod 1 or Mod 2 Report UpdateProgramInfo
+     * <pre>
+     * -- programTypeId : 1 for SupplyPlan and 2 for Forecast
+     * -- realmCountryId: -1 for all and value for that RealmCountry
+     * -- active: 1 for Active, 0 for Disabled, -1 for Any
+     * </pre>
      */
     @JsonView(Views.ReportView.class)
     @GetMapping(value = "/updateProgramInfo/programTypeId/{programTypeId}/realmCountryId/{realmCountryId}/active/{active}")
     @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
-    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) boolean active, Authentication auth) {
+    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);
