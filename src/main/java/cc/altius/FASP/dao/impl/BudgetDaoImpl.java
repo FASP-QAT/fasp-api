@@ -86,7 +86,7 @@ public class BudgetDaoImpl implements BudgetDao {
             + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
             + "WHERE "
             + "	TRUE  ";
-    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
+//    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
 
     @Override
     @Transactional
@@ -198,7 +198,7 @@ public class BudgetDaoImpl implements BudgetDao {
         sqlStringBuilder.append(" AND bp.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -208,7 +208,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -219,7 +219,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -230,7 +230,8 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("budgetId", budgetId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
+        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetResultSetExtractor());
     }
 
@@ -240,7 +241,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        sqlStringBuilder.append(this.sqlGroupByString);
+//        sqlStringBuilder.append(this.sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -250,7 +251,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(this.sqlGroupByString);
+//        sqlStringBuilder.append(this.sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
