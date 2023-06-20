@@ -114,6 +114,6 @@ public interface ProgramService {
     
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
     
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, boolean active, CustomUserDetails curUser);
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
 
 }

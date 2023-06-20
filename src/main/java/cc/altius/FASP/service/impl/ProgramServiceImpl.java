@@ -442,7 +442,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, boolean active, CustomUserDetails curUser) {
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 

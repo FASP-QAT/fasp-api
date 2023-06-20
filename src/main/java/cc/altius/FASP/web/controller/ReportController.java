@@ -952,7 +952,7 @@ public class ReportController {
     @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
-    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) boolean active, Authentication auth) {
+    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);

@@ -123,7 +123,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     }
 
     @Override
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, boolean active, CustomUserDetails curUser) {
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT  "
                 + "	p1.*,  "
@@ -149,7 +149,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
                 + "     LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
                 + "     LEFT JOIN us_user lmb ON lmb.USER_ID=p.LAST_MODIFIED_BY "
                 + "     LEFT JOIN us_user pm ON pm.USER_ID=p.PROGRAM_MANAGER_USER_ID "
-                + "	WHERE (p.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1) AND ((:active AND p.ACTIVE) OR (:active = 0)) "
+                + "	WHERE (p.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1) AND (:active=p.ACTIVE OR :active=-1)) "
                 + "	GROUP BY p.PROGRAM_ID "
                 + ") p1  ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
