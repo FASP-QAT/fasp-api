@@ -946,6 +946,11 @@ public class ReportController {
 
     /**
      * Mod 1 or Mod 2 Report UpdateProgramInfo
+     * <pre>
+     * -- programTypeId : 1 for SupplyPlan and 2 for Forecast
+     * -- realmCountryId: -1 for all and value for that RealmCountry
+     * -- active: 1 for Active, 0 for Disabled, -1 for Any
+     * </pre>
      */
     @JsonView(Views.ReportView.class)
     @GetMapping(value = "/updateProgramInfo/programTypeId/{programTypeId}/realmCountryId/{realmCountryId}/active/{active}")

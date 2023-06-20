@@ -122,6 +122,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new VersionDropDownRowMapper());
     }
 
+    //active field -> 1 for Active, 0 for Disabled, -1 for Any
     @Override
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
