@@ -141,7 +141,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
             sb.append("	FROM vw_program p  ");
         } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
             sb.append("	FROM vw_dataset p  ");
-        }
+        } 
         sb.append("	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "	LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "	LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID "
@@ -149,7 +149,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
                 + "     LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
                 + "     LEFT JOIN us_user lmb ON lmb.USER_ID=p.LAST_MODIFIED_BY "
                 + "     LEFT JOIN us_user pm ON pm.USER_ID=p.PROGRAM_MANAGER_USER_ID "
-                + "	WHERE (p.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1) AND (:active=p.ACTIVE OR :active=-1)) "
+                + "	WHERE (p.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1) AND (:active=p.ACTIVE OR :active=-1) "
                 + "	GROUP BY p.PROGRAM_ID "
                 + ") p1  ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
