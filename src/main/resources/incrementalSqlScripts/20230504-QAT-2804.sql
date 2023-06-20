@@ -68,3 +68,6 @@ VIEW `vw_budget` AS
         LEFT JOIN `ap_label` `bl` ON ((`b`.`LABEL_ID` = `bl`.`LABEL_ID`)));
 
 DROP PROCEDURE `fasp`.`budgetReport`;
+
+
+ALTER TABLE `fasp`.`rm_budget` DROP INDEX `unq_budgetCode` ;

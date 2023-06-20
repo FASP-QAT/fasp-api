@@ -48,6 +48,7 @@ public class BudgetResultSetExtractor implements ResultSetExtractor<Budget> {
                 b.setStopDate(rs.getDate("STOP_DATE"));
                 b.setNotes(rs.getString("NOTES"));
                 b.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+                isFirst = false;
             }
             b.getPrograms().add(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")));
         }
