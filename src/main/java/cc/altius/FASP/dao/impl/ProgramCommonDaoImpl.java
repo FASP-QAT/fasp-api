@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutputRowMapper;
+import cc.altius.FASP.model.rowMapper.MultipleProgramVersionDropDownResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramBasicResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
@@ -92,8 +93,6 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         sqlStringBuilder.append(ProgramDaoImpl.sqlOrderByBasic);
-        System.out.println(sqlStringBuilder.toString());
-        System.out.println(params);
         Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramBasicResultSetExtractor());
         if (p == null) {
             throw new EmptyResultDataAccessException(1);
@@ -122,27 +121,44 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new VersionDropDownRowMapper());
     }
 
+    @Override
+    public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID, pv.VERSION_ID, vt.VERSION_TYPE_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.CREATED_DATE FROM ");
+        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            stringBuilder.append("vw_program");
+        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
+            stringBuilder.append("vw_dataset");
+        } else {
+            stringBuilder.append("rm_program");
+        }
+        stringBuilder.append(" p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", String.join(",", programIds));
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new MultipleProgramVersionDropDownResultSetExtractor());
+    }
+
     //active field -> 1 for Active, 0 for Disabled, -1 for Any
     @Override
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT  "
                 + "	p1.*,  "
-                + "    null `REG_ID`, null `REG_LABEL_ID`, GROUP_CONCAT(r.LABEL_EN) `REG_LABEL_EN`, GROUP_CONCAT(r.LABEL_FR) `REG_LABEL_FR`, GROUP_CONCAT(r.LABEL_SP) `REG_LABEL_SP`, GROUP_CONCAT(r.LABEL_PR) `REG_LABEL_PR` "
+                + "    null `REG_ID`, null `REG_LABEL_ID`, GROUP_CONCAT(r.LABEL_EN SEPARATOR ', ') `REG_LABEL_EN`, GROUP_CONCAT(r.LABEL_FR SEPARATOR ', ') `REG_LABEL_FR`, GROUP_CONCAT(r.LABEL_SP SEPARATOR ', ') `REG_LABEL_SP`, GROUP_CONCAT(r.LABEL_PR SEPARATOR ', ') `REG_LABEL_PR` "
                 + "FROM ( "
                 + "	SELECT  "
                 + "		p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, "
                 + "		r.REALM_ID `R_ID`, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "		rc.REALM_COUNTRY_ID `RC_ID`, c.LABEL_ID `RC_LABEL_ID`, c.LABEL_EN `RC_LABEL_EN`, c.LABEL_FR `RC_LABEL_FR`, c.LABEL_SP `RC_LABEL_SP`, c.LABEL_PR `RC_LABEL_PR`, "
                 + "		o.ORGANISATION_ID `O_ID`, o.LABEL_ID `O_LABEL_ID`, o.LABEL_EN `O_LABEL_EN`, o.LABEL_FR `O_LABEL_FR`, o.LABEL_SP `O_LABEL_SP`, o.LABEL_PR `O_LABEL_PR`, "
-                + "		null `HA_ID`, null HA_LABEL_ID, GROUP_CONCAT(ha.LABEL_EN) `HA_LABEL_EN`, GROUP_CONCAT(ha.LABEL_FR) `HA_LABEL_FR`, GROUP_CONCAT(ha.LABEL_SP) `HA_LABEL_SP`, GROUP_CONCAT(ha.LABEL_PR) `HA_LABEL_PR`, "
+                + "		null `HA_ID`, null HA_LABEL_ID, GROUP_CONCAT(ha.LABEL_EN SEPARATOR ', ') `HA_LABEL_EN`, GROUP_CONCAT(ha.LABEL_FR SEPARATOR ', ') `HA_LABEL_FR`, GROUP_CONCAT(ha.LABEL_SP SEPARATOR ', ') `HA_LABEL_SP`, GROUP_CONCAT(ha.LABEL_PR SEPARATOR ', ') `HA_LABEL_PR`, "
                 + "             p.PROGRAM_NOTES, pm.USER_ID `PM_USER_ID`, pm.USERNAME `PM_USERNAME`,  "
                 + "             lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE, p.ACTIVE ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             sb.append("	FROM vw_program p  ");
         } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
             sb.append("	FROM vw_dataset p  ");
-        } 
+        }
         sb.append("	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "	LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "	LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID "
