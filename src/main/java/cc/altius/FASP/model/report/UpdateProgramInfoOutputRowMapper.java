@@ -28,6 +28,7 @@ public class UpdateProgramInfoOutputRowMapper implements RowMapper<UpdateProgram
         upi.setRegions(new SimpleObjectRowMapper("REG_").mapRow(rs, 1));
         upi.setProgramManager(rs.getString("PM_USERNAME"));
         upi.setLastUpdatedBy(new BasicUserRowMapper("LMB_").mapRow(rs, 1));
+        upi.setLastUpdatedDate(rs.getDate("LAST_MODIFIED_DATE"));
         upi.setProgramNotes(rs.getString("PROGRAM_NOTES"));
         upi.setActive(rs.getBoolean("ACTIVE"));
         return upi;

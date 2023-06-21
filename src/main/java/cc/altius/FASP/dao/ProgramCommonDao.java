@@ -10,6 +10,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,6 +23,8 @@ public interface ProgramCommonDao {
     public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+    
+    public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
 
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
 

@@ -399,5 +399,17 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/version/filter/programTypeId/{programTypeId}/programs")
+    public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getVersionListForPrograms(programTypeId, programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Version", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

@@ -61,7 +61,7 @@ public class SimpleCodeObject extends SimpleObject {
 
     @Override
     public String toString() {
-        return "SimpleObject{" + "id=" + this.getId() + ", label=" + this.getLabel() + ", code=" + code + '}';
+        return "SimpleCodeObject{" + "id=" + this.getId() + ", label=" + this.getLabel() + ", code=" + code + '}';
     }
 
 }
