@@ -401,7 +401,7 @@ public class DropDownRestController {
     }
     
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/version/filter/programTypeId/{programTypeId}/programs")
+    @PostMapping("/version/filter/programTypeId/{programTypeId}/programs")
     public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
