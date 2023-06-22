@@ -753,7 +753,7 @@ public class NewSupplyPlan implements Serializable {
             BatchData bd = getBatchData(x);
             long tempCB = bd.getClosingBalance();
             bd.setUnallocatedFEFO(unallocatedFEFO);
-            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Consumption 
+            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
                 bd.setClosingBalance(tempCB - unallocatedFEFO);
                 bd.setCalculatedFEFO(unallocatedFEFO);
                 unallocatedFEFO = 0;
@@ -769,7 +769,7 @@ public class NewSupplyPlan implements Serializable {
                     BatchData bd = getBatchData(x);
                     long tempCB = bd.getClosingBalance();
                     bd.setUnallocatedLEFO(unallocatedLEFO);
-                    if (tempCB >= unallocatedLEFO && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Adjustment 
+                    if (tempCB >= unallocatedLEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
                         bd.setClosingBalance(tempCB - unallocatedLEFO);
                         bd.setCalculatedLEFO(unallocatedLEFO);
                         unallocatedLEFO = 0;
@@ -785,7 +785,7 @@ public class NewSupplyPlan implements Serializable {
             BatchData bd = getBatchData(x);
             long tempCB = bd.getClosingBalanceWps();
             bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
-            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Consumption 
+            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
                 bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
                 bd.setCalculatedFEFOWps(unallocatedFEFOWps);
                 unallocatedFEFOWps = 0;
@@ -801,7 +801,7 @@ public class NewSupplyPlan implements Serializable {
                     BatchData bd = getBatchData(x);
                     long tempCB = bd.getClosingBalanceWps();
                     bd.setUnallocatedLEFOWps(unallocatedLEFOWps);
-                    if (tempCB >= unallocatedLEFOWps && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Adjustment 
+                    if (tempCB >= unallocatedLEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
                         bd.setClosingBalanceWps(tempCB - unallocatedLEFOWps);
                         bd.setCalculatedLEFOWps(unallocatedLEFOWps);
                         unallocatedLEFOWps = 0;
