@@ -848,10 +848,16 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
-     * -- programId must be a single Program cannot be muti-program select or -1 for all programs
+     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
+     * -- programId must be a single Program
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-     * -- Need to fill out the correct notes
+     * -- viewBy 1 for PU, 2 for FU
+     * -- unitId Either the PU or FU that you want the report for based on the viewBy
+     * -- startDate and stopDate that you want to run the report for
+     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
+     * -- regionIds list of region ids that the report should run for
+     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
+     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
      * </pre>
      *
      * @param sspi
