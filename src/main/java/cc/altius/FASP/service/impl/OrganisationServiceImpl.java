@@ -68,12 +68,14 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
-        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
-        if (rc == null) {
-            throw new EmptyResultDataAccessException(1);
+    public List<SimpleCodeObject> getOrganisationDropdownListForRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        if (realmCountryId != -1) {
+            RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+            if (rc == null) {
+                throw new EmptyResultDataAccessException(1);
+            }
         }
-        return this.organisationDao.getOrganisationListByRealmCountry(realmCountryId, curUser);
+        return this.organisationDao.getOrganisationDropdownListForRealmCountryId(realmCountryId, curUser);
     }
 
     @Override

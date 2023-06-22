@@ -177,15 +177,20 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
-    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+    public List<SimpleCodeObject> getOrganisationDropdownListForRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT o.ORGANISATION_ID `ID`, o.ORGANISATION_CODE `CODE`, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR "
+                + "FROM vw_organisation o "
+                + "LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
+                + "LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "WHERE :realmCountryId=-1 OR oc.REALM_COUNTRY_ID=:realmCountryId AND o.ACTIVE AND oc.ACTIVE ");
+        this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
         this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
-        sqlStringBuilder.append(" AND oc.ACTIVE AND o.ACTIVE AND oc.REALM_COUNTRY_ID=:realmCountryId");
+        sqlStringBuilder.append("GROUP BY o.ORGANISATION_ID ORDER BY o.ORGANISATION_CODE");
         params.put("realmCountryId", realmCountryId);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override
