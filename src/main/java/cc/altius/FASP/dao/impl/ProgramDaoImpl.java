@@ -40,8 +40,8 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
-import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
@@ -54,9 +54,9 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleProgramRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
-import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
@@ -430,10 +430,10 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
+                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             sqlStringBuilder.append("FROM vw_program p ");
         } else {
@@ -445,14 +445,14 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
+                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             sqlStringBuilder.append("FROM vw_program p ");
         } else {
@@ -472,14 +472,14 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
+                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             sqlStringBuilder.append("FROM vw_program p ");
         } else {
@@ -494,7 +494,7 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
     }
 
     @Override
