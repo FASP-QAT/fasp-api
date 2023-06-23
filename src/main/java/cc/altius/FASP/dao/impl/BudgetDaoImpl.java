@@ -92,7 +92,7 @@ public class BudgetDaoImpl implements BudgetDao {
     @Override
     @Transactional
     public int addBudget(Budget b, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingColumns("BUDGET_CODE","FUNDING_SOURCE_ID","REALM_ID","BUDGET_AMT","CURRENCY_ID","CONVERSION_RATE_TO_USD","START_DATE","STOP_DATE","NOTES","LABEL_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("BUDGET_CODE", b.getBudgetCode());
