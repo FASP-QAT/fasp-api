@@ -158,7 +158,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "	r.`REGION_ID` `R_ID`, r.`LABEL_ID` `R_LABEL_ID`, r.`LABEL_EN` `R_LABEL_EN`, r.`LABEL_FR` `R_LABEL_FR`, r.`LABEL_SP` `R_LABEL_SP`, r.`LABEL_PR` `R_LABEL_PR`, "
             + "	ha.`HEALTH_AREA_ID` `HA_ID`, ha.`HEALTH_AREA_CODE` `HA_CODE`, ha.`LABEL_ID` `HA_LABEL_ID`, ha.`LABEL_EN` `HA_LABEL_EN`, ha.`LABEL_FR` `HA_LABEL_FR`, ha.`LABEL_SP` `HA_LABEL_SP`, ha.`LABEL_PR` `HA_LABEL_PR`, "
             + "	o.`ORGANISATION_ID` `O_ID`, o.`ORGANISATION_CODE` `O_CODE`, o.`LABEL_ID` `O_LABEL_ID`, o.`LABEL_EN` `O_LABEL_EN`, o.`LABEL_FR` `O_LABEL_FR`, o.`LABEL_SP` `O_LABEL_SP`, o.`LABEL_PR` `O_LABEL_PR`, "
-            + "	p.CURRENT_VERSION_ID, p.ACTIVE "
+            + "	p.CURRENT_VERSION_ID, p.ACTIVE, p.PROGRAM_TYPE_ID "
             + "FROM vw_all_program p "
             + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
             + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "

@@ -25,6 +25,8 @@ public class SimpleProgram extends SimpleCodeObject {
     private List<SimpleObject> regionList;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
     private int currentVersionId;
+    @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
+    private int programTypeId;
 
     public SimpleProgram() {
         super();
@@ -39,9 +41,10 @@ public class SimpleProgram extends SimpleCodeObject {
         this.regionList = new LinkedList<>();
     }
 
-    public SimpleProgram(Integer id, Label label, String code, int currentVersionId) {
+    public SimpleProgram(Integer id, Label label, String code, int currentVersionId, int programTypeId) {
         super(id, label, code);
         this.currentVersionId = currentVersionId;
+        this.programTypeId = programTypeId;
         this.healthAreaList = new LinkedList<>();
         this.regionList = new LinkedList<>();
     }
@@ -52,6 +55,14 @@ public class SimpleProgram extends SimpleCodeObject {
 
     public void setCurrentVersionId(int currentVersionId) {
         this.currentVersionId = currentVersionId;
+    }
+
+    public int getProgramTypeId() {
+        return programTypeId;
+    }
+
+    public void setProgramTypeId(int programTypeId) {
+        this.programTypeId = programTypeId;
     }
 
     public SimpleCodeObject getRealmCountry() {
@@ -110,7 +121,7 @@ public class SimpleProgram extends SimpleCodeObject {
 
     @Override
     public String toString() {
-        return "SimpleProgram{" + "realmCountry=" + realmCountry + ", healthAreaList=" + healthAreaList + ", organisation=" + organisation + ", regionList=" + regionList + ", currentVersionId=" + currentVersionId + '}';
+        return "SimpleProgram{" + "realmCountry=" + realmCountry + ", healthAreaList=" + healthAreaList + ", organisation=" + organisation + ", regionList=" + regionList + ", currentVersionId=" + currentVersionId + ", programTypeId=" + programTypeId + '}';
     }
 
 }

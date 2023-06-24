@@ -33,6 +33,7 @@ public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<L
                 p.setCurrentVersionId(rs.getInt("CURRENT_VERSION_ID"));
                 p.setRealmCountry(new SimpleCodeObjectRowMapper("RC_").mapRow(rs, 1));
                 p.setOrganisation(new SimpleCodeObjectRowMapper("O_").mapRow(rs, 1));
+                p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
             } else {
                 p = pList.get(idx);
             }
