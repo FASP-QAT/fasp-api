@@ -10,6 +10,7 @@ import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,10 @@ import java.util.Map;
 public interface ProcurementAgentService {
 
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser);
 
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser);
 

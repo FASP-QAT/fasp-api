@@ -37,10 +37,11 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
-import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
@@ -52,9 +53,9 @@ import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
@@ -119,7 +120,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`,  "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -141,7 +142,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private static String sqlListBasicString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.PROGRAM_TYPE_ID, "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -150,6 +151,22 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE,  "
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
+
+    private static String sqlSimpleProgramString = "SELECT "
+            + "	p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, "
+            + "	rc.`REALM_COUNTRY_ID` `RC_ID`, c.`COUNTRY_CODE` `RC_CODE`, c.LABEL_ID `RC_LABEL_ID`, c.LABEL_EN `RC_LABEL_EN`, c.LABEL_FR `RC_LABEL_FR`, c.LABEL_SP `RC_LABEL_SP`, c.LABEL_PR `RC_LABEL_PR`, "
+            + "	r.`REGION_ID` `R_ID`, r.`LABEL_ID` `R_LABEL_ID`, r.`LABEL_EN` `R_LABEL_EN`, r.`LABEL_FR` `R_LABEL_FR`, r.`LABEL_SP` `R_LABEL_SP`, r.`LABEL_PR` `R_LABEL_PR`, "
+            + "	ha.`HEALTH_AREA_ID` `HA_ID`, ha.`HEALTH_AREA_CODE` `HA_CODE`, ha.`LABEL_ID` `HA_LABEL_ID`, ha.`LABEL_EN` `HA_LABEL_EN`, ha.`LABEL_FR` `HA_LABEL_FR`, ha.`LABEL_SP` `HA_LABEL_SP`, ha.`LABEL_PR` `HA_LABEL_PR`, "
+            + "	o.`ORGANISATION_ID` `O_ID`, o.`ORGANISATION_CODE` `O_CODE`, o.`LABEL_ID` `O_LABEL_ID`, o.`LABEL_EN` `O_LABEL_EN`, o.`LABEL_FR` `O_LABEL_FR`, o.`LABEL_SP` `O_LABEL_SP`, o.`LABEL_PR` `O_LABEL_PR`, "
+            + "	p.CURRENT_VERSION_ID, p.ACTIVE "
+            + "FROM vw_all_program p "
+            + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
+            + "LEFT JOIN vw_region r ON pr.REGION_ID=r.REGION_ID "
+            + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+            + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + "WHERE TRUE ";
 
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
@@ -175,7 +192,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
-    
+
     private static String sqlListBasicString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -421,20 +438,50 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP ");
-        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            sqlStringBuilder.append("FROM vw_program p ");
-        } else {
-            sqlStringBuilder.append("FROM vw_dataset p ");
-        }
-        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE");
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("realmId", realmId);
+        params.put("programTypeId", programTypeId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("realmId", realmId);
+        params.put("programTypeId", programTypeId);
+        if (input.getHealthAreaId() != null) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) ");
+            params.put("healthAreaId", input.getHealthAreaId());
+        }
+        if (input.getRealmCountryId() != null) {
+            sqlStringBuilder.append(" AND p.REALM_COUNTRY_ID=:realmCountryId ");
+            params.put("realmCountryId", input.getRealmCountryId());
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlSimpleProgramString).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("programTypeId", programTypeId);
+        if (realmCountryIdsStr.length() > 0) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
+            params.put("realmCountryIds", realmCountryIdsStr);
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
 
     @Override

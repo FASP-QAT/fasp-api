@@ -14,11 +14,11 @@ import java.io.Serializable;
  */
 public class UsagePeriod extends BaseModel implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int usagePeriodId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private double convertToMonth;
 
     public UsagePeriod() {

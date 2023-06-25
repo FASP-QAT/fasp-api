@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.BudgetListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BudgetResultSetExtractor;
 import cc.altius.FASP.service.AclService;
@@ -148,7 +149,6 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("labelEn", b.getLabel().getLabel_en());
         params.put("notes", b.getNotes());
         params.put("fundingSourceId", b.getFundingSource().getFundingSourceId());
-
         int rowsEffected = this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
@@ -233,6 +233,26 @@ public class BudgetDaoImpl implements BudgetDao {
 //        sqlStringBuilder.append(sqlGroupByString);
         System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b WHERE b.ACTIVE AND FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("fundingSourceIds", fundingSourceIds);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (bp.PROGRAM_ID=:programId OR :programId=-1) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        stringBuilder.append(" GROUP BY b.BUDGET_ID");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override

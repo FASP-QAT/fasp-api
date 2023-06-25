@@ -13,6 +13,7 @@ import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.ProgramService;
@@ -89,6 +90,16 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) {
         return this.budgetDao.getBudgetById(BudgetId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser) {
+        return this.budgetDao.getBudgetDropdownFilterMultipleFundingSources(fundingSourceIds, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
+        return this.budgetDao.getBudgetDropdownForProgram(programId, curUser);
     }
 
     @Override

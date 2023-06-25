@@ -12,23 +12,31 @@ package cc.altius.FASP.model;
 public class Views {
 
     public interface ArtmisView {
-        
+
     }
-    
+
     public interface GfpVanView {
-        
+
     }
-    
+
     public interface InternalView {
-        
+
     }
-    
+
     public interface ReportView {
-        
+
     }
-    
+
     public interface IgnoreView {
-        
+
     }
-    
+
+    public interface DropDownView {
+
+    }
+
+    public interface DropDown2View {
+
+    }
+
 }

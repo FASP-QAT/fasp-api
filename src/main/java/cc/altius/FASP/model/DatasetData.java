@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 
 /**
@@ -13,20 +14,35 @@ import java.util.List;
  */
 public class DatasetData {
 
+    @JsonView(Views.InternalView.class)
     private int programId;
+    @JsonView(Views.InternalView.class)
     private String programCode;
+    @JsonView(Views.InternalView.class)
     private RealmCountry realmCountry;
+    @JsonView(Views.InternalView.class)
     private SimpleCodeObject organisation;
+    @JsonView(Views.InternalView.class)
     private List<SimpleCodeObject> healthAreaList;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private BasicUser programManager;
+    @JsonView(Views.InternalView.class)
     private String programNotes;
+    @JsonView(Views.InternalView.class)
     private List<Region> regionList;
+    @JsonView(Views.InternalView.class)
     private Version currentVersion;
+    @JsonView(Views.InternalView.class)
     private List<Version> versionList;
+    @JsonView(Views.InternalView.class)
     private List<DatasetTree> treeList;
+    @JsonView(Views.InternalView.class)
     private List<ForecastActualConsumption> actualConsumptionList;
+    @JsonView(Views.InternalView.class)
     private List<ForecastConsumptionExtrapolation> consumptionExtrapolation;
+    @JsonView(Views.InternalView.class)
     private List<DatasetPlanningUnit> planningUnitList;
     
 

@@ -8,10 +8,10 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.EquivalencyUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,11 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     @Override
     public List<EquivalencyUnit> getEquivalencyUnitList(boolean active, CustomUserDetails curUser) {
         return this.equivalencyUnitDao.getEquivalencyUnitList(active, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getEquivalencyUnitDropDownList(CustomUserDetails curUser) {
+        return this.equivalencyUnitDao.getEquivalencyUnitDropDownList(curUser);
     }
 
     @Override

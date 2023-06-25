@@ -17,6 +17,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -30,16 +31,19 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
-import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
@@ -75,8 +79,18 @@ public class ProgramServiceImpl implements ProgramService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(programTypeId, curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser);
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser);
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        return this.programDao.getProgramWithFilterForMultipleRealmCountryListForDropdown(programTypeId, realmCountryIdsStr, curUser);
     }
 
     @Override
@@ -422,4 +436,20 @@ public class ProgramServiceImpl implements ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
         return this.programDao.getLatestVersionForPrograms(programIds);
     }
+
+    @Override
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getVersionListForProgramId(programTypeId, programId, curUser);
+    }
+
+    @Override
+    public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser) {
+        return this.programCommonDao.getVersionListForPrograms(programTypeId, programIds, curUser);
+    }
+
+    @Override
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
+        return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
+    }
+
 }
