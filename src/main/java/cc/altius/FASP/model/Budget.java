@@ -24,6 +24,7 @@ public class Budget extends BaseModel implements Serializable {
     private int budgetId;
     private String budgetCode;
     private List<SimpleCodeObject> programs;
+    private List<SimpleCodeObject> programsWithAccess;
     private FundingSource fundingSource;
     private Label label;
     private Currency currency;
@@ -164,6 +165,14 @@ public class Budget extends BaseModel implements Serializable {
         } else {
             return false;
         }
+    }
+
+    public List<SimpleCodeObject> getProgramsWithAccess() {
+        return programsWithAccess;
+    }
+
+    public void setProgramsWithAccess(List<SimpleCodeObject> programsWithAccess) {
+        this.programsWithAccess = programsWithAccess;
     }
 
     @Override
