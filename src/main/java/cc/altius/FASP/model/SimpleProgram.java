@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -15,6 +16,7 @@ import java.util.Objects;
  */
 public class SimpleProgram extends SimpleCodeObject {
 
+    private int realmId;
     @JsonView({Views.DropDown2View.class})
     private SimpleCodeObject realmCountry;
     @JsonView({Views.DropDown2View.class})
@@ -27,6 +29,8 @@ public class SimpleProgram extends SimpleCodeObject {
     private int currentVersionId;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
     private int programTypeId;
+    @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
+    private boolean active;
 
     public SimpleProgram() {
         super();
@@ -47,6 +51,14 @@ public class SimpleProgram extends SimpleCodeObject {
         this.programTypeId = programTypeId;
         this.healthAreaList = new LinkedList<>();
         this.regionList = new LinkedList<>();
+    }
+
+    public int getRealmId() {
+        return realmId;
+    }
+
+    public void setRealmId(int realmId) {
+        this.realmId = realmId;
     }
 
     public int getCurrentVersionId() {
@@ -81,6 +93,10 @@ public class SimpleProgram extends SimpleCodeObject {
         this.healthAreaList = healthAreaList;
     }
 
+    public List<Integer> getHealthAreaIdList() {
+        return healthAreaList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
+    }
+
     public SimpleCodeObject getOrganisation() {
         return organisation;
     }
@@ -95,6 +111,14 @@ public class SimpleProgram extends SimpleCodeObject {
 
     public void setRegionList(List<SimpleObject> regionList) {
         this.regionList = regionList;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

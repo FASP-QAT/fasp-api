@@ -62,7 +62,7 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser) {
         if (programId != 0) {
-            this.programCommonDao.getBasicProgramById(programId, -1, curUser);
+            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
         }
         return this.equivalencyUnitDao.getEquivalencyUnitMappingForForecastingUnit(fuId, programId, curUser);
     }

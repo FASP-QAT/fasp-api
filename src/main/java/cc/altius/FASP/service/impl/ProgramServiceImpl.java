@@ -121,17 +121,17 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public int updateProgram(Program p, CustomUserDetails curUser) {
-        Program curProg = this.programCommonDao.getProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
+        SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
         if (curProg == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkAccessForUser(
                 curUser,
-                curProg.getRealmCountry().getRealm().getRealmId(),
-                curProg.getRealmCountry().getRealmCountryId(),
+                curProg.getRealmId(),
+                curProg.getRealmCountry().getId(),
                 curProg.getHealthAreaIdList(),
                 curProg.getOrganisation().getId(),
-                curProg.getProgramId())) {
+                curProg.getId())) {
             return this.programDao.updateProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -162,8 +162,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, programTypeId, curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        Program p = this.programCommonDao.getFullProgramById(programId, programTypeId, curUser);
         if (p == null) {
             throw new AccessDeniedException("Access denied");
         }
@@ -175,9 +175,19 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+    }
+    
+    @Override
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleProgramById(programId, programTypeId, curUser);
+    }
+
+    @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -186,8 +196,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -196,8 +206,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDao.getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -208,8 +218,8 @@ public class ProgramServiceImpl implements ProgramService {
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
-            Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
                 programList.append("'").append(programId).append("',");
             } else {
                 throw new AccessDeniedException("Access denied");
@@ -227,8 +237,8 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
-            Program p = this.programCommonDao.getProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (!this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (!this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
                 throw new AccessDeniedException("Access denied");
             }
         }
@@ -263,8 +273,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -419,7 +429,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
-        if (this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser) == null) {
+        if (this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser) == null) {
             // ACL check fail
             return null;
         } else {
