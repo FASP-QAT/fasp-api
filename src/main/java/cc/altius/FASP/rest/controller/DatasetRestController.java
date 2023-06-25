@@ -101,7 +101,7 @@ public class DatasetRestController {
     public ResponseEntity getDataset(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

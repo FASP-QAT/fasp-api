@@ -49,7 +49,11 @@ public interface ProgramService {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
 

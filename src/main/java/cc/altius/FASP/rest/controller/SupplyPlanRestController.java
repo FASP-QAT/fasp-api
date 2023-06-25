@@ -5,11 +5,10 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
@@ -75,9 +74,9 @@ public class SupplyPlanRestController {
     ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            Program p = this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programService.getSimpleProgramById(programId, curUser);
             if (versionId == -1) {
-                versionId = p.getCurrentVersion().getVersionId();
+                versionId = sp.getCurrentVersionId();
             }
 //            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
 //            System.out.println(new Date());

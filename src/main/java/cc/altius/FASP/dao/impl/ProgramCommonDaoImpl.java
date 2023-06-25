@@ -9,12 +9,14 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.MultipleProgramVersionDropDownResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ProgramBasicResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
@@ -45,8 +47,24 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    public static final String sqlSimpleProgramString = "SELECT "
+            + "	p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, "
+            + "	rc.`REALM_COUNTRY_ID` `RC_ID`, c.`COUNTRY_CODE` `RC_CODE`, c.LABEL_ID `RC_LABEL_ID`, c.LABEL_EN `RC_LABEL_EN`, c.LABEL_FR `RC_LABEL_FR`, c.LABEL_SP `RC_LABEL_SP`, c.LABEL_PR `RC_LABEL_PR`, "
+            + "	r.`REGION_ID` `R_ID`, r.`LABEL_ID` `R_LABEL_ID`, r.`LABEL_EN` `R_LABEL_EN`, r.`LABEL_FR` `R_LABEL_FR`, r.`LABEL_SP` `R_LABEL_SP`, r.`LABEL_PR` `R_LABEL_PR`, "
+            + "	ha.`HEALTH_AREA_ID` `HA_ID`, ha.`HEALTH_AREA_CODE` `HA_CODE`, ha.`LABEL_ID` `HA_LABEL_ID`, ha.`LABEL_EN` `HA_LABEL_EN`, ha.`LABEL_FR` `HA_LABEL_FR`, ha.`LABEL_SP` `HA_LABEL_SP`, ha.`LABEL_PR` `HA_LABEL_PR`, "
+            + "	o.`ORGANISATION_ID` `O_ID`, o.`ORGANISATION_CODE` `O_CODE`, o.`LABEL_ID` `O_LABEL_ID`, o.`LABEL_EN` `O_LABEL_EN`, o.`LABEL_FR` `O_LABEL_FR`, o.`LABEL_SP` `O_LABEL_SP`, o.`LABEL_PR` `O_LABEL_PR`, "
+            + "	p.CURRENT_VERSION_ID, p.ACTIVE, p.PROGRAM_TYPE_ID, rc.REALM_ID "
+            + "FROM vw_all_program p "
+            + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
+            + "LEFT JOIN vw_region r ON pr.REGION_ID=r.REGION_ID "
+            + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+            + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + "WHERE TRUE ";
+
     @Override
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder;
         if (programTypeId == -1) {
             Map<String, Object> param = new HashMap<>();
@@ -80,30 +98,44 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     }
 
     @Override
-    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder;
-        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListBasicString);
-        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
-            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListBasicString);
-        } else {
-            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlAllProgramListBasicString);
-        }
-        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(sqlSimpleProgramString).append(" AND p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0)");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        sqlStringBuilder.append(ProgramDaoImpl.sqlOrderByBasic);
-        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramBasicResultSetExtractor());
-        if (p == null) {
+        params.put("programTypeId", programTypeId);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        SimpleProgram sp = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramResultSetExtractor());
+        if (sp == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-            return p;
-        } else {
-            return null;
-        }
+        return sp;
     }
 
+//    @Override
+//    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+//        StringBuilder sqlStringBuilder;
+//        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListBasicString);
+//        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
+//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListBasicString);
+//        } else {
+//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlAllProgramListBasicString);
+//        }
+//        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("programId", programId);
+//        sqlStringBuilder.append(ProgramDaoImpl.sqlOrderByBasic);
+//        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramBasicResultSetExtractor());
+//        if (p == null) {
+//            throw new EmptyResultDataAccessException(1);
+//        }
+//        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+//            return p;
+//        } else {
+//            return null;
+//        }
+//    }
     @Override
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT pv.VERSION_ID, vt.VERSION_TYPE_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.CREATED_DATE FROM ");
