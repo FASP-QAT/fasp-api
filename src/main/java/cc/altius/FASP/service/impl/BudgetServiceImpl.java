@@ -14,6 +14,7 @@ import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.ProgramService;
@@ -21,6 +22,7 @@ import cc.altius.FASP.service.RealmService;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -69,19 +71,25 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser) {
-        return this.budgetDao.getBudgetListForProgramIds(programIds, curUser);
+        List<Budget> bList = this.budgetDao.getBudgetListForProgramIds(programIds, curUser);
+        this.updateProgramsWithAccess(bList, curUser);
+        return bList;
     }
 
     @Override
     public List<Budget> getBudgetList(CustomUserDetails curUser) {
-        return this.budgetDao.getBudgetList(curUser);
+        List<Budget> bList = this.budgetDao.getBudgetList(curUser);
+        this.updateProgramsWithAccess(bList, curUser);
+        return bList;
     }
 
     @Override
     public List<Budget> getBudgetListForRealm(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmService.getRealmById(realmId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.budgetDao.getBudgetListForRealm(realmId, curUser);
+            List<Budget> bList = this.budgetDao.getBudgetListForRealm(realmId, curUser);
+            this.updateProgramsWithAccess(bList, curUser);
+            return bList;
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -89,7 +97,9 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) {
-        return this.budgetDao.getBudgetById(BudgetId, curUser);
+        Budget b = this.budgetDao.getBudgetById(BudgetId, curUser);
+        this.updateProgramsWithAccess(b, curUser);
+        return b;
     }
 
     @Override
@@ -104,16 +114,37 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        return this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
+        List<Budget> bList = this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
+        updateProgramsWithAccess(bList, curUser);
+        return bList;
     }
 
     @Override
     public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
-        if (programIdsString.length()>0) {
-            return this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
+        if (programIdsString.length() > 0) {
+            List<Budget> bList = this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
+            updateProgramsWithAccess(bList, curUser);
+            return bList;
         } else {
             return new LinkedList<>();
         }
     }
 
+    private void updateProgramsWithAccess(List<Budget> budgetList, CustomUserDetails curUser) {
+        for (Budget b : budgetList) {
+            this.updateProgramsWithAccess(b, curUser);
+        }
+    }
+
+    private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) {
+        b.setProgramsWithAccess(new LinkedList<>());
+        for (SimpleCodeObject p : b.getPrograms()) {
+            try {
+                SimpleProgram sp = this.programService.getSimpleProgramById(p.getId(), curUser);
+                b.getProgramsWithAccess().add(p);
+            } catch (EmptyResultDataAccessException e) {
+
+            }
+        }
+    }
 }

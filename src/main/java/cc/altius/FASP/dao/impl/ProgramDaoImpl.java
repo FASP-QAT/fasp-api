@@ -54,9 +54,9 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
-import cc.altius.FASP.model.rowMapper.SimpleProgramRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
@@ -153,6 +153,8 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE,  "
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
+
+    
 
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
@@ -432,35 +434,21 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
-        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            sqlStringBuilder.append("FROM vw_program p ");
-        } else {
-            sqlStringBuilder.append("FROM vw_dataset p ");
-        }
-        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE AND rc.REALM_ID=:realmId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
         params.put("realmId", realmId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        params.put("programTypeId", programTypeId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
 
     @Override
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
-        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            sqlStringBuilder.append("FROM vw_program p ");
-        } else {
-            sqlStringBuilder.append("FROM vw_dataset p ");
-        }
-        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE  AND rc.REALM_ID=:realmId ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
         params.put("realmId", realmId);
+        params.put("programTypeId", programTypeId);
         if (input.getHealthAreaId() != null) {
             sqlStringBuilder.append(" AND FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) ");
             params.put("healthAreaId", input.getHealthAreaId());
@@ -469,32 +457,25 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlStringBuilder.append(" AND p.REALM_COUNTRY_ID=:realmCountryId ");
             params.put("realmCountryId", input.getRealmCountryId());
         }
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
 
     @Override
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT   "
-                + "     p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID ");
-        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            sqlStringBuilder.append("FROM vw_program p ");
-        } else {
-            sqlStringBuilder.append("FROM vw_dataset p ");
-        }
-        sqlStringBuilder.append("LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID WHERE p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("programTypeId", programTypeId);
         if (realmCountryIdsStr.length() > 0) {
             sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
             params.put("realmCountryIds", realmCountryIdsStr);
         }
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramRowMapper(""));
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
 
     @Override
@@ -633,10 +614,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 // insert the ProgramPlanningUnit
                 si.execute(params);
                 rowsEffected++;
-                Program p = this.programCommonDao.getProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                SimpleProgram p = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                 String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
                 params.clear();
-                params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+                params.put("realmCountryId", p.getRealmCountry().getId());
                 params.put("planningUnitId", ppu.getPlanningUnit().getId());
                 params.put("multiplier", 1);
                 int activeCount = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
@@ -646,7 +627,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     int rcpuLabelId = this.labelDao.addLabel(pu.getLabel(), LabelConstants.RM_REALM_COUNTRY_PLANNING_UNIT, curUser.getUserId());
                     params.clear();
                     params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
-                    params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
+                    params.put("REALM_COUNTRY_ID", p.getRealmCountry().getId());
                     params.put("LABEL_ID", rcpuLabelId);
                     params.put("SKU_CODE", skuCode);
                     params.put("UNIT_ID", pu.getUnit().getId());
@@ -2605,7 +2586,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "
                 + "FROM us_user u "
@@ -2622,7 +2603,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        params.put("realmId", p.getRealmCountry().getRealm().getRealmId());
+        params.put("realmId", p.getRealmId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
 //        System.out.println(sb.toString());
 //        System.out.println(params);

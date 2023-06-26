@@ -177,7 +177,9 @@ public class BudgetDaoImpl implements BudgetDao {
         params.clear();
         params.put("budgetId", b.getBudgetId());
         params.put("programIdString", programIdString);
-        rowsEffected += this.namedParameterJdbcTemplate.update("DELETE bp.* FROM rm_budget_program bp WHERE bp.BUDGET_ID=:budgetId AND NOT FIND_IN_SET(bp.PROGRAM_ID ,:programIdString)", params);
+        StringBuilder sb = new StringBuilder("DELETE bp.* FROM rm_budget_program bp LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE bp.BUDGET_ID=:budgetId AND NOT FIND_IN_SET(bp.PROGRAM_ID ,:programIdString)");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        rowsEffected += this.namedParameterJdbcTemplate.update(sb.toString(), params);
         int[] insertedRows = this.namedParameterJdbcTemplate.batchUpdate("INSERT IGNORE INTO rm_budget_program (BUDGET_ID, PROGRAM_ID) VALUES (:BUDGET_ID, :PROGRAM_ID)", paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         for (int i : insertedRows) {
             rowsEffected += i;
