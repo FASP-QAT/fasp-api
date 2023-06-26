@@ -667,6 +667,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         batchParams = new MapSqlParameterSource[procurementAgentIds.length];
         int x = 0;
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        StringBuilder strProcurementAgentIds = new StringBuilder();
         for (int procurementAgentId : procurementAgentIds) {
             params = new HashMap<>();
             params.put("PROGRAM_ID", programId);
@@ -674,9 +675,21 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             batchParams[x] = new MapSqlParameterSource(params);
+            strProcurementAgentIds.append(procurementAgentId).append(",");
             x++;
         }
+        if (strProcurementAgentIds.length() > 0) {
+            strProcurementAgentIds.setLength(strProcurementAgentIds.length() - 1);
+        }
         int[] resultArray = si.executeBatch(batchParams);
+        params.clear();
+        params.put("programId", programId);
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.LAST_MODIFIED_DATE=:curDate WHERE p.PROGRAM_ID=:programId", params);
+        params.clear();
+        params.put("procurementAgentIds", strProcurementAgentIds.toString());
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds)", params);
         return IntStream.of(resultArray).sum();
     }
 }
