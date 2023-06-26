@@ -9,8 +9,6 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleProgram;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -18,16 +16,15 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author akil
  */
-public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<List<SimpleProgram>> {
+public class SimpleProgramResultSetExtractor implements ResultSetExtractor<SimpleProgram> {
 
     @Override
-    public List<SimpleProgram> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        List<SimpleProgram> pList = new LinkedList<>();
+    public SimpleProgram extractData(ResultSet rs) throws SQLException, DataAccessException {
+        boolean isFirst = true;
+        SimpleProgram p = null;
         while (rs.next()) {
-            SimpleProgram p = new SimpleProgram(rs.getInt("ID"));
-            int idx = pList.indexOf(p);
-            if (idx == -1) {
-                pList.add(p);
+            if (isFirst) {
+                p = new SimpleProgram(rs.getInt("ID"));
                 p.setCode(rs.getString("CODE"));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 p.setCurrentVersionId(rs.getInt("CURRENT_VERSION_ID"));
@@ -36,11 +33,10 @@ public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<L
                 p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setActive(rs.getBoolean("ACTIVE"));
                 p.setRealmId(rs.getInt("REALM_ID"));
-            } else {
-                p = pList.get(idx);
+                isFirst = false;
             }
             SimpleCodeObject ha = new SimpleCodeObjectRowMapper("HA_").mapRow(rs, 1);
-            idx = p.getHealthAreaList().indexOf(ha);
+            int idx = p.getHealthAreaList().indexOf(ha);
             if (idx == -1) {
                 p.getHealthAreaList().add(ha);
             }
@@ -50,7 +46,6 @@ public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<L
                 p.getRegionList().add(r);
             }
         }
-        return pList;
+        return p;
     }
-
 }
