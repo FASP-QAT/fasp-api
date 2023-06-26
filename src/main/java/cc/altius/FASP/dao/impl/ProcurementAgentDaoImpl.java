@@ -681,9 +681,11 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int[] resultArray = si.executeBatch(batchParams);
         params.clear();
         params.put("programId", programId);
+        params.put("curDate", curDate);
         this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.LAST_MODIFIED_DATE=:curDate WHERE p.PROGRAM_ID=:programId", params);
         params.clear();
         params.put("procurementAgentIds", strProcurementAgentIds.toString());
+        params.put("curDate", curDate);
         this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds)", params);
         return IntStream.of(resultArray).sum();
     }
