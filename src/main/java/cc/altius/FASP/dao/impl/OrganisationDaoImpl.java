@@ -186,7 +186,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + "LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "WHERE :realmCountryId=-1 OR oc.REALM_COUNTRY_ID=:realmCountryId AND o.ACTIVE AND oc.ACTIVE ");
         this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
-        this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         sqlStringBuilder.append("GROUP BY o.ORGANISATION_ID ORDER BY o.ORGANISATION_CODE");
         params.put("realmCountryId", realmCountryId);
