@@ -1743,6 +1743,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PRICE", dpu.getPrice());
             params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
             params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
+            params.put("PLANNING_UNIT_NOTES", dpu.getPlanningUnitNotes());
             params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
             params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
             if (dpu.getOtherUnit() != null) {
