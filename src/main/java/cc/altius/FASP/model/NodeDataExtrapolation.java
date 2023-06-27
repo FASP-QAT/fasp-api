@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class NodeDataExtrapolation implements Serializable {
 
+    // TODO -- This is actual Consumption data that is used in the Extrapolation
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataExtapolationId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
