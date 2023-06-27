@@ -71,3 +71,11 @@ DROP PROCEDURE `fasp`.`budgetReport`;
 
 
 ALTER TABLE `fasp`.`rm_budget` DROP INDEX `unq_budgetCode` ;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commit.untaggedShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This program contains shipments tagged to a budget that is no longer associated with this program. To proceed with committing, please re-assign those shipments to a different budget or re-assign the budget to this program.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce programme contient des expéditions associées à un budget qui n`est plus associé à ce programme. Pour procéder à l`engagement, veuillez réaffecter ces envois à un budget différent ou réaffecter le budget à ce programme.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Este programa contiene envíos etiquetados a un presupuesto que ya no está asociado con este programa. Para continuar con la confirmación, vuelva a asignar esos envíos a un presupuesto diferente o vuelva a asignar el presupuesto a este programa.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Este programa contém remessas marcadas para um orçamento que não está mais associado a este programa. Para prosseguir com a confirmação, reatribua essas remessas a um orçamento diferente ou reatribua o orçamento a este programa.');-- pr
