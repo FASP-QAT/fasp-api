@@ -25,6 +25,7 @@ import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.TracerCategoryService;
+import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
@@ -71,6 +72,8 @@ public class DropDownRestController {
     @Autowired
     private EquivalencyUnitService equivalencyUnitService;
     @Autowired
+    private TreeTemplateService treeTemplateService;
+    @Autowired
     private UserService userService;
     @Autowired
     private BudgetService budgetService;
@@ -86,7 +89,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/realm/{realmId}/programType/{programTypeId}/expanded")
     public ResponseEntity getProgramExpandedForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -254,7 +257,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
@@ -266,7 +269,6 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @JsonView(Views.DropDownView.class)
     @GetMapping("/tracerCategory")
@@ -390,7 +392,7 @@ public class DropDownRestController {
 
     @JsonView(Views.DropDownView.class)
     @GetMapping("/budget/program/{programId}")
-    public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value="programId", required=true) int programId, Authentication auth) {
+    public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetDropdownForProgram(programId, curUser), HttpStatus.OK);
@@ -411,7 +413,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/programTypeId/{programTypeId}/programs")
     public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
@@ -420,6 +422,18 @@ public class DropDownRestController {
             return new ResponseEntity(this.programService.getVersionListForPrograms(programTypeId, programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Version", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/treeTemplate")
+    public ResponseEntity getTreeTemplateList(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.treeTemplateService.getTreeTemplateListForDropDown(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list TreeTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
