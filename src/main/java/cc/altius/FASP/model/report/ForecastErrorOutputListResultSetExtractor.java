@@ -43,11 +43,11 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             if (rs.wasNull()) {
                 re.setForecastQty(null);
             }
-            re.setSumOfActual(rs.getDouble("TOTAL_ACTUAL"));
+            re.setSumOfActual(rs.getDouble("SUM_OF_ACTUAL"));
             if (rs.wasNull()) {
                 re.setSumOfActual(null);
             }
-            re.setSumOfForecastMinusActual(rs.getDouble("TOTAL_FORECAST_MINUS_ACTUAL"));
+            re.setSumOfForecastMinusActual(rs.getDouble("SUM_OF_FORECAST_MINUS_ACTUAL"));
             if (rs.wasNull()) {
                 re.setSumOfForecastMinusActual(null);
             }
