@@ -12,11 +12,11 @@ import cc.altius.FASP.model.DTO.rowMapper.PlanningUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProcurementUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
-import cc.altius.FASP.model.ForecastingUnit;
+import cc.altius.FASP.model.ForecastingUnitWithSku;
 import cc.altius.FASP.model.Supplier;
 import cc.altius.FASP.model.TracerCategory;
 import cc.altius.FASP.model.Unit;
-import cc.altius.FASP.model.rowMapper.ForecastingUnitRowMapper;
+import cc.altius.FASP.model.rowMapper.ForecastingUnitWithSkuRowMapper;
 import cc.altius.FASP.model.rowMapper.SupplierRowMapper;
 import cc.altius.FASP.model.rowMapper.TracerCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.UnitRowMapper;
@@ -334,7 +334,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     map.put("euro1", euro1);
                                     map.put("euro2", euro2);
                                 } catch (Exception e) {
-                                    logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
+                                    logger.info("Planning Unit Per Pallet for Euro1 and Euro2 not found so proceeding with older method - " + e.getMessage());
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
 //                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
@@ -343,7 +343,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 //                                    int emailerId = this.emailService.saveEmail(emailer);
 //                                    emailer.setEmailerId(emailerId);
 //                                    this.emailService.sendMail(emailer);
-                                    logger.error("Error while pulling tracer category---" + e.getMessage());
                                 }
 
                                 map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
@@ -379,10 +378,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int dRows = this.jdbcTemplate.update(sqlString);
                         logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
                         sb.append("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---").append(dRows).append(br);
-                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductID)) !=13";
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductID)) !=13 OR length(trim(tpc.ProductIDNoPack)) !=9";
                         dRows = this.jdbcTemplate.update(sqlString);
-                        logger.info("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---" + dRows);
-                        sb.append("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---").append(dRows).append(br);
+                        logger.info("Delted rows from tmp_product_catalog because the ProductId len is not 13 or ProductIdNoPack len is not 9 ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the ProductId len is not 13 or ProductIdNoPack len is not 9 ---").append(dRows).append(br);
                         sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
                         int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
                         logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
@@ -399,6 +398,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling units---" + e.getMessage()).append(br);
                             logger.error("Error while pulling units---" + e.getMessage());
                         }
                         try {
@@ -410,6 +410,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling tracer category---" + e.getMessage()).append(br);
                             logger.error("Error while pulling tracer category---" + e.getMessage());
                         }
                         try {
@@ -421,6 +422,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling product category---" + e.getMessage()).append(br);
                             logger.error("Error while pulling product category---" + e.getMessage());
                         }
                         try {
@@ -432,6 +434,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling forecasting unit---" + e.getMessage()).append(br);
                             logger.error("Error while pulling forecasting unit---" + e.getMessage());
                         }
                         try {
@@ -443,6 +446,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling planning unit---" + e.getMessage()).append(br);
                             logger.error("Error while pulling planning unit---" + e.getMessage());
                         }
                         try {
@@ -454,6 +458,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling supplier---" + e.getMessage()).append(br);
                             logger.error("Error while pulling supplier---" + e.getMessage());
                         }
                         try {
@@ -465,6 +470,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
                             this.emailService.sendMail(emailer);
+                            sb.append("Error while pulling procurement unit---" + e.getMessage()).append(br);
                             logger.error("Error while pulling procurement unit---" + e.getMessage());
                         }
                         File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
@@ -776,6 +782,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 //        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
                         sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
+                + "    `PRODUCT_ID_NO_PACK` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
                 + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,   "
@@ -788,6 +795,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    `FOUND` TINYINT(1) UNSIGNED DEFAULT NULL, "
                 + "    PRIMARY KEY (`ID`), "
                 + "    INDEX `idxLabel` (`LABEL` ASC),  "
+                + "    INDEX `idxProductIdNoPack` (`PRODUCT_ID_NO_PACK` ASC),  "
                 + "    INDEX `idxGenericLabel` (`GENERIC_LABEL` ASC),  "
                 + "    INDEX `idxForecastingUnit_forecastingUnitId_idx` (`FORECASTING_UNIT_ID` ASC),  "
                 + "    INDEX `idxForecastingUnit_labelId_idx` (`LABEL_ID` ASC),  "
@@ -801,18 +809,32 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack, tpc.BaseUnit";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductIDNoPack, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' AND tpc.ProductIDNoPack IS NOT NULL AND tpc.ProductIDNoPack != '' group by tpc.ProductIDNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
-        sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
+        logger.info(rows + " inserted into the tmp_forecasting_unit");
+        sb.append(rows).append(" inserted into the tmp_forecasting_unit").append(br);
 
-        // Step 4 Match those records that are already present in the main forecasting_unit table
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN LEFT JOIN vw_unit ON fu.UNIT_ID=u.UNIT_ID AND tfu.BaseUnit=u.LABEL_EN "
+        // Old Step 4 Match those records that are already present in the main forecasting_unit table
+        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN LEFT JOIN vw_unit u ON tfu.UNIT_LABEL_EN=u.LABEL_EN  "
                 + "set tfu.LABEL_ID = fu.LABEL_ID, tfu.FOUND=1, tfu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
                 + "where fu.FORECASTING_UNIT_ID is not null AND u.UNIT_ID IS NOT NULL AND fu.REALM_ID=1";
         rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " Forecasting units found");
-        sb.append(rows).append(" Forecasting units found").append(br);
+        logger.info(rows + " Forecasting units found based on Name and Unit");
+        sb.append(rows).append(" Forecasting units found based on Name and Unit").append(br);
+        
+        // Old Step 4a Insert the Name and Units found into the procurement_agent_forecasting_unit table
+        sqlString = "INSERT IGNORE INTO rm_procurement_agent_forecasting_unit SELECT null, 1, tfu.FORECASTING_UNIT_ID, tfu.PRODUCT_ID_NO_PACK FROM tmp_forecasting_unit tfu WHERE tfu.FOUND=1";
+        rows = this.jdbcTemplate.update(sqlString);
+        logger.info(rows + " inserted into ProcurementAgent ForecastingUnit table");
+        sb.append(rows).append(" inserted into ProcurementAgent ForecastingUnit table").append(br);
+        
+        // Step 4 Match those records that are already present in the procurement agent forecasting unit table
+        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN rm_procurement_agent_forecasting_unit pafu ON pafu.PROCUREMENT_AGENT_ID=1 AND tfu.PRODUCT_ID_NO_PACK=pafu.SKU_CODE LEFT JOIN vw_forecasting_unit fu ON pafu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "set tfu.LABEL_ID = fu.LABEL_ID, tfu.FOUND=1, tfu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+                + "where fu.FORECASTING_UNIT_ID is not null AND fu.REALM_ID=1";
+        rows = this.jdbcTemplate.update(sqlString);
+        logger.info(rows + " Procurement Agent Forecasting units found");
+        sb.append(rows).append(" Procurement Agent Forecasting units found").append(br);
 
         // Step 4 Match the Generic names
         sqlString = "update tmp_forecasting_unit tfu "
@@ -843,10 +865,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " null PRODUCT_CATEGORY_ID, null PRODUCT_CATEGORY_LABEL_ID, fu.SUB_CATEGORY PRODUCT_CATEGORY_LABEL_EN, fu.COMMODITY_COUNCIL PRODUCT_CATEGORY_LABEL_FR, null PRODUCT_CATEGORY_LABEL_SP, null PRODUCT_CATEGORY_LABEL_PR, "
                 + " null TRACER_CATEGORY_ID, null TRACER_CATEGORY_LABEL_ID, fu.TRACER_CATEGORY TRACER_CATEGORY_LABEL_EN, null TRACER_CATEGORY_LABEL_FR, null TRACER_CATEGORY_LABEL_SP, null TRACER_CATEGORY_LABEL_PR, "
                 + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
-                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME, fu.PRODUCT_ID_NO_PACK `SKU_CODE` "
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
-        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit");
+        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
+        SimpleJdbcInsert siPaFun = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_forecasting_unit");
         Map<String, Object> labelParams = new HashMap<>();
         Map<String, Object> forecastingUnitParams = new HashMap<>();
         int curUserId = 1;
@@ -871,7 +894,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         forecastingUnitParams.put("PRODUCT_CATEGORY_ID", 0);
         forecastingUnitParams.put("TRACER_CATEGORY_ID", 0);
 
-        for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
+        for (ForecastingUnitWithSku fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitWithSkuRowMapper())) {
             try {
                 sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=? LIMIT 1";
                 logger.info("unit id code---" + fu.getUnit().getCode());
@@ -911,7 +934,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
                     }
                     sb.append("----------fu 7--------------").append(br);
-                    siForecastingUnit.execute(forecastingUnitParams);
+                    int forecastingUnitId = siForecastingUnit.executeAndReturnKey(forecastingUnitParams).intValue();
+                    Map<String, Object> pafuMap = new HashMap<>();
+                    pafuMap.put("PROCUREMENT_AGENT_ID", 1);
+                    pafuMap.put("FORECASTING_UNIT_ID", forecastingUnitId);
+                    pafuMap.put("SKU_CODE", fu.getSkuCode());
+                    siPaFun.execute(pafuMap);
                     sb.append("----------fu 8--------------").append(br);
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
@@ -951,7 +979,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    fu.LAST_MODIFIED_DATE= IF(fu.GENERIC_LABEL_ID!=tfu.GENERIC_LABEL_ID OR fu.UNIT_ID!=u.UNIT_ID OR fu.TRACER_CATEGORY_ID!=tc.TRACER_CATEGORY_ID OR fu.PRODUCT_CATEGORY_ID!=pc.PRODUCT_CATEGORY_ID, ?, fu.LAST_MODIFIED_DATE) "
                 + "WHERE tfu.FOUND=1 AND u.UNIT_ID IS NOT NULL AND tc.TRACER_CATEGORY_ID IS NOT NULL AND pc.PRODUCT_CATEGORY_ID IS NOT NULL";
         int rowCount = this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate);
-
+        
         logger.info("Rows updated - " + rowCount);
         sb.append("Rows updated - ").append(rowCount).append(br);
         //Update end
