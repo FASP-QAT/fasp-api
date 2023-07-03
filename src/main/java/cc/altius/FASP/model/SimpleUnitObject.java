@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class SimpleUnitObject extends SimpleObject {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject unit;
 
     public SimpleCodeObject getUnit() {

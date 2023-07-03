@@ -44,8 +44,6 @@ import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.LinkedList;
@@ -58,7 +56,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -258,7 +255,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
-    public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
+    public ResponseEntity getWarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
@@ -511,7 +508,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
      * @param ssv
@@ -524,23 +521,14 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            List<List<StockStatusVerticalOutput>> ssvoFullList = new LinkedList<>();
-            if (ssv.isAllPlanningUnits()) {
-                ssvoFullList.add(ssvoList);
-                int originalPlanningUnit = ssv.getPlanningUnitId();
-                for (ProgramPlanningUnit ppu : this.programService.getPlanningUnitListForProgramId(ssv.getProgramId(), true, curUser)) {
-                    if (!ppu.getPlanningUnit().getId().equals(originalPlanningUnit)) {
-                        ssv.setPlanningUnitId(ppu.getPlanningUnit().getId());
-                        ssvoFullList.add(this.reportService.getStockStatusVertical(ssv, curUser));
-                    }
-                }
-                return new ResponseEntity(ssvoFullList, HttpStatus.OK);
-            } else {
-                return new ResponseEntity(ssvoList, HttpStatus.OK);
+            for (int planningUnitId : ssv.getPlanningUnitIds()) {
+                ssv.setPlanningUnitId(planningUnitId);
+                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
             }
+            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -21,19 +21,24 @@ import java.util.List;
  */
 public class NodeDataExtrapolation implements Serializable {
 
+    // TODO -- This is actual Consumption data that is used in the Extrapolation
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataExtapolationId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    // selected Extrapolation method out of all the options
     private SimpleObject extrapolationMethod;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    // Actual data that is used in Extrapolation
     List<ExtrapolationDataReportingRate> extrapolationDataList;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date stopDate;
 
     public NodeDataExtrapolation() {

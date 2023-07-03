@@ -26,7 +26,7 @@ public interface CommitRequestDao {
 
     public CommitRequest getPendingCommitRequestProcessList();
 
-    public Version updateCommitRequest(int commitRequestId, int status, String message, int versionId);
+    public Version updateCommitRequest(int programId, int commitRequestId, int status, String message, int versionId);
 
     public List<CommitRequest> getCommitRequestList(CommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 

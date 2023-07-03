@@ -101,6 +101,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import static jxl.biff.BaseCellFeatures.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,7 +348,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionTypeId", pd.getVersionType().getId());
             params.put("versionStatusId", pd.getVersionStatus().getId());
             params.put("notes", pd.getNotes());
-            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //            try {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             logger.info(version + " is the new version no");
@@ -593,7 +594,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -947,7 +948,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1155,7 +1156,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
             }
@@ -1305,7 +1306,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1324,7 +1325,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     params.put("versionTypeId", pd.getVersionType().getId());
                     params.put("versionStatusId", pd.getVersionStatus().getId());
                     params.put("notes", pd.getNotes());
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                    try {
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     logger.info(version + " is the new version no");
@@ -1361,7 +1362,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         // Get the new VersionId
-        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate)";
+        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate, 0)";
         params.clear();
         params.put("programId", spcr.getProgram().getId());
         params.put("versionTypeId", spcr.getVersionType().getId());
@@ -1579,6 +1580,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        if (n.getPayload().getNodeType().getId() != GlobalConstants.NODE_TYPE_NUMBER) {
+                            tnd.setExtrapolation(false);
+                        }
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
                         nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1591,7 +1595,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                        if ((n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU)
+                                && tnd.isExtrapolation() == Boolean.FALSE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
@@ -1614,7 +1622,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation() == Boolean.TRUE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
 
@@ -1624,14 +1632,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
                                 int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                /*for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
                                     nodeDataParams.clear();
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
                                     nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
-                                }
+                                }*/
                             }
                         }
 
@@ -1735,6 +1743,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PRICE", dpu.getPrice());
             params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
             params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
+            params.put("PLANNING_UNIT_NOTES", dpu.getPlanningUnitNotes());
             params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
             params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
             if (dpu.getOtherUnit() != null) {
@@ -1775,12 +1784,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         // Step 5 -- Update the Version no on the Program table
-        sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
-        params.clear();
-        params.put("programId", spcr.getProgram().getId());
-        params.put("versionId", version.getVersionId());
-        this.namedParameterJdbcTemplate.update(sqlString, params);
-
+        /**
+         * skip this step for now and do it once the compile is completed
+         * sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId
+         * WHERE p.PROGRAM_ID=:programId"; params.clear();
+         * params.put("programId", spcr.getProgram().getId());
+         * params.put("versionId", version.getVersionId());
+         * this.namedParameterJdbcTemplate.update(sqlString, params);
+         *
+         */
         // Step 6 -- Remove duplicates from rm_forecast_extrapolation_data
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`;";
         this.jdbcTemplate.update(sqlString);
@@ -1803,7 +1815,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", spcr.getProgram().getId());
         params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        sqlString = "DELETE fced.* FROM `rm_forecast_consumption_extrapolation_data` fced \n"
+        sqlString = "DELETE fced.* FROM `rm_forecast_consumption_extrapolation_data` fced  "
                 + "WHERE fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` IN (SELECT * FROM `tmp_consumption_extrapolation_data`);";
         this.jdbcTemplate.update(sqlString);
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`; ";
@@ -2330,18 +2342,24 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.replace("versionId", versionId);
         }
+        logger.info("Version Id is " + versionId);
         if (rebuild == true) {
+            logger.info("Going to start rebuild process");
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
+            logger.info("Got the Supply Plan Region list from SP");
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            logger.info("Got the Supply Plan Batch list from SP");
             // Build the Supply Plan over here
             msp.buildPlan();
+            logger.info("Rebuilding done");
             // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
             List<MapSqlParameterSource> amcParams = new LinkedList<>();
             List<MapSqlParameterSource> batchParams = new LinkedList<>();
             int i = 0;
+            logger.info("Building the records fpr batch insert");
             for (NewSupplyPlan nsp : msp.getNspList()) {
                 MapSqlParameterSource a1 = new MapSqlParameterSource();
                 a1.addValue("PROGRAM_ID", msp.getProgramId());
@@ -2440,16 +2458,57 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 i++;
             }
+            sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc1";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc2";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
+                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
+                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+            // Create table
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
+                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
+                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+            // Create table
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
+            logger.info("Delete done");
             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
+            SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("tmp_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc1 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc2 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
+            logger.info("Batch insert for supply plan amc completed");
+            logger.info("Delete the existing records from supply plan batch");
             this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
             MapSqlParameterSource[] batchParamsArray = new MapSqlParameterSource[batchParams.size()];
             batchParams.toArray(batchParamsArray);
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
+            logger.info("Batch insert for supply plan batch completed");
+            params.clear();
+
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
@@ -2459,12 +2518,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
                     + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
                     + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
-                    + "        FROM rm_supply_plan_amc spa "
+                    + "        FROM tmp_supply_plan_amc1 spa "
                     + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
-                    + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
+                    + "        LEFT JOIN (SELECT * FROM tmp_supply_plan_amc2 spa2) spa2 ON "
                     + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
                     + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH) "
-                    + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
                     + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
                     + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
                     + "    SET "
@@ -2493,12 +2551,19 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                ) "
                     + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
                     + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            logger.info("Going to update the supply plan amc records");
             this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info("Update completed, now dropping tmp table");
+            this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc1", params);
+            this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc2", params);
+            logger.info("Table dropped");
 //            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {
+            logger.info("Going to get the new supply plan batch");
             List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
+            logger.info("Records retrieved");
             return sp;
         } else {
             return new LinkedList<>();
@@ -2848,10 +2913,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId) {
         String sql = "SELECT "
-                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES "
+                //                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
                 + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
-                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                //                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
         return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);

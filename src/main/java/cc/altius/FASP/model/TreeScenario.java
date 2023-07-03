@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 
 /**
@@ -13,7 +14,9 @@ import java.util.Objects;
  */
 public class TreeScenario extends SimpleObject {
 
+    @JsonView(Views.InternalView.class)
     private String notes;
+    @JsonView(Views.InternalView.class)
     private boolean active;
 
     public TreeScenario() {
