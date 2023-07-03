@@ -606,7 +606,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("previousMonths", fei.getPreviousMonths());
         params.put("daysOfStockOut", fei.isDaysOfStockOut());
         params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
-        String sql = "CALL getForecastErrorUpdated(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
+        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
