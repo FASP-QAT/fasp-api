@@ -238,6 +238,7 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @PostMapping("/dataset/versions")
     public ResponseEntity getDatasetVersionList(@RequestBody DatasetVersionListInput dvli, Authentication auth) {
         try {
@@ -248,10 +249,10 @@ public class DatasetRestController {
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get ProgramVersion List", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to get ProgramVersion List", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

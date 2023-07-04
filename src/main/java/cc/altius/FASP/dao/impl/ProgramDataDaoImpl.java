@@ -2840,9 +2840,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
                 + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "WHERE TRUE "
-                + "AND (:programIds='' OR FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
+                + "AND (FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
                 + "AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) "
-                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND (pv.CREATED_DATE BETWEEN :startDate AND :stopDate) "
                 + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_DATASET);
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));
