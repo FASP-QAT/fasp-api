@@ -29,17 +29,17 @@ public class Version implements Serializable {
     private SimpleObject versionStatus;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String notes;
-    @JsonView({Views.InternalView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private BasicUser createdBy;
-    @JsonView({Views.InternalView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView({Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.ReportView.class})
     private Date createdDate;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date lastModifiedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
