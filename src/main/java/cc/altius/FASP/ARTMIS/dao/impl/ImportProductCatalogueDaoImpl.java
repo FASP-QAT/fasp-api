@@ -950,7 +950,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
 
         // Insert the Name and Units found into the procurement_agent_forecasting_unit table
-        sqlString = "INSERT INTO rm_procurement_agent_forecasting_unit SELECT null, 1, tfu.FORECASTING_UNIT_ID, tfu.PRODUCT_ID_NO_PACK, tfu.LABEL, tfu.UNIT_LABEL_EN FROM tmp_forecasting_unit tfu WHERE tfu.FORECASTING_UNIT_ID IS NOT NULL";
+        sqlString = "INSERT INTO rm_procurement_agent_forecasting_unit SELECT null, 1, tfu.FORECASTING_UNIT_ID, tfu.PRODUCT_ID_NO_PACK, tfu.LABEL, tfu.UNIT_LABEL_EN FROM tmp_forecasting_unit tfu WHERE tfu.FORECASTING_UNIT_ID IS NOT NULL AND tfu.FORECASTING_UNIT_ID != 0";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into ProcurementAgent ForecastingUnit table");
         sb.append(rows).append(" inserted into ProcurementAgent ForecastingUnit table").append(br);
