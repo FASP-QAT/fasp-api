@@ -28,6 +28,7 @@ import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import javax.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,11 +140,15 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDown3View.class)
-    @PostMapping("/planningUnit/autocomplete/filter/productCategory")
-    public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@RequestBody AutocompleteInputWithProductCategoryDTO autoCompleteInput, Authentication auth) {
+    @GetMapping("/planningUnit/autocomplete/filter/productCategory/{searchText}/{language}/{productCategorySortOrder}")
+    public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "productCategorySortOrder", required = true) String productCategorySortOrder, Authentication auth) {
         try {
+            AutocompleteInputWithProductCategoryDTO aci = new AutocompleteInputWithProductCategoryDTO();
+            aci.setLanguage(language);
+            aci.setSearchText(searchText);
+            aci.setProductCategorySortOrder(productCategorySortOrder);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForAutoCompleteFilterForProductCategory(autoCompleteInput, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForAutoCompleteFilterForProductCategory(aci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -187,11 +192,15 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDown3View.class)
-    @PostMapping("/forecastingUnit/autocomplete/filter/tracerCategory")
-    public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@RequestBody AutocompleteInputWithTracerCategoryDTO autoCompleteInput, Authentication auth) {
+    @GetMapping("/forecastingUnit/autocomplete/filter/{searchText}/{language}/{tracerCategoryId}")
+    public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
+            AutocompleteInputWithTracerCategoryDTO aci = new AutocompleteInputWithTracerCategoryDTO();
+            aci.setLanguage(language);
+            aci.setSearchText(searchText);
+            aci.setTracerCategoryId(tracerCategoryId);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(autoCompleteInput, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(aci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
