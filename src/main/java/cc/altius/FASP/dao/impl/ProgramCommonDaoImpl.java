@@ -15,7 +15,6 @@ import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.MultipleProgramVersionDropDownResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.service.AclService;

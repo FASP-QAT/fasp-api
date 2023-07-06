@@ -198,7 +198,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND rc.REALM_ID=:realmId ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND (rc.REALM_ID=:realmId OR :realmId=-1) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "rc", curUser);
