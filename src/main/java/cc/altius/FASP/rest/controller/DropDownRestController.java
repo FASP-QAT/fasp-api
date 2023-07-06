@@ -138,7 +138,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.DropDownView.class)
+    @JsonView(Views.DropDown3View.class)
     @PostMapping("/planningUnit/autocomplete/filter/productCategory")
     public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@RequestBody AutocompleteInputWithProductCategoryDTO autoCompleteInput, Authentication auth) {
         try {
@@ -186,7 +186,7 @@ public class DropDownRestController {
         }
     }
 
-    @JsonView(Views.DropDownView.class)
+    @JsonView(Views.DropDown3View.class)
     @PostMapping("/forecastingUnit/autocomplete/filter/tracerCategory")
     public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@RequestBody AutocompleteInputWithTracerCategoryDTO autoCompleteInput, Authentication auth) {
         try {
