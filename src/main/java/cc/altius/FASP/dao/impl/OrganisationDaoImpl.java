@@ -167,7 +167,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT o.ORGANISATION_ID `ID`, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR, o.ORGANISATION_CODE `CODE` FROM vw_organisation o WHERE o.ACTIVE AND o.REALM_ID=:realmId ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT o.ORGANISATION_ID `ID`, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR, o.ORGANISATION_CODE `CODE` FROM vw_organisation o WHERE o.ACTIVE AND (o.REALM_ID=:realmId OR :realmId=-1) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "o", curUser);

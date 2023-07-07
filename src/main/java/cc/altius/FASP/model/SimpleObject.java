@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class SimpleObject {
 
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private Integer id;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class})
     private Label label;
@@ -44,6 +44,11 @@ public class SimpleObject {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    @JsonView({Views.DropDown3View.class})
+    public String getName() {
+        return this.label.getLabel_en();
     }
 
     @Override
