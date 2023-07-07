@@ -163,7 +163,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 
     @Override
     public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT ha.HEALTH_AREA_ID `ID`, ha.LABEL_ID, ha.LABEL_EN, ha.LABEL_FR, ha.LABEL_SP, ha.LABEL_PR, ha.HEALTH_AREA_CODE `CODE` FROM vw_health_area ha WHERE ha.ACTIVE AND ha.REALM_ID=:realmId ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT ha.HEALTH_AREA_ID `ID`, ha.LABEL_ID, ha.LABEL_EN, ha.LABEL_FR, ha.LABEL_SP, ha.LABEL_PR, ha.HEALTH_AREA_CODE `CODE` FROM vw_health_area ha WHERE ha.ACTIVE AND (ha.REALM_ID=:realmId OR :realmId=-1) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "ha", curUser);
