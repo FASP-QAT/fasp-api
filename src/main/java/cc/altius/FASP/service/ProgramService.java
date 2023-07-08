@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DatasetTree;
@@ -17,11 +18,14 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
-import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -29,7 +33,11 @@ import java.util.List;
  */
 public interface ProgramService {
 
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, CustomUserDetails curUser);
 
@@ -41,7 +49,11 @@ public interface ProgramService {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
 
@@ -104,5 +116,11 @@ public interface ProgramService {
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+
+    public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
+
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
 
 }

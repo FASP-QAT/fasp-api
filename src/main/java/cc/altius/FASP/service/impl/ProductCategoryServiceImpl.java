@@ -12,8 +12,8 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductCategoryService;
 import cc.altius.utils.TreeUtils.Node;
@@ -112,8 +112,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
-        Program r = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthAreaIdList(), r.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.productCategoryDao.getProductCategoryListForProgram(curUser, realmId, programId);
         } else {
             throw new AccessDeniedException("Access denied");

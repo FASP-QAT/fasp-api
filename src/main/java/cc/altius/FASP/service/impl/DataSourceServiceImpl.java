@@ -13,8 +13,8 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.DataSourceService;
 import java.util.List;
@@ -86,7 +86,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
         } else {

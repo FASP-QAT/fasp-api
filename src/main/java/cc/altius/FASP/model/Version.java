@@ -21,11 +21,11 @@ import java.util.Date;
  */
 public class Version implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
     private int versionId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
     private SimpleObject versionType;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
     private SimpleObject versionStatus;
     @JsonView(Views.InternalView.class)
     private String notes;
@@ -35,7 +35,7 @@ public class Version implements Serializable {
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class})
     private Date createdDate;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -43,11 +43,11 @@ public class Version implements Serializable {
     private Date lastModifiedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class})
     private Date forecastStartDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class})
     private Date forecastStopDate;
     @JsonView(Views.InternalView.class)
     private Integer daysInMonth;
@@ -57,7 +57,6 @@ public class Version implements Serializable {
     private Double forecastThresholdHighPerc;
     @JsonView(Views.InternalView.class)
     private Double forecastThresholdLowPerc;
-    
 
     public Version() {
     }
@@ -147,7 +146,7 @@ public class Version implements Serializable {
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
- 
+
     public Date getForecastStartDate() {
         return forecastStartDate;
     }

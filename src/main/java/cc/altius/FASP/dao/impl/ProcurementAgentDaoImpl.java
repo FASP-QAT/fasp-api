@@ -226,6 +226,28 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pa.PROCUREMENT_AGENT_ID `ID`, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR, pa.PROCUREMENT_AGENT_CODE `CODE` FROM vw_procurement_agent pa WHERE pa.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "pa", curUser);
+        stringBuilder.append(" ORDER BY pa.PROCUREMENT_AGENT_CODE");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pa.PROCUREMENT_AGENT_ID `ID`, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR, pa.PROCUREMENT_AGENT_CODE `CODE` FROM rm_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID LEFT JOIN vw_procurement_agent pa ON ppa.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID WHERE p.ACTIVE AND pa.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        if (programIds.length() > 0) {
+            stringBuilder.append(" AND FIND_IN_SET(ppa.PROGRAM_ID, :programIds) ");
+            params.put("programIds", programIds);
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "pa", curUser);
+        stringBuilder.append(" GROUP BY pa.PROCUREMENT_AGENT_ID ORDER BY pa.PROCUREMENT_AGENT_CODE");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentTypeSqlString);
         Map<String, Object> params = new HashMap<>();

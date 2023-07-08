@@ -13,6 +13,7 @@ import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import java.util.LinkedList;
@@ -70,6 +71,16 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentList(active, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentDropdownList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentDropdownListForFilterMultiplePrograms(programIds, curUser);
     }
 
     @Override

@@ -73,7 +73,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public int createManualProblem(ManualProblem manualProblem, CustomUserDetails curUser) {
-        this.programCommonDao.getProgramById(manualProblem.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        this.programCommonDao.getSimpleProgramById(manualProblem.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.problemDao.createManualProblem(manualProblem, curUser);
     }
 

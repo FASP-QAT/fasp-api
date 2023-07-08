@@ -14,7 +14,6 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
-import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
@@ -110,18 +109,6 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramList(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @JsonView(Views.InternalView.class)
-    @GetMapping("/programForDropDown/programType/{programTypeId}")
-    public ResponseEntity getProgramForDropDown(@PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(programTypeId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -291,7 +278,7 @@ public class ProgramRestController {
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

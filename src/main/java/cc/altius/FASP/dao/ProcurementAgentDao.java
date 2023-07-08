@@ -21,6 +21,10 @@ import java.util.Map;
 public interface ProcurementAgentDao {
 
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser);
 
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser);
 
