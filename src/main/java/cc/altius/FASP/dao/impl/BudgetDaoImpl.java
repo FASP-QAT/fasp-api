@@ -87,12 +87,12 @@ public class BudgetDaoImpl implements BudgetDao {
             + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
             + "WHERE "
             + "	TRUE  ";
-    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
+//    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
 
     @Override
     @Transactional
     public int addBudget(Budget b, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingColumns("BUDGET_CODE","FUNDING_SOURCE_ID","REALM_ID","BUDGET_AMT","CURRENCY_ID","CONVERSION_RATE_TO_USD","START_DATE","STOP_DATE","NOTES","LABEL_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("BUDGET_CODE", b.getBudgetCode());
@@ -177,7 +177,9 @@ public class BudgetDaoImpl implements BudgetDao {
         params.clear();
         params.put("budgetId", b.getBudgetId());
         params.put("programIdString", programIdString);
-        rowsEffected += this.namedParameterJdbcTemplate.update("DELETE bp.* FROM rm_budget_program bp WHERE bp.BUDGET_ID=:budgetId AND NOT FIND_IN_SET(bp.PROGRAM_ID ,:programIdString)", params);
+        StringBuilder sb = new StringBuilder("DELETE bp.* FROM rm_budget_program bp LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE bp.BUDGET_ID=:budgetId AND NOT FIND_IN_SET(bp.PROGRAM_ID ,:programIdString)");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        rowsEffected += this.namedParameterJdbcTemplate.update(sb.toString(), params);
         int[] insertedRows = this.namedParameterJdbcTemplate.batchUpdate("INSERT IGNORE INTO rm_budget_program (BUDGET_ID, PROGRAM_ID) VALUES (:BUDGET_ID, :PROGRAM_ID)", paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         for (int i : insertedRows) {
             rowsEffected += i;
@@ -198,7 +200,7 @@ public class BudgetDaoImpl implements BudgetDao {
         sqlStringBuilder.append(" AND bp.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -208,7 +210,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -219,7 +221,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -230,7 +232,8 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("budgetId", budgetId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(sqlGroupByString);
+//        sqlStringBuilder.append(sqlGroupByString);
+        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetResultSetExtractor());
     }
 
@@ -260,7 +263,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        sqlStringBuilder.append(this.sqlGroupByString);
+//        sqlStringBuilder.append(this.sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -270,7 +273,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(this.sqlGroupByString);
+//        sqlStringBuilder.append(this.sqlGroupByString);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
