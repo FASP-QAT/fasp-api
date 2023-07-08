@@ -36,7 +36,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
             ForecastSummaryOutput fso = new ForecastSummaryOutput();
             fso.setPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, 1), rs.getDouble("MULTIPLIER")));
             String notes = rs.getString("NOTES");
-            if (notes!=null && notes.isBlank()) {
+            if (notes != null && notes.isBlank()) {
                 notes = null;
             }
             Label notesLabel = null;
@@ -55,7 +55,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
                 }
             }
             int idx = fsList.indexOf(fso);
-            Double totalForecast = rs.getDouble("TOTAL_FORECAST");
+            Integer totalForecast = rs.getInt("TOTAL_FORECAST");
             if (rs.wasNull()) {
                 totalForecast = null;
             }
@@ -73,7 +73,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
                     // Since curent Consumption Qty is not null then if the new Consumption Qty is also not null then add the two otherwise the current one is correct
                     fso.setTotalForecast(fso.getTotalForecast() + totalForecast);
                 }
-                if (fso.getNotes() == null ) {
+                if (fso.getNotes() == null) {
                     // If the current Notes is null therefore set to whatever we just read
                     fso.setNotes(notesLabel);
                 } else if (notesLabel != null) {
