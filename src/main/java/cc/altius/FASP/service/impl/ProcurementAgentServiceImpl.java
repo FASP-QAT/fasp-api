@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProcurementAgentDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -38,7 +39,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Autowired
     private RealmDao realmDao;
     @Autowired
-    private ProgramService programService;
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
 
@@ -234,7 +235,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
 
     @Override
     public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessDeniedException {
-        this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.procurementAgentDao.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser);
     }
 }
