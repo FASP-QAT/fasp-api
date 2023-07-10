@@ -31,6 +31,7 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
@@ -178,7 +179,7 @@ public class ProgramServiceImpl implements ProgramService {
     public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
     }
-    
+
     @Override
     public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleProgramById(programId, programTypeId, curUser);
@@ -462,4 +463,7 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+    }
 }
