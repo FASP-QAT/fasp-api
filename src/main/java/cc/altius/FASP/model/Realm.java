@@ -33,7 +33,8 @@ public class Realm extends BaseModel implements Serializable {
     private int minQplToleranceCutOff;
     @JsonView(Views.InternalView.class)
     private int maxQplTolerance;
-
+    // minCountForMode -- int
+    // minPercForMode -- double
     public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
