@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
@@ -87,6 +88,11 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getFundingSourceDropdownList(CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceDropdownList(curUser);
     }
 
 }

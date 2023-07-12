@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,10 +16,15 @@ import java.util.List;
  */
 public class ProgramVersion extends Version {
 
+    @JsonView({Views.ReportView.class})
     private int programVersionId;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject program;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject realmCountry;
+    @JsonView({Views.ReportView.class})
     private List<SimpleCodeObject> healthAreaList;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject organisation;
 
     public ProgramVersion() {

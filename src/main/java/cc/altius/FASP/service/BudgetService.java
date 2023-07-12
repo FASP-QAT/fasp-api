@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
 /**
@@ -27,7 +28,11 @@ public interface BudgetService {
 
     public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
 
+    public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser);
+
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 }
