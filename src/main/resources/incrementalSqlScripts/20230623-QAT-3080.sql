@@ -1,7 +1,7 @@
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_all_program` AS
     SELECT 

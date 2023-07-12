@@ -39,7 +39,7 @@ ALTER TABLE `fasp`.`rm_budget` ADD CONSTRAINT `fk_rm_budget_realmId`
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_budget` AS
     SELECT 
