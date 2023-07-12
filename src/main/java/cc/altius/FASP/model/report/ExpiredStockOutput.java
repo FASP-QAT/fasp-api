@@ -28,6 +28,8 @@ public class ExpiredStockOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Batch batchInfo;
     @JsonView(Views.ReportView.class)
+    private Double cost;
+    @JsonView(Views.ReportView.class)
     private long expiredQty;
     @JsonView(Views.ReportView.class)
     private List<SimpleBatchQuantityWithTransHistory> batchHistory;
@@ -74,6 +76,14 @@ public class ExpiredStockOutput implements Serializable {
 
     public void setBatchHistory(List<SimpleBatchQuantityWithTransHistory> batchHistory) {
         this.batchHistory = batchHistory;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
     }
 
     @Override

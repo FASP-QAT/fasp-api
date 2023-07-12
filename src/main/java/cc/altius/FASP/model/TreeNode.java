@@ -17,18 +17,19 @@ import java.util.Map;
  */
 public class TreeNode implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer parentNodeId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private NodeType nodeType;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject nodeUnit;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
-    @JsonView(Views.InternalView.class)
-    private Map<Integer, List<TreeNodeData>> nodeDataMap; // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
+    private Map<Integer, List<TreeNodeData>> nodeDataMap; 
 
     public TreeNode() {
         this.nodeDataMap = new HashMap<>();

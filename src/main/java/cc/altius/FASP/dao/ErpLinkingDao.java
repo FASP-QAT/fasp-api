@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ArtmisHistory;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
+import cc.altius.FASP.model.DTO.ErpAutoCompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
@@ -69,7 +70,7 @@ public interface ErpLinkingDao {
     // ################################## New functions ###########################################
     public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
 
-    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser);
+    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> autoCompletePu(AutoCompletePuDTO autoCompletePuDTO, CustomUserDetails curUser);
 

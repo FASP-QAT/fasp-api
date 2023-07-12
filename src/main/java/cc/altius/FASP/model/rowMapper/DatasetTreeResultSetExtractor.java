@@ -70,6 +70,7 @@ public class DatasetTreeResultSetExtractor implements ResultSetExtractor<List<Da
             if (idx == -1) {
                 t.getRegionList().add(region);
             }
+            t.setBaseModel(new BaseModelRowMapper("").mapRow(rs, 1));
         }
         return treeList;
     }

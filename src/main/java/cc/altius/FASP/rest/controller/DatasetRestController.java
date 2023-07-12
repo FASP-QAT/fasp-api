@@ -12,10 +12,12 @@ import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -112,6 +114,7 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView(Views.InternalView.class)
     @GetMapping("/datasetData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -143,6 +146,7 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView(Views.InternalView.class)
     @PostMapping("/datasetData")
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {

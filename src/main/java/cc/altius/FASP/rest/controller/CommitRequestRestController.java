@@ -20,12 +20,15 @@ import cc.altius.FASP.service.UserService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.io.FileInputStream;
 import java.util.List;
+import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +57,8 @@ public class CommitRequestRestController {
     private CommitRequestService commitRequestService;
     @Autowired
     private ProgramService programService;
+    @Value("${qat.commitRequestPropertiesPath}")
+    private String QAT_COMMIT_REQUEST_PROPERTIES_PATH;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -183,13 +188,22 @@ public class CommitRequestRestController {
 //    @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
 //    @Scheduled(cron = "00 */1 * * * *")
-@Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
+    @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
     public ResponseEntity processCommitRequest() {
         try {
-            logger.info("Starting the Commit request scheduler");
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
-            this.commitRequestService.processCommitRequest(curUser);
-            return new ResponseEntity(HttpStatus.OK);
+            String propertyFilePath = QAT_COMMIT_REQUEST_PROPERTIES_PATH;
+            Properties props = new Properties();
+            props.load(new FileInputStream(propertyFilePath));
+            String propertyValue = props.getProperty("commitRequestSchedulerActive");
+            if (propertyValue.equals("1")) {
+                logger.info("Starting the Commit request scheduler");
+                CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
+                this.commitRequestService.processCommitRequest(curUser);
+                return new ResponseEntity(HttpStatus.OK);
+            } else {
+                logger.info("Commit request scheduler is not active");
+                return new ResponseEntity(new ResponseCode("Scheduler for commit is not active"), HttpStatus.PRECONDITION_FAILED);
+            }
 //        } catch (CouldNotSaveException e) {
 //            logger.error("Error while trying to processCommitRequest", e);
 //            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);

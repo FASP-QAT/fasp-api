@@ -66,7 +66,7 @@ public interface ProgramDataService {
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
-    public boolean updateSupplyPlanAsExported(int integrationProgramId, int integrationId);
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 

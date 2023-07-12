@@ -5,19 +5,13 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
-import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Country;
-import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
-import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -39,7 +33,7 @@ public class ProgramBasicResultSetExtractor implements ResultSetExtractor<Progra
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
                                 new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
-                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"))
+                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"), rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"), rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"), rs.getInt("INVENTORY_MONTHS_IN_PAST"), rs.getInt("MIN_COUNT_FOR_MODE"), rs.getDouble("MIN_PERC_FOR_MODE"))
                         )
                 );
                 p.getRealmCountry().getCountry().setCountryCode2(rs.getString("COUNTRY_CODE2"));

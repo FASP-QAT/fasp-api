@@ -104,6 +104,7 @@ import cc.altius.FASP.model.report.WarehouseByCountryOutputRowMapper;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
@@ -263,7 +264,25 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", es.getStopDate());
         params.put("includePlannedShipments", es.isIncludePlannedShipments());
         String sql = "CALL getExpiredStock(:programId, :versionId, :startDate, :stopDate, :includePlannedShipments)";
-        return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
+        List<ExpiredStockOutput> expiredStockList = this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
+        String batchIdList = expiredStockList.stream().map(exp -> Integer.toString(exp.getBatchInfo().getBatchId())).collect(Collectors.joining(","));
+        if (batchIdList != null && !batchIdList.equals("")) {
+            sql = "SELECT stbi.BATCH_ID, st.RATE `COST`, st.VERSION_ID "
+                    + "FROM rm_shipment_trans_batch_info stbi "
+                    + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=:versionId "
+                    + "WHERE stbi.BATCH_ID in (" + batchIdList + ") "
+                    + "ORDER BY stbi.BATCH_ID, st.VERSION_ID DESC";
+            params.clear();
+            params.put("batchIdList", batchIdList);
+            params.put("versionId", es.getVersionId());
+            Map<Integer, Double> batchMap = this.namedParameterJdbcTemplate.query(sql, params, new BatchCostResultSetExtractor());
+            expiredStockList.stream().forEach(exp1 -> {
+                if (batchMap.get(exp1.getBatchInfo().getBatchId()) != null) {
+                    exp1.setCost(batchMap.get(exp1.getBatchInfo().getBatchId()));
+                }
+            });
+        }
+        return expiredStockList;
     }
 
     // Report no 12

@@ -6,7 +6,6 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -21,6 +20,7 @@ import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.InventoryTurnsInput;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
@@ -38,10 +38,14 @@ import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -71,6 +75,8 @@ public class ReportController {
     private UserService userService;
     @Autowired
     private ProgramService programService;
+    @Autowired
+    private IntegrationProgramService integrationProgramService;
 
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
@@ -249,7 +255,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
-    public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
+    public ResponseEntity getWarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
@@ -504,7 +510,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
      * @param ssv
@@ -517,23 +523,14 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            List<List<StockStatusVerticalOutput>> ssvoFullList = new LinkedList<>();
-            if (ssv.isAllPlanningUnits()) {
-                ssvoFullList.add(ssvoList);
-                int originalPlanningUnit = ssv.getPlanningUnitId();
-                for (ProgramPlanningUnit ppu : this.programService.getPlanningUnitListForProgramId(ssv.getProgramId(), true, curUser)) {
-                    if (!ppu.getPlanningUnit().getId().equals(originalPlanningUnit)) {
-                        ssv.setPlanningUnitId(ppu.getPlanningUnit().getId());
-                        ssvoFullList.add(this.reportService.getStockStatusVertical(ssv, curUser));
-                    }
-                }
-                return new ResponseEntity(ssvoFullList, HttpStatus.OK);
-            } else {
-                return new ResponseEntity(ssvoList, HttpStatus.OK);
+            for (int planningUnitId : ssv.getPlanningUnitIds()) {
+                ssv.setPlanningUnitId(planningUnitId);
+                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
             }
+            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -911,6 +908,40 @@ public class ReportController {
         } catch (Exception e) {
             logger.error("/api/report/forecastSummary", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Mod 1 Report no 32 API used to get the report for Manual Json push
+     * <pre>
+     * -- Manual Json push report
+     * -- startDate is the date from which you want the data
+     * -- stopDate is the date till which you want the data
+     * -- realmCountryIds is provided as a list of realmCountry's to filter the report on or empty for all
+     * -- programIds is provided as a list of program's to filter the report on or empty for all
+     * </pre>
+     *
+     * @param startDate Start date that you want to report for
+     * @param stopDate Stop date that you want to report for
+     * @param realmCountryIds list of realmCountry's to filter the report on or
+     * empty for all
+     * @param programIds list of program's to filter the report on or empty for
+     * all
+     * @param auth
+     * @return returns the list the Manual Json push based on the date variables
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/manualJson")
+    @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push", tags = ("integrationProgram"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
+    public ResponseEntity getManualJsonReport(@RequestBody ManualJsonPushReportInput mi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.integrationProgramService.getManualJsonPushReport(mi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

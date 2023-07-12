@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -16,6 +18,7 @@ public class AutoCompletePuDTO implements Serializable {
     private int planningUnitId;
     private String puName;
     private int programId;
+    private List<RoAndRoPrimeLineNo> delinkedList;
 
     public int getPlanningUnitId() {
         return planningUnitId;
@@ -41,4 +44,13 @@ public class AutoCompletePuDTO implements Serializable {
         this.programId = programId;
     }
 
+    public List<RoAndRoPrimeLineNo> getDelinkedList() {
+        return delinkedList;
+    }
+
+    public void setDelinkedList(List<RoAndRoPrimeLineNo> delinkedList) {
+        this.delinkedList = delinkedList;
+    }
+
+    
 }
