@@ -179,7 +179,7 @@ public class ProgramServiceImpl implements ProgramService {
     public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
     }
-    
+
     @Override
     public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleProgramById(programId, programTypeId, curUser);
@@ -464,11 +464,6 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
-        return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
-    }
-
-    @Override
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser) {
         return this.programCommonDao.getVersionListForPrograms(programTypeId, programIds, curUser);
     }
@@ -478,4 +473,8 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 
+    @Override
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
+        return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+    }
 }

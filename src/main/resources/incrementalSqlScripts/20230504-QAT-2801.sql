@@ -49,7 +49,6 @@ VIEW `vw_program` AS
 USE `fasp`;
 
 CREATE 
-    CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
@@ -103,7 +102,7 @@ DROP procedure IF EXISTS `fasp`.`programLeadTimes`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `programLeadTimes`(VAR_PROGRAM_ID INT(10), VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `programLeadTimes`(VAR_PROGRAM_ID INT(10), VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	-- Report no 14
@@ -193,7 +192,7 @@ SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter `Shipped to Arrived` road lead time (in months)');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez le délai de livraison de la route ""Expédié à Arrivé"" (en mois)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el tiempo de entrega en carretera de 'Enviado a Llegado' (en meses)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el tiempo de entrega en carretera de `Enviado a Llegado` (en meses)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira o prazo de entrega da estrada `Shipped to Arrived` (em meses)');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.roadfreightperc','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;

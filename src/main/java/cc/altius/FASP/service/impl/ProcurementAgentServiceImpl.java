@@ -234,7 +234,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
 
     @Override
     public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessDeniedException {
-        this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.procurementAgentDao.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser);
     }
 }
