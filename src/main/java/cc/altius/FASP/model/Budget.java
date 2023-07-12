@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -21,7 +23,8 @@ public class Budget extends BaseModel implements Serializable {
 
     private int budgetId;
     private String budgetCode;
-    private SimpleCodeObject program;
+    private List<SimpleCodeObject> programs;
+    private List<SimpleCodeObject> programsWithAccess;
     private FundingSource fundingSource;
     private Label label;
     private Currency currency;
@@ -37,12 +40,14 @@ public class Budget extends BaseModel implements Serializable {
     private String notes;
 
     public Budget() {
+        this.programs = new LinkedList<>();
     }
 
     public Budget(int budgetId, String budgetCode, Label label) {
         this.budgetId = budgetId;
         this.budgetCode = budgetCode;
         this.label = label;
+        this.programs = new LinkedList<>();
     }
 
     public Budget(int budgetId, String budgetCode, FundingSource fundingSource, Label label) {
@@ -50,6 +55,7 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetCode = budgetCode;
         this.fundingSource = fundingSource;
         this.label = label;
+        this.programs = new LinkedList<>();
     }
 
     public int getBudgetId() {
@@ -68,12 +74,12 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetCode = budgetCode;
     }
 
-    public SimpleCodeObject getProgram() {
-        return program;
+    public List<SimpleCodeObject> getPrograms() {
+        return programs;
     }
 
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
+    public void setPrograms(List<SimpleCodeObject> programs) {
+        this.programs = programs;
     }
 
     public FundingSource getFundingSource() {
@@ -159,6 +165,14 @@ public class Budget extends BaseModel implements Serializable {
         } else {
             return false;
         }
+    }
+
+    public List<SimpleCodeObject> getProgramsWithAccess() {
+        return programsWithAccess;
+    }
+
+    public void setProgramsWithAccess(List<SimpleCodeObject> programsWithAccess) {
+        this.programsWithAccess = programsWithAccess;
     }
 
     @Override

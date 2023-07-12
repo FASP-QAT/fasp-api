@@ -106,6 +106,10 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)),
                         rs.getString("NOTES"),
+                        rs.getString("ORDER_NO"),
+                        rs.getString("PRIME_LINE_NO"),
+                        rs.getString("RO_NO"),
+                        rs.getString("RO_PRIME_LINE_NO"),
                         rs.getDate("EDD"),
                         new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1))
                 );
