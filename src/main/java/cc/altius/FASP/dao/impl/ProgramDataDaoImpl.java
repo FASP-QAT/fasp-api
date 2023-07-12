@@ -77,7 +77,7 @@ import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataModelingListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
@@ -1458,7 +1458,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int treeId = si.executeAndReturnKey(params).intValue();
             updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), treeId);
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
-
+            SimpleJdbcInsert n2 = null;
             // Step 3Aii -- Insert the Region list for the Forecast Tree
             batchList.clear();
             for (SimpleObject region : dt.getRegionList()) {
@@ -1601,6 +1601,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU)
                                 && tnd.isExtrapolation() == Boolean.FALSE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
+                            n2 = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling_calculator");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
@@ -1611,6 +1612,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                                 nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
                                 nodeDataParams.put("NOTES", ndm.getNotes());
+                                if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
+                                    nodeDataParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", ndm.getModelingCalculator().getFirstMonthOfTarget());
+                                    nodeDataParams.put("CALCULATOR_YEARS_OF_TARGET", ndm.getModelingCalculator().getYearsOfTarget());
+                                }
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
@@ -1618,6 +1623,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                                 nodeDataParams.put("ACTIVE", 1);
                                 ndm.setNodeDataModelingId(ni.executeAndReturnKey(nodeDataParams).intValue());
+                                if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
+                                    batchList.clear();
+                                    for (int actualOrTargetValue : ndm.getModelingCalculator().getActualOrtargetValueList()) {
+                                        Map<String, Object> batchParams = new HashMap<>();
+                                        batchParams.put("NODE_DATA_MODELING_ID", ndm.getNodeDataModelingId());
+                                        batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                                        batchList.add(new MapSqlParameterSource(batchParams));
+                                    }
+                                    batchArray = null;
+                                    batchArray = new SqlParameterSource[batchList.size()];
+                                    n2.executeBatch(batchList.toArray(batchArray));
+                                }
                             }
                         }
 
@@ -2860,19 +2877,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         if (isTemplate) {
             sql = "SELECT "
                     + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
-                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
+                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
                     + "FROM rm_tree_template_node_data_modeling ttndm "
-                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "LEFT JOIN rm_tree_template_node_data_modeling_calculator ttndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
+                    + "LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
                     + "WHERE ttndm.NODE_DATA_ID = ?";
         } else {
             sql = "SELECT "
                     + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
-                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`,"
+                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
                     + "FROM rm_forecast_tree_node_data_modeling ttndm "
-                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "LEFT JOIN rm_forecast_tree_node_data_modeling_calculator ftndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
+                    + "LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
                     + "WHERE ttndm.NODE_DATA_ID = ?";
         }
-        return this.jdbcTemplate.query(sql, new NodeDataModelingRowMapper(isTemplate), nodeDataId);
+        return this.jdbcTemplate.query(sql, new NodeDataModelingListResultSetExtractor(isTemplate), nodeDataId);
     }
 
     @Override

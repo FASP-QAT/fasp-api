@@ -22,6 +22,7 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateResultSetExtractor;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,8 +158,10 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
-        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
+        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
+        SimpleJdbcInsert nidmc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling_calculator");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
+        final List<SqlParameterSource> batchList = new ArrayList<>();
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (TreeLevel tl : tt.getLevelList()) {
             params.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -277,12 +282,27 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                         nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
+                        if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
+                            nodeParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", ndm.getModelingCalculator().getFirstMonthOfTarget());
+                            nodeParams.put("CALCULATOR_YEARS_OF_TARGET", ndm.getModelingCalculator().getYearsOfTarget());
+                        }
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
-                        nidm.execute(nodeParams);
+                        ndm.setNodeDataModelingId(nidm.executeAndReturnKey(nodeParams).intValue());
+                        if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
+                            batchList.clear();
+                            for (int actualOrTargetValue : ndm.getModelingCalculator().getActualOrtargetValueList()) {
+                                Map<String, Object> batchParams = new HashMap<>();
+                                batchParams.put("NODE_DATA_MODELING_ID", ndm.getNodeDataModelingId());
+                                batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                                batchList.add(new MapSqlParameterSource(batchParams));
+                            }
+                            SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                            nidmc.executeBatch(batchList.toArray(batchArray));
+                        }
                     }
                 }
             }
