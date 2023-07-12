@@ -72,6 +72,38 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'12 mois ou plus');-- f
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'12 o más meses');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'12 ou mais meses');-- pr
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.realm.minCountForMode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min Count for Mode');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre minimum pour le mode');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recuento mínimo para el modo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Contagem mínima para o modo');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.realm.minPercForMode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min Percentage for Mode');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage minimum pour le mode');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Porcentaje mínimo para el modo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem mínima para o modo');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.validated.minCountForMode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please enter min count for mode');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez entrer le nombre minimum pour le mode');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el conteo mínimo para el modo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira a contagem mínima para o modo');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.validated.minPercForMode','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please enter min percentage for mode');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez entrer le pourcentage minimum pour le mode');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el porcentaje mínimo para el modo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira a porcentagem mínima para o modo');-- pr
+
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
