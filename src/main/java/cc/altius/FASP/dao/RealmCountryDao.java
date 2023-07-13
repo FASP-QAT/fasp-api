@@ -10,6 +10,7 @@ import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
 /**
@@ -23,6 +24,8 @@ public interface RealmCountryDao {
     public int updateRealmCountry(RealmCountry realmCountry, CustomUserDetails curUser);
 
     public List<RealmCountry> getRealmCountryList(CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser);
 
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
 
