@@ -14,6 +14,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.LinkedList;
@@ -91,6 +92,11 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     @Override
     public List<RealmCountry> getRealmCountryList(CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryDropdownList(realmId, curUser);
     }
 
     @Override
