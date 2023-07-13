@@ -9,15 +9,15 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.MultipleProgramVersionDropDownResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionDropDownRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
@@ -155,15 +155,6 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
     }
 
     @Override
-    public SimpleCodeObject getSimpleSupplyPlanProgramById(int programId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID ID, p.PROGRAM_CODE CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p WHERE p.PROGRAM_ID=:programId");
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.queryForObject(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
-    }
-
-    @Override
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT p.`PROGRAM_ID` `ID`, p.`PROGRAM_CODE` `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, p.CURRENT_VERSION_ID, pv.VERSION_ID, vt.VERSION_TYPE_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.CREATED_DATE FROM ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
@@ -224,6 +215,15 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         sb.append(" GROUP BY p1.ID");
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UpdateProgramInfoOutputRowMapper());
+    }
+
+    @Override
+    public SimpleCodeObject getSimpleSupplyPlanProgramById(int programId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID ID, p.PROGRAM_CODE CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p WHERE p.PROGRAM_ID=:programId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
 }
