@@ -796,7 +796,7 @@ public class GsonTest {
                 .setDateFormat("yyyy-MM-dd HH:mm:ss");
         List<DatasetPlanningUnit> puList = gsonBuilder.create().fromJson(json, new TypeToken<List<DatasetPlanningUnit>>() {
         }.getType());
-        System.out.println(puList.get(0).getSelectedForecastMap().get(54).getTotalForecast());
+//        System.out.println(puList.get(0).getSelectedForecastMap().get(54).getTotalForecast());
     }
 
 }
