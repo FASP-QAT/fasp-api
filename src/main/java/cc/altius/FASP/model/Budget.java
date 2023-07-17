@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -179,6 +180,22 @@ public class Budget extends BaseModel implements Serializable {
         } else {
             return false;
         }
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public boolean isActive() {
+        return super.isActive();
+    }
+    
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.ReportView.class})
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
     }
 
     public List<SimpleCodeObject> getProgramsWithAccess() {
