@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,10 +14,14 @@ import java.io.Serializable;
  */
 public class FundingSource extends BaseModel implements Serializable {
 
+    @JsonView({Views.ReportView.class})
     private int fundingSourceId;
+    @JsonView({Views.ReportView.class})
     private String fundingSourceCode;
+    @JsonView({Views.ReportView.class})
     private Label label;
     private SimpleCodeObject realm;
+    @JsonView({Views.ReportView.class})
     private boolean allowedInBudget;
 
     public FundingSource() {
