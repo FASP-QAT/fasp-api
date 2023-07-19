@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,11 +14,17 @@ import java.io.Serializable;
  */
 public class PlanningUnit extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int planningUnitId;
+    @JsonView(Views.ReportView.class)
     private ForecastingUnit forecastingUnit;
+    @JsonView(Views.ReportView.class)
     private Label label;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject unit;
+    @JsonView(Views.ReportView.class)
     private double multiplier;
+    @JsonView(Views.ReportView.class)
     private boolean active;
 
     public PlanningUnit() {

@@ -79,11 +79,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         if (fu == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
-            return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
     }
 
     @Override
@@ -108,14 +104,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser) {
-        PlanningUnit pr = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        List<Integer> emptyList = new LinkedList<Integer>();
-        emptyList.add(0);
-        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId(), 0, emptyList, 0, pr.getPlanningUnitId())) {
-            return pr;
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
     }
 
     @Override
