@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -24,8 +25,6 @@ public class PlanningUnit extends BaseModel implements Serializable {
     private SimpleCodeObject unit;
     @JsonView(Views.ReportView.class)
     private double multiplier;
-    @JsonView(Views.ReportView.class)
-    private boolean active;
 
     public PlanningUnit() {
     }
@@ -41,7 +40,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
         this.unit = unit;
         this.multiplier = multiplier;
-        this.active = active;
+        super.setActive(active);
     }
 
     public int getPlanningUnitId() {
@@ -84,12 +83,23 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.multiplier = multiplier;
     }
 
+    @JsonView(Views.ReportView.class)
     public boolean isActive() {
-        return active;
+        return super.isActive();
     }
 
     public void setActive(boolean active) {
-        this.active = active;
+        super.setActive(active);
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
     }
 
     @Override
@@ -119,7 +129,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "PlanningUnit{" + "planningUnitId=" + planningUnitId + ", forecastingUnit=" + forecastingUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", active=" + active + '}';
+        return "PlanningUnit{" + "planningUnitId=" + planningUnitId + ", forecastingUnit=" + forecastingUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", active=" + isActive() + '}';
     }
 
 }
