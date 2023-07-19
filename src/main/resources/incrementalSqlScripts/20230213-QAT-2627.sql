@@ -315,18 +315,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualize a configuraç
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L1','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' =  The calculation is done by determining the months of stock for each month for 12 months if the inventory rules worked perfectly.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' = Le calcul se fait en déterminant les mois de stock pour chaque mois pendant 12 mois si les règles d\'inventaire fonctionnaient parfaitement.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' = El cálculo se hace determinando los meses de stock para cada mes durante 12 meses si las reglas de inventario funcionaron perfectamente.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' = O cálculo é feito determinando os meses de estoque para cada mês durante 12 meses se as regras de estoque funcionaram perfeitamente.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' = The calculation is done by determining the possible months of stock for each month over 12 months if the inventory rules worked perfectly considering the Planning Unit’s MIN and Reorder Interval. ');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' = Le calcul est effectué en déterminant les mois de stock possibles pour chaque mois sur 12 mois si les règles d\'inventaire fonctionnaient parfaitement compte tenu du MIN et de l\'intervalle de réapprovisionnement de l\'unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' = El cálculo se realiza determinando los posibles meses de stock para cada mes durante 12 meses si las reglas de inventario funcionaran perfectamente considerando el MIN de la Unidad de Planificación y el Intervalo de Reorden.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' = O cálculo é feito determinando os possíveis meses de estoque para cada mês ao longo de 12 meses se as regras de estoque funcionaram perfeitamente considerando o MIN da Unidade de Planejamento e o Intervalo de Repedidos.');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L4','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consumption = 1 MOS/month ; Total consumption over period = 12');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation = 1 MOS/mois ; Consommation totale sur la période = 12');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo = 1 MOS/mes; Consumo total durante el período = 12');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo = 1 MOS/mês; Consumo total ao longo do período = 12');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consumption = 1 MOS/month ; Total consumption over period = 12 MOS');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'MOS/mois ; Consommation totale sur période = 12 MOS');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo = 1 MOS/mes; Consumo total durante el período = 12 MOS');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo = 1 MOS/mês; Consumo total ao longo do período = 12 MOS');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L5','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -337,9 +337,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El MOS promedio se cal
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O MOS médio é calculado com base no MIN e no intervalo de reordenação');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L6','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For example:');-- en
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For example:');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Par exemple:');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por ejemplo:');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por exemplo:');-- pr
@@ -355,76 +353,28 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se o MIN for 3 e o nov
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L8','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'First month = 12 (9+3)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Premier mois = 12 (9+3)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Primer mes = 12 (9+3)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Primeiro mês = 12 (9+3)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The average MOS over 12 months would be  7.25');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le MOS moyen sur 12 mois serait de 7,25');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El MOS promedio durante 12 meses sería 7.25');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O MOS médio em 12 meses seria de 7,25');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L9','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Second month = 11 (3+9 - 1 month consumption)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Deuxième mois = 11 (3+9 - 1 mois de consommation)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Segundo mes = 11 (3+9 - 1 mes de consumo)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Segundo mês = 11 (3+9 - 1 mês de consumo)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The Planned inventory turn is the Total consumption 12 divided by the calculated Average months of stock over 12 month. Thus 12 /7.25 = 1.7');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La rotation des stocks planifiée est la consommation totale 12 divisée par la moyenne calculée des mois de stock sur 12 mois. Ainsi 12 /7.25 = 1.7');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La rotación de inventario planificada es el consumo total 12 dividido por los meses promedio calculados de existencias durante 12 meses. Así 12 /7.25 = 1.7');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O giro de estoque planejado é o consumo total 12 dividido pela média calculada de meses de estoque em 12 meses. Assim, 12/7,25 = 1,7');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L10','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Third month = 10 (3+9 - 2 months consumption)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Troisième mois = 10 (3+9 - 2 mois de consommation)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tercer mes = 10 (3+9 - 2 meses de consumo)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Terceiro mês = 10 (3+9 - 2 meses de consumo)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Reorder interval');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intervalle de commande');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Intervalo de pedido');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Reordenar intervalo');-- pr
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L11','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'And so on until the Reorder interval is reached');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Et ainsi de suite jusqu\'à ce que l\'intervalle de réapprovisionnement soit atteint');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Y así sucesivamente hasta que se alcance el intervalo de reorden.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'E assim sucessivamente até atingir o intervalo de Reordenar');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L12','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'In the ninth month (3+9) = 12');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Au neuvième mois (3+9) = 12');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'En el noveno mes (3+9) = 12');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'No nono mês (3+9) = 12');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L13','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This is calculated over a 12-month period');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Il est calculé sur une période de 12 mois');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esto se calcula sobre un período de 12 meses.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Isso é calculado ao longo de um período de 12 meses');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L14','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The average MOS over 12 months = 8.75');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le MOS moyen sur 12 mois = 8,75');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El MOS promedio durante 12 meses = 8.75');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O MOS médio em 12 meses = 8,75');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L15','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The Planned inventory turn is the Total consumption "12" divided by the calculated Average months of stock over 12 month. Thus 12 /8.75 = 1.4”');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La rotation des stocks planifiée est la consommation totale 12 divisée par la moyenne calculée des mois de stock sur 12 mois. Ainsi 12 /8.75 = 1.4"');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La rotación de inventario planificada es el consumo total 12 dividido por los meses promedio calculados de existencias durante 12 meses. Así 12 /8.75 = 1.4”');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O giro de estoque planejado é o consumo total 12 dividido pela média calculada de meses de estoque em 12 meses. Assim, 12/8,75 = 1,4"');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L16','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L17','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 1');-- en
@@ -432,7 +382,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 1');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 1');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 1');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L18','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L12','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 2');-- en
@@ -440,7 +390,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 2');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 2');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 2');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L19','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L13','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 3');-- en
@@ -448,7 +398,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 3');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 3');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 3');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L20','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L14','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 4');-- en
@@ -456,7 +406,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 4');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 4');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 4');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L21','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L15','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 5');-- en
@@ -464,7 +414,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 5');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 5');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 5');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L22','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L16','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 6');-- en
@@ -472,7 +422,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 6');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 6');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 6');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L23','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L17','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 7');-- en
@@ -480,7 +430,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 7');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 7');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 7');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L24','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L18','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 8');-- en
@@ -488,7 +438,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 8');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 8');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 8');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L25','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L19','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 9');-- en
@@ -496,7 +446,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 9');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 9');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 9');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L26','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L20','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 10');-- en
@@ -504,7 +454,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 10');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 10');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 10');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L27','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L21','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 11');-- en
@@ -512,7 +462,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 11');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 11');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 11');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L28','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L22','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month 12');-- en
@@ -520,21 +470,13 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois 12');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mes 12');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mês 12');-- pr
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L29','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L23','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Avg MOS');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Moy. MOS');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'MOS medio');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Média de MOS');-- pr
-
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.inventoryTurns1L30','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planned IT');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'IT prévue');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'TI planificada');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'TI planejada');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre total de mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses totales');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Total de meses');-- pr
 
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
