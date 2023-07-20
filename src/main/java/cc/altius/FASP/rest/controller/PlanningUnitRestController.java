@@ -5,9 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ResponseCode;
@@ -81,6 +79,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnit(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -104,6 +103,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit/all")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -115,6 +115,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit/realmId/{realmId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -132,6 +133,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit/realmId/{realmId}/all")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -163,6 +165,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit/forecastingUnit/{forecastingUnitId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitByForecastingUnitId(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -304,6 +307,7 @@ public class PlanningUnitRestController {
 //        }
 //    }
     @GetMapping("/planningUnit/productCategory/{productCategoryId}/all")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryAll(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -321,6 +325,7 @@ public class PlanningUnitRestController {
     }
 
     @GetMapping("/planningUnit/productCategory/{productCategoryId}/active")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
