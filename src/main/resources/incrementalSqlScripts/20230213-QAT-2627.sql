@@ -478,6 +478,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre total de mois')
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses totales');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Total de meses');-- pr
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.inventoryTurns.reorderError','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Reorder interval greater than 12');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intervalle de commande supérieur à 12');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Intervalo de pedido superior a 12');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Intervalo de novo pedido maior que 12');-- pr
+
 USE `fasp`;
 DROP procedure IF EXISTS `inventoryTurns`;
 
