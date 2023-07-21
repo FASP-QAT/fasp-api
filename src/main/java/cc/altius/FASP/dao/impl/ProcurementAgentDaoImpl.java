@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -652,4 +653,40 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleCodeObjectRowMapper(""));
     }
 
+    @Override
+    @Transactional
+    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.namedParameterJdbcTemplate.update("DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[procurementAgentIds.length];
+        int x = 0;
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        StringBuilder strProcurementAgentIds = new StringBuilder();
+        for (int procurementAgentId : procurementAgentIds) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", programId);
+            params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            strProcurementAgentIds.append(procurementAgentId).append(",");
+            x++;
+        }
+        if (strProcurementAgentIds.length() > 0) {
+            strProcurementAgentIds.setLength(strProcurementAgentIds.length() - 1);
+        }
+        int[] resultArray = si.executeBatch(batchParams);
+        params.clear();
+        params.put("programId", programId);
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.LAST_MODIFIED_DATE=:curDate WHERE p.PROGRAM_ID=:programId", params);
+        params.clear();
+        params.put("procurementAgentIds", strProcurementAgentIds.toString());
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds)", params);
+        return IntStream.of(resultArray).sum();
+    }
 }

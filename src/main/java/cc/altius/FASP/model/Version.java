@@ -21,41 +21,41 @@ import java.util.Date;
  */
 public class Version implements Serializable {
 
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private int versionId;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private SimpleObject versionType;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private SimpleObject versionStatus;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String notes;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private BasicUser createdBy;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView({Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.ReportView.class})
     private Date createdDate;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date lastModifiedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView({Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private Date forecastStartDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView({Views.InternalView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private Date forecastStopDate;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Integer daysInMonth;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Double freightPerc;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Double forecastThresholdHighPerc;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Double forecastThresholdLowPerc;
 
     public Version() {

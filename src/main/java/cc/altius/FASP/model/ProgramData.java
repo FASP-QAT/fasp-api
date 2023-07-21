@@ -36,6 +36,8 @@ public class ProgramData extends BaseModel implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double seaFreightPerc;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private double roadFreightPerc;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double plannedToSubmittedLeadTime;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double submittedToApprovedLeadTime;
@@ -45,6 +47,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double shippedToArrivedBySeaLeadTime;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private double shippedToArrivedByRoadLeadTime;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double arrivedToDeliveredLeadTime;
     @JsonView(Views.InternalView.class)
@@ -101,11 +105,13 @@ public class ProgramData extends BaseModel implements Serializable {
         this.programNotes = p.getProgramNotes();
         this.airFreightPerc = p.getAirFreightPerc();
         this.seaFreightPerc = p.getSeaFreightPerc();
+        this.roadFreightPerc = p.getRoadFreightPerc();
         this.plannedToSubmittedLeadTime = p.getPlannedToSubmittedLeadTime();
         this.submittedToApprovedLeadTime = p.getSubmittedToApprovedLeadTime();
         this.approvedToShippedLeadTime = p.getApprovedToShippedLeadTime();
         this.shippedToArrivedBySeaLeadTime = p.getShippedToArrivedBySeaLeadTime();
         this.shippedToArrivedByAirLeadTime = p.getShippedToArrivedByAirLeadTime();
+        this.shippedToArrivedByRoadLeadTime = p.getShippedToArrivedByRoadLeadTime();
         this.arrivedToDeliveredLeadTime = p.getArrivedToDeliveredLeadTime();
         this.regionList = p.getRegionList();
         this.currentVersion = p.getCurrentVersion();
@@ -192,6 +198,14 @@ public class ProgramData extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
+    public double getRoadFreightPerc() {
+        return roadFreightPerc;
+    }
+
+    public void setRoadFreightPerc(double roadFreightPerc) {
+        this.roadFreightPerc = roadFreightPerc;
+    }
+
     public double getPlannedToSubmittedLeadTime() {
         return plannedToSubmittedLeadTime;
     }
@@ -230,6 +244,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
         this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getShippedToArrivedByRoadLeadTime() {
+        return shippedToArrivedByRoadLeadTime;
+    }
+
+    public void setShippedToArrivedByRoadLeadTime(double shippedToArrivedByRoadLeadTime) {
+        this.shippedToArrivedByRoadLeadTime = shippedToArrivedByRoadLeadTime;
     }
 
     public double getArrivedToDeliveredLeadTime() {

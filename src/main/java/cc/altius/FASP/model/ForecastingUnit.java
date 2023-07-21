@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -13,12 +15,19 @@ import java.io.Serializable;
  */
 public class ForecastingUnit extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int forecastingUnitId;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject realm;
+    @JsonView(Views.ReportView.class)
     private Label genericLabel;
+    @JsonView(Views.ReportView.class)
     private Label label;
+    @JsonView(Views.ReportView.class)
     private SimpleObject productCategory;
+    @JsonView(Views.ReportView.class)
     private SimpleObject tracerCategory;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject unit;
 
     public ForecastingUnit() {
@@ -103,6 +112,21 @@ public class ForecastingUnit extends BaseModel implements Serializable {
 
     public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public boolean isActive() {
+        return super.isActive();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
     }
 
     @Override
