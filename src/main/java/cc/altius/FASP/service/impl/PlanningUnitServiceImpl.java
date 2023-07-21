@@ -17,6 +17,7 @@ import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
@@ -70,6 +71,11 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<PlanningUnit> getPlanningUnitListByIds(List<String> planningUnitIdList, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListByIds(planningUnitIdList, curUser);
+    }
+
+    @Override
+    public List<PlanningUnitWithPrices> getPlanningUnitListWithPricesByIds(List<String> planningUnitIdList, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListWithPricesByIds(planningUnitIdList, curUser);
     }
 
     @Override
