@@ -17,9 +17,12 @@ import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.AutoCompleteInput;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleProgram;
 import java.util.LinkedList;
 
 /**
@@ -111,11 +114,32 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
 
     @Override
     public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
         } else {
             throw new AccessDeniedException("You do not have access to this Program");
         }
     }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListForAutoComplete(autoCompleteInput, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(autoCompleteInput, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitDropdownList(curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser);
+    }
+
 }

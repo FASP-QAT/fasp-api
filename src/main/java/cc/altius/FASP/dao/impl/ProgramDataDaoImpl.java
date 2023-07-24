@@ -65,6 +65,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
@@ -101,7 +102,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import static jxl.biff.BaseCellFeatures.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,7 +154,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -162,7 +162,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
         String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
         params.clear();
-        params.put("programId", p.getProgramId());
+        params.put("programId", sp.getId());
         int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (count > 0) {
             // This is a delinked Program
@@ -879,7 +879,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(sCnt + " records imported into the tmp table");
         sqlString = "UPDATE tmp_shipment s LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=s.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 SET s.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, s.SHIPMENT_RCPU_QTY=s.SHIPMENT_QTY WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
         params.clear();
-        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+        params.put("realmCountryId", sp.getRealmCountry().getId());
         int rcpuFixCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("RCPU fixed for " + rcpuFixCnt);
 
@@ -1580,6 +1580,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        if (n.getPayload().getNodeType().getId() != GlobalConstants.NODE_TYPE_NUMBER) {
+                            tnd.setExtrapolation(false);
+                        }
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
                         nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1592,7 +1595,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                        if ((n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU)
+                                && tnd.isExtrapolation() == Boolean.FALSE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
@@ -1615,7 +1622,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation() == Boolean.TRUE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
 
@@ -1625,14 +1632,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
                                 int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                /*for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
                                     nodeDataParams.clear();
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
                                     nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
-                                }
+                                }*/
                             }
                         }
 
@@ -1736,6 +1743,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PRICE", dpu.getPrice());
             params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
             params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
+            params.put("PLANNING_UNIT_NOTES", dpu.getPlanningUnitNotes());
             params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
             params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
             if (dpu.getOtherUnit() != null) {
@@ -2027,7 +2035,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -2064,8 +2072,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2074,7 +2082,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
@@ -2111,8 +2119,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2454,7 +2462,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.update(sqlString, params);
             sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc2";
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
@@ -2467,7 +2475,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
@@ -2480,7 +2488,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            
+
             logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
             logger.info("Delete done");
@@ -2500,7 +2508,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si.executeBatch(batchParamsArray);
             logger.info("Batch insert for supply plan batch completed");
             params.clear();
-            
+
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
@@ -2833,9 +2841,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
                 + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "WHERE TRUE "
-                + "AND (:programIds='' OR FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
+                + "AND (FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
                 + "AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) "
-                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND (pv.CREATED_DATE BETWEEN :startDate AND :stopDate) "
                 + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_DATASET);
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));
@@ -2905,10 +2913,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId) {
         String sql = "SELECT "
-                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES "
+                //                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
                 + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
-                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                //                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
                 + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "WHERE ndeo.NODE_DATA_ID=?";
         return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);
