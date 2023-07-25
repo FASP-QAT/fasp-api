@@ -9,7 +9,6 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
-import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
@@ -27,6 +26,8 @@ public interface PlanningUnitDao {
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitList(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<PlanningUnit> getPlanningUnitListByIds(List<String> planningUnitIdList, CustomUserDetails curUser);
 
     public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser);
 

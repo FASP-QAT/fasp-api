@@ -58,6 +58,11 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
+    public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListByIds(forecastingUnitIdList, curUser);
+    }
+
+    @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
             return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);

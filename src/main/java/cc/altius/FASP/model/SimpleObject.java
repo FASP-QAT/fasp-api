@@ -48,7 +48,7 @@ public class SimpleObject {
 
     @JsonView({Views.DropDown3View.class})
     public String getName() {
-        return this.label.getLabel_en();
+        return this.label.getLabel_en() + " | " + this.getId();
     }
 
     @Override
