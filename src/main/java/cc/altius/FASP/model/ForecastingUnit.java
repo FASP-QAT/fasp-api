@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -111,6 +112,21 @@ public class ForecastingUnit extends BaseModel implements Serializable {
 
     public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public boolean isActive() {
+        return super.isActive();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
     }
 
     @Override
