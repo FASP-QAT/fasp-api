@@ -39,7 +39,7 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
                                 new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
-                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"), rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"), rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"), rs.getInt("INVENTORY_MONTHS_IN_PAST"))
+                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"), rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"), rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"), rs.getInt("INVENTORY_MONTHS_IN_PAST"), rs.getInt("MIN_COUNT_FOR_MODE"), rs.getDouble("MIN_PERC_FOR_MODE"))
                         )
                 );
                 p.getRealmCountry().getCountry().setCountryCode2(rs.getString("COUNTRY_CODE2"));
@@ -76,15 +76,15 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                     p.getCurrentVersion().setDaysInMonth(null);
                 }
                 p.getCurrentVersion().setFreightPerc(rs.getDouble("FREIGHT_PERC"));
-                if(rs.wasNull()) {
+                if (rs.wasNull()) {
                     p.getCurrentVersion().setFreightPerc(null);
                 }
                 p.getCurrentVersion().setForecastThresholdHighPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
-                if(rs.wasNull()) {
+                if (rs.wasNull()) {
                     p.getCurrentVersion().setForecastThresholdHighPerc(null);
                 }
                 p.getCurrentVersion().setForecastThresholdLowPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
-                if(rs.wasNull()) {
+                if (rs.wasNull()) {
                     p.getCurrentVersion().setForecastThresholdLowPerc(null);
                 }
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));

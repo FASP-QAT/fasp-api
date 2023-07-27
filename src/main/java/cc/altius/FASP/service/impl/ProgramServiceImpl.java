@@ -463,7 +463,19 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 
+    @Override
     public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
     }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByRealmCountryIdList(realmCountryIds, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByProductCategoryIdList(productCategoryIds, curUser);
+    }
+
 }

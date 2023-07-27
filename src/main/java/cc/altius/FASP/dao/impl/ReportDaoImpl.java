@@ -44,6 +44,7 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputResultSetExtractor;
 import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryInfoRowMapper;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
@@ -106,6 +107,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -243,13 +245,15 @@ public class ReportDaoImpl implements ReportDao {
 
     // Report no 9
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", it.getProgramId());
-        params.put("versionId", it.getVersionId());
+        params.put("programIdString", ArrayUtils.convertArrayToString(it.getProgramIds()));
+        params.put("productCategoryIdString", ArrayUtils.convertArrayToString(it.getProductCategoryIds()));
         params.put("dt", it.getDt());
+        params.put("viewBy", it.getViewBy());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
-        String sql = "CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)";
+        params.put("approvedSupplyPlanOnly", it.isUseApprovedSupplyPlanOnly());
+        String sql = "CALL inventoryTurns(:dt, :viewBy, :programIdString, :productCategoryIdString, :includePlannedShipments, :approvedSupplyPlanOnly)";
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 
