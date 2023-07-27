@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.TracerCategory;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -75,6 +77,18 @@ public class TracerCategoryRestController {
 
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategory(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get TracerCategory list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.InternalView.class)
+    @GetMapping("/tracerCategory/simple")
+    public ResponseEntity getTracerCategorySimple(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);

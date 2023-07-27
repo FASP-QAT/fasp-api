@@ -35,6 +35,14 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private String notes;
     @JsonView(Views.ReportView.class)
+    private String orderNo;
+    @JsonView(Views.ReportView.class)
+    private String primeLineNo;
+    @JsonView(Views.ReportView.class)
+    private String roNo;
+    @JsonView(Views.ReportView.class)
+    private String roPrimeLineNo;
+    @JsonView(Views.ReportView.class)
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date receivedDate; // If Status is Not Received then ERD if Receied then Received Date
@@ -44,13 +52,17 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, Date receivedDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, String roNo, String roPrimeLineNo, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
+        this.orderNo = orderNo;
+        this.primeLineNo = primeLineNo;
+        this.roNo = roNo;
+        this.roPrimeLineNo = roPrimeLineNo;
         this.receivedDate = receivedDate;
         this.dataSource = dataSource;
     }
@@ -103,6 +115,22 @@ public class ShipmentInfo implements Serializable {
         this.notes = notes;
     }
 
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(String primeLineNo) {
+        this.primeLineNo = primeLineNo;
+    }
+
     public Date getReceivedDate() {
         return receivedDate;
     }
@@ -117,6 +145,22 @@ public class ShipmentInfo implements Serializable {
 
     public void setDataSource(SimpleObject dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public String getRoNo() {
+        return roNo;
+    }
+
+    public void setRoNo(String roNo) {
+        this.roNo = roNo;
+    }
+
+    public String getRoPrimeLineNo() {
+        return roPrimeLineNo;
+    }
+
+    public void setRoPrimeLineNo(String roPrimeLineNo) {
+        this.roPrimeLineNo = roPrimeLineNo;
     }
 
     @Override

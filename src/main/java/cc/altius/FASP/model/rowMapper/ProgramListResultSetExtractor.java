@@ -46,7 +46,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
                                 new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
-                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"), rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"), rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"), rs.getInt("INVENTORY_MONTHS_IN_PAST"))
+                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"), rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"), rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"), rs.getInt("INVENTORY_MONTHS_IN_PAST"), rs.getInt("MIN_COUNT_FOR_MODE"), rs.getDouble("MIN_PERC_FOR_MODE"))
                         )
                 );
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
@@ -55,11 +55,13 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
                 p.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
+                p.setRoadFreightPerc(rs.getDouble("ROAD_FREIGHT_PERC"));
                 p.setPlannedToSubmittedLeadTime(rs.getDouble("PLANNED_TO_SUBMITTED_LEAD_TIME"));
                 p.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
                 p.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
                 p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
                 p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+                p.setShippedToArrivedByRoadLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME"));
                 p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
                 p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setCurrentVersion(new Version(

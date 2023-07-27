@@ -39,8 +39,12 @@ public class Realm extends BaseModel implements Serializable {
     private int forecastConsumptionMonthsInPast;
     @JsonView(Views.InternalView.class)
     private int inventoryMonthsInPast;
+    @JsonView(Views.InternalView.class)
+    private int minCountForMode;
+    @JsonView(Views.InternalView.class)
+    private double minPercForMode;
 
-    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast) {
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
         }
@@ -182,6 +186,22 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setInventoryMonthsInPast(int inventoryMonthsInPast) {
         this.inventoryMonthsInPast = inventoryMonthsInPast;
+    }
+
+    public int getMinCountForMode() {
+        return minCountForMode;
+    }
+
+    public void setMinCountForMode(int minCountForMode) {
+        this.minCountForMode = minCountForMode;
+    }
+
+    public double getMinPercForMode() {
+        return minPercForMode;
+    }
+
+    public void setMinPercForMode(double minPercForMode) {
+        this.minPercForMode = minPercForMode;
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class DatasetVersionListInput implements Serializable {
 
     @JsonView(Views.InternalView.class)
-    private String[] programIds;  // empty for all
+    private String[] programIds;  // empty for none
     @JsonView(Views.InternalView.class)
     private int versionTypeId;  // -1 for all
     @JsonView(Views.InternalView.class)
@@ -44,7 +44,11 @@ public class DatasetVersionListInput implements Serializable {
     }
 
     public void setStartDate(String startDate) {
-        this.startDate = startDate + " 00:00:00";
+        if (startDate == null || startDate.isBlank()) {
+            this.startDate = "";
+        } else {
+            this.startDate = startDate + " 00:00:00";
+        }
     }
 
     public String getStopDate() {
@@ -52,7 +56,16 @@ public class DatasetVersionListInput implements Serializable {
     }
 
     public void setStopDate(String stopDate) {
-        this.stopDate = stopDate + " 23:59:59";
+        if (stopDate == null || stopDate.isBlank()) {
+            this.stopDate = "";
+        } else {
+            this.stopDate = stopDate + " 00:00:00";
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "DatasetVersionListInput{" + "programIds=" + programIds + ", versionTypeId=" + versionTypeId + ", startDate=" + startDate + ", stopDate=" + stopDate + '}';
     }
 
 }

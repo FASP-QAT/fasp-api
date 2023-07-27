@@ -12,6 +12,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.HealthAreaService;
 import java.util.List;
@@ -58,6 +59,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     @Override
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser) {
         return this.healthAreaDao.getHealthAreaList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaDropdownList(realmId, curUser);
     }
 
     @Override

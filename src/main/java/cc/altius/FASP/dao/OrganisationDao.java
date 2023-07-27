@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
+import cc.altius.FASP.model.SimpleCodeObject;
 
 import java.util.List;
 
@@ -22,7 +23,9 @@ public interface OrganisationDao {
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
     
-    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getOrganisationDropdownListForRealmCountryId(int realmCountryId, CustomUserDetails curUser);
     
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser);
 
