@@ -25,9 +25,10 @@ import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
+import cc.altius.FASP.utils.ArrayUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -175,6 +176,16 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         }
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", realmId, curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ForecastingUnitRowMapper());
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        sqlStringBuilder.append(" AND FIND_IN_SET(fu.FORECASTING_UNIT_ID, :fuList) ");
+        params.put("fuList", ArrayUtils.convertListToString(forecastingUnitIdList));
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ForecastingUnitRowMapper());
     }
 

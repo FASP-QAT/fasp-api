@@ -24,6 +24,7 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitForAdjustPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitWithPricesListResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -162,6 +163,16 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             sqlStringBuilder.append(" AND pu.ACTIVE=:active ");
             params.put("active", active);
         }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListByIds(List<String> planningUnitIdList, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        sqlStringBuilder.append(" AND FIND_IN_SET(pu.PLANNING_UNIT_ID, :puList) ");
+        params.put("puList", ArrayUtils.convertListToString(planningUnitIdList));
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
     }

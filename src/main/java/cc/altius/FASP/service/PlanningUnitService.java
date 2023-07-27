@@ -27,6 +27,8 @@ public interface PlanningUnitService {
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser);
 
     public List<PlanningUnit> getPlanningUnitList(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<PlanningUnit> getPlanningUnitListByIds(List<String> planningUnitIdList, CustomUserDetails curUser);
 
     public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser);
 

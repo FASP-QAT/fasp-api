@@ -22,6 +22,8 @@ public interface ForecastingUnitDao {
     public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser);
 
     public List<ForecastingUnit> getForecastingUnitList(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser);
 
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser);
 

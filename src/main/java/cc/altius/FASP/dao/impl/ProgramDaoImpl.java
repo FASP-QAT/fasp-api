@@ -53,11 +53,13 @@ import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.PassPhrase;
@@ -120,7 +122,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`,  "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -142,7 +144,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private static String sqlListBasicString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.PROGRAM_TYPE_ID, "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -2761,6 +2763,36 @@ public class ProgramDaoImpl implements ProgramDao {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
         String sqlString = "SELECT p.CURRENT_VERSION_ID,p.PROGRAM_ID FROM rm_program p WHERE p.PROGRAM_ID IN (" + programIds + ")";
         return this.jdbcTemplate.query(sqlString, new ProgramIdAndVersionIdRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p WHERE FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) AND p.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIds));
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc.PRODUCT_CATEGORY_ID) FROM rm_product_category pc LEFT JOIN (SELECT CONCAT(pc1.SORT_ORDER,'%') `SO` FROM rm_product_category pc1 WHERE FIND_IN_SET(pc1.PRODUCT_CATEGORY_ID, :productCategoryIds)) pc2 ON pc.SORT_ORDER LIKE pc2.SO WHERE pc2.SO IS NOT NULL");
+        Map<String, Object> params = new HashMap<>();
+        params.put("productCategoryIds", ArrayUtils.convertArrayToString(productCategoryIds));
+        String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
+        sqlStringBuilder = null;
+        sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                + "WHERE FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, :finalProductCategoryIds) AND ppu.ACTIVE AND pu.ACTIVE AND p.ACTIVE ");
+        params.clear();
+        params.put("finalProductCategoryIds", finalProductCategoryIds);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append("GROUP BY ppu.PROGRAM_ID ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
 }
