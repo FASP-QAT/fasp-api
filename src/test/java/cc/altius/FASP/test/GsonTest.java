@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.test;
 
-import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
@@ -796,7 +795,7 @@ public class GsonTest {
                 .setDateFormat("yyyy-MM-dd HH:mm:ss");
         List<DatasetPlanningUnit> puList = gsonBuilder.create().fromJson(json, new TypeToken<List<DatasetPlanningUnit>>() {
         }.getType());
-        System.out.println(puList.get(0).getSelectedForecastMap().get(54).getTotalForecast());
+//        System.out.println(puList.get(0).getSelectedForecastMap().get(54).getTotalForecast());
     }
 
 }
