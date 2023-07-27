@@ -19,6 +19,7 @@ import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
@@ -325,11 +326,13 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "dt":"2020-04-01", "includePlannedShipments":1}
-     * -- programId cannot be -1 (All) it must be a valid ProgramId
-     * -- versionId can be -1 or a valid VersionId for that Program. If it is -1 then the last committed Version is automatically taken.
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"1", "viewBy":1, "dt":"2022-04-01", "includePlannedShipments":1}
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"0", "viewBy":2, "dt":"2022-04-01", "includePlannedShipments":1}
      * -- StartDate is the date that you want to run the report for
-     * -- Include Planned Shipments = 1 menas that Shipments that are in the Planned, Draft, Submitted stages will also be considered in the report
+     * -- ViewBy = 1 View by RealmCountry, ViewBy = 2 View by ProductCategory
+     * -- RealmCountryIds is the list of RealmCountryIds that should be included in the final output, cannot be empty you must pass the RealmCountryIds that you want to view it by
+     * -- ProductCategoryIds is the list of ProductCategoryIds that should be included in the final output, cannot be empty if you want to select all pass '0'
+     * -- Include Planned Shipments = 1 means that Shipments that are in the Planned, Draft, Submitted stages will also be considered in the report
      * -- Include Planned Shipments = 0 means that Shipments that are in the Planned, Draft, Submitted stages will not be considered in the report
      * -- Inventory Turns = Total Consumption for the last 12 months (including current month) / Avg Stock during that period
      * </pre>
@@ -340,7 +343,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/inventoryTurns")
-    public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
+    public ResponseEntity getInventoryTurns(@RequestBody InventoryTurnsInput it, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
