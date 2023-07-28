@@ -41,6 +41,8 @@ import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UsagePeriodService;
 import cc.altius.FASP.service.UsageTemplateService;
 import cc.altius.FASP.service.UserService;
+import static cc.altius.FASP.utils.CompressUtils.compress;
+import static cc.altius.FASP.utils.CompressUtils.isCompress;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -275,16 +277,8 @@ public class SyncRestController {
             masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
-            int dataSize = jsonString.getBytes().length;
-            if(dataSize/1000000 > 10){
-                String json = objectMapper.writeValueAsString(masters);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream(json.length());
-                GZIPOutputStream gzip = new GZIPOutputStream(bos);
-                gzip.write(json.getBytes(StandardCharsets.UTF_8));
-                gzip.close();
-                byte[] compressed = bos.toByteArray();
-                bos.close();
-                return new ResponseEntity(DatatypeConverter.printBase64Binary(compressed), HttpStatus.OK);
+            if(isCompress(jsonString)){
+                return new ResponseEntity(compress(jsonString), HttpStatus.OK);
             }
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
