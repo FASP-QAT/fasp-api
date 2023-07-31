@@ -43,3 +43,27 @@ CREATE TABLE `fasp`.`tmp_sku_code` (
 
 ALTER TABLE `fasp`.`tmp_sku_code` 
 ADD COLUMN `FORECASTING_UNIT_ID` INT UNSIGNED NULL AFTER `PF_MIN_ID`;
+
+
+
+
+# ######################################################################################################################
+# Do not run directly this is to be run only after the full import has been completed
+# ######################################################################################################################
+
+CREATE TABLE `fasp`.`tmp_pafu` (
+  `PRODUCT_ID_NO_PACK` VARCHAR(9) NOT NULL,
+  `MAX_PAFU_ID` INT NOT NULL,
+  PRIMARY KEY (`PRODUCT_ID_NO_PACK`));
+
+-- Get the last FORECASTING_UNIT_PROCUREMENT_AGENT_ID from the list
+INSERT INTO tmp_pafu SELECT pafu.PRODUCT_ID_NO_PACK, MAX(pafu.FORECASTING_UNIT_PROCUREMENT_AGENT_ID) FROM rm_procurement_agent_forecasting_unit pafu where pafu.FOREACSTING_UNIT_ID<=6721 group by pafu.PRODUCT_ID_NO_PACK;
+
+ALTER TABLE `fasp`.`rm_procurement_agent_forecasting_unit` ADD COLUMN `MATCHED` TINYINT NULL AFTER `UNIT_LABEL`;
+-- Mark the latest records as Matched
+UPDATE rm_procurement_agent_forecasting_unit pafu LEFT JOIN tmp_pafu ON pafu.FORECASTING_UNIT_PROCUREMENT_AGENT_ID=tmp_pafu.MAX_PAFU_ID SET pafu.MATCHED=1 WHERE tmp_pafu.MAX_PAFU_ID is not null;
+-- Mark all FU's that are not part of the latest list as Active=0
+UPDATE rm_forecasting_unit fu LEFT JOIN (SELECT pafu.FOREACSTING_UNIT_ID FROM rm_procurement_agent_forecasting_unit pafu WHERE pafu.MATCHED is null AND pafu.FOREACSTING_UNIT_ID NOT IN (SELECT pafu.FOREACSTING_UNIT_ID FROM rm_procurement_agent_forecasting_unit pafu WHERE pafu.MATCHED group by pafu.FOREACSTING_UNIT_ID) group by pafu.FOREACSTING_UNIT_ID) tfu ON fu.FORECASTING_UNIT_ID=tfu.FOREACSTING_UNIT_ID SET fu.ACTIVE=0, fu.LAST_MODIFIED_DATE=now(), fu.LAST_MODIFIED_BY=1 WHERE tfu.FOREACSTING_UNIT_ID IS NOT NULL;
+-- Mark all PU's whose FU's are Active=0 as Active=0
+UPDATE vw_planning_unit pu left join rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID SET pu.ACTIVE=0, pu.LAST_MODIFIED_BY=1, pu.LAST_MODIFIED_DATE=now() WHERE pu.ACTIVE AND fu.ACTIVE=0;
+ 
