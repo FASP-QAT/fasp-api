@@ -4,9 +4,14 @@
  */
 package cc.altius.FASP.utils;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.bind.DatatypeConverter;
 
@@ -28,5 +33,18 @@ public class CompressUtils {
         byte[] compressed = bos.toByteArray();
         bos.close();
         return DatatypeConverter.printBase64Binary(compressed);
+    }
+    
+    public static String decompress(String jsonByte) throws IOException {
+        byte[] compressedData = Base64.getDecoder().decode(jsonByte);
+        try (GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(compressedData))) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = gzipInputStream.read(buffer)) > 0) {
+                baos.write(buffer, 0, len);
+            }
+            return baos.toString("UTF-8");
+        }
     }
 }
