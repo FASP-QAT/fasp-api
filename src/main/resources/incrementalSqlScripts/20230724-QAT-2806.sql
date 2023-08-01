@@ -30,6 +30,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Année civile');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Año del calendario');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ano civil');-- pr
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.modelingValidation.fiscalYear','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Fiscal Year');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Exercice fiscal');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Año fiscal');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ano fiscal');-- pr
+
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.modelingValidation.fyJul','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
