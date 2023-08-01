@@ -34,8 +34,6 @@ public class NodeDataModeling implements Serializable {
     private Integer transferNodeDataId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private ModelingCalculator modelingCalculator;
 
     public NodeDataModeling() {
         this.increaseDecrease = 1;
@@ -123,14 +121,6 @@ public class NodeDataModeling implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public ModelingCalculator getModelingCalculator() {
-        return modelingCalculator;
-    }
-
-    public void setModelingCalculator(ModelingCalculator modelingCalculator) {
-        this.modelingCalculator = modelingCalculator;
     }
 
     @Override

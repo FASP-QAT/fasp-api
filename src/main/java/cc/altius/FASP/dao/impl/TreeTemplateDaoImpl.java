@@ -159,7 +159,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
         SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
-        SimpleJdbcInsert nidmc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling_calculator");
+        SimpleJdbcInsert nidatc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator").usingGeneratedKeyColumns("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID");
+        SimpleJdbcInsert nidatcd = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator_data");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
         final List<SqlParameterSource> batchList = new ArrayList<>();
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
@@ -282,27 +283,33 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                         nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
-                        if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
-                            nodeParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", ndm.getModelingCalculator().getFirstMonthOfTarget());
-                            nodeParams.put("CALCULATOR_YEARS_OF_TARGET", ndm.getModelingCalculator().getYearsOfTarget());
-                        }
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
                         ndm.setNodeDataModelingId(nidm.executeAndReturnKey(nodeParams).intValue());
-                        if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
-                            batchList.clear();
-                            for (int actualOrTargetValue : ndm.getModelingCalculator().getActualOrtargetValueList()) {
-                                Map<String, Object> batchParams = new HashMap<>();
-                                batchParams.put("NODE_DATA_MODELING_ID", ndm.getNodeDataModelingId());
-                                batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
-                                batchList.add(new MapSqlParameterSource(batchParams));
-                            }
-                            SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
-                            nidmc.executeBatch(batchList.toArray(batchArray));
+                    }
+                    if (tnd.getAnnualTargetCalculator() != null && tnd.getAnnualTargetCalculator().getFirstMonthOfTarget() != null) {
+                        nodeParams.clear();
+                        nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                        nodeParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                        nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+                        
+                        batchList.clear();
+                        for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
+                            Map<String, Object> batchParams = new HashMap<>();
+                            batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", tnd.getAnnualTargetCalculator().getNodeDataAnnualTargetCalculatorId());
+                            batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                            batchList.add(new MapSqlParameterSource(batchParams));
                         }
+                        SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                        nidatcd.executeBatch(batchList.toArray(batchArray));
                     }
                 }
             }
