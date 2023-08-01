@@ -6,6 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
@@ -15,6 +16,8 @@ import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import static cc.altius.FASP.utils.CompressUtils.compress;
+import static cc.altius.FASP.utils.CompressUtils.isCompress;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
@@ -92,16 +95,13 @@ public class ProgramDataRestController {
     public ResponseEntity getLoadProgramData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<ProgramData> pd = this.programDataService.getProgramData(programVersionList, curUser);
+            List<ProgramData> masters = this.programDataService.getProgramData(programVersionList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(pd);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(json.length());
-            GZIPOutputStream gzip = new GZIPOutputStream(bos);
-            gzip.write(json.getBytes(StandardCharsets.UTF_8));
-            gzip.close();
-            byte[] compressed = bos.toByteArray();
-            bos.close();
-            return new ResponseEntity(DatatypeConverter.printBase64Binary(compressed), HttpStatus.OK);
+            String jsonString = objectMapper.writeValueAsString(masters);
+            if(isCompress(jsonString)){
+                return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            }
+            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

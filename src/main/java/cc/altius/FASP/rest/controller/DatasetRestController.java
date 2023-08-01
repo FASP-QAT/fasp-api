@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -17,7 +18,10 @@ import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import static cc.altius.FASP.utils.CompressUtils.compress;
+import static cc.altius.FASP.utils.CompressUtils.isCompress;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,7 +155,13 @@ public class DatasetRestController {
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getDatasetData(programVersionList, curUser), HttpStatus.OK);
+            List<DatasetData> masters = this.programDataService.getDatasetData(programVersionList, curUser);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonString = objectMapper.writeValueAsString(masters);
+            if(isCompress(jsonString)){
+                return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            }
+            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
