@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.utils;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,7 @@ import javax.xml.bind.DatatypeConverter;
 public class CompressUtils {
     public static Boolean isCompress(String jsonString) {
         int dataSize = jsonString.getBytes().length;
-        return dataSize/1000000 > 10;
+        return dataSize/1000000 > GlobalConstants.COMPRESS_LIMIT_SIZE;
     }
     
     public static String compress(String jsonString) throws IOException {
@@ -36,15 +37,19 @@ public class CompressUtils {
     }
     
     public static String decompress(String jsonByte) throws IOException {
-        byte[] compressedData = Base64.getDecoder().decode(jsonByte);
-        try (GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(compressedData))) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = gzipInputStream.read(buffer)) > 0) {
-                baos.write(buffer, 0, len);
+        try{
+            byte[] compressedData = Base64.getDecoder().decode(jsonByte);
+            try (GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(compressedData))) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = gzipInputStream.read(buffer)) > 0) {
+                    baos.write(buffer, 0, len);
+                }
+                return baos.toString("UTF-8");
             }
-            return baos.toString("UTF-8");
+        }catch(IllegalArgumentException ex){
+            return jsonByte;
         }
     }
 }
