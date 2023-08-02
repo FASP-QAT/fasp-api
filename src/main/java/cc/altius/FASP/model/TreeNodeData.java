@@ -48,6 +48,8 @@ public class TreeNodeData implements Serializable {
     private NodeDataExtrapolation nodeDataExtrapolation;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataExtrapolationOption> nodeDataExtrapolationOptionList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private AnnualTargetCalculator annualTargetCalculator;
 
     public TreeNodeData() {
         nodeDataModelingList = new LinkedList<>();
@@ -178,6 +180,14 @@ public class TreeNodeData implements Serializable {
 
     public void setCalculatedDataValue(Double calculatedDataValue) {
         this.calculatedDataValue = calculatedDataValue;
+    }
+
+    public AnnualTargetCalculator getAnnualTargetCalculator() {
+        return annualTargetCalculator;
+    }
+
+    public void setAnnualTargetCalculator(AnnualTargetCalculator annualTargetCalculator) {
+        this.annualTargetCalculator = annualTargetCalculator;
     }
 
     @Override

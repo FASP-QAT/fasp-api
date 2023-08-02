@@ -13,27 +13,27 @@ import java.util.List;
  *
  * @author akil
  */
-public class ModelingCalculator implements Serializable {
+public class AnnualTargetCalculator extends BaseModel implements Serializable {
 
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private int nodeDataModelingCalculatorId;
+    private int nodeDataAnnualTargetCalculatorId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String firstMonthOfTarget;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int yearsOfTarget;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    List<Integer> actualOrtargetValueList;
+    List<Integer> actualOrTargetValueList;
 
-    public ModelingCalculator() {
-        this.actualOrtargetValueList = new LinkedList<>();
+    public AnnualTargetCalculator() {
+        this.actualOrTargetValueList = new LinkedList<>();
     }
 
-    public int getNodeDataModelingCalculatorId() {
-        return nodeDataModelingCalculatorId;
+    public int getNodeDataAnnualTargetCalculatorId() {
+        return nodeDataAnnualTargetCalculatorId;
     }
 
-    public void setNodeDataModelingCalculatorId(int nodeDataModelingCalculatorId) {
-        this.nodeDataModelingCalculatorId = nodeDataModelingCalculatorId;
+    public void setNodeDataAnnualTargetCalculatorId(int nodeDataAnnualTargetCalculatorId) {
+        this.nodeDataAnnualTargetCalculatorId = nodeDataAnnualTargetCalculatorId;
     }
 
     public String getFirstMonthOfTarget() {
@@ -52,18 +52,18 @@ public class ModelingCalculator implements Serializable {
         this.yearsOfTarget = yearsOfTarget;
     }
 
-    public List<Integer> getActualOrtargetValueList() {
-        return actualOrtargetValueList;
+    public List<Integer> getActualOrTargetValueList() {
+        return actualOrTargetValueList;
     }
 
-    public void setActualOrtargetValueList(List<Integer> actualOrtargetValueList) {
-        this.actualOrtargetValueList = actualOrtargetValueList;
+    public void setActualOrTargetValueList(List<Integer> actualOrTargetValueList) {
+        this.actualOrTargetValueList = actualOrTargetValueList;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + this.nodeDataModelingCalculatorId;
+        hash = 67 * hash + this.nodeDataAnnualTargetCalculatorId;
         return hash;
     }
 
@@ -78,8 +78,8 @@ public class ModelingCalculator implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ModelingCalculator other = (ModelingCalculator) obj;
-        return this.nodeDataModelingCalculatorId == other.nodeDataModelingCalculatorId;
+        final AnnualTargetCalculator other = (AnnualTargetCalculator) obj;
+        return this.nodeDataAnnualTargetCalculatorId == other.nodeDataAnnualTargetCalculatorId;
     }
 
 }
