@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
+import cc.altius.FASP.model.EmptyStringToDefaultBooleanDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultDateDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultDoubleDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultFloatDeserializer;
@@ -84,6 +85,8 @@ public class CommitRequestRestController {
                 .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
                 .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
                 .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
+                .registerTypeAdapter(Boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                .registerTypeAdapter(boolean.class, new EmptyStringToDefaultBooleanDeserializer())
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
             Type type = new TypeToken<ProgramData>() {}.getType();
