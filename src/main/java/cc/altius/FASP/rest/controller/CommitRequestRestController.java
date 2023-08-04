@@ -11,6 +11,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
+import cc.altius.FASP.model.EmptyStringToDefaultDoubleDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultFloatDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultIntDeserializer;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
@@ -24,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.FileInputStream;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
@@ -71,13 +75,16 @@ public class CommitRequestRestController {
         try {
             String programDataBytes = CompressUtils.decompress(programDataCompressed);
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
-                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
-                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .setLenient()
-                    .create();
-            ProgramData programData = gson.fromJson(programDataBytes, new TypeToken<ProgramData>() {
-            }.getType());
+                .registerTypeAdapter(Integer.class, new EmptyStringToDefaultIntDeserializer())
+                .registerTypeAdapter(int.class, new EmptyStringToDefaultIntDeserializer())
+                .registerTypeAdapter(Double.class, new EmptyStringToDefaultDoubleDeserializer())
+                .registerTypeAdapter(double.class, new EmptyStringToDefaultDoubleDeserializer())
+                .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
+                .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
+            Type type = new TypeToken<ProgramData>() {}.getType();
+            ProgramData programData = gson.fromJson(programDataBytes, type);
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
