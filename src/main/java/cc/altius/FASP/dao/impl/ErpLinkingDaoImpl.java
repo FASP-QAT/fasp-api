@@ -2215,7 +2215,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.`PROCUREMENT_AGENT_ID`=1 AND LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE`  "
                 + "LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.`STATUS`, e.`STATUS`)  "
                 + "LEFT JOIN vw_shipment_status ss ON sm.`SHIPMENT_STATUS_ID`=ss.`SHIPMENT_STATUS_ID`  "
                 + "WHERE  "
                 + "    pu.`PLANNING_UNIT_ID` IS NOT NULL "
