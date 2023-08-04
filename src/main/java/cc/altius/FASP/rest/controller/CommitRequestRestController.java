@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
+import cc.altius.FASP.model.EmptyStringToDefaultDateDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultDoubleDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultFloatDeserializer;
 import cc.altius.FASP.model.EmptyStringToDefaultIntDeserializer;
@@ -28,6 +29,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.FileInputStream;
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
@@ -81,6 +83,7 @@ public class CommitRequestRestController {
                 .registerTypeAdapter(double.class, new EmptyStringToDefaultDoubleDeserializer())
                 .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
                 .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
+                .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
             Type type = new TypeToken<ProgramData>() {}.getType();
