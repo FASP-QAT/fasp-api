@@ -25,7 +25,6 @@ import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
