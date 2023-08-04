@@ -69,15 +69,15 @@ public class CommitRequestRestController {
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
         try {
-            String datasetBytes = CompressUtils.decompress(programDataCompressed);
-            ObjectMapper objectMapper = new ObjectMapper();
-            ProgramData programData = objectMapper.readValue(datasetBytes, ProgramData.class);
+            String programDataBytes = CompressUtils.decompress(programDataCompressed);
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
                     .setDateFormat("yyyy-MM-dd HH:mm:ss")
                     .setLenient()
                     .create();
+            ProgramData programData = gson.fromJson(programDataBytes, new TypeToken<ProgramData>() {
+            }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
