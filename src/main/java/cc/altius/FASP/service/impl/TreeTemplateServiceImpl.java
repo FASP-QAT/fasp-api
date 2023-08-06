@@ -33,7 +33,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
 
     @Override
     public List<TreeTemplate> getTreeTemplateList(boolean showNodeData, CustomUserDetails curUser) {
-        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(true, curUser);
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(false, curUser);
         if (showNodeData) {
             ttList.forEach(tt -> {
                 tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
@@ -55,7 +55,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
     
     public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser) {
-        return this.treeTemplateDao.getTreeTemplateList(true, curUser);
+        return this.treeTemplateDao.getTreeTemplateList(false, curUser);
     }
 
     @Override
