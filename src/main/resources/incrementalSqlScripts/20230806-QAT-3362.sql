@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
@@ -137,4 +146,8 @@ BEGIN
     PREPARE S4 FROM @sqlString;
     EXECUTE S4;
 
-END
+END$$
+
+DELIMITER ;
+;
+
