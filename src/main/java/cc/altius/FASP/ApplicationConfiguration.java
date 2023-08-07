@@ -23,7 +23,7 @@ public class ApplicationConfiguration {
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {
         PropertiesFactoryBean bean = new PropertiesFactoryBean();
-        bean.setLocation(new FileSystemResource("/home/altius/QAT/scheduler.properties"));
+        bean.setLocation(new FileSystemResource("/home/ubuntu/QAT/scheduler.properties"));
         return bean;
     }
 
