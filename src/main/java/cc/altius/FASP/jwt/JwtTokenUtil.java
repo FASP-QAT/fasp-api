@@ -37,8 +37,7 @@ public class JwtTokenUtil implements Serializable {
     
     @Autowired
     private UserService userService;
-    
-    @Value("${jwt.signing.key.secret}")
+    @Value("#{credentials['jwt.signing.key.secret']}")
     private String secret;
 
     @Value("${jwt.token.expiration.in.seconds}")
