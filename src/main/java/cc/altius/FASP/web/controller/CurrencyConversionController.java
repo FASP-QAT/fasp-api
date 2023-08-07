@@ -11,6 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +25,9 @@ public class CurrencyConversionController {
 
     @Autowired
     CurrencyService currencyService;
+    private @Value("#{credentials['apilayerToken']}")
+    String APILAYER_TOKEN;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Scheduled(cron = "0 0 8 * * ?")
@@ -41,12 +45,11 @@ public class CurrencyConversionController {
         } catch (Exception e) {
             logger.info("Error in Currency Scheduler", e);
         }
-
     }
 
     private Map<String, Double> getLiveCurrencyValue(String allCurrencyCodes) {
         RestTemplate apiCall = new RestTemplate();
-        CurrencyQuote cq = apiCall.getForObject("http://www.apilayer.net/api/live?access_key=42e787cb76610f5756965e39808148f2&format=1&currencies=" + allCurrencyCodes, CurrencyQuote.class);
+        CurrencyQuote cq = apiCall.getForObject("http://www.apilayer.net/api/live?access_key=" + APILAYER_TOKEN + "&format=1&currencies=" + allCurrencyCodes, CurrencyQuote.class);
         return cq.getQuotes();
     }
 }

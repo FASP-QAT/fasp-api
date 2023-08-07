@@ -19,16 +19,16 @@ import java.util.Map;
 public interface TreeTemplateDao {
 
     public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser);
-    
+
     public TreeTemplate getTreeTemplateById(int treeTemplateId, CustomUserDetails curUser);
 
     public ForecastTree<TreeNode> getTree(int treeTemplateId);
 
     public Map<String, Object> getConsumption(int treeTemplateId);
-    
+
     public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
+
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
+
     public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

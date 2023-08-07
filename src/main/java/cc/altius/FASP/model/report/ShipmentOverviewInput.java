@@ -31,6 +31,7 @@ public class ShipmentOverviewInput implements Serializable {
     private String[] fundingSourceIds;
     private String[] shipmentStatusIds;
     private boolean useApprovedSupplyPlanOnly;
+    private boolean groupByProcurementAgentType;
 
     public int getRealmId() {
         return realmId;
@@ -142,6 +143,14 @@ public class ShipmentOverviewInput implements Serializable {
 
     public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
         this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    }
+
+    public boolean isGroupByProcurementAgentType() {
+        return groupByProcurementAgentType;
+    }
+
+    public void setGroupByProcurementAgentType(boolean groupByProcurementAgentType) {
+        this.groupByProcurementAgentType = groupByProcurementAgentType;
     }
 
 }

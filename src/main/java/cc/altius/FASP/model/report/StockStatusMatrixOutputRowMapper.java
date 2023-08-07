@@ -76,6 +76,23 @@ public class StockStatusMatrixOutputRowMapper implements RowMapper<StockStatusMa
         if (rs.wasNull()) {
             ssmo.setDec(null);
         }
+        ssmo.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
+        ssmo.setJanStock(rs.getLong("Jan Stock"));
+        ssmo.setFebStock(rs.getLong("Feb Stock"));
+        ssmo.setMarStock(rs.getLong("Mar Stock"));
+        ssmo.setAprStock(rs.getLong("Apr Stock"));
+        ssmo.setMayStock(rs.getLong("May Stock"));
+        ssmo.setJunStock(rs.getLong("Jun Stock"));
+        ssmo.setJulStock(rs.getLong("Jul Stock"));
+        ssmo.setAugStock(rs.getLong("Aug Stock"));
+        ssmo.setSepStock(rs.getLong("Sep Stock"));
+        ssmo.setOctStock(rs.getLong("Oct Stock"));
+        ssmo.setNovStock(rs.getLong("Nov Stock"));
+        ssmo.setDecStock(rs.getLong("Dec Stock"));
+        ssmo.setMaxStock(rs.getDouble("MAX_STOCK_QTY"));
+        if (rs.wasNull()) {
+            ssmo.setMaxStock(null);
+        }
         return ssmo;
     }
 

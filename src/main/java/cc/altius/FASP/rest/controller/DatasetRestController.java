@@ -7,14 +7,17 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,7 +101,7 @@ public class DatasetRestController {
     public ResponseEntity getDataset(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -111,6 +114,7 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView(Views.InternalView.class)
     @GetMapping("/datasetData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -142,6 +146,7 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView(Views.InternalView.class)
     @PostMapping("/datasetData")
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
@@ -197,7 +202,7 @@ public class DatasetRestController {
         }
     }
 
-    @GetMapping("loadDataset")
+    @GetMapping("/loadDataset")
     public ResponseEntity getLoadDataset(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -217,7 +222,7 @@ public class DatasetRestController {
         }
     }
 
-    @GetMapping("loadDataset/programId/{programId}/page/{page}")
+    @GetMapping("/loadDataset/programId/{programId}/page/{page}")
     public ResponseEntity getLoadDataset(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -233,4 +238,21 @@ public class DatasetRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
+    @PostMapping("/dataset/versions")
+    public ResponseEntity getDatasetVersionList(@RequestBody DatasetVersionListInput dvli, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getDatasetVersionList(dvli, curUser), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while get ProgramVersion List", d);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get ProgramVersion List", ae);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramVersion List", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
@@ -24,6 +25,8 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -51,6 +54,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private ProgramDao programDao;
     @Autowired
+    private ProcurementAgentDao procurementAgentDao;
+    @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
     private ProblemService problemService;
@@ -58,17 +63,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private AclService aclService;
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
-        ProgramData pd = new ProgramData(this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+        ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
+        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
+        pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
         return pd;
     }
 
@@ -76,17 +83,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
-            ProgramData pd = new ProgramData(this.programCommonDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+            ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
             pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
             pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
+            pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId));
             pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
+            pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             programDataList.add(pd);
         });
         return programDataList;
@@ -97,12 +106,27 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         if (versionId == -1) {
             versionId = this.programDao.getLatestVersionForPrograms("" + programId).get(0).getVersionId();
         }
-        DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+        DatasetData dd = new DatasetData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
         dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(programId, versionId));
         dd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
         dd.getTreeList().forEach(t -> {
             t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
+            t.getTree().getFlatList().forEach(n -> {
+                n.getPayload().getNodeDataMap().values().forEach(s -> {
+                    s.forEach(nd -> {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                            nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
+                            nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
+                        }
+                        nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
+                        if (nd.isExtrapolation()) {
+                            nd.setNodeDataExtrapolation(this.programDataDao.getNodeDataExtrapolationForNodeDataId(nd.getNodeDataId()));
+                            nd.setNodeDataExtrapolationOptionList(this.programDataDao.getNodeDataExtrapolationOptionForNodeDataId(nd.getNodeDataId()));
+                        }
+                    });
+                });
+            });
         });
         dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
         dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
@@ -111,8 +135,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDao.getDatasetPlanningUnitList(programId, versionId);
         } else {
             throw new AccessDeniedException("You do not have access to this Program");
@@ -178,8 +202,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         ss.setProgramId(programId);
         ss.setVersionId(versionId);
         ss.setUserId(userId);
-        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
-        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
+//        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
+//        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
         ss.setProblemReportList(this.problemService.getProblemReportListForSync(programId, versionId, lastSyncDate));
         return ss;
     }
@@ -194,8 +218,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         for (int programId : programMap.keySet()) {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
-                Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                if (p.getCurrentVersion().getVersionId() > versionId) {
+                SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+                if (sp!=null && sp.getCurrentVersionId() > versionId) {
                     newer = true;
                 }
             }
@@ -236,8 +260,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (p != null && this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
             return this.programDataDao.getActualConsumptionDataInput(acd, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -247,6 +271,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
         return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
+    }
+
+    @Override
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
     }
 
 }

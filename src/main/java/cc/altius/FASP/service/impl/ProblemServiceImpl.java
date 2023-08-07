@@ -6,7 +6,10 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProblemDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ManualProblem;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
@@ -25,6 +28,8 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Autowired
     private ProblemDao problemDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
@@ -64,6 +69,12 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser) {
         return this.problemDao.getProblemStatus(curUser);
+    }
+
+    @Override
+    public int createManualProblem(ManualProblem manualProblem, CustomUserDetails curUser) {
+        this.programCommonDao.getSimpleProgramById(manualProblem.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.problemDao.createManualProblem(manualProblem, curUser);
     }
 
 }

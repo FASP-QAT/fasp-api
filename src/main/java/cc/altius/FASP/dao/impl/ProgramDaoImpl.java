@@ -6,13 +6,12 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
@@ -20,8 +19,6 @@ import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
@@ -31,8 +28,6 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
@@ -42,10 +37,11 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
-import cc.altius.FASP.model.UserAcl;
-import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
@@ -57,11 +53,16 @@ import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
+import cc.altius.utils.PassPhrase;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,6 +98,9 @@ public class ProgramDaoImpl implements ProgramDao {
     private ProgramCommonDao programCommonDao;
     @Autowired
     private ProgramDataDao programDataDao;
+    @Autowired
+    private PlanningUnitDao planningUnitDao;
+
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
@@ -110,15 +114,15 @@ public class ProgramDaoImpl implements ProgramDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static String sqlListString1 = "SELECT   "
-            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.ROAD_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vt.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`,  "
             + "     cpv.FORECAST_START_DATE `CV_FORECAST_START_DATE`, cpv.FORECAST_STOP_DATE `CV_FORECAST_STOP_DATE`, cpv.`DAYS_IN_MONTH`, cpv.`FREIGHT_PERC`, cpv.`FORECAST_THRESHOLD_HIGH_PERC`, cpv.`FORECAST_THRESHOLD_LOW_PERC`, "
             + "     vs.VERSION_STATUS_ID `CV_VERSION_STATUS_ID`, vs.LABEL_ID `CV_VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `CV_VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `CV_VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `CV_VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `CV_VERSION_STATUS_LABEL_PR`,  "
-            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
+            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`,  "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -137,6 +141,21 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     pv.FORECAST_START_DATE `VT_FORECAST_START_DATE`, pv.FORECAST_STOP_DATE `VT_FORECAST_STOP_DATE`, pv.`DAYS_IN_MONTH` `VT_DAYS_IN_MONTH`, pv.`FREIGHT_PERC` `VT_FREIGHT_PERC`, pv.`FORECAST_THRESHOLD_HIGH_PERC` `VT_FORECAST_THRESHOLD_HIGH_PERC`, pv.`FORECAST_THRESHOLD_LOW_PERC` `VT_FORECAST_THRESHOLD_LOW_PERC`, "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
+    private static String sqlListBasicString = "SELECT   "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.PROGRAM_TYPE_ID, "
+            + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, "
+            + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
+            + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
+            + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
+            + "     o.ORGANISATION_ID, o.ORGANISATION_CODE,  "
+            + "     o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_PR `ORGANISATION_LABEL_PR`, o.LABEL_SP `ORGANISATION_LABEL_SP`,  "
+            + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE,  "
+            + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
+            + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
+
+    
+
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -150,20 +169,35 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID  "
             + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID  "
-            + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID  "
+            + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID "
             + " LEFT JOIN vw_version_type vt ON cpv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID  "
             + " LEFT JOIN vw_version_status vs ON cpv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID  "
             + " LEFT JOIN us_user cpvcb ON cpv.CREATED_BY=cpvcb.USER_ID  "
             + " LEFT JOIN us_user cpvlmb ON cpv.LAST_MODIFIED_BY=cpvlmb.USER_ID  "
-            + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID  "
+            + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND pv.VERSION_READY "
             + " LEFT JOIN vw_version_type pvt ON pv.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID  "
             + " LEFT JOIN vw_version_status pvs ON pv.VERSION_STATUS_ID=pvs.VERSION_STATUS_ID  "
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
+
+    private static String sqlListBasicString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
+            + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
+            + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
+            + " LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID  "
+            + " LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "
+            + " LEFT JOIN vw_health_area ha ON pha.HEALTH_AREA_ID=ha.HEALTH_AREA_ID  "
+            + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID  "
+            + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID  "
+            + " WHERE TRUE ";
     public final static String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
     public final static String sqlProgramListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
     public final static String sqlDatasetListString = sqlListString1 + " FROM vw_dataset p   " + sqlListString2;
+
+    public final static String sqlProgramListBasicString = sqlListBasicString + " FROM vw_program p   " + sqlListBasicString2;
+    public final static String sqlDatasetListBasicString = sqlListBasicString + " FROM vw_dataset p   " + sqlListBasicString2;
+    public final static String sqlAllProgramListBasicString = sqlListBasicString + " FROM vw_all_program p   " + sqlListBasicString2;
+    public final static String sqlOrderByBasic = " ORDER BY p.PROGRAM_CODE";
 
     public String sqlListStringForProgramPlanningUnit = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
@@ -171,6 +205,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
+            + "    ppu.PLAN_BASED_ON, ppu.MIN_QTY, ppu.DISTRIBUTION_LEAD_TIME, "
             + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE  "
             + " FROM  rm_program_planning_unit ppu   "
             + " LEFT JOIN vw_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID  "
@@ -181,7 +216,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE ";
-    
+
     public String sqlListStringForSimplePlanningUnit = "SELECT "
             + "    pu.PLANNING_UNIT_ID    `PU_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_PR `PU_LABEL_PR`, pu.LABEL_SP `PU_LABEL_SP`, pu.MULTIPLIER, "
             + "    puu.UNIT_ID `PU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PU_UNIT_CODE`, "
@@ -204,6 +239,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
+            + "    ppu.PLAN_BASED_ON, ppu.MIN_QTY, ppu.DISTRIBUTION_LEAD_TIME, "
             + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE,  "
             + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
             + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PRICE `PROCUREMENT_AGENT_PRICE`, "
@@ -230,7 +266,7 @@ public class ProgramDaoImpl implements ProgramDao {
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
         SimpleJdbcInsert si;
         if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-            si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_TYPE_ID", "REALM_ID", "REALM_COUNTRY_ID", "ORGANISATION_ID", "PROGRAM_CODE", "LABEL_ID", "PROGRAM_MANAGER_USER_ID", "PROGRAM_NOTES", "AIR_FREIGHT_PERC", "SEA_FREIGHT_PERC", "PLANNED_TO_SUBMITTED_LEAD_TIME", "SUBMITTED_TO_APPROVED_LEAD_TIME", "APPROVED_TO_SHIPPED_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", "ARRIVED_TO_DELIVERED_LEAD_TIME", "CURRENT_VERSION_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("PROGRAM_ID");
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_TYPE_ID", "REALM_ID", "REALM_COUNTRY_ID", "ORGANISATION_ID", "PROGRAM_CODE", "LABEL_ID", "PROGRAM_MANAGER_USER_ID", "PROGRAM_NOTES", "AIR_FREIGHT_PERC", "SEA_FREIGHT_PERC", "ROAD_FREIGHT_PERC", "PLANNED_TO_SUBMITTED_LEAD_TIME", "SUBMITTED_TO_APPROVED_LEAD_TIME", "APPROVED_TO_SHIPPED_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME", "ARRIVED_TO_DELIVERED_LEAD_TIME", "CURRENT_VERSION_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("PROGRAM_ID");
         } else {
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_TYPE_ID", "REALM_ID", "REALM_COUNTRY_ID", "ORGANISATION_ID", "PROGRAM_CODE", "LABEL_ID", "PROGRAM_MANAGER_USER_ID", "PROGRAM_NOTES", "CURRENT_VERSION_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("PROGRAM_ID");
         }
@@ -244,11 +280,13 @@ public class ProgramDaoImpl implements ProgramDao {
         if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             params.put("AIR_FREIGHT_PERC", p.getAirFreightPerc());
             params.put("SEA_FREIGHT_PERC", p.getSeaFreightPerc());
+            params.put("ROAD_FREIGHT_PERC", p.getRoadFreightPerc());
             params.put("PLANNED_TO_SUBMITTED_LEAD_TIME", p.getPlannedToSubmittedLeadTime());
             params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
             params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
             params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
             params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
+            params.put("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME", p.getShippedToArrivedByRoadLeadTime());
             params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
         }
         params.put("PROGRAM_TYPE_ID", p.getProgramTypeId());
@@ -297,10 +335,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("notes", p.getProgramNotes());
         params.put("forecastStartDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStartDate()));
         params.put("forecastStopDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStopDate()));
-        Version version = new Version();
-        version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate)", params, new VersionRowMapper());
-        params.put("versionId", version.getVersionId());
-        this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
+        this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:forecastStartDate,:forecastStopDate,null,null,null,null,:curUser,:curDate,1)", params, new VersionRowMapper());
         return programId;
     }
 
@@ -317,11 +352,13 @@ public class ProgramDaoImpl implements ProgramDao {
         if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             params.put("airFreightPerc", p.getAirFreightPerc());
             params.put("seaFreightPerc", p.getSeaFreightPerc());
+            params.put("roadFreightPerc", p.getRoadFreightPerc());
             params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
             params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
             params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
             params.put("shippedToArrivedBySeaLeadTime", p.getShippedToArrivedBySeaLeadTime());
             params.put("shippedToArrivedByAirLeadTime", p.getShippedToArrivedByAirLeadTime());
+            params.put("shippedToArrivedByRoadLeadTime", p.getShippedToArrivedByRoadLeadTime());
             params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
         }
         params.put("active", p.isActive());
@@ -338,11 +375,13 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlString
                     += "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                     + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
+                    + "p.ROAD_FREIGHT_PERC=:roadFreightPerc, "
                     + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
+                    + "p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME=:shippedToArrivedByRoadLeadTime, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, ";
         }
         sqlString
@@ -393,19 +432,50 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
-                + "FROM rm_program r  "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 r.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN + " ";
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sql += "AND ("
-                    + "(r.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            count++;
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("realmId", realmId);
+        params.put("programTypeId", programTypeId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("realmId", realmId);
+        params.put("programTypeId", programTypeId);
+        if (input.getHealthAreaId() != null) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) ");
+            params.put("healthAreaId", input.getHealthAreaId());
         }
-        return this.namedParameterJdbcTemplate.query(sql, params, new ProgramDTORowMapper());
+        if (input.getRealmCountryId() != null) {
+            sqlStringBuilder.append(" AND p.REALM_COUNTRY_ID=:realmCountryId ");
+            params.put("realmCountryId", input.getRealmCountryId());
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        params.put("programTypeId", programTypeId);
+        if (realmCountryIdsStr.length() > 0) {
+            sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
+            params.put("realmCountryIds", realmCountryIdsStr);
+        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
 
     @Override
@@ -484,7 +554,7 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
     }
-    
+
     @Override
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForSimplePlanningUnit).append(" AND ppu.PROGRAM_ID=:programId");
@@ -511,9 +581,10 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    @Transactional
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
-        List<SqlParameterSource> insertList = new ArrayList<>();
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit").usingColumns("PLANNING_UNIT_ID", "PROGRAM_ID", "REORDER_FREQUENCY_IN_MONTHS", "MIN_MONTHS_OF_STOCK", "LOCAL_PROCUREMENT_LEAD_TIME", "SHELF_LIFE", "CATALOG_PRICE", "MONTHS_IN_PAST_FOR_AMC", "MONTHS_IN_FUTURE_FOR_AMC", "PLAN_BASED_ON", "MIN_QTY", "DISTRIBUTION_LEAD_TIME", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
+        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
         List<SqlParameterSource> updateList = new ArrayList<>();
         List<Integer> programIds = new ArrayList<>();
         int rowsEffected = 0;
@@ -532,12 +603,42 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("CATALOG_PRICE", ppu.getCatalogPrice());
                 params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
                 params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
+                params.put("PLAN_BASED_ON", ppu.getPlanBasedOn());
+                params.put("MIN_QTY", ppu.getMinQty());
+                params.put("DISTRIBUTION_LEAD_TIME", ppu.getDistributionLeadTime());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
                 params.put("LAST_MODIFIED_BY", curUser.getUserId());
                 params.put("ACTIVE", true);
-                insertList.add(new MapSqlParameterSource(params));
+                // insert the ProgramPlanningUnit
+                si.execute(params);
+                rowsEffected++;
+                SimpleProgram p = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
+                params.clear();
+                params.put("realmCountryId", p.getRealmCountry().getId());
+                params.put("planningUnitId", ppu.getPlanningUnit().getId());
+                params.put("multiplier", 1);
+                int activeCount = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                if (activeCount == 0) {
+                    PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(ppu.getPlanningUnit().getId(), curUser);
+                    String skuCode = new StringBuilder(ppu.getProgram().getIdString()).append("-").append(SuggestedDisplayName.getAlphaNumericString(pu.getLabel().getLabel_en(), SuggestedDisplayName.REALM_COUNTRY_PLANNING_UNIT_LENGTH)).append("_").append(PassPhrase.getPassword(4).toUpperCase()).toString();
+                    int rcpuLabelId = this.labelDao.addLabel(pu.getLabel(), LabelConstants.RM_REALM_COUNTRY_PLANNING_UNIT, curUser.getUserId());
+                    params.clear();
+                    params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
+                    params.put("REALM_COUNTRY_ID", p.getRealmCountry().getId());
+                    params.put("LABEL_ID", rcpuLabelId);
+                    params.put("SKU_CODE", skuCode);
+                    params.put("UNIT_ID", pu.getUnit().getId());
+                    params.put("MULTIPLIER", 1);
+                    params.put("CREATED_DATE", curDate);
+                    params.put("CREATED_BY", curUser.getUserId());
+                    params.put("LAST_MODIFIED_DATE", curDate);
+                    params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                    params.put("ACTIVE", true);
+                    rcpuSi.execute(params);
+                }
             } else {
                 // Update
                 params = new HashMap<>();
@@ -549,6 +650,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("catalogPrice", ppu.getCatalogPrice());
                 params.put("monthsInPastForAmc", ppu.getMonthsInPastForAmc());
                 params.put("monthsInFutureForAmc", ppu.getMonthsInFutureForAmc());
+                params.put("planBasedOn", ppu.getPlanBasedOn());
+                params.put("minQty", ppu.getMinQty());
+                params.put("distributionLeadTime", ppu.getDistributionLeadTime());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
@@ -558,19 +662,19 @@ public class ProgramDaoImpl implements ProgramDao {
                 }
             }
         }
-        if (insertList.size() > 0) {
-            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
-            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
-        }
+//        if (insertList.size() > 0) {
+//            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+//            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+//        }
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
-            String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
+            String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.PLAN_BASED_ON=:planBasedOn, ppu.MIN_QTY=:minQty, ppu.DISTRIBUTION_LEAD_TIME=:distributionLeadTime, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
         for (Integer pId : programIds) {
             CommitRequest s = new CommitRequest();
             SimpleCodeObject program = new SimpleCodeObject();
-            program.setId(pId);
+            program.setId(pId);//
             s.setProgram(program);
             s.setCommittedVersionId(-1);
             s.setSaveData(false);
@@ -919,7 +1023,8 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : Going to check manual tagging order no ---" + orderNo);
         logger.info("ERP Linking : Going to check manual tagging prime line no ---" + primeLineNo);
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                orderNo, primeLineNo);
 
         logger.info("ERP Linking : manual tagging count---" + count);
         return count;
@@ -953,7 +1058,8 @@ public class ProgramDaoImpl implements ProgramDao {
 //        double rate = Double.parseDouble(map.get("RATE").toString());
         sql = "SELECT e.`PRICE` FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
                 + " ORDER BY e.`ERP_ORDER_ID` DESC LIMIT 1;";
-        double rate = this.jdbcTemplate.queryForObject(sql, Double.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        double rate = this.jdbcTemplate.queryForObject(sql, Double.class,
+                manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         logger.info("ERP Linking : calculated rate---" + rate);
         double finalRate = (rate / manualTaggingOrderDTO.getConversionFactor());
         logger.info("ERP Linking : calculated final rate---" + finalRate);
@@ -1089,7 +1195,8 @@ public class ProgramDaoImpl implements ProgramDao {
                                 + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ERP_FLAG=1 AND st.ACTIVE";
                         try {
                             logger.info("ERP Linking : Trying to see if the ShipmentTrans exists with the same orderNo, primeLineNo and parentShipmentId");
-                            int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                            int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
+                            );
                             logger.info("ERP Linking : ShipmentTransId " + shipmentTransId + " found so going to update that with latest information");
                             // TODO shipment found therefore update it with all the information
                             sql = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID "
@@ -1108,7 +1215,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("freightCost", erpOrderDTO.getEoShippingCost());
                             params.put("productCost", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
                             params.put("price", erpOrderDTO.getEoPrice());
-                            params.put("shipBy", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                            params.put("shipBy", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                             params.put("qty", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                             params.put("shipmentStatusId", erpOrderDTO.getEoShipmentStatusId());
                             params.put("supplierId", erpOrderDTO.getEoSupplierId());
@@ -1862,7 +1969,8 @@ public class ProgramDaoImpl implements ProgramDao {
         int parentShipmentId = 0;
         Map<String, Object> params = new HashMap<>();
         sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
 
         logger.info("ERP Linking : manual tagging order no---" + manualTaggingOrderDTO.getOrderNo());
         logger.info("ERP Linking : manual tagging prime line no.---" + manualTaggingOrderDTO.getPrimeLineNo());
@@ -1965,7 +2073,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("RATE", (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()));
                         params.put("PRODUCT_COST", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (manualTaggingOrderDTO.getConversionFactor() * manualTaggingOrderDTO.getQuantity()) * (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()) : (erpOrderDTO.getEoPrice() * manualTaggingOrderDTO.getQuantity())));
 //                    params.put("PRODUCT_COST", manualTaggingOrderDTO.getQuantity() * erpOrderDTO.getEoPrice());
-                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                         params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                         params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
                         params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
@@ -2218,25 +2326,36 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "WHERE s.`PARENT_SHIPMENT_ID`=? ORDER BY st.`SHIPMENT_TRANS_ID` DESC) AS a "
                 + "GROUP BY a.SHIPMENT_ID) AS b WHERE b.active;";
         logger.info("delinking parenshipment id----------" + parentShipmentId);
-        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
+        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class,
+                parentShipmentId);
         logger.info("ERP Linking : shipment id list to delink---" + shipmentIdList);
 //        if (shipmentIdList.size() == 1 && erpOrderDTO.getShipmentId() == shipmentIdList.get(0)) {
         if (shipmentIdList.size() == 1) {
             logger.info("ERP Linking : one shipment id found to delink---");
 //            for (int shipmentId1 : shipmentIdList) {
-            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
-                logger.info("inside if--------------------" + erpOrderDTO);
-                logger.info("ERP Linking : Going to check tab3 shipments table for parent--------------------" + parentShipmentId);
+            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
+                    erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
+                logger.info(
+                        "inside if--------------------" + erpOrderDTO);
+                logger.info(
+                        "ERP Linking : Going to check tab3 shipments table for parent--------------------" + parentShipmentId);
                 sql = "SELECT COUNT(*) FROM rm_erp_tab3_shipments s WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`;";
                 int count = this.jdbcTemplate.queryForObject(sql, Integer.class, parentShipmentId);
-                logger.info("ERP Linking : Going to check tab3 shipments count--------------------" + count);
+
+                logger.info(
+                        "ERP Linking : Going to check tab3 shipments count--------------------" + count);
 //                    logger.info("ERP Linking : Going to check tab3 shipments count is 0 so activate parent--------------------");
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-                logger.info("ERP Linking : 1st max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : 1st max trans id---" + maxTransId);
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=?,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
-                this.jdbcTemplate.update(sql, (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
-                if (count > 0) {
+
+                this.jdbcTemplate.update(sql,
+                        (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
+                if (count
+                        > 0) {
                     logger.info("ERP Linking : Going to check tab3 shipments count is greater than 0 so leave parent as is and deactivate in tab3 shipment table--------------------");
                     sql = "UPDATE rm_erp_tab3_shipments s SET s.`ACTIVE`=0,s.`LAST_MODIFIED_BY`=?,s.`LAST_MODIFIED_DATE`=? WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`; ";
                     this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, parentShipmentId);
@@ -2244,24 +2363,33 @@ public class ProgramDaoImpl implements ProgramDao {
                 }
 
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-                logger.info("ERP Linking : 2nd max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : 2nd max trans id---" + maxTransId);
 
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
+
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                logger.info("ERP Linking : Update completed---");
+                logger.info(
+                        "ERP Linking : Update completed---");
             } else {
                 System.out.println("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
-            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
+            if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
+                    erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-                logger.info("ERP Linking : max trans id---" + maxTransId);
+
+                logger.info(
+                        "ERP Linking : max trans id---" + maxTransId);
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
+
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println("delinking inside else else----------" + maxTransId);
+                System.out.println(
+                        "delinking inside else else----------" + maxTransId);
             }
         }
 //        }
@@ -2298,7 +2426,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         + "LEFT JOIN rm_health_area_country hac ON  ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID AND rc.REALM_COUNTRY_ID=hac.REALM_COUNTRY_ID "
                         + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
                         + "LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID AND rc.REALM_COUNTRY_ID=oc.REALM_COUNTRY_ID "
-                        + "LEFT JOIN (SELECT pv.PROGRAM_ID, count(*) MAX_COUNT FROM rm_program_version pv GROUP BY pv.PROGRAM_ID) pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
+                        + "LEFT JOIN (SELECT pv.PROGRAM_ID, count(*) MAX_COUNT FROM rm_program_version pv WHERE pv.VERSION_READY GROUP BY pv.PROGRAM_ID) pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
                         + "WHERE p.ACTIVE AND rc.ACTIVE AND ha.ACTIVE AND o.ACTIVE AND hac.ACTIVE AND oc.ACTIVE AND p.PROGRAM_TYPE_ID=:programTypeId");
         Map<String, Object> params = new HashMap<>();
         params.put("programTypeId", programTypeId);
@@ -2308,7 +2436,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", 0);
         for (LoadProgram lp : programList) {
             params.replace("programId", lp.getProgram().getId());
-            lp.setVersionList(this.namedParameterJdbcTemplate.query("SELECT LPAD(pv.VERSION_ID,6,'0') VERSION_ID, vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, cb.USER_ID, cb.USERNAME, pv.CREATED_DATE, pv.NOTES FROM " + programTableName + " p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID WHERE p.ACTIVE AND p.PROGRAM_ID=:programId ORDER BY pv.VERSION_ID DESC LIMIT 0,5", params, new LoadVersionRowMapper()));
+            lp.setVersionList(this.namedParameterJdbcTemplate.query("SELECT LPAD(pv.VERSION_ID,6,'0') VERSION_ID, vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, cb.USER_ID, cb.USERNAME, pv.CREATED_DATE, pv.NOTES FROM " + programTableName + " p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND pv.VERSION_READY LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID WHERE p.ACTIVE AND p.PROGRAM_ID=:programId ORDER BY pv.VERSION_ID DESC LIMIT 0,5", params, new LoadVersionRowMapper()));
         }
         return programList;
     }
@@ -2356,7 +2484,8 @@ public class ProgramDaoImpl implements ProgramDao {
         program.setCurrentPage(page);
         params.clear();
         params.put("programId", programId);
-        int versionCount = this.namedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId", params, Integer.class);
+        int versionCount = this.namedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId", params, Integer.class
+        );
         params.put("versionCount", versionCount);
         params.put("offsetNo", page * 5);
         int showCount = 0;
@@ -2377,7 +2506,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("realmId", realmId);
         params.put("programId", programId);
         params.put("programCode", programCode);
-        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) == 0);
+        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
+        ) == 0);
     }
 
     @Override
@@ -2456,7 +2586,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "
                 + "FROM us_user u "
@@ -2473,168 +2603,13 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        params.put("realmId", p.getRealmCountry().getRealm().getRealmId());
+        params.put("realmId", p.getRealmId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
 //        System.out.println(sb.toString());
 //        System.out.println(params);
-        List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+        List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class
+        );
         return StringUtils.join(emailList, ",");
-    }
-
-    @Override
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        Map<String, Object> params = new HashMap<>();
-        String sql;
-        int notificationId = 0;
-//        String sql = "select count(*) from rm_erp_notification n where n.`ORDER_NO`=? and n.`PRIME_LINE_NO`=? and n.`SHIPMENT_ID`=?;";
-//        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
-//        System.out.println("create notificatioon count---" + count);
-        logger.info("ERP Notification : create notificatioon orderNo---" + orderNo);
-        logger.info("ERP Notification : create notificatioon primeLineNo---" + primeLineNo);
-        logger.info("ERP Notification : create notificatioon shipmentId---" + shipmentId);
-//        if (count == 0) {
-        try {
-            sql = "SELECT m.`MANUAL_TAGGING_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=? AND m.`ACTIVE`;";
-            int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
-            logger.info("ERP Notification : manualTaggingId---" + manualTaggingId);
-
-            sql = "SELECT MAX(e.`ERP_ORDER_ID`) AS ERP_ORDER_ID FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
-            int erpOrderId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
-            logger.info("ERP Notification : erpOrderId---" + erpOrderId);
-
-            sql = "SELECT MAX(st.`SHIPMENT_ID`) AS SHIPMENT_ID FROM rm_shipment_trans st "
-                    + "LEFT JOIN rm_shipment  s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
-            int childShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId, orderNo, primeLineNo);
-            logger.info("ERP Notification : childShipmentId---" + childShipmentId);
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
-            params.put("ORDER_NO", orderNo);
-            params.put("PRIME_LINE_NO", primeLineNo);
-            params.put("NOTIFICATION_TYPE_ID", notificationTypeId);
-            params.put("SHIPMENT_ID", shipmentId);
-            params.put("ADDRESSED", 0);
-            params.put("ACTIVE", 1);
-            params.put("CREATED_BY", 1);
-            params.put("CREATED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", 1);
-            params.put("LAST_MODIFIED_DATE", curDate);
-            params.put("ERP_ORDER_ID", erpOrderId);
-            params.put("CHILD_SHIPMENT_ID", childShipmentId);
-            params.put("MANUAL_TAGGING_ID", manualTaggingId);
-            logger.info("ERP Notification : params---" + params);
-            notificationId = si.executeAndReturnKey(params).intValue();
-        } catch (Exception e) {
-            logger.info("ERP Notification : Notification creation error---" + e);
-            e.printStackTrace();
-        }
-        logger.info("ERP Notification : NotificationId Id " + notificationId + " created");
-        return notificationId;
-//        } else {
-//            return -1;
-//        }
-    }
-
-    @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        String sql = "";
-        List<ERPNotificationDTO> list = null;
-        Map<String, Object> params = new HashMap<>();
-        params.put("planningUnitId", eRPNotificationDTO.getPlanningUnitIdsString());
-        params.put("programId", eRPNotificationDTO.getProgramId());
-        sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
-        list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
-//        System.out.println("list---" + list);
-        return list;
-    }
-
-    @Override
-
-    @Transactional
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
-        String sql = "";
-        int id;
-//        sql = "SELECT MAX(m.`MANUAL_TAGGING_ID`) as MANUAL_TAGGING_ID FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=?;";
-//        int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo(), eRPNotificationDTO.getParentShipmentId());
-
-        if (eRPNotificationDTO.getNotificationType().getId() == 2 || eRPNotificationDTO.getNotificationType().getId() == 3) {
-            logger.info("ERP Notification : Product change notification---");
-            sql = " UPDATE rm_erp_notification n "
-                    + " LEFT JOIN rm_erp_order e ON e.`ERP_ORDER_ID`=n.`ERP_ORDER_ID` "
-                    + " LEFT JOIN rm_manual_tagging  m ON m.`MANUAL_TAGGING_ID`=n.`MANUAL_TAGGING_ID` "
-                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
-            logger.info("ERP Notification : rows updated---" + id);
-            try {
-                sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
-                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                        + "WHERE s.`SHIPMENT_ID`=? "
-                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-
-                Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, eRPNotificationDTO.getShipmentId());
-                logger.info("ERP Notification : shipment trans details---" + map);
-
-                sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-                        + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-                        + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-                long convertedQty = (long) Math.round((double) eRPNotificationDTO.getShipmentQty() * eRPNotificationDTO.getConversionFactor());
-                logger.info("ERP Notification : notification convertedQty---" + convertedQty);
-                double rate = Double.parseDouble(map.get("RATE").toString());
-                double productCost = rate * (double) convertedQty;
-                logger.info("ERP Notification : Product cost---" + productCost);
-                this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
-            } catch (Exception e) {
-                logger.info("ERP Notification : notification error for deactivated shipment---" + e);
-            }
-        } else {
-            logger.info("ERP Notification : cancelled shipment notification---");
-            sql = " UPDATE rm_erp_notification n "
-                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
-            logger.info("ERP Notification : rows updated---" + id);
-
-        }
-        return id;
-    }
-
-    @Override
-    public int getNotificationCount(CustomUserDetails curUser) {
-        String programIds = "", sql;
-        List<Program> programList = this.getProgramList(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true);
-        for (Program p : programList) {
-            programIds = programIds + p.getProgramId() + ",";
-        }
-        programIds = programIds.substring(0, programIds.lastIndexOf(","));
-//        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
-        sql = "SELECT COUNT(*) FROM ( "
-                + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
-                + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
-                + " WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
-        return this.jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
-    @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        String sql = "SELECT "
-                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
-                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
-                + " COALESCE(e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,IF(es.`DELIVERED_QTY`!=0,COALESCE(es.`DELIVERED_QTY`,es.`SHIPPED_QTY`),es.`SHIPPED_QTY`) AS BATCH_QTY "
-                + " FROM rm_erp_order e "
-                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
-                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
-                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
-//                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
-//        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
-        List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
-//        System.out.println("history---" + history);
-        return history;
     }
 
     @Override
@@ -2690,7 +2665,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LIMIT 2) t "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=t.PLANNING_UNIT_SKU_CODE "
                 + "ORDER BY t.ERP_ORDER_ID ASC LIMIT 1;";
-        return this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        return this.jdbcTemplate.queryForObject(sql, Integer.class,
+                orderNo, primeLineNo);
     }
 
     @Override
@@ -2713,7 +2689,8 @@ public class ProgramDaoImpl implements ProgramDao {
 
     public String getMaxERPOrderIdFromERPShipment(String orderNo, int primeLineNo) {
         String sql = "SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=? AND s.`PRIME_LINE_NO`=?;";
-        return this.jdbcTemplate.queryForObject(sql, String.class, orderNo, primeLineNo);
+        return this.jdbcTemplate.queryForObject(sql, String.class,
+                orderNo, primeLineNo);
     }
 
     @Override
@@ -2738,7 +2715,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId) {
         String sqlString = "SELECT "
-                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.CONSUMPTION_NOTES, dpu.HIGHER_THEN_CONSUMPTION_THRESHOLD, dpu.LOWER_THEN_CONSUMPTION_THRESHOLD, "
+                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.PLANNING_UNIT_NOTES, dpu.CONSUMPTION_NOTES, dpu.HIGHER_THEN_CONSUMPTION_THRESHOLD, dpu.LOWER_THEN_CONSUMPTION_THRESHOLD, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER_FOR_FU`, "
                 + "    puu.UNIT_ID `PUU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PUU_UNIT_CODE`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
@@ -2748,7 +2725,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    dpu.STOCK, dpu.EXISTING_SHIPMENTS, dpu.MONTHS_OF_STOCK, dpu.PRICE, dpu.CONSUMPTION_DATA_TYPE_ID, "
                 + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
                 + "    l.LABEL_ID `OU_LABEL_ID`, l.LABEL_EN `OU_LABEL_EN`, l.LABEL_FR `OU_LABEL_FR`, l.LABEL_SP `OU_LABEL_SP`, l.LABEL_PR `OU_LABEL_PR`, dpu.OTHER_MULTIPLIER `OU_MULTIPLIER_FOR_FU`, "
-                + "    dpus.REGION_ID, dpus.TREE_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, dpus.TOTAL_FORECAST, dpus.NOTES `SELECTED_NOTES`, "
+                + "    dpus.REGION_ID, dpus.TREE_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, SUM(COALESCE(mom.CALCULATED_MMD_VALUE, fced.AMOUNT)) `TOTAL_FORECAST`, dpus.NOTES `SELECTED_NOTES`, "
                 + "    dpu.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, dpu.ACTIVE "
                 + " FROM rm_dataset_planning_unit dpu  "
                 + " LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
@@ -2760,20 +2737,62 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN vw_procurement_agent pa ON dpu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
                 + " LEFT JOIN ap_label l ON dpu.OTHER_LABEL_ID=l.LABEL_ID "
                 + " LEFT JOIN rm_dataset_planning_unit_selected dpus ON dpu.PROGRAM_PLANNING_UNIT_ID=dpus.PROGRAM_PLANNING_UNIT_ID "
+                + " LEFT JOIN rm_program_version pv ON pv.PROGRAM_ID=dpu.PROGRAM_ID AND pv.VERSION_ID=dpu.VERSION_ID "
+                + " LEFT JOIN "
+                + "   ( "
+                + "   SELECT "
+                + "     ftn.TREE_ID, ftn.NODE_ID, ftnd.NODE_DATA_ID, ftnd.SCENARIO_ID, ftndpu.PLANNING_UNIT_ID "
+                + "   FROM vw_forecast_tree_node ftn "
+                + "   LEFT JOIN rm_forecast_tree_node_data ftnd ON ftnd.NODE_ID=ftn.NODE_ID "
+                + "   LEFT JOIN rm_forecast_tree_node_data_pu ftndpu ON ftndpu.NODE_DATA_PU_ID=ftnd.NODE_DATA_PU_ID "
+                + "   WHERE ftn.NODE_TYPE_ID=5 "
+                + " ) tree ON dpus.TREE_ID=tree.TREE_ID AND tree.SCENARIO_ID=dpus.SCENARIO_ID AND dpu.PLANNING_UNIT_ID=tree.PLANNING_UNIT_ID "
+                + " LEFT JOIN rm_forecast_tree_node_data_mom mom ON mom.NODE_DATA_ID=tree.NODE_DATA_ID AND mom.MONTH BETWEEN pv.FORECAST_START_DATE AND pv.FORECAST_STOP_DATE "
+                + " LEFT JOIN rm_forecast_consumption_extrapolation fce ON dpus.CONSUMPTION_EXTRAPOLATION_ID=fce.CONSUMPTION_EXTRAPOLATION_ID "
+                + " LEFT JOIN rm_forecast_consumption_extrapolation_data fced ON fce.CONSUMPTION_EXTRAPOLATION_ID=fced.CONSUMPTION_EXTRAPOLATION_ID AND fced.MONTH BETWEEN pv.FORECAST_START_DATE AND pv.FORECAST_STOP_DATE "
                 + " LEFT JOIN us_user cb ON dpu.CREATED_BY=cb.USER_ID "
-                + " WHERE dpu.PROGRAM_ID=:programId and dpu.VERSION_ID=:versionId";
-
+                + " WHERE dpu.PROGRAM_ID=:programId and dpu.VERSION_ID=:versionId"
+                + " GROUP BY dpu.PLANNING_UNIT_ID, dpus.REGION_ID";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new DatasetPlanningUnitListResultSetExtractor());
-
     }
 
     @Override
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
         String sqlString = "SELECT p.CURRENT_VERSION_ID,p.PROGRAM_ID FROM rm_program p WHERE p.PROGRAM_ID IN (" + programIds + ")";
         return this.jdbcTemplate.query(sqlString, new ProgramIdAndVersionIdRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p WHERE FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) AND p.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIds));
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc.PRODUCT_CATEGORY_ID) FROM rm_product_category pc LEFT JOIN (SELECT CONCAT(pc1.SORT_ORDER,'%') `SO` FROM rm_product_category pc1 WHERE FIND_IN_SET(pc1.PRODUCT_CATEGORY_ID, :productCategoryIds)) pc2 ON pc.SORT_ORDER LIKE pc2.SO WHERE pc2.SO IS NOT NULL");
+        Map<String, Object> params = new HashMap<>();
+        params.put("productCategoryIds", ArrayUtils.convertArrayToString(productCategoryIds));
+        String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
+        sqlStringBuilder = null;
+        sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                + "WHERE FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, :finalProductCategoryIds) AND ppu.ACTIVE AND pu.ACTIVE AND p.ACTIVE ");
+        params.clear();
+        params.put("finalProductCategoryIds", finalProductCategoryIds);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append("GROUP BY ppu.PROGRAM_ID ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
 }

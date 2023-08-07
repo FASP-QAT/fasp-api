@@ -6,12 +6,13 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.EquivalencyUnitService;
-import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,17 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
 
     @Autowired
     private EquivalencyUnitDao equivalencyUnitDao;
+    @Autowired
+    ProgramCommonDao programCommonDao;
 
     @Override
     public List<EquivalencyUnit> getEquivalencyUnitList(boolean active, CustomUserDetails curUser) {
         return this.equivalencyUnitDao.getEquivalencyUnitList(active, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getEquivalencyUnitDropDownList(CustomUserDetails curUser) {
+        return this.equivalencyUnitDao.getEquivalencyUnitDropDownList(curUser);
     }
 
     @Override
@@ -49,6 +57,14 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
             }
         }
         return this.equivalencyUnitDao.addAndUpdateEquivalencyUnitMapping(equivalencyUnitMappingList, curUser);
+    }
+
+    @Override
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser) {
+        if (programId != 0) {
+            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+        }
+        return this.equivalencyUnitDao.getEquivalencyUnitMappingForForecastingUnit(fuId, programId, curUser);
     }
 
     @Override

@@ -71,6 +71,14 @@ public class StockStatusVerticalOutput implements Serializable {
     private int regionCountForStock;
     @JsonView(Views.ReportView.class)
     private Long nationalAdjustment;
+    @JsonView(Views.ReportView.class)
+    private Long minStock;
+    @JsonView(Views.ReportView.class)
+    private Long maxStock;
+    @JsonView(Views.ReportView.class)
+    private int planBasedOn; //1- MoS , 2- Qty
+    @JsonView(Views.ReportView.class)
+    private int distributionLeadTime;
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -259,6 +267,38 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setInventoryInfo(List<InventoryInfo> inventoryInfo) {
         this.inventoryInfo = inventoryInfo;
+    }
+
+    public Long getMinStock() {
+        return minStock;
+    }
+
+    public void setMinStock(Long minStock) {
+        this.minStock = minStock;
+    }
+
+    public Long getMaxStock() {
+        return maxStock;
+    }
+
+    public void setMaxStock(Long maxStock) {
+        this.maxStock = maxStock;
+    }
+
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
+    }
+
+    public int getDistributionLeadTime() {
+        return distributionLeadTime;
+    }
+
+    public void setDistributionLeadTime(int distributionLeadTime) {
+        this.distributionLeadTime = distributionLeadTime;
     }
 
     @Override

@@ -6,19 +6,19 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.util.List;
@@ -29,7 +29,11 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, int realmId, CustomUserDetails curUser);
 
@@ -95,16 +99,6 @@ public interface ProgramDao {
 
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
-
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
-
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
-
-    public int getNotificationCount(CustomUserDetails curUser);
-
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
-
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
@@ -120,5 +114,9 @@ public interface ProgramDao {
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+    
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
 }

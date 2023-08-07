@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ManualProblem;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
@@ -15,13 +16,17 @@ import cc.altius.FASP.model.rowMapper.ProblemReportResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProblemStatusRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmProblemRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.utils.DateUtils;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -151,6 +156,38 @@ public class ProblemDaoImpl implements ProblemDao {
     @Override
     public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser) {
         return this.namedParameterJdbcTemplate.query("SELECT ps.PROBLEM_STATUS_ID `ID`, ps.LABEL_ID, ps.LABEL_EN, ps.LABEL_FR, ps.LABEL_SP, ps.LABEL_PR, ps.USER_MANAGED FROM vw_problem_status ps", new ProblemStatusRowMapper());
+    }
+
+    @Override
+    @Transactional
+    public int createManualProblem(ManualProblem manualProblem, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
+        Map<String, Object> params = new HashMap<>();
+        params.put("REALM_PROBLEM_ID", manualProblem.getRealmProblem().getRealmProblemId()); 
+        params.put("PROGRAM_ID", manualProblem.getProgram().getId());
+        params.put("VERSION_ID", manualProblem.getVersionId());
+        params.put("PROBLEM_TYPE_ID", manualProblem.getRealmProblem().getProblemType().getId()); 
+        params.put("PROBLEM_STATUS_ID", manualProblem.getProblemStatus().getId());
+        params.put("REVIEWED", false);
+        params.put("REVIEWED_NOTES", null);
+        params.put("REVIEWED_DATE", null);
+        params.put("DATA1", manualProblem.getDt());
+        params.put("DATA2", manualProblem.getRegion().getId());
+        params.put("DATA3", manualProblem.getPlanningUnit().getId());
+        params.put("DATA4", manualProblem.getShipmentId());
+        params.put("DATA5", manualProblem.getData5());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_DATE", curDate);
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        int problemReportId = si.executeAndReturnKey(params).intValue();
+        si = null;
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_problem_report_trans");
+        params.put("PROBLEM_REPORT_ID", problemReportId);
+        params.put("NOTES", manualProblem.getNotes());
+        si.execute(params);
+        return problemReportId;
     }
 
 }

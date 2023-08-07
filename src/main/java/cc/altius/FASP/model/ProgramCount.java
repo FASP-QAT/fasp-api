@@ -1,0 +1,40 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.model;
+
+import java.io.Serializable;
+
+/**
+ *
+ * @author akil
+ */
+public class ProgramCount implements Serializable {
+
+    private int programCount;
+    private int datasetCount;
+
+    public ProgramCount(int programCount, int datasetCount) {
+        this.programCount = programCount;
+        this.datasetCount = datasetCount;
+    }
+
+    public int getProgramCount() {
+        return programCount;
+    }
+
+    public void setProgramCount(int programCount) {
+        this.programCount = programCount;
+    }
+
+    public int getDatasetCount() {
+        return datasetCount;
+    }
+
+    public void setDatasetCount(int datasetCount) {
+        this.datasetCount = datasetCount;
+    }
+
+}

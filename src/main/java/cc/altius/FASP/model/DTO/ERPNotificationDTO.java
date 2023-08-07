@@ -7,17 +7,17 @@ package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
  * @author altius
  */
-public class ERPNotificationDTO extends ManualTaggingDTO implements Serializable{
+public class ERPNotificationDTO implements Serializable {
 
     private int notificationId;
     private SimpleObject notificationType;
     private boolean addressed;
+    private int shipmentLinkingId;
 
     public int getNotificationId() {
         return notificationId;
@@ -41,6 +41,14 @@ public class ERPNotificationDTO extends ManualTaggingDTO implements Serializable
 
     public void setAddressed(boolean addressed) {
         this.addressed = addressed;
+    }
+
+    public int getShipmentLinkingId() {
+        return shipmentLinkingId;
+    }
+
+    public void setShipmentLinkingId(int shipmentLinkingId) {
+        this.shipmentLinkingId = shipmentLinkingId;
     }
 
     @Override

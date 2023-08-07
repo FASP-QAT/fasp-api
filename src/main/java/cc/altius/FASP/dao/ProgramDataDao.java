@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -26,6 +27,13 @@ import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.NodeDataExtrapolation;
+import cc.altius.FASP.model.NodeDataExtrapolationOption;
+import cc.altius.FASP.model.NodeDataModeling;
+import cc.altius.FASP.model.NodeDataMom;
+import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -43,10 +51,12 @@ public interface ProgramDataDao {
     public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
 
     public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
+    
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
 
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
 
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
@@ -97,5 +107,17 @@ public interface ProgramDataDao {
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
+
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
+
+    public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate);
+
+    public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId);
+
+    public List<NodeDataOverride> getOverrideDataForNodeDataId(int nodeDataId, boolean isTemplate);
+
+    public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId);
+
+    public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId);
 
 }

@@ -23,6 +23,8 @@ public class RegionForecastErrorOutput implements Serializable {
     private Double actualQty;
     @JsonView(Views.ReportView.class)
     private Double forecastQty;
+    @JsonView(Views.ReportView.class)
+    private int daysOfStockOut;
 
     public RegionForecastErrorOutput(SimpleObject region) {
         this.region = region;
@@ -50,6 +52,14 @@ public class RegionForecastErrorOutput implements Serializable {
 
     public void setForecastQty(Double forecastQty) {
         this.forecastQty = forecastQty;
+    }
+
+    public int getDaysOfStockOut() {
+        return daysOfStockOut;
+    }
+
+    public void setDaysOfStockOut(int daysOfStockOut) {
+        this.daysOfStockOut = daysOfStockOut;
     }
 
     @Override

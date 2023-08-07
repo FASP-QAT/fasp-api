@@ -13,6 +13,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
@@ -62,12 +63,19 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
-        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
-        if (rc == null) {
-            throw new EmptyResultDataAccessException(1);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationDropdownList(realmId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getOrganisationDropdownListForRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        if (realmCountryId != -1) {
+            RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+            if (rc == null) {
+                throw new EmptyResultDataAccessException(1);
+            }
         }
-        return this.organisationDao.getOrganisationListByRealmCountry(realmCountryId, curUser);
+        return this.organisationDao.getOrganisationDropdownListForRealmCountryId(realmCountryId, curUser);
     }
 
     @Override

@@ -9,8 +9,6 @@ import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -39,7 +37,9 @@ public class EquivalencyUnitResultSetExtractor implements ResultSetExtractor<Equ
                 eq = new EquivalencyUnit(
                         rs.getInt("EQUIVALENCY_UNIT_ID"),
                         new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
-                        new LabelRowMapper().mapRow(rs, 1));
+                        new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")),
+                        new LabelRowMapper().mapRow(rs, 1),
+                        rs.getString("NOTES"));
                 eq.setBaseModel(new BaseModelRowMapper(prefix).mapRow(rs, 1));
                 isFirst = false;
             }

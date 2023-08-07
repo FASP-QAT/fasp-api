@@ -15,12 +15,22 @@ public class GlobalConstants {
     public static final int PROGRAM_TYPE_DATASET = 2; // Dataset Programs
     public static final int USAGE_TEMPLATE_DISCRETE = 1;
     public static final int USAGE_TEMPLATE_CONTINUOUS = 2;
-    
+
     public static final int NODE_TYPE_AGGREGATION = 1;
     public static final int NODE_TYPE_NUMBER = 2;
     public static final int NODE_TYPE_PERCENTAGE = 3;
     public static final int NODE_TYPE_FU = 4;
     public static final int NODE_TYPE_PU = 5;
-    public static final int NODE_TYPE_EXTRAPOLATION = 6;
-        
+
+    public static final int VERSION_TYPE_DRAFT = 1;
+    public static final int VERSION_TYPE_FINAL = 2;
+
+    public static final int COMMIT_REQUEST_NEW = 1;
+    public static final int COMMIT_REQUEST_SUCCESS = 2;
+    public static final int COMMIT_REQUEST_ERROR = 3;
+    
+    public static final int COMMIT_STATUS_TYPE_FINAL_SUBMITTED = 1; // -> Final Submitted
+    public static final int COMMIT_STATUS_TYPE_FINAL_APPROVED = 2; // -> Final Approved
+    public static final int COMMIT_STATUS_TYPE_FINAL_REJECTED = 3; // -> Final Rejected
+
 }

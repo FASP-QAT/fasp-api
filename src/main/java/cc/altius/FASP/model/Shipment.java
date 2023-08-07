@@ -25,8 +25,12 @@ public class Shipment implements Serializable {
     private int shipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Integer parentShipmentId;
+    @JsonView({Views.InternalView.class})
+    private Integer parentLinkedShipmentId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
+    @JsonView({Views.InternalView.class})
+    private SimpleObjectWithMultiplier realmCountryPlanningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -43,6 +47,8 @@ public class Shipment implements Serializable {
     private SimpleObject supplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private long shipmentQty;
+    @JsonView({Views.InternalView.class})
+    private long shipmentRcpuQty;
     @JsonView({Views.GfpVanView.class})
     private double conversionFactor;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -103,6 +109,12 @@ public class Shipment implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
+    @JsonView({Views.InternalView.class})
+    private Integer tempParentShipmentId;
+    @JsonView({Views.InternalView.class})
+    private Integer tempParentLinkedShipmentId;
+    @JsonView({Views.InternalView.class})
+    private Integer tempShipmentId;
 
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
@@ -122,6 +134,14 @@ public class Shipment implements Serializable {
 
     public void setParentShipmentId(Integer parentShipmentId) {
         this.parentShipmentId = parentShipmentId;
+    }
+
+    public Integer getParentLinkedShipmentId() {
+        return parentLinkedShipmentId;
+    }
+
+    public void setParentLinkedShipmentId(Integer parentLinkedShipmentId) {
+        this.parentLinkedShipmentId = parentLinkedShipmentId;
     }
 
     public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
@@ -418,6 +438,46 @@ public class Shipment implements Serializable {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public Integer getTempParentShipmentId() {
+        return tempParentShipmentId;
+    }
+
+    public void setTempParentShipmentId(Integer tempParentShipmentId) {
+        this.tempParentShipmentId = tempParentShipmentId;
+    }
+
+    public Integer getTempParentLinkedShipmentId() {
+        return tempParentLinkedShipmentId;
+    }
+
+    public void setTempParentLinkedShipmentId(Integer tempParentLinkedShipmentId) {
+        this.tempParentLinkedShipmentId = tempParentLinkedShipmentId;
+    }
+
+    public Integer getTempShipmentId() {
+        return tempShipmentId;
+    }
+
+    public void setTempShipmentId(Integer tempShipmentId) {
+        this.tempShipmentId = tempShipmentId;
+    }
+
+    public SimpleObjectWithMultiplier getRealmCountryPlanningUnit() {
+        return realmCountryPlanningUnit;
+    }
+
+    public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
+        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+    }
+
+    public long getShipmentRcpuQty() {
+        return shipmentRcpuQty;
+    }
+
+    public void setShipmentRcpuQty(long shipmentRcpuQty) {
+        this.shipmentRcpuQty = shipmentRcpuQty;
     }
 
     @Override

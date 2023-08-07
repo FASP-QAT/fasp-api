@@ -16,29 +16,39 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class NodeDataMomRowMapper implements RowMapper<NodeDataMom> {
 
-    private String prefix;
-
-    public NodeDataMomRowMapper(String prefix) {
-        this.prefix = prefix;
-    }
-
     @Override
     public NodeDataMom mapRow(ResultSet rs, int rowNum) throws SQLException {
-        NodeDataMom ndm = new NodeDataMom();
-        ndm.setMonth(rs.getString(prefix + "MONTH"));
-        ndm.setStartValue(rs.getDouble(prefix + "START_VALUE"));
+        NodeDataMom ndMom = new NodeDataMom(rs.getInt("NODE_DATA_MOM_ID"));
+        ndMom.setMonth(rs.getString("NDM_MONTH"));
+        ndMom.setStartValue(rs.getDouble("NDM_START_VALUE"));
         if (rs.wasNull()) {
-            ndm.setStartValue(null);
+            ndMom.setStartValue(null);
         }
-        ndm.setEndValue(rs.getDouble(prefix + "END_VALUE"));
+        ndMom.setEndValue(rs.getDouble("NDM_END_VALUE"));
         if (rs.wasNull()) {
-            ndm.setEndValue(null);
+            ndMom.setEndValue(null);
         }
-        ndm.setCalculatedValue(rs.getDouble(prefix + "CALCULATED_VALUE"));
+        ndMom.setCalculatedValue(rs.getDouble("NDM_CALCULATED_VALUE"));
         if (rs.wasNull()) {
-            ndm.setCalculatedValue(null);
+            ndMom.setCalculatedValue(null);
         }
-        return ndm;
+        ndMom.setCalculatedMmdValue(rs.getDouble("NDM_CALCULATED_MMD_VALUE"));
+        if (rs.wasNull()) {
+            ndMom.setCalculatedMmdValue(null);
+        }
+        ndMom.setDifference(rs.getDouble("NDM_DIFFERENCE"));
+        if (rs.wasNull()) {
+            ndMom.setDifference(null);
+        }
+        ndMom.setSeasonalityPerc(rs.getDouble("NDM_SEASONALITY_PERC"));
+        if (rs.wasNull()) {
+            ndMom.setSeasonalityPerc(null);
+        }
+        ndMom.setManualChange(rs.getDouble("NDM_MANUAL_CHANGE"));
+        if (rs.wasNull()) {
+            ndMom.setManualChange(null);
+        }
+        return ndMom;
     }
 
 }

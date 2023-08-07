@@ -5,13 +5,13 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.LanguageUser;
-import cc.altius.FASP.model.ModuleUser;
 import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
@@ -175,6 +175,24 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping(value = "/user/programId/{programId}")
+    public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Could not get User list for ProgramId=" + programId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
@@ -184,9 +202,11 @@ public class UserRestController {
             return new ResponseEntity(this.userService.getUserByUserId(userId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error(("Could not get User list for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException e) {
             logger.error(("Could not get User list for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error(("Could not get User list for UserId=" + userId));
@@ -206,7 +226,7 @@ public class UserRestController {
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailId(user, 1);
             if (msg.isEmpty()) {
-                int userId = this.userService.addNewUser(user, curUser.getUserId());
+                int userId = this.userService.addNewUser(user, curUser);
                 if (userId > 0) {
                     String token = this.userService.generateTokenForEmailId(user.getEmailId(), 2);
                     if (token == null || token.isEmpty()) {
@@ -224,6 +244,12 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
+        } catch (IncorrectAccessControlException iae) {
+            auditLogger.error("Either add All access or specific access " + user);
+            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (DuplicateKeyException e) {
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.error("Error", e);
             auditLogger.info("Failed to add the User");
@@ -238,7 +264,7 @@ public class UserRestController {
         try {
             String msg = this.userService.checkIfUserExistsByEmailId(user, 2);
             if (msg.isEmpty()) {
-                int row = this.userService.updateUser(user, curUser.getUserId());
+                int row = this.userService.updateUser(user, curUser);
                 if (row > 0) {
                     auditLogger.info("User updated successfully");
                     return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
@@ -250,44 +276,15 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
+        } catch (IncorrectAccessControlException iae) {
+            auditLogger.error("Either add All access or specific access " + user);
+            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
-//    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
-//        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-//        auditLogger.info("Going to unlock account for userId: " + userId + " emailId:" + emailId, request.getRemoteAddr(), curUser.getUsername());
-//        try {
-//            User user = this.userService.getUserByUserId(userId, curUser);
-//            if (!user.getEmailId().equals(emailId)) {
-//                auditLogger.info("Incorrect emailId or UserId");
-//                return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
-//            }
-//            PasswordEncoder encoder = new BCryptPasswordEncoder();
-//            String password = PassPhrase.getPassword();
-//            String hashPass = encoder.encode(password);
-//            int row = this.userService.unlockAccount(userId, hashPass);
-//            if (row > 0) {
-//                String token = this.userService.generateTokenForEmailId(user.getEmailId(), 1);
-//                if (token == null || token.isEmpty()) {
-//                    auditLogger.info("User could not be unlocked as Token could not be generated");
-//                    return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-//                } else {
-//                    auditLogger.info("User unlocked and email sent with credentials link");
-//                    return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
-//                }
-//            } else {
-//                auditLogger.info("User could not be unlocked");
-//                return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//        } catch (Exception e) {
-//            auditLogger.info("User could not be unlocked", e);
-//            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -379,23 +376,11 @@ public class UserRestController {
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
-//            System.out.println("---------------reset password start-----------");
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
-//            System.out.println("---------------1-----------");
             auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
-//            if (fpt.isValidForCompletion()) {
-//            System.out.println("---------------2-----------");
             logger.info("fpt.isValidForCompletion()=true");
             auditLogger.info("Token is valid and reset can proceed");
-//                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
             return new ResponseEntity(HttpStatus.OK);
-//            } else {
-//                System.out.println("---------------3-----------");
-//                logger.info("fpt.isValidForCompletion()=true");
-//                auditLogger.info("Token is not valid or has expired");
-//                this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
-//                return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
-//            }
         } catch (Exception e) {
             auditLogger.info("Could not confirm Token", e);
             return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -408,24 +393,19 @@ public class UserRestController {
             auditLogger.info("Update password triggered for Email: " + user.getEmailId(), request.getRemoteAddr());
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             logger.info("ForgotPasswordToken is " + fpt);
-//            System.out.println("ForgotPasswordToken is " + fpt.toString());
             if (fpt.isValidForCompletion()) {
                 logger.info("fpt.isValidForCompletion()=true");
-//                System.out.println("fpt.isValidForCompletion()=true");
                 // Go ahead and reset the password
                 CustomUserDetails curUser = this.userService.getCustomUserByEmailId(user.getEmailId());
                 logger.info("Current userL " + curUser);
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
                     auditLogger.info("Failed to reset the password because New password is same as current password");
-//                    System.out.println("Failed to reset the password because New password is same as current password");
                     return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
                     logger.info("Password provided is valid and we can proceed");
-//                    System.out.println("Password provided is valid and we can proceed");
                     this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 365);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
-//                    System.out.println("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
                 }
             } else {
@@ -461,26 +441,6 @@ public class UserRestController {
         }
     }
 
-//    @GetMapping(value = "/checkIfUserExists")
-//    public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
-//        try {
-//            String username = request.getHeader("username");
-//            String password = request.getHeader("password");
-//            if (username == null || password == null) {
-//                return new ResponseEntity("static.message.notExist", HttpStatus.NOT_ACCEPTABLE);
-//            }
-//            Map<String, Object> responseMap = this.userService.checkIfUserExists(username, password);
-//            CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
-//            if (customUserDetails != null) {
-//                return new ResponseEntity(customUserDetails, HttpStatus.OK);
-//            } else {
-//                return new ResponseEntity("static.message.listFailed", HttpStatus.NOT_ACCEPTABLE);
-//            }
-//        } catch (Exception e) {
-//            logger.error("Error", e);
-//            return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     @PutMapping(value = "/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
@@ -536,14 +496,10 @@ public class UserRestController {
     @PostMapping("/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            System.out.println("cur user---"+curUser);
             auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
             auditLogger.info("auth 2: " + auth);
             auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            auditLogger.info("Update agreement for Username: " + curUser);
             this.userService.acceptUserAgreement(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            auditLogger.info("Agreement updated successfully for Username: " + curUser.getUsername());
             return new ResponseEntity("", HttpStatus.OK);
         } catch (Exception e) {
             auditLogger.info("Could not update agreement", e);

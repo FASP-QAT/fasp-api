@@ -12,7 +12,6 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
 import cc.altius.utils.DateUtils;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,12 +115,14 @@ public class EmailDaoImpl implements EmailDao {
         int attempts = emailer.getAttempts();
         String from = "QAT_noreply@quantificationanalytics.org";
 //        String from = "fasptestemail@gmail.com";
-        String password = "#RockyMountains#";
-//        String password = "pass123%$";
+        String password = "#42Workingwombats";
+//        String password = "bzczjrnpdkhrzxhf";
+//        pass123%$";
         try {
             Properties props = System.getProperties();
             props.setProperty("mail.smtp.starttls.enable", "true");
             props.setProperty("mail.host", "smtp.office365.com");
+//            props.setProperty("mail.host", "smtp.gmail.com");
             props.setProperty("mail.smtp.port", "587");
 //            props.setProperty("mail.smtp.port", "587");
             props.setProperty("mail.smtp.auth", "true");
@@ -141,8 +142,11 @@ public class EmailDaoImpl implements EmailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
-            if (emailer.getCcToSend() != null && emailer.getCcToSend() != "") {
+            if (emailer.getCcToSend() != null && !emailer.getCcToSend().equals("")) {
                 message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
+            }
+            if (emailer.getBccToSend() != null && !emailer.getBccToSend().equals("")) {
+                message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(emailer.getBccToSend()));
             }
             message.setSubject(emailer.getSubject());
             message.setContent(emailer.getBody(), "text/html");
@@ -169,9 +173,8 @@ public class EmailDaoImpl implements EmailDao {
     }
 
     @Override
-    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String[] subjectParam, String[] bodyParam) {
+    public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam) {
         EmailTemplate emailTemplate = this.getEmailTemplateByEmailTemplateId(emailTemplateId);
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.GMT);
         String subjectString = emailTemplate.getSubject();
         String emailBodyString = emailTemplate.getEmailBody();
         if (subjectParam.length != 0) {
@@ -194,6 +197,7 @@ public class EmailDaoImpl implements EmailDao {
         emailer.setSubject(subjectString);
         emailer.setToSend(toSend);
         emailer.setCcToSend(ccTo);
+        emailer.setBccToSend(bccTo);
         emailer.setAttempts(0);
 
         return emailer;
@@ -221,6 +225,11 @@ public class EmailDaoImpl implements EmailDao {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public Emailer getEmailByEmailerId(int emailerId) {
+        return this.jdbcTemplate.queryForObject("SELECT * FROM em_emailer e where e.EMAILER_ID=?", new EmailerRowMapper(), emailerId);
     }
 
 }

@@ -9,7 +9,7 @@ package cc.altius.FASP.exception;
  *
  * @author akil
  */
-public class CouldNotSaveException extends Exception {
+public class CouldNotSaveException extends RuntimeException {
 
     public CouldNotSaveException() {
         super("Unkown error occurred");

@@ -17,12 +17,14 @@ public interface TreeTemplateService {
 
     public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser);
     
+    public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser);
+
     public TreeTemplate getTreeTemplateById(int treeTemplateId, boolean nodeData, CustomUserDetails curUser);
-    
+
     public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
+
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
+
     public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

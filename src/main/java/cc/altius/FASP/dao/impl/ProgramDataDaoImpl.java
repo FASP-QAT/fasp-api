@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
@@ -43,6 +44,7 @@ import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
+import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -57,11 +59,13 @@ import cc.altius.FASP.model.ExtrapolationData;
 import cc.altius.FASP.model.ExtrapolationDataReportingRate;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.NodeDataExtrapolation;
 import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
@@ -69,8 +73,14 @@ import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResult
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ShipmentLinkingRowMapper;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationOptionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NodeDataExtrapolationResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NodeDataModelingRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
@@ -137,22 +147,37 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException {
         Map<String, Object> params = new HashMap<>();
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+        // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
+        String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", sp.getId());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            // This is a delinked Program
+            for (Shipment s : pd.getShipmentList()) {
+                if (s.isErpFlag()) {
+                    throw new CouldNotSaveException("You are trying to commit a program that has ERP linked Shipments but this program has been delinked already");
+                }
+            }
+        }
+
         // Check which records have changed
         params.clear();
         logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
@@ -288,7 +313,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND c.MAX_VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
 //        try {
         cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(cCnt + " records updated in tmp as changed where a direct consumption record has changed");
@@ -323,7 +348,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionTypeId", pd.getVersionType().getId());
             params.put("versionStatusId", pd.getVersionStatus().getId());
             params.put("notes", pd.getNotes());
-            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //            try {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             logger.info(version + " is the new version no");
@@ -363,7 +388,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                logger.info("Failed to insert into the consumption_trans_batch_info table");
 //                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
 //            }
-            sqlString = "SELECT tc.ID, tc.CREATED_BY, tc.CREATED_DATE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
+            sqlString = "SELECT tc.ID, null TEMP_ID, null TEMP_PARENT_ID, null TEMP_PARENT_LINKED_ID, tc.CREATED_BY, tc.CREATED_DATE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("versionId", version.getVersionId());
             params.put("programId", pd.getProgramId());
@@ -535,7 +560,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND i.MAX_VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
 //        try {
         iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(iCnt + " records updated in tmp as changed where a direct inventory record has changed");
@@ -569,7 +594,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -611,7 +636,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
 //            }
 
-            sqlString = "SELECT ti.ID, ti.CREATED_BY, ti.CREATED_DATE, ti.LAST_MODIFIED_DATE, ti.LAST_MODIFIED_BY FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
+            sqlString = "SELECT ti.ID, null TEMP_ID, null TEMP_PARENT_ID, null TEMP_PARENT_LINKED_ID, ti.CREATED_BY, ti.CREATED_DATE, ti.LAST_MODIFIED_DATE, ti.LAST_MODIFIED_BY FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
             params.put("versionId", version.getVersionId());
@@ -662,7 +687,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 //        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `TEMP_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `TEMP_PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `PARENT_LINKED_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `TEMP_PARENT_LINKED_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUGGESTED_QTY` BIGINT(20) UNSIGNED NULL, "
                 + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `FUNDING_SOURCE_ID` INT(10) UNSIGNED NULL, "
@@ -674,10 +703,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `EMERGENCY_ORDER` TINYINT(1) UNSIGNED NOT NULL, "
                 + "  `LOCAL_PROCUREMENT` TINYINT(1) UNSIGNED NOT NULL, "
                 + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `EXPECTED_DELIVERY_DATE` DATE NOT NULL, "
                 + "  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUPPLIER_ID` INT(10) UNSIGNED NULL, "
                 + "  `SHIPMENT_QTY` BIGINT(20) UNSIGNED NULL, "
+                + "  `SHIPMENT_RCPU_QTY` BIGINT(20) UNSIGNED NULL, "
                 + "  `RATE` DECIMAL(12,4) NOT NULL, "
                 + "  `PRODUCT_COST` DECIMAL(24,4) UNSIGNED NOT NULL, "
                 + "  `SHIPMENT_MODE` VARCHAR(4) NOT NULL, "
@@ -733,15 +764,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC)) "
                 + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-
+        Map<Integer, Integer> tempAndNewShipmentId = new HashMap<>();
         insertList.clear();
         insertBatchList.clear();
         id = 1;
+        int sCnt = 0;
         for (Shipment s : pd.getShipmentList()) {
             Map<String, Object> tp = new HashMap<>();
             tp.put("ID", id);
             tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
-            tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
+            tp.put("TEMP_SHIPMENT_ID", (s.getTempShipmentId() == null || s.getTempShipmentId() == 0 ? null : s.getTempShipmentId()));
+            tp.put("PARENT_SHIPMENT_ID", (s.getParentShipmentId() == null || s.getParentShipmentId() == 0 ? null : s.getParentShipmentId()));
+            tp.put("TEMP_PARENT_SHIPMENT_ID", (s.getTempParentShipmentId() == null || s.getTempParentShipmentId() == 0 ? null : s.getTempParentShipmentId()));
+            tp.put("PARENT_LINKED_SHIPMENT_ID", (s.getParentLinkedShipmentId() == null || s.getParentLinkedShipmentId() == 0 ? null : s.getParentLinkedShipmentId()));
+            tp.put("TEMP_PARENT_LINKED_SHIPMENT_ID", (s.getTempParentLinkedShipmentId() == null || s.getTempParentLinkedShipmentId() == 0 ? null : s.getTempParentLinkedShipmentId()));
+//            Integer parentShipmentId = null;
+//            if (s.getParentShipmentId() != null && s.getParentShipmentId() != 0) {
+//                // Parent Shipment Id is not null, therefore this is an old linking
+//                parentShipmentId = s.getParentShipmentId();
+//            } else if (s.getTempParentShipmentId() != null && s.getTempParentShipmentId() != 0) {
+//                // Parent Shipment Id was already null and not tempParentShipmentId is not null so it is a new Linking
+//                // Calculate the ParentShipemnt Id from the Map
+//                parentShipmentId = tempAndNewShipmentId.get(s.getTempParentShipmentId());
+//            } else {
+//                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
+//                parentShipmentId = null;
+//            }
             tp.put("SUGGESTED_QTY", s.getSuggestedQty());
             tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
             tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
@@ -753,10 +801,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("EMERGENCY_ORDER", s.isEmergencyOrder());
             tp.put("LOCAL_PROCUREMENT", s.isLocalProcurement());
             tp.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
+            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", s.getRealmCountryPlanningUnit().getId());
             tp.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
             tp.put("PROCUREMENT_UNIT_ID", (s.getProcurementUnit() == null || s.getProcurementUnit().getId() == null || s.getProcurementUnit().getId() == 0 ? null : s.getProcurementUnit().getId()));
             tp.put("SUPPLIER_ID", (s.getSupplier() == null || s.getSupplier().getId() == null || s.getSupplier().getId() == 0 ? null : s.getSupplier().getId()));
             tp.put("SHIPMENT_QTY", s.getShipmentQty());
+            tp.put("SHIPMENT_RCPU_QTY", s.getShipmentRcpuQty());
             tp.put("RATE", s.getRate());
             tp.put("PRODUCT_COST", s.getProductCost());
             tp.put("SHIPMENT_MODE", s.getShipmentMode());
@@ -778,7 +828,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
             tp.put("ACTIVE", s.isActive());
             tp.put("VERSION_ID", s.getVersionId());
-            insertList.add(new MapSqlParameterSource(tp));
+
+            sqlString = "INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `TEMP_SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `TEMP_PARENT_SHIPMENT_ID`, `PARENT_LINKED_SHIPMENT_ID`, `TEMP_PARENT_LINKED_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`,`REALM_COUNTRY_PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`,`SHIPMENT_RCPU_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) "
+                    + "VALUES (:ID, :SHIPMENT_ID, :TEMP_SHIPMENT_ID, :PARENT_SHIPMENT_ID, :TEMP_PARENT_SHIPMENT_ID, :PARENT_LINKED_SHIPMENT_ID, :TEMP_PARENT_LINKED_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :SHIPMENT_RCPU_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
+            this.namedParameterJdbcTemplate.update(sqlString, tp);
+            sCnt++;
+
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 if (b.getBatch().getBatchId() == 0) {
@@ -819,13 +874,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             id++;
         }
-        logger.info(id + " shipment records going to be inserted into the tmp table");
 
-        SqlParameterSource[] insertShipment = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
 //        try {
-        int sCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment)).length;
         logger.info(sCnt + " records imported into the tmp table");
+        sqlString = "UPDATE tmp_shipment s LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=s.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 SET s.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, s.SHIPMENT_RCPU_QTY=s.SHIPMENT_QTY WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
+        params.clear();
+        params.put("realmCountryId", sp.getRealmCountry().getId());
+        int rcpuFixCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("RCPU fixed for " + rcpuFixCnt);
+
+//        sqlString = "SELECT COUNT(*) FROM tmp_shipment s WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
+//        int stillMissingSCPU = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+//        logger.info("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
+//        if (stillMissingSCPU > 0) {
+//            throw new CouldNotSaveException("Still found " + stillMissingSCPU + " RCPUs cannot proceed");
+//        }
 //        } catch (Exception e) {
 //            logger.info("Could not load the tmp shipment records going to throw a CouldNotSaveException");
 //            throw new CouldNotSaveException("Could not save Shipment data - " + e.getMessage());
@@ -846,7 +909,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_ID!=st.SHIPMENT_ID OR ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR ts.CURRENCY_ID!=s.CURRENCY_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR ts.BUDGET_ID!=st.BUDGET_ID OR ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR ts.ERP_FLAG!=st.ERP_FLAG OR ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR ts.SUPPLIER_ID!=st.SUPPLIER_ID OR ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR ts.RATE!=st.RATE OR ts.PRODUCT_COST!=st.PRODUCT_COST OR ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR ts.FREIGHT_COST!=st.FREIGHT_COST OR ts.PLANNED_DATE!=st.PLANNED_DATE OR ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR ts.APPROVED_DATE!=st.APPROVED_DATE OR ts.SHIPPED_DATE!=st.SHIPPED_DATE OR ts.ARRIVED_DATE!=st.ARRIVED_DATE OR ts.RECEIVED_DATE!=st.RECEIVED_DATE OR ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR ts.NOTES!=st.NOTES OR ts.ORDER_NO!=st.ORDER_NO OR ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR ts.SHIPMENT_ID IS NULL";
+        // Added condition for null dates
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_ID!=st.SHIPMENT_ID OR ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR ts.CURRENCY_ID!=s.CURRENCY_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.PARENT_LINKED_SHIPMENT_ID!=st.PARENT_LINKED_SHIPMENT_ID OR ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR ts.BUDGET_ID!=st.BUDGET_ID OR ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR ts.ERP_FLAG!=st.ERP_FLAG OR ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR ts.REALM_COUNTRY_PLANNING_UNIT_ID!=st.REALM_COUNTRY_PLANNING_UNIT_ID OR ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR ts.SUPPLIER_ID!=st.SUPPLIER_ID OR ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR ts.SHIPMENT_RCPU_QTY!=st.SHIPMENT_RCPU_QTY OR ts.RATE!=st.RATE OR ts.PRODUCT_COST!=st.PRODUCT_COST OR ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR ts.FREIGHT_COST!=st.FREIGHT_COST OR ts.PLANNED_DATE!=st.PLANNED_DATE OR (ts.PLANNED_DATE IS NULL AND st.PLANNED_DATE IS NOT NULL) OR (ts.PLANNED_DATE IS NOT NULL AND st.PLANNED_DATE IS NULL) OR ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR (ts.SUBMITTED_DATE IS NULL AND st.SUBMITTED_DATE IS NOT NULL) OR (ts.SUBMITTED_DATE IS NOT NULL AND st.SUBMITTED_DATE IS NULL) OR ts.APPROVED_DATE!=st.APPROVED_DATE OR (ts.APPROVED_DATE IS NULL AND st.APPROVED_DATE IS NOT NULL) OR (ts.APPROVED_DATE IS NOT NULL AND st.APPROVED_DATE IS NULL) OR ts.SHIPPED_DATE!=st.SHIPPED_DATE OR (ts.SHIPPED_DATE IS NULL AND st.SHIPPED_DATE IS NOT NULL) OR (ts.SHIPPED_DATE IS NOT NULL AND st.SHIPPED_DATE IS NULL) OR ts.ARRIVED_DATE!=st.ARRIVED_DATE OR (ts.ARRIVED_DATE IS NULL AND st.ARRIVED_DATE IS NOT NULL) OR (ts.ARRIVED_DATE IS NOT NULL AND st.ARRIVED_DATE IS NULL) OR ts.RECEIVED_DATE!=st.RECEIVED_DATE OR (ts.RECEIVED_DATE IS NULL AND st.RECEIVED_DATE IS NOT NULL) OR (ts.RECEIVED_DATE IS NOT NULL AND st.RECEIVED_DATE IS NULL) OR ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR ts.NOTES!=st.NOTES OR ts.ORDER_NO!=st.ORDER_NO OR ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR ts.SHIPMENT_ID IS NULL";
 //        try {
         sCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(sCnt + " records updated in tmp as changed where a direct shipment record has changed");
@@ -873,6 +937,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         sqlString = "SELECT COUNT(*) FROM tmp_shipment ts WHERE ts.CHANGED=1";
         int shipmentRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (shipmentRows > 0) {
+            // **********************************************************************************
+            // TODO VIMP
+            // I think its better to handle the new inserts first and then do handle the updates
+            // **********************************************************************************
             if (version == null) {
                 params.put("programId", pd.getProgramId());
                 params.put("curUser", commitUser.getUserId());
@@ -880,7 +948,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -891,7 +959,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             params.put("versionId", version.getVersionId());
             // Insert the rows where Shipment Id is not null
-            sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT"
+            sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PARENT_LINKED_SHIPMENT_ID, PLANNING_UNIT_ID,REALM_COUNTRY_PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY,SHIPMENT_RCPU_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT ts.SHIPMENT_ID,ts.PARENT_LINKED_SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.REALM_COUNTRY_PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.SHIPMENT_RCPU_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT"
                     + " FROM tmp_shipment ts "
                     + "WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
 //            try {
@@ -922,9 +990,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
 //            }
 
-            sqlString = "SELECT ts.ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
+            // Now handle the rows that have ShipmentId = 0 or null which means they are new
+            sqlString = "SELECT ts.ID, ts.TEMP_SHIPMENT_ID TEMP_ID, ts.TEMP_PARENT_SHIPMENT_ID TEMP_PARENT_ID, ts.TEMP_PARENT_LINKED_SHIPMENT_ID TEMP_PARENT_LINKED_ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
+            params.put("parentLinkedShipmentId", null);
             params.put("versionId", version.getVersionId());
             params.put("programId", pd.getProgramId());
             params.put("createdBy", commitUser.getUserId());
@@ -937,14 +1007,22 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("createdDate", tmpId.getCreatedDate());
                 params.put("lastModifiedBy", tmpId.getLastModifiedBy());
                 params.put("lastModifiedDate", tmpId.getLastModifiedDate());
-                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                params.put("tempParentShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentId()));
+                params.put("tempParentLinkedShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentLinkedId()));
+                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, PARENT_SHIPMENT_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, IF(ts.TEMP_PARENT_SHIPMENT_ID IS NULL,ts.PARENT_SHIPMENT_ID,:tempParentShipmentId), ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {
 //                    logger.info("Failed to insert into the shipment table");
 //                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
 //                }
-                sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT LAST_INSERT_ID(), ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.ID=:id";
+                sqlString = "SELECT LAST_INSERT_ID()";
+                int shipmentId = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+                // Save the ShipmentId against the tmpShipmentId in the Map
+                tempAndNewShipmentId.put(tmpId.getTempId(), shipmentId);
+                sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, REALM_COUNTRY_PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, SHIPMENT_RCPU_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT LAST_INSERT_ID(), ts.PLANNING_UNIT_ID, ts.REALM_COUNTRY_PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.SHIPMENT_RCPU_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.ID=:id";
+                sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PARENT_LINKED_SHIPMENT_ID, PLANNING_UNIT_ID, REALM_COUNTRY_PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, SHIPMENT_RCPU_QTY,RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT LAST_INSERT_ID(), COALESCE(ts.PARENT_LINKED_SHIPMENT_ID, :parentLinkedShipmentId), ts.PLANNING_UNIT_ID, ts.REALM_COUNTRY_PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.SHIPMENT_RCPU_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.ID=:id";
+                params.replace("parentLinkedShipmentId", tempAndNewShipmentId.get(tmpId.getTempParentLinkedId()));
 //                try {
                 shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {
@@ -960,8 +1038,163 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                }
             }
         }
-        // ###########################  Shipment  ############################################
 
+        // ###########################  Shipment  ############################################
+        // ###########################  Shipment Linking  ####################################
+        params.clear();
+        int slCnt = 0;
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_linking`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_linking`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_linking` ( "
+                //                        sqlString = "CREATE TABLE `tmp_shipment_linking` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `SHIPMENT_LINKING_ID` INT(10) UNSIGNED NULL, "
+                + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `CHILD_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `RO_NO` VARCHAR(15) NULL, "
+                + "  `RO_PRIME_LINE_NO` INT(10) UNSIGNED NULL, "
+                + "  `ORIGINAL_PLANNING_UNIT_ID` INT(10) UNSIGNED NULL, "
+                + "  `CONVERSION_FACTOR` DECIMAL(16,4) UNSIGNED NULL, "
+                + "  `ORDER_NO` VARCHAR(15) NULL, "
+                + "  `PRIME_LINE_NO` INT(10) NULL, "
+                + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
+                + "  `CREATED_DATE` DATETIME NOT NULL, "
+                + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
+                + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `KN_SHIPMENT_NO` VARCHAR(20) NULL, "
+                + "  `VERSION_ID` INT(10) NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_shipment_linking_1_idx` (`SHIPMENT_LINKING_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_2_idx` (`PROCUREMENT_AGENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_3_idx` (`PARENT_SHIPMENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_4_idx` (`CHILD_SHIPMENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_5_idx` (`RO_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_6_idx` (`RO_PRIME_LINE_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_7_idx` (`ORDER_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_8_idx` (`PRIME_LINE_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_9_idx` (`KN_SHIPMENT_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_10_idx` (`VERSION_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_linking_11_idx` (`ORIGINAL_PLANNING_UNIT_ID` ASC))"
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        insertList.clear();
+        insertBatchList.clear();
+        id = 1;
+        for (ShipmentLinking s : pd.getShipmentLinkingList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("ID", id);
+            tp.put("SHIPMENT_LINKING_ID", (s.getShipmentLinkingId() == 0 ? null : s.getShipmentLinkingId()));
+            tp.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent().getId());
+            Integer parentShipmentId = null;
+            Integer childShipmentId = null;
+            if (s.getParentShipmentId() != 0) {
+                // Parent Shipment Id is not null, therefore this is an old linking
+                parentShipmentId = s.getParentShipmentId();
+            } else if (s.getTempParentShipmentId() != null && s.getTempParentShipmentId() != 0) {
+                // Parent Shipment Id was already 0 and not tempParentShipmentId is not null so it is a new Linking
+                // Calculate the ParentShipemnt Id from the Map
+                parentShipmentId = tempAndNewShipmentId.get(s.getTempParentShipmentId());
+            } else {
+                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
+                parentShipmentId = null;
+            }
+            if (s.getChildShipmentId() != 0) {
+                // Child Shipment Id is not null, therefore this is an old linking
+                childShipmentId = s.getChildShipmentId();
+            } else if (s.getTempChildShipmentId() != null && s.getTempChildShipmentId() != 0) {
+                // Child Shipment Id was already 0 and not tempChildShipmentId is not null so it is a new Linking
+                // Calculate the ChildShipemnt Id from the Map
+                childShipmentId = tempAndNewShipmentId.get(s.getTempChildShipmentId());
+            } else {
+                // Both of them are null therefore there is no linking and that means the parentShipmentId = null
+                childShipmentId = null;
+            }
+            tp.put("PARENT_SHIPMENT_ID", parentShipmentId);
+            tp.put("CHILD_SHIPMENT_ID", childShipmentId);
+            tp.put("ORIGINAL_PLANNING_UNIT_ID", s.getErpPlanningUnit().getId());
+            tp.put("RO_NO", s.getRoNo());
+            tp.put("RO_PRIME_LINE_NO", s.getRoPrimeLineNo());
+            tp.put("CONVERSION_FACTOR", s.getConversionFactor());
+            tp.put("ORDER_NO", (s.getOrderNo() == null || s.getOrderNo().isBlank() ? null : s.getOrderNo()));
+            tp.put("PRIME_LINE_NO", (s.getPrimeLineNo() == null || s.getPrimeLineNo().isBlank() ? null : s.getPrimeLineNo()));
+            tp.put("CREATED_BY", s.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", s.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", s.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
+            tp.put("ACTIVE", s.isActive());
+            tp.put("KN_SHIPMENT_NO", (s.getKnShipmentNo() == null || s.getKnShipmentNo().isBlank() ? null : s.getKnShipmentNo()));
+            tp.put("VERSION_ID", s.getVersionId());
+            insertList.add(new MapSqlParameterSource(tp));
+            id++;
+        }
+
+        if (insertList.size() > 0) {
+            SqlParameterSource[] insertShipmentLinking = new SqlParameterSource[insertList.size()];
+            sqlString = "INSERT INTO tmp_shipment_linking (`ID`, `SHIPMENT_LINKING_ID`, `PROCUREMENT_AGENT_ID`, `PARENT_SHIPMENT_ID`, `CHILD_SHIPMENT_ID`, `RO_NO`, `RO_PRIME_LINE_NO`, `ORIGINAL_PLANNING_UNIT_ID`, `CONVERSION_FACTOR`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `KN_SHIPMENT_NO`, `VERSION_ID`) VALUES (:ID, :SHIPMENT_LINKING_ID, :PROCUREMENT_AGENT_ID, :PARENT_SHIPMENT_ID, :CHILD_SHIPMENT_ID, :RO_NO, :RO_PRIME_LINE_NO, :ORIGINAL_PLANNING_UNIT_ID, :CONVERSION_FACTOR, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :KN_SHIPMENT_NO, :VERSION_ID)";
+            slCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipmentLinking)).length;
+            logger.info(slCnt + " records imported into the tmp table");
+        }
+        params.clear();
+        // Flag the rows for changed records
+//        sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID LEFT JOIN rm_shipment_linking_trans st ON ts.SHIPMENT_LINKING_ID=st.SHIPMENT_LINKING_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_LINKING_ID!=st.SHIPMENT_LINKING_ID OR ts.PROCUREMENT_AGENT_ID!=s.PROCUREMENT_AGENT_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.CHILD_SHIPMENT_ID!=s.CHILD_SHIPMENT_ID OR ts.RO_NO!=s.RO_NO OR ts.RO_PRIME_LINE_NO!=s.RO_PRIME_LINE_NO OR ts.CONVERSION_FACTOR!=s.CONVERSION_FACTOR OR ts.ORDER_NO!=s.ORDER_NO OR ts.PRIME_LINE_NO!=s.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.KN_SHIPMENT_NO!=st.KN_SHIPMENT_NO OR ts.SHIPMENT_ID IS NULL";
+        sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID LEFT JOIN rm_shipment_linking_trans st ON ts.SHIPMENT_LINKING_ID=st.SHIPMENT_LINKING_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.ACTIVE!=st.ACTIVE OR ts.SHIPMENT_LINKING_ID IS NULL";
+        slCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(slCnt + " records updated in tmp as changed where a direct shipment record has changed");
+        // Check if there are any rows that need to be added
+        params.clear();
+        sqlString = "SELECT COUNT(*) FROM tmp_shipment_linking ts WHERE ts.CHANGED=1";
+        int shipmentLinkingRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (shipmentLinkingRows > 0) {
+            if (version == null) {
+                params.put("programId", pd.getProgramId());
+                params.put("curUser", commitUser.getUserId());
+                params.put("curDate", curDate);
+                params.put("versionTypeId", pd.getVersionType().getId());
+                params.put("versionStatusId", pd.getVersionStatus().getId());
+                params.put("notes", pd.getNotes());
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
+                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                logger.info(version + " is the new version no");
+            }
+            params.put("versionId", version.getVersionId());
+            // Insert the rows where Shipment Id is not null
+            sqlString = "INSERT INTO rm_shipment_linking_trans (SHIPMENT_LINKING_ID, CONVERSION_FACTOR, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) SELECT ts.SHIPMENT_LINKING_ID, ts.CONVERSION_FACTOR, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId"
+                    + " FROM tmp_shipment_linking ts "
+                    + "WHERE ts.CHANGED=1 AND ts.SHIPMENT_LINKING_ID IS NOT NULL";
+            shipmentLinkingRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(shipmentLinkingRows + " added to the shipment_trans table");
+            params.clear();
+            params.put("versionId", version.getVersionId());
+            // Update the rm_shipment table with the latest versionId
+            sqlString = "UPDATE tmp_shipment_linking ts LEFT JOIN rm_shipment_linking s ON ts.SHIPMENT_LINKING_ID=s.SHIPMENT_LINKING_ID SET s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, s.PARENT_SHIPMENT_ID=ts.PARENT_SHIPMENT_ID, s.CHILD_SHIPMENT_ID=ts.CHILD_SHIPMENT_ID, s.RO_NO=ts.RO_NO, s.RO_PRIME_LINE_NO=ts.RO_PRIME_LINE_NO, s.ORDER_NO=ts.ORDER_NO, s.PRIME_LINE_NO=ts.PRIME_LINE_NO, s.KN_SHIPMENT_NO=ts.KN_SHIPMENT_NO, s.CONVERSION_FACTOR=ts.CONVERSION_FACTOR, s.ACTIVE=ts.ACTIVE, s.MAX_VERSION_ID=:versionId, s.LAST_MODIFIED_BY=ts.LAST_MODIFIED_BY, s.LAST_MODIFIED_DATE=ts.LAST_MODIFIED_DATE WHERE ts.SHIPMENT_LINKING_ID IS NOT NULL AND ts.CHANGED=1";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info("Updated the Version no in the shipment table");
+            sqlString = "SELECT ts.ID, null TEMP_ID, null TEMP_PARENT_ID, null TEMP_PARENT_LINKED_ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment_linking ts WHERE ts.SHIPMENT_LINKING_ID IS NULL OR ts.SHIPMENT_LINKING_ID=0";
+            List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
+            params.put("id", 0);
+            params.put("versionId", version.getVersionId());
+            params.put("programId", pd.getProgramId());
+            params.put("createdBy", commitUser.getUserId());
+            params.put("createdDate", curDate);
+            params.put("lastModifiedBy", commitUser.getUserId());
+            params.put("lastModifiedDate", curDate);
+            for (IdByAndDate tmpId : idListForInsert) {
+                params.replace("id", tmpId.getId());
+                params.put("createdBy", tmpId.getCreatedBy());
+                params.put("createdDate", tmpId.getCreatedDate());
+                params.put("lastModifiedBy", tmpId.getLastModifiedBy());
+                params.put("lastModifiedDate", tmpId.getLastModifiedDate());
+                sqlString = "INSERT INTO rm_shipment_linking (PROGRAM_ID, PROCUREMENT_AGENT_ID, PARENT_SHIPMENT_ID, CHILD_SHIPMENT_ID, RO_NO, RO_PRIME_LINE_NO, ORIGINAL_PLANNING_UNIT_ID, CONVERSION_FACTOR, ACTIVE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ORDER_NO, PRIME_LINE_NO, KN_SHIPMENT_NO, MAX_VERSION_ID) SELECT :programId, ts.PROCUREMENT_AGENT_ID, ts.PARENT_SHIPMENT_ID, ts.CHILD_SHIPMENT_ID, ts.RO_NO, ts.RO_PRIME_LINE_NO, ts.ORIGINAL_PLANNING_UNIT_ID, ts.CONVERSION_FACTOR, ts.ACTIVE,  :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.KN_SHIPMENT_NO, :versionId FROM tmp_shipment_linking ts WHERE ts.ID=:id";
+                shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_shipment_linking_trans (SHIPMENT_LINKING_ID, CONVERSION_FACTOR, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) SELECT LAST_INSERT_ID(), ts.CONVERSION_FACTOR, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment_linking ts WHERE ts.ID=:id";
+                shipmentRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+        }
+        // ###########################  Shipment Linking  ####################################
         // #########################  Problem Report #########################################
         insertList.clear();
         insertBatchList.clear();
@@ -1062,6 +1295,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_trans_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_linking`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         if (version == null) {
             if (updatedProblemAction) {
                 params.put("programId", pd.getProgramId());
@@ -1070,7 +1306,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", pd.getVersionType().getId());
                 params.put("versionStatusId", pd.getVersionStatus().getId());
                 params.put("notes", pd.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1089,7 +1325,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     params.put("versionTypeId", pd.getVersionType().getId());
                     params.put("versionStatusId", pd.getVersionStatus().getId());
                     params.put("notes", pd.getNotes());
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
 //                    try {
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     logger.info(version + " is the new version no");
@@ -1126,7 +1362,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         // Get the new VersionId
-        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate)";
+        sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :forecastStartDate, :forecastStopDate, :daysInMonth, :freightPerc, :forecastThresholdHighPerc, :forecastThresholdLowPerc, :curUser, :curDate, 0)";
         params.clear();
         params.put("programId", spcr.getProgram().getId());
         params.put("versionTypeId", spcr.getVersionType().getId());
@@ -1152,6 +1388,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.put("REGION_ID", fac.getRegion().getId());
             batchParams.put("MONTH", fac.getMonth());
             batchParams.put("AMOUNT", fac.getAmount());
+            batchParams.put("REPORTING_RATE", fac.getReportingRate());
             batchParams.put("DAYS_OF_STOCK_OUT", fac.getDaysOfStockOut());
             batchParams.put("ADJUSTED_AMOUNT", fac.getAdjustedAmount());
             batchParams.put("PU_AMOUNT", fac.getPuAmount());
@@ -1169,10 +1406,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         batchArray = null;
         si = null;
 
-        // Step 2 -- Inser Consumption Extrapolation and Data
+        // Step 2 -- Insert Consumption Extrapolation and Data
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation").usingGeneratedKeyColumns("CONSUMPTION_EXTRAPOLATION_ID");
         SimpleJdbcInsert siData = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_consumption_extrapolation_data");
         for (ForecastConsumptionExtrapolation fce : dd.getConsumptionExtrapolation()) {
+            batchList.clear();
             params.clear();
             params.put("PROGRAM_ID", spcr.getProgram().getId());
             params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
@@ -1241,7 +1479,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
-                batchParams.put("UNIT_ID", (level.getUnit() == null ? null : level.getUnit().getId()));
+                batchParams.put("UNIT_ID", (level.getUnit() == null || level.getUnit().getId() == null || level.getUnit().getId() == 0 ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -1254,6 +1492,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("TREE_ID", treeId);
                 nodeParams.put("SORT_ORDER", n.getSortOrder());
                 nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+                nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
                 nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
@@ -1306,7 +1545,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                             nodeDataParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                             nodeDataParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                            nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
+                            nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_CONTINUOUS ? false : tnd.getFuNode().isOneTimeUsage());
                             nodeDataParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
                             nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
@@ -1342,7 +1581,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        if (n.getPayload().getNodeType().getId() != GlobalConstants.NODE_TYPE_NUMBER) {
+                            tnd.setExtrapolation(false);
+                        }
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
+                        nodeDataParams.put("NOTES", tnd.getNotes());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                         nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                         nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -1353,8 +1596,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
-                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling");
+                        if ((n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU
+                                || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU)
+                                && tnd.isExtrapolation() == Boolean.FALSE) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
                             for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                                 nodeDataParams.clear();
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
@@ -1371,12 +1618,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                                 nodeDataParams.put("ACTIVE", 1);
-                                ni.execute(nodeDataParams);
+                                ndm.setNodeDataModelingId(ni.executeAndReturnKey(nodeDataParams).intValue());
                             }
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation() == Boolean.TRUE) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
 
@@ -1386,14 +1633,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
                                 int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                /*for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
                                     nodeDataParams.clear();
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
                                     nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
-                                }
+                                }*/
                             }
                         }
 
@@ -1405,6 +1652,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("NODE_DATA_ID", nodeDataId);
                             nodeDataParams.put("EXTRAPOLATION_METHOD_ID", nde.getExtrapolationMethod().getId());
                             nodeDataParams.put("NOTES", nde.getNotes());
+                            nodeDataParams.put("START_DATE", nde.getStartDate());
+                            nodeDataParams.put("STOP_DATE", nde.getStopDate());
                             int ndeId = ni.executeAndReturnKey(nodeDataParams).intValue();
                             SimpleJdbcInsert di = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecast_tree_node_data_extrapolation_data");
                             for (ExtrapolationDataReportingRate edrr : nde.getExtrapolationDataList()) {
@@ -1454,7 +1703,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
 
                 batchList.clear();
-                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_ID=:nodeDataId";
+                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_MODELING_ID=:nodeDataModelingId";
                 // go back and update the TransferNodeDataId's
                 for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
                     for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
@@ -1462,7 +1711,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
                                 batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
-                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tnd.getNodeDataId())));
+                                batchParams.put("nodeDataModelingId", tndm.getNodeDataModelingId());
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
@@ -1495,6 +1744,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PRICE", dpu.getPrice());
             params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
             params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
+            params.put("PLANNING_UNIT_NOTES", dpu.getPlanningUnitNotes());
             params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
             params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
             if (dpu.getOtherUnit() != null) {
@@ -1535,11 +1785,42 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         // Step 5 -- Update the Version no on the Program table
-        sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
+        /**
+         * skip this step for now and do it once the compile is completed
+         * sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId
+         * WHERE p.PROGRAM_ID=:programId"; params.clear();
+         * params.put("programId", spcr.getProgram().getId());
+         * params.put("versionId", version.getVersionId());
+         * this.namedParameterJdbcTemplate.update(sqlString, params);
+         *
+         */
+        // Step 6 -- Remove duplicates from rm_forecast_extrapolation_data
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_extrapolation_data`( `CONSUMPTION_EXTRAPOLATION_DATA_ID` INT ); ";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "INSERT INTO `tmp_consumption_extrapolation_data` "
+                + "SELECT fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` "
+                + "FROM `rm_forecast_consumption_extrapolation_data` fced "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation fce "
+                + "ON fced.CONSUMPTION_EXTRAPOLATION_ID=fce.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId AND fce.VERSION_ID=:versionId "
+                + "AND fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` NOT IN ( "
+                + "SELECT MIN(fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID`) "
+                + "FROM `rm_forecast_consumption_extrapolation_data` fced "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation fce "
+                + "ON fced.CONSUMPTION_EXTRAPOLATION_ID=fce.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId AND fce.VERSION_ID=:versionId "
+                + "GROUP BY fced.`CONSUMPTION_EXTRAPOLATION_ID`,fced.`MONTH`);";
         params.clear();
         params.put("programId", spcr.getProgram().getId());
         params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DELETE fced.* FROM `rm_forecast_consumption_extrapolation_data` fced  "
+                + "WHERE fced.`CONSUMPTION_EXTRAPOLATION_DATA_ID` IN (SELECT * FROM `tmp_consumption_extrapolation_data`);";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`; ";
+        this.jdbcTemplate.update(sqlString);
         return version;
     }
 
@@ -1616,6 +1897,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingData(:programId, :versionId)", params, new ShipmentLinkingRowMapper());
+    }
+
+    @Override
     public List<SimpleObject> getVersionTypeList() {
         String sqlString = "SELECT vt.VERSION_TYPE_ID `ID`, vtl.LABEL_ID, vtl.LABEL_EN, vtl.LABEL_FR, vtl.LABEL_SP, vtl.LABEL_PR  FROM ap_version_type vt LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID";
         return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
@@ -1655,7 +1944,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, "
                 + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_SP `ORGANISATION_LABEL_SP`, o.LABEL_PR `ORGANISATION_LABEL_PR`, "
                 + "     vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-                + "     vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "     vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, "
+                + "     pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.`DAYS_IN_MONTH`, pv.`FREIGHT_PERC`, pv.`FORECAST_THRESHOLD_HIGH_PERC`, pv.`FORECAST_THRESHOLD_LOW_PERC` "
                 + "FROM rm_program_version pv  "
                 + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
@@ -1746,15 +2036,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
+            List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "BCc");
 //            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
 //            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
+            StringBuilder sbBccEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
                 for (NotificationUser ns : toEmailIdsList) {
                     sbToEmails.append(ns.getEmailId()).append(",");
@@ -1763,6 +2055,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             if (ccEmailIdsList.size() > 0) {
                 for (NotificationUser ns : ccEmailIdsList) {
                     sbCcEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (bccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : bccEmailIdsList) {
+                    sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
 //            if (sbToEmails.length() != 0) {
@@ -1776,9 +2073,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1786,15 +2083,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
+            List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "BCc");
 //            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
 //            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
+            StringBuilder sbBccEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
                 for (NotificationUser ns : toEmailIdsList) {
                     sbToEmails.append(ns.getEmailId()).append(",");
@@ -1803,6 +2102,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             if (ccEmailIdsList.size() > 0) {
                 for (NotificationUser ns : ccEmailIdsList) {
                     sbCcEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (bccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : bccEmailIdsList) {
+                    sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
 //            if (sbToEmails.length() != 0) {
@@ -1816,9 +2120,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -2039,18 +2343,24 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.replace("versionId", versionId);
         }
+        logger.info("Version Id is " + versionId);
         if (rebuild == true) {
+            logger.info("Going to start rebuild process");
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
+            logger.info("Got the Supply Plan Region list from SP");
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            logger.info("Got the Supply Plan Batch list from SP");
             // Build the Supply Plan over here
             msp.buildPlan();
+            logger.info("Rebuilding done");
             // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
             List<MapSqlParameterSource> amcParams = new LinkedList<>();
             List<MapSqlParameterSource> batchParams = new LinkedList<>();
             int i = 0;
+            logger.info("Building the records fpr batch insert");
             for (NewSupplyPlan nsp : msp.getNspList()) {
                 MapSqlParameterSource a1 = new MapSqlParameterSource();
                 a1.addValue("PROGRAM_ID", msp.getProgramId());
@@ -2074,6 +2384,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("SHIPMENT_QTY", nsp.getManualShipmentTotal() + nsp.getErpShipmentTotal());
                 a1.addValue("FORECASTED_CONSUMPTION_QTY", nsp.getForecastedConsumptionQty());
                 a1.addValue("ACTUAL_CONSUMPTION_QTY", nsp.getActualConsumptionQty());
+                a1.addValue("ADJUSTED_CONSUMPTION_QTY", nsp.getAdjustedConsumptionQty());
                 a1.addValue("ACTUAL", nsp.isActualConsumptionFlag());
                 a1.addValue("ADJUSTMENT_MULTIPLIED_QTY", nsp.getAdjustmentQty());
                 a1.addValue("STOCK_MULTIPLIED_QTY", nsp.getStockQty());
@@ -2148,16 +2459,57 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 i++;
             }
+            sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc1";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc2";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
+                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
+                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+            // Create table
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
+                    + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
+                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+            // Create table
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc");
+            logger.info("Delete done");
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
+            SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("tmp_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc1 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc2 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
+            logger.info("Batch insert for supply plan amc completed");
+            logger.info("Delete the existing records from supply plan batch");
             this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
             MapSqlParameterSource[] batchParamsArray = new MapSqlParameterSource[batchParams.size()];
             batchParams.toArray(batchParamsArray);
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
+            logger.info("Batch insert for supply plan batch completed");
+            params.clear();
+
             sqlString = "UPDATE rm_supply_plan_amc spa "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                     + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
@@ -2165,14 +2517,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
                     + "    LEFT JOIN ( "
                     + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
-                    + "            SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
-                    + "        FROM rm_supply_plan_amc spa "
+                    + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "        FROM tmp_supply_plan_amc1 spa "
                     + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
-                    + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
+                    + "        LEFT JOIN (SELECT * FROM tmp_supply_plan_amc2 spa2) spa2 ON "
                     + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
                     + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH) "
-                    + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
                     + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
                     + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
                     + "    SET "
@@ -2180,8 +2531,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "        spa.AMC_COUNT=amc.AMC_COUNT, "
                     + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
                     + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
-                    + "        spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
-                    + "        spa.MAX_STOCK_MOS = IF( "
+                    + "        spa.MIN_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), IF(amc.AMC IS NULL OR amc.AMC=0, null, ppu.MIN_QTY/amc.AMC)), "
+                    + "        spa.MAX_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF( "
                     + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                IF ( "
@@ -2189,9 +2540,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
-                    + "                            ), "
-                    + "        spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
-                    + "        spa.MAX_STOCK_QTY = IF( "
+                    + "                            ), IF(amc.AMC IS NULL OR amc.AMC=0, null, ppu.MIN_QTY/amc.AMC + ppu.REORDER_FREQUENCY_IN_MONTHS)),"
+                    + "        spa.MIN_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, ppu.MIN_QTY), "
+                    + "        spa.MAX_STOCK_QTY = IF(ppu.PLAN_BASED_ON=1, IF( "
                     + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                r.MIN_MOS_MAX_GAURDRAIL, "
                     + "                                IF ( "
@@ -2199,14 +2550,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
-                    + "                            ) * amc.AMC "
+                    + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
                     + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            logger.info("Going to update the supply plan amc records");
             this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info("Update completed, now dropping tmp table");
+            this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc1", params);
+            this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc2", params);
+            logger.info("Table dropped");
 //            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {
+            logger.info("Going to get the new supply plan batch");
             List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
+            logger.info("Records retrieved");
             return sp;
         } else {
             return new LinkedList<>();
@@ -2239,31 +2597,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
-        String sqlString = "SELECT li.INT_PROGRAM_VERSION_TRANS_ID PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  li.INT_VERSION_ID VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
-                + "FROM ( "
-                + "         SELECT MAX(pvte.PROGRAM_VERSION_TRANS_ID) INT_PROGRAM_VERSION_TRANS_ID, pvte.PROGRAM_ID, ip.INTEGRATION_ID, MAX(pvte.VERSION_ID) INT_VERSION_ID, max(pvte.LAST_MODIFIED_DATE) INT_LAST_MODIFIED_DATE "
-                + "         FROM rm_integration_program ip "
-                + "         LEFT JOIN ( "
-                + "                  SELECT pvt.PROGRAM_VERSION_TRANS_ID, pvt.LAST_MODIFIED_DATE, pv.PROGRAM_ID, pv.VERSION_ID, pvt.VERSION_TYPE_ID, pvt.VERSION_STATUS_ID "
-                + "                  FROM rm_program_version_trans pvt "
-                + "                  LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         ) pvte ON ip.PROGRAM_ID=pvte.PROGRAM_ID and ip.VERSION_TYPE_ID=pvte.VERSION_TYPE_ID AND ip.VERSION_STATUS_ID=pvte.VERSION_STATUS_ID "
-                + "         WHERE ip.ACTIVE AND pvte.PROGRAM_VERSION_TRANS_ID IS NOT  NULL "
-                + "         GROUP BY pvte.PROGRAM_ID, ip.INTEGRATION_ID "
-                + ") li "
-                + "LEFT JOIN ( "
-                + "         SELECT pv.PROGRAM_ID, ipc.INTEGRATION_ID, MAX(pv.VERSION_ID) LAST_COMPLETED_VERSION_ID "
-                + "         FROM rm_integration_program_completed ipc "
-                + "         LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
-                + "         LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "         GROUP BY pv.PROGRAM_ID, ipc.INTEGRATION_ID "
-                + ") lic ON li.PROGRAM_ID=lic.PROGRAM_ID AND li.INTEGRATION_ID=lic.INTEGRATION_ID "
-                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=li.PROGRAM_ID "
-                + "LEFT JOIN rm_program_version_trans pvt ON pvt.PROGRAM_VERSION_TRANS_ID=li.INT_PROGRAM_VERSION_TRANS_ID "
+        String sqlString = "SELECT "
+                + "	ipc.PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pvt.VERSION_TYPE_ID, "
+                + "    pvt.VERSION_STATUS_ID, ipc.INTEGRATION_PROGRAM_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, "
+                + "    i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+                + "FROM rm_integration_program_completed ipc "
+                + "LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "LEFT JOIN ap_integration i ON li.INTEGRATION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_integration i ON ipc.INTEGRATION_ID=i.INTEGRATION_ID "
                 + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
-                + "WHERE li.INT_VERSION_ID>lic.LAST_COMPLETED_VERSION_ID OR lic.LAST_COMPLETED_VERSION_ID IS NULL";
+                + "WHERE ipc.PROGRAM_VERSION_TRANS_ID IN (SELECT max(pvt.PROGRAM_VERSION_TRANS_ID) PVT FROM rm_integration_program_completed `ipc` LEFT JOIN rm_program_version_trans pvt on `ipc`.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID WHERE `ipc`.COMPLETED_DATE IS NULL GROUP BY pv.PROGRAM_ID, `ipc`.INTEGRATION_ID)";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
@@ -2274,7 +2618,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programVersionTransId", programVersionTransId);
         params.put("integrationId", integrationId);
         params.put("curDate", curDate);
-        return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
+        String sql = "UPDATE rm_integration_program_completed ipc SET ipc.COMPLETED_DATE=:curDate WHERE ipc.COMPLETED_DATE IS NULL AND ipc.PROGRAM_VERSION_TRANS_ID=:programVersionTransId AND ipc.INTEGRATION_ID=:integrationId";
+        int rowsEffected = this.namedParameterJdbcTemplate.update(sql, params);
+        return (rowsEffected > 0);
     }
 
     @Override
@@ -2361,7 +2707,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -2376,15 +2722,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
                 + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
-                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
-                + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
-                + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
-                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
-                + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
-                + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
-                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE`, "
-                + "          ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR` "
                 + "      FROM vw_forecast_tree_node ttn "
                 + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
                 + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
@@ -2400,16 +2738,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      LEFT JOIN rm_forecast_tree_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
                 + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_modeling ttndm on ttnd.NODE_DATA_ID=ttndm.NODE_DATA_ID "
-                + "      LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_mom ndm ON ttnd.NODE_DATA_ID=ndm.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_override ndo ON ttnd.NODE_DATA_ID=ndo.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation nde ON ttnd.NODE_DATA_ID=nde.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option ndeo ON ttnd.NODE_DATA_ID=ndeo.NODE_DATA_ID "
-                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
-                + "      LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
-                + "      LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
                 + "      WHERE ttn.TREE_ID=? "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
 //        Map<String, Object> params = new HashMap<>();
@@ -2490,6 +2818,109 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("STATUS", 1); // New request
         int commitRequestId = si.executeAndReturnKey(params).intValue();
         return commitRequestId;
+    }
+
+    @Override
+    public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT  "
+                + "     pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
+                + "     p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
+                + "     rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, "
+                + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, "
+                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_SP `ORGANISATION_LABEL_SP`, o.LABEL_PR `ORGANISATION_LABEL_PR`, "
+                + "     vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "     vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`,"
+                + "     pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.`DAYS_IN_MONTH`, pv.`FREIGHT_PERC`, pv.`FORECAST_THRESHOLD_HIGH_PERC`, pv.`FORECAST_THRESHOLD_LOW_PERC` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN vw_dataset p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+                + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "WHERE TRUE "
+                + "AND (FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
+                + "AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) "
+                + "AND (pv.CREATED_DATE BETWEEN :startDate AND :stopDate) "
+                + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_DATASET);
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));
+        params.put("versionTypeId", datasetVersionListInput.getVersionTypeId());
+        params.put("startDate", datasetVersionListInput.getStartDate());
+        params.put("stopDate", datasetVersionListInput.getStopDate());
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionResultSetExtractor());
+    }
+
+    @Override
+    public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate) {
+        String sql = "";
+        if (isTemplate) {
+            sql = "SELECT "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "FROM rm_tree_template_node_data_modeling ttndm "
+                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
+        } else {
+            sql = "SELECT "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                    + "FROM rm_forecast_tree_node_data_modeling ttndm "
+                    + "     LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                    + "WHERE ttndm.NODE_DATA_ID = ?";
+        }
+        return this.jdbcTemplate.query(sql, new NodeDataModelingRowMapper(isTemplate), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "	ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE` "
+                + "FROM rm_forecast_tree_node_data_mom ndm "
+                + "WHERE ndm.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataMomRowMapper(), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataOverride> getOverrideDataForNodeDataId(int nodeDataId, boolean isTemplate) {
+        String sql = "";
+        if (isTemplate) {
+            sql = "SELECT "
+                    + "ttndo.`NODE_DATA_OVERRIDE_ID`, ttndo.`MONTH_NO` `OVERRIDE_MONTH_NO`, date_add(CONCAT(LEFT(NOW(),7),'-01'), INTERVAL ttndo.`MONTH_NO` MONTH) `OVERRIDE_MONTH`, ttndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ttndo.`SEASONALITY_PERC` `OVERRIDE_SEASONALITY_PERC` "
+                    + "FROM rm_tree_template_node_data_override ttndo "
+                    + "WHERE ttndo.NODE_DATA_ID=?";
+        } else {
+            sql = "SELECT ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.`SEASONALITY_PERC` `OVERRIDE_SEASONALITY_PERC` FROM rm_forecast_tree_node_data_override ndo WHERE ndo.NODE_DATA_ID=?";
+        }
+        return this.jdbcTemplate.query(sql, new NodeDataOverrideRowMapper(isTemplate), nodeDataId);
+    }
+
+    @Override
+    public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "     nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, nde.`START_DATE` `EXTRAPOLATION_START_DATE`, nde.`STOP_DATE` `EXTRAPOLATION_STOP_DATE`, "
+                + "     nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE` "
+                + "FROM rm_forecast_tree_node_data_extrapolation nde "
+                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
+                + "LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "WHERE nde.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationResultSetExtractor(), nodeDataId);
+    }
+
+    @Override
+    public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId) {
+        String sql = "SELECT "
+                + "     ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES "
+                //                + "     ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
+                + "FROM rm_forecast_tree_node_data_extrapolation_option ndeo "
+                //                + "LEFT JOIN rm_forecast_tree_node_data_extrapolation_option_data ndeod ON ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID=ndeod.NODE_DATA_EXTRAPOLATION_OPTION_ID "
+                + "LEFT JOIN vw_extrapolation_method eo ON ndeo.EXTRAPOLATION_METHOD_ID=eo.EXTRAPOLATION_METHOD_ID "
+                + "WHERE ndeo.NODE_DATA_ID=?";
+        return this.jdbcTemplate.query(sql, new NodeDataExtrapolationOptionResultSetExtractor(), nodeDataId);
     }
 
 }

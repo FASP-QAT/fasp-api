@@ -151,7 +151,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 param.addValue("USAGE_FREQUENCY_USAGE_PERIOD_ID", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
                 param.addValue("USAGE_FREQUENCY_COUNT", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
             }
-            param.addValue("ACTIVE", 1);
+            param.addValue("ACTIVE", ut.isActive());
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
             param.addValue("LAST_MODIFIED_BY", curUser.getUserId());

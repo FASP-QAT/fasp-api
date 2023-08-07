@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -91,8 +92,8 @@ public class EquivalencyUnitRestController {
     /**
      * API used to add and update EquivalencyUnit
      *
-     * @param equivalencyUnitList List<EquivalencyUnit> object that you want to add or
-     * update
+     * @param equivalencyUnitList List<EquivalencyUnit> object that you want to
+     * add or update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
@@ -119,10 +120,10 @@ public class EquivalencyUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
-     * API used to get the active EquivalencyUnitMapping list. Will only return those
-     * EquivalencyUnitMappings that are marked Active.
+     * API used to get the active EquivalencyUnitMapping list. Will only return
+     * those EquivalencyUnitMappings that are marked Active.
      *
      * @param auth
      * @return returns the active list of active EquivalencyUnitMappings
@@ -164,8 +165,8 @@ public class EquivalencyUnitRestController {
     /**
      * API used to add and update EquivalencyUnitMapping
      *
-     * @param equivalencyUnitMappingList List<EquivalencyUnitMapping> object that you want to add or
-     * update
+     * @param equivalencyUnitMappingList List<EquivalencyUnitMapping> object
+     * that you want to add or update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
@@ -187,6 +188,42 @@ public class EquivalencyUnitRestController {
         } catch (CouldNotSaveException | DuplicateKeyException | IllegalAccessException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            logger.error("Error while trying to add EquivalencyUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * API used to get the list of Equivalency Units Mapping based on a Program
+     * and a Forecasting Unit. If you have the PU Id convert it to FU Id first
+     * and then call this API. If there are two EU for the same FU the one that
+     * matches the Program Id will be returned
+     *
+     * @param forecastingUnitId The Forecasting Unit Id that you want the list
+     * of EUM for
+     * @param programId The Program Id that you want the priority for
+     * @param auth
+     * @return List of EUM
+     */
+    @GetMapping(value = "/forecastingUnitId/{forecastingUnitId}/programId/{programId}")
+    @Operation(description = "API used to get the list of Equivalency Units Mapping based on a Program and a Forecasting Unit", summary = "Get list of EquivalencyUnitMapping", tags = ("equivalencyUnitMapping, equivalencyUnit"))
+    @Parameters(
+            {
+                @Parameter(name = "forecastingUnitId", description = "The Forecasting Unit Id that you want the list of EUM for"),
+                @Parameter(name = "programId", description = "The Program Id that you want the priority for")
+            }
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to the Program that you requested")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
+    public ResponseEntity getEquivalencyUnitMappingForForecastingUnit(@PathVariable("forecastingUnitId") int forecastingUnitId, @PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.equivalencyUnitService.getEquivalencyUnitMappingForForecastingUnit(forecastingUnitId, programId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to add EquivalencyUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

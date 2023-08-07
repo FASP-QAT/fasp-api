@@ -20,7 +20,7 @@ public class PassTest {
         String encodedPass = p.encode(pass);
         System.out.println("Password = " + pass);
         System.out.println("Encoded password = " + encodedPass);
-        System.out.println(p.matches("pass", encodedPass));
+        System.out.println(p.matches("Pass@123", encodedPass));
     }
 
 }

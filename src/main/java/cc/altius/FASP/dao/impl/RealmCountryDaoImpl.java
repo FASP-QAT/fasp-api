@@ -8,31 +8,30 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
-import cc.altius.FASP.model.rowMapper.VersionRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -50,6 +49,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
     @Autowired
     private LabelDao labelDao;
     @Autowired
@@ -61,6 +61,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     private final String sqlListStringBase = "SELECT "
@@ -196,6 +197,17 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND (rc.REALM_ID=:realmId OR :realmId=-1) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(stringBuilder, params, "rc", curUser);
+        stringBuilder.append(" ORDER BY c.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND rc.REALM_COUNTRY_ID=:realmCountryId ");
         Map<String, Object> params = new HashMap<>();
@@ -244,6 +256,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnitByProgram).append(" AND p.PROGRAM_ID IN (").append(getProgramIdString(programIds)).append(")");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY rcpu.REALM_COUNTRY_PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
     }
 
@@ -279,7 +292,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     @Transactional
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
@@ -287,6 +300,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         Version version = null;
+        StringBuilder updatedRCPUList = new StringBuilder();
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
@@ -307,6 +321,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 insertList.add(new MapSqlParameterSource(params));
             } else {
                 // Update
+                updatedRCPUList.append(rcpu.getRealmCountryPlanningUnitId()).append(",");
                 params = new HashMap<>();
                 params.put("realmCountryPlanningUnitId", rcpu.getRealmCountryPlanningUnitId());
                 params.put("skuCode", rcpu.getSkuCode());
@@ -325,15 +340,16 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
         }
         if (updateList.size() > 0) {
-            String sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_realm_country_planning_unit`";
-            params = new HashMap<>();
-            this.namedParameterJdbcTemplate.update(sql, params);
-            sql = "CREATE TEMPORARY TABLE `tmp_realm_country_planning_unit` ( "
-                    + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT UNSIGNED NULL) ";
-            this.namedParameterJdbcTemplate.update(sql, params);
-            sql = "INSERT INTO tmp_realm_country_planning_unit SELECT p.`REALM_COUNTRY_PLANNING_UNIT_ID` from rm_realm_country_planning_unit p WHERE p.MULTIPLIER!=:multiplier AND p.`REALM_COUNTRY_PLANNING_UNIT_ID`=:realmCountryPlanningUnitId";
+            // Commenting the update of consumption since we are not allowing multiplier change
+//            String sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_realm_country_planning_unit`";
+//            params = new HashMap<>();
+//            this.namedParameterJdbcTemplate.update(sql, params);
+//            sql = "CREATE TEMPORARY TABLE `tmp_realm_country_planning_unit` ( "
+//                    + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT UNSIGNED NULL) ";
+//            this.namedParameterJdbcTemplate.update(sql, params);
+//            sql = "INSERT INTO tmp_realm_country_planning_unit SELECT p.`REALM_COUNTRY_PLANNING_UNIT_ID` from rm_realm_country_planning_unit p WHERE p.MULTIPLIER!=:multiplier AND p.`REALM_COUNTRY_PLANNING_UNIT_ID`=:realmCountryPlanningUnitId";
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
-            int rowsInserted = this.namedParameterJdbcTemplate.batchUpdate(sql, updateList.toArray(updateParams)).length;
+//            int rowsInserted = this.namedParameterJdbcTemplate.batchUpdate(sql, updateList.toArray(updateParams)).length;
             String sqlString = "UPDATE "
                     + "rm_realm_country_planning_unit rcpu "
                     + "LEFT JOIN ap_label rcpul ON rcpu.LABEL_ID=rcpul.LABEL_ID "
@@ -354,74 +370,88 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                     + "rcpul.LAST_MODIFIED_BY=IF(rcpul.LABEL_EN!=:label_en, :curUser, rcpul.LAST_MODIFIED_BY) "
                     + "WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=:realmCountryPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
-            if (rowsInserted > 0) {
-                sql = "select p.PROGRAM_ID\n"
-                        + "from vw_realm_country_planning_unit rcpu \n"
-                        + "left join rm_program_planning_unit ppu on rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID\n"
-                        + "left join rm_program p on p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID and p.PROGRAM_ID=ppu.PROGRAM_ID\n"
-                        + "where rcpu.REALM_COUNTRY_PLANNING_UNIT_ID in (select trcpu.REALM_COUNTRY_PLANNING_UNIT_ID from tmp_realm_country_planning_unit trcpu) and p.PROGRAM_ID is not null;";
-                List<Integer> programIds = this.namedParameterJdbcTemplate.queryForList(sql, params, Integer.class);
-                for (Integer pId : programIds) {
-                    params.put("programId", pId);
-                    params.put("curUser", curUser.getUserId());
-                    params.put("curDate", curDate);
-                    params.put("versionTypeId", 1);
-                    params.put("versionStatusId", 1);
-                    params.put("notes", null);
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
-                    version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
-                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
-                    sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
-                            //        sqlString = "CREATE TABLE `tmp_consumption` ( "
-                            + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
-                            + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
-                            + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
-                            + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
-                            + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
-                            + "  `CONSUMPTION_DATE` DATE NOT NULL, "
-                            + "  `ACTUAL_FLAG` TINYINT UNSIGNED NOT NULL, "
-                            + "  `RCPU_QTY` DOUBLE UNSIGNED NOT NULL, "
-                            + "  `QTY` DOUBLE UNSIGNED NOT NULL, "
-                            + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
-                            + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
-                            + "  `NOTES` TEXT NULL, "
-                            + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
-                            + "  `CREATED_DATE` DATETIME NOT NULL, "
-                            + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
-                            + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
-                            + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
-                            + "  `VERSION_ID` INT(10) NULL, "
-                            + "  PRIMARY KEY (`ID`), "
-                            + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_ID` ASC), "
-                            + "  INDEX `fk_tmp_consumption_2_idx` (`REGION_ID` ASC), "
-                            + "  INDEX `fk_tmp_consumption_3_idx` (`PLANNING_UNIT_ID` ASC), "
-                            + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
-                            + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
-                    sql = "INSERT INTO tmp_consumption select null,c.CONSUMPTION_ID,ct.REGION_ID,ct.PLANNING_UNIT_ID,ct.REALM_COUNTRY_PLANNING_UNIT_ID,ct.CONSUMPTION_DATE,ct.ACTUAL_FLAG,ct.CONSUMPTION_RCPU_QTY,ct.CONSUMPTION_RCPU_QTY*rcpu.MULTIPLIER,ct.DAYS_OF_STOCK_OUT,ct.DATA_SOURCE_ID,ct.NOTES,:curUser,:curDate,:curUser,:curDate,ct.ACTIVE,:versionId from rm_consumption c \n"
-                            + "left join rm_consumption_trans ct on c.CONSUMPTION_ID=ct.CONSUMPTION_ID and c.MAX_VERSION_ID=ct.VERSION_ID\n"
-                            + "left join rm_realm_country_planning_unit rcpu on rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=ct.REALM_COUNTRY_PLANNING_UNIT_ID\n"
-                            + "where ct.REALM_COUNTRY_PLANNING_UNIT_ID in (select trcpu.REALM_COUNTRY_PLANNING_UNIT_ID from tmp_realm_country_planning_unit trcpu) and c.PROGRAM_ID=:programId;";
-                    params.put("versionId", version.getVersionId());
-                    this.namedParameterJdbcTemplate.update(sql, params);
-                    sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE, :versionId"
-                            + " FROM fasp.tmp_consumption tc ";
-                    int consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
-                    sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId, c.LAST_MODIFIED_BY=tc.LAST_MODIFIED_BY, c.LAST_MODIFIED_DATE=tc.LAST_MODIFIED_DATE";
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
-                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
+            // Commenting the update of consumption since we are not allowing multiplier change
+//            if (rowsInserted > 0) {
+//                sql = "select p.PROGRAM_ID\n"
+//                        + "from vw_realm_country_planning_unit rcpu \n"
+//                        + "left join rm_program_planning_unit ppu on rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID\n"
+//                        + "left join rm_program p on p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID and p.PROGRAM_ID=ppu.PROGRAM_ID\n"
+//                        + "where rcpu.REALM_COUNTRY_PLANNING_UNIT_ID in (select trcpu.REALM_COUNTRY_PLANNING_UNIT_ID from tmp_realm_country_planning_unit trcpu) and p.PROGRAM_ID is not null;";
+//                List<Integer> programIds = this.namedParameterJdbcTemplate.queryForList(sql, params, Integer.class);
+//                for (Integer pId : programIds) {
+//                    params.put("programId", pId);
+//                    params.put("curUser", curUser.getUserId());
+//                    params.put("curDate", curDate);
+//                    params.put("versionTypeId", 1);
+//                    params.put("versionStatusId", 1);
+//                    params.put("notes", null);
+//                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)";
+//                    version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+//                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+//                    this.namedParameterJdbcTemplate.update(sqlString, params);
+//                    sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
+//                            //        sqlString = "CREATE TABLE `tmp_consumption` ( "
+//                            + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+//                            + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
+//                            + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
+//                            + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+//                            + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+//                            + "  `CONSUMPTION_DATE` DATE NOT NULL, "
+//                            + "  `ACTUAL_FLAG` TINYINT UNSIGNED NOT NULL, "
+//                            + "  `RCPU_QTY` DOUBLE UNSIGNED NOT NULL, "
+//                            + "  `QTY` DOUBLE UNSIGNED NOT NULL, "
+//                            + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
+//                            + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+//                            + "  `NOTES` TEXT NULL, "
+//                            + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
+//                            + "  `CREATED_DATE` DATETIME NOT NULL, "
+//                            + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
+//                            + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
+//                            + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+//                            + "  `VERSION_ID` INT(10) NULL, "
+//                            + "  PRIMARY KEY (`ID`), "
+//                            + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_ID` ASC), "
+//                            + "  INDEX `fk_tmp_consumption_2_idx` (`REGION_ID` ASC), "
+//                            + "  INDEX `fk_tmp_consumption_3_idx` (`PLANNING_UNIT_ID` ASC), "
+//                            + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
+//                            + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
+//                    this.namedParameterJdbcTemplate.update(sqlString, params);
+//                    sql = "INSERT INTO tmp_consumption select null,c.CONSUMPTION_ID,ct.REGION_ID,ct.PLANNING_UNIT_ID,ct.REALM_COUNTRY_PLANNING_UNIT_ID,ct.CONSUMPTION_DATE,ct.ACTUAL_FLAG,ct.CONSUMPTION_RCPU_QTY,ct.CONSUMPTION_RCPU_QTY*rcpu.MULTIPLIER,ct.DAYS_OF_STOCK_OUT,ct.DATA_SOURCE_ID,ct.NOTES,:curUser,:curDate,:curUser,:curDate,ct.ACTIVE,:versionId from rm_consumption c \n"
+//                            + "left join rm_consumption_trans ct on c.CONSUMPTION_ID=ct.CONSUMPTION_ID and c.MAX_VERSION_ID=ct.VERSION_ID\n"
+//                            + "left join rm_realm_country_planning_unit rcpu on rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=ct.REALM_COUNTRY_PLANNING_UNIT_ID\n"
+//                            + "where ct.REALM_COUNTRY_PLANNING_UNIT_ID in (select trcpu.REALM_COUNTRY_PLANNING_UNIT_ID from tmp_realm_country_planning_unit trcpu) and c.PROGRAM_ID=:programId;";
+//                    params.put("versionId", version.getVersionId());
+//                    this.namedParameterJdbcTemplate.update(sql, params);
+//                    sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, tc.LAST_MODIFIED_BY, tc.LAST_MODIFIED_DATE, :versionId"
+//                            + " FROM fasp.tmp_consumption tc ";
+//                    int consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+//                    sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId, c.LAST_MODIFIED_BY=tc.LAST_MODIFIED_BY, c.LAST_MODIFIED_DATE=tc.LAST_MODIFIED_DATE";
+//                    this.namedParameterJdbcTemplate.update(sqlString, params);
+//                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+//                    this.namedParameterJdbcTemplate.update(sqlString, params);
+//
+//                    try {
+//                        this.programDataDao.getNewSupplyPlanList(pId, version.getVersionId(), true, false);
+//                    } catch (ParseException ex) {
+//                        Logger.getLogger(RealmCountryDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//            }
+//            sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_realm_country_planning_unit`";
+//            this.namedParameterJdbcTemplate.update(sqlString, params);
+        }
 
-                    try {
-                        this.programDataDao.getNewSupplyPlanList(pId, version.getVersionId(), true, false);
-                    } catch (ParseException ex) {
-                        Logger.getLogger(RealmCountryDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+        // Checking if any of the updated RCPU's that was disabled was the only RCPU for that PU with Multiplier 1
+        if (updatedRCPUList.length() > 0) {
+            updatedRCPUList.setLength(updatedRCPUList.length() - 1);
+            StringBuilder sqlStringBuilder = new StringBuilder("SELECT count(*) "
+                    + "FROM rm_realm_country_planning_unit rcpu "
+                    + "WHERE rcpu.ACTIVE=0 AND rcpu.MULTIPLIER=1 AND rcpu.REALM_COUNTRY_PLANNING_UNIT_ID in (");
+            sqlStringBuilder.append(updatedRCPUList).append(")");
+            int inactivatedRCPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
+            if (inactivatedRCPUs > 0) {
+                throw new CouldNotSaveException("You cannot deactivate a default ARU");
             }
-            sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_realm_country_planning_unit`";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
         }
         return rowsEffected;
     }

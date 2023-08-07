@@ -6,7 +6,9 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,8 +17,10 @@ import java.util.List;
  */
 public class TreeTemplate extends BaseModel implements Serializable {
 
+    @JsonView({Views.DropDownView.class})
     private int treeTemplateId;
     private SimpleCodeObject realm;
+    @JsonView({Views.DropDownView.class})
     private Label label;
     private SimpleObjectWithType forecastMethod;
     private Integer monthsInPast;
@@ -24,12 +28,15 @@ public class TreeTemplate extends BaseModel implements Serializable {
     @JsonIgnore
     private ForecastTree<TreeNode> tree;
     private String notes;
+    private List<TreeLevel> levelList;
 
     public TreeTemplate() {
+        this.levelList = new LinkedList<>();
     }
 
     public TreeTemplate(int treeTemplateId) {
         this.treeTemplateId = treeTemplateId;
+        this.levelList = new LinkedList<>();
     }
 
     public int getTreeTemplateId() {
@@ -96,14 +103,8 @@ public class TreeTemplate extends BaseModel implements Serializable {
         this.notes = notes;
     }
 
-    public ForecastNode<TreeNode>[] getFlatList() {
-        if (this.tree != null) {
-            List<ForecastNode<TreeNode>> nodeList = this.tree.getFlatList();
-            ForecastNode[] nodeArray = new ForecastNode[nodeList.size()];
-            return nodeList.toArray(nodeArray);
-        } else {
-            return null;
-        }
+    public List<ForecastNode<TreeNode>> getFlatList() {
+        return this.tree.getFlatList();
     }
 
     public void setFlatList(ForecastNode<TreeNode>[] flatList) throws Exception {
@@ -116,6 +117,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
             }
             isFirst = false;
         }
+    }
+
+    public List<TreeLevel> getLevelList() {
+        return levelList;
+    }
+
+    public void setLevelList(List<TreeLevel> levelList) {
+        this.levelList = levelList;
     }
 
     @Override
@@ -141,6 +150,6 @@ public class TreeTemplate extends BaseModel implements Serializable {
             return false;
         }
         return true;
-    }    
+    }
 
 }

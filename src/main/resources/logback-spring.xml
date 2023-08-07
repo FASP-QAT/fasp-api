@@ -14,23 +14,7 @@
         </layout>
     </appender>
  
-    <appender name="RootFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/rootLogger.log</file>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d{ISO8601} %p %c{2} [%t] %msg%n</Pattern>
-        </encoder>
- 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/rootLogger-%d{yyyy-MM-dd}.%i.log
-            </fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>5MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
-   
-    <appender name="SpringBootFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FaspFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/faspLogger.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{ISO8601} %p [%t] %c{2}\(%line\) %msg%n</Pattern>
@@ -39,6 +23,22 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily and when the file reaches 10 MegaBytes -->
             <fileNamePattern>${LOGS}/archived/faspLogger-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    
+    <appender name="UserFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/userLogger.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{ISO8601} %p [%t] %c{2}\(%line\) %msg%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/userLogger-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>5MB</maxFileSize>
@@ -91,37 +91,29 @@
      
     <!-- LOG everything at INFO level -->
     <root level="info">
-        <appender-ref ref="RootConsole" />
-        <!--<appender-ref ref="SpringBootFile" />-->
+        <appender-ref ref="FaspFile" />
     </root>
    
     <logger name="com.zaxxer.hikari" level="error" additivity="false">
-        <appender-ref ref="RootFile" />
+        <appender-ref ref="FaspFile" />
     </logger>
     
     <logger name="org.springframework" level="info" additivity="false">
-        <appender-ref ref="RootFile" />
-        <appender-ref ref="RootConsole" />
-        <!--<appender-ref ref="SpringBootFile" />-->
+        <appender-ref ref="FaspFile" />
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
-    <logger name="cc.altius.FASP" level="debug" additivity="false">
-        <appender-ref ref="RootFile" />
-        <appender-ref ref="SpringBootFile" />
+    <logger name="cc.altius.FASP" level="info" additivity="false">
+        <appender-ref ref="FaspFile" />
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
-        <!--<appender-ref ref="SpringBootDb" />-->
-        <!--<appender-ref ref="SpringBootFile" />-->
-        <appender-ref ref="RootFile" />
+        <appender-ref ref="UserFile" />
     </logger>
     
     <logger name="cc.altius.FASP.ARTMIS" level="info" additivity="false">
-        <!--<appender-ref ref="SpringBootDb" />-->
         <appender-ref ref="ARTMISFile" />
-        <appender-ref ref="RootFile" />
     </logger>
     
     <logger name="cc.altius.FASP.web.controller.CurrencyConversionController" level="info" additivity="false">

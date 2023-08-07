@@ -1,0 +1,3 @@
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_pu` CHANGE COLUMN `PU_PER_VISIT` `PU_PER_VISIT` DECIMAL(20,8) UNSIGNED NOT NULL ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_pu` CHANGE COLUMN `PU_PER_VISIT` `PU_PER_VISIT` DECIMAL(20,8) UNSIGNED NOT NULL ;
+

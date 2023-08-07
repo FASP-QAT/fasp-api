@@ -34,13 +34,16 @@ public class ProgramPlanningUnitResultSetExtractor implements ResultSetExtractor
                     new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1)),
                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1)),
                     rs.getInt("REORDER_FREQUENCY_IN_MONTHS"),
-                    rs.getInt("MIN_MONTHS_OF_STOCK"),
                     rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"),
                     rs.getInt("SHELF_LIFE"),
                     rs.getDouble("CATALOG_PRICE"),
                     rs.getInt("MONTHS_IN_PAST_FOR_AMC"),
                     rs.getInt("MONTHS_IN_FUTURE_FOR_AMC")
             );
+            ppu.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
+            ppu.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
+            ppu.setMinQty(rs.getInt("MIN_QTY"));
+            ppu.setDistributionLeadTime(rs.getDouble("DISTRIBUTION_LEAD_TIME"));
             ppu.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
             int idx = ppuList.indexOf(ppu);
             if (idx == -1) {

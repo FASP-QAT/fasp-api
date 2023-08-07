@@ -8,6 +8,8 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
@@ -90,13 +92,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addNewUser(User user, int curUser) {
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         return this.userDao.addNewUser(user, curUser);
     }
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
         return this.userDao.getUserList(curUser);
+    }
+
+    @Override
+    public List<BasicUser> getUserDropDownList(CustomUserDetails curUser) {
+        return this.userDao.getUserDropDownList(curUser);
     }
 
     @Override
@@ -110,12 +117,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
+        return this.userDao.getUserListForProgram(programId, curUser);
+    }
+
+    @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) {
         return this.userDao.getUserByUserId(userId, curUser);
     }
 
     @Override
-    public int updateUser(User user, int curUser) {
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
         return this.userDao.updateUser(user, curUser);
     }
 
@@ -181,7 +193,7 @@ public class UserServiceImpl implements UserService {
 //            System.out.println("token---" + token);
             bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

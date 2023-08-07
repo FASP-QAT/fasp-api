@@ -6,15 +6,8 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.framework.GlobalConstants;
-import cc.altius.FASP.model.ExtrapolationData;
-import cc.altius.FASP.model.ExtrapolationDataReportingRate;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
-import cc.altius.FASP.model.NodeDataExtrapolation;
-import cc.altius.FASP.model.NodeDataExtrapolationOption;
-import cc.altius.FASP.model.NodeDataModeling;
-import cc.altius.FASP.model.NodeDataMom;
-import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
@@ -114,7 +107,8 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 parentNodeId,
                 new NodeType(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("EXTRAPOLATION_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED")),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
-                new LabelRowMapper().mapRow(rs, count)
+                new LabelRowMapper().mapRow(rs, count),
+                rs.getBoolean("COLLAPSED")
         );
         return tn;
     }
@@ -152,7 +146,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 ));
 
                 tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
-                tndf.setNoOfForecastingUnitsPerPerson(rs.getInt("FORECASTING_UNITS_PER_PERSON"));
+                tndf.setNoOfForecastingUnitsPerPerson(rs.getDouble("FORECASTING_UNITS_PER_PERSON"));
                 tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
                 if (tndf.isOneTimeUsage() != true) {
                     tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
@@ -168,11 +162,11 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tnd.setPuNode(new TreeNodeDataPu());
                 TreeNodeDataPu tndp = tnd.getPuNode();
                 tndp.setNodeDataPuId(nodeDataPuId);
-                tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
+                tndp.setRefillMonths(rs.getDouble("REFILL_MONTHS"));
                 if (rs.wasNull()) {
                     tndp.setRefillMonths(null);
                 }
-                tndp.setPuPerVisit(rs.getInt("PU_PER_VISIT"));
+                tndp.setPuPerVisit(rs.getDouble("PU_PER_VISIT"));
                 if (rs.wasNull()) {
                     tndp.setPuPerVisit(null);
                 }
@@ -188,177 +182,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             // NodeData was already present so point tnd to the existing nodeData
             tnd = tndList.get(idx);
         }
-        // Check if Modeling is already present
-        // Should only be present if it is a Number, Percentage Node, FU Node or PU Node
-        // TODO add a check to make sure the correct NodeType is there
-        // Use tn to do the check
-        if (tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
-            idx = -1;
-            NodeDataModeling ndm = new NodeDataModeling(rs.getInt("NODE_DATA_MODELING_ID"));
-            if (!rs.wasNull()) {
-                idx = tnd.getNodeDataModelingList().indexOf(ndm);
-                if (idx == -1) {
-                    // Not found so add it
-                    if (this.isTemplate) {
-                        ndm.setStartDateNo(rs.getInt("MODELING_START_DATE"));
-                        ndm.setStartDate(sdf.format(DateUtils.addMonths(curDate, ndm.getStartDateNo())));
-                        ndm.setStopDateNo(rs.getInt("MODELING_STOP_DATE"));
-                        ndm.setStopDate(sdf.format(DateUtils.addMonths(curDate, ndm.getStopDateNo())));
-                    } else {
-                        ndm.setStartDate(rs.getString("MODELING_START_DATE"));
-                        ndm.setStopDate(rs.getString("MODELING_STOP_DATE"));
-                    }
-                    ndm.setDataValue(rs.getDouble("MODELING_DATA_VALUE"));
-                    ndm.setIncreaseDecrease(rs.getInt("INCREASE_DECREASE"));
-                    ndm.setTransferNodeDataId(rs.getInt("MODELING_TRANSFER_NODE_DATA_ID"));
-                    if (rs.wasNull()) {
-                        ndm.setTransferNodeDataId(null);
-                    }
-                    ndm.setNotes(rs.getString("MODELING_NOTES"));
-                    ndm.setModelingType(new SimpleObject(rs.getInt("MODELING_TYPE_ID"), new LabelRowMapper("MODELING_TYPE_").mapRow(rs, 1)));
-                    tnd.getNodeDataModelingList().add(ndm);
-                }
-            }
-        }
-        // Check if the Override is already present
-        idx = -1;
-        NodeDataOverride ndo = new NodeDataOverride(rs.getInt("NODE_DATA_OVERRIDE_ID"));
-        if (!rs.wasNull()) {
-            idx = tnd.getNodeDataOverrideList().indexOf(ndo);
-            if (idx == -1) {
-                // Not found so add it
-                if (this.isTemplate) {
-                    ndo.setMonthNo(rs.getInt("OVERRIDE_MONTH_NO"));
-                    if (rs.wasNull()) {
-                        ndo.setMonthNo(null);
-                    }
-                } else {
-                    ndo.setMonth(rs.getDate("OVERRIDE_MONTH"));
-                }
-                ndo.setManualChange(rs.getDouble("OVERRIDE_MANUAL_CHANGE"));
-                if (rs.wasNull()) {
-                    ndo.setManualChange(null);
-                }
-                ndo.setSeasonalityPerc(rs.getDouble("OVERRIDE_SEASONALITY_PERC"));
-                if (rs.wasNull()) {
-                    ndo.setSeasonalityPerc(null);
-                }
-                tnd.getNodeDataOverrideList().add(ndo);
-            }
-        }
-        // MOM only exists for Actual Tree not for Templates
-        if (!isTemplate) {
-            // Check if Mom exists
-            idx = -1;
-            NodeDataMom ndMom = new NodeDataMom(rs.getInt("NODE_DATA_MOM_ID"));
-            if (!rs.wasNull()) {
-                idx = tnd.getNodeDataMomList().indexOf(ndMom);
-                // Not found so add it
-                if (idx == -1) {
-                    ndMom.setMonth(rs.getString("NDM_MONTH"));
-                    ndMom.setStartValue(rs.getDouble("NDM_START_VALUE"));
-                    if (rs.wasNull()) {
-                        ndMom.setStartValue(null);
-                    }
-                    ndMom.setEndValue(rs.getDouble("NDM_END_VALUE"));
-                    if (rs.wasNull()) {
-                        ndMom.setEndValue(null);
-                    }
-                    ndMom.setCalculatedValue(rs.getDouble("NDM_CALCULATED_VALUE"));
-                    if (rs.wasNull()) {
-                        ndMom.setCalculatedValue(null);
-                    }
-                    ndMom.setCalculatedMmdValue(rs.getDouble("NDM_CALCULATED_MMD_VALUE"));
-                    if (rs.wasNull()) {
-                        ndMom.setCalculatedMmdValue(null);
-                    }
-                    ndMom.setDifference(rs.getDouble("NDM_DIFFERENCE"));
-                    if (rs.wasNull()) {
-                        ndMom.setDifference(null);
-                    }
-                    ndMom.setSeasonalityPerc(rs.getDouble("NDM_SEASONALITY_PERC"));
-                    if (rs.wasNull()) {
-                        ndMom.setSeasonalityPerc(null);
-                    }
-                    ndMom.setManualChange(rs.getDouble("NDM_MANUAL_CHANGE"));
-                    if (rs.wasNull()) {
-                        ndMom.setManualChange(null);
-                    }
-                    tnd.getNodeDataMomList().add(ndMom);
-                }
-            }
-
-            if (tnd.isExtrapolation()) {
-                // Check if Extrapolation exists
-                idx = -1;
-                NodeDataExtrapolation nde = new NodeDataExtrapolation(rs.getInt("NODE_DATA_EXTRAPOLATION_ID"));
-                if (!rs.wasNull() && tnd.getNodeDataExtrapolation() == null) {
-                    // Not found so add it
-                    nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
-                    nde.setNotes(rs.getString("EM_NOTES"));
-                    tnd.setNodeDataExtrapolation(nde);
-                } else {
-                    nde = tnd.getNodeDataExtrapolation();
-                }
-
-                // Check if Extrapolation Data exists
-                idx = -1;
-                ExtrapolationDataReportingRate edrr = new ExtrapolationDataReportingRate(rs.getDate("EM_MONTH"));
-                if (!rs.wasNull()) {
-                    idx = nde.getExtrapolationDataList().indexOf(edrr);
-                    if (idx == -1) {
-                        // Not found so add it
-                        edrr.setAmount(rs.getDouble("EM_AMOUNT"));
-                        if (rs.wasNull()) {
-                            edrr.setAmount(null);
-                        }
-                        edrr.setReportingRate(rs.getDouble("EM_REPORTING_RATE"));
-                        if (rs.wasNull()) {
-                            edrr.setReportingRate(null);
-                        }
-                        edrr.setManualChange(rs.getDouble("EM_MANUAL_CHANGE"));
-                        if (rs.wasNull()) {
-                            edrr.setManualChange(null);
-                        }
-                        nde.getExtrapolationDataList().add(edrr);
-                    }
-                }
-
-                // Check if Extrapolation Options exists
-                idx = -1;
-                NodeDataExtrapolationOption ndeo = new NodeDataExtrapolationOption(rs.getInt("NODE_DATA_EXTRAPOLATION_OPTION_ID"));
-                if (!rs.wasNull()) {
-                    idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
-                    if (idx == -1) {
-                        // Not found so add it
-                        ndeo.setExtrapolationMethod(new SimpleObject(rs.getInt("EO_EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EO_").mapRow(rs, 1)));
-                        ndeo.setJsonProperties(rs.getString("JSON_PROPERTIES"));
-                        tnd.getNodeDataExtrapolationOptionList().add(ndeo);
-                    }
-                    idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
-                    ndeo = tnd.getNodeDataExtrapolationOptionList().get(idx);
-                    // Check if Extrapolation Data exists
-                    idx = -1;
-                    ExtrapolationData ed = new ExtrapolationData(rs.getDate("EO_MONTH"));
-                    if (!rs.wasNull()) {
-                        idx = ndeo.getExtrapolationOptionDataList().indexOf(ed);
-                        if (idx == -1) {
-                            // Not found so add it
-                            ed.setAmount(rs.getDouble("EO_AMOUNT"));
-                            if (rs.wasNull()) {
-                                ed.setAmount(null);
-                            }
-                            ed.setCi(rs.getDouble("EO_CI"));
-                            if (rs.wasNull()) {
-                                ed.setCi(null);
-                            }
-                            ndeo.getExtrapolationOptionDataList().add(ed);
-                        }
-                    }
-                }
-            }
-        }
-
         return tnd;
     }
 

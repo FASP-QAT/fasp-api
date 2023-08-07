@@ -8,16 +8,20 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
-import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
+import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
+import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
@@ -47,8 +51,6 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private AclService aclService;
     @Autowired
     private ProductCategoryDao productCategoryDao;
-    @Autowired
-    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -66,16 +68,22 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
+    public List<PlanningUnit> getPlanningUnitListByIds(List<String> planningUnitIdList, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByIds(planningUnitIdList, curUser);
+    }
+
+    @Override
+    public List<SimplePlanningUnitForAdjustPlanningUnit> getPlanningUnitListBasic(CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListBasic(curUser);
+    }
+
+    @Override
     public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(forecastingUnitId, curUser);
         if (fu == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
-            return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
     }
 
     @Override
@@ -100,14 +108,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser) {
-        PlanningUnit pr = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        List<Integer> emptyList = new LinkedList<Integer>();
-        emptyList.add(0);
-        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId(), 0, emptyList, 0, pr.getPlanningUnitId())) {
-            return pr;
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
     }
 
     @Override
@@ -209,7 +210,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(MultipleProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
     }
 
@@ -223,14 +224,34 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
     }
 
-//    @Override
-//    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
-//        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-//        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-//            return this.planningUnitDao.getPlanningUnitListForDataset(programId, versionId, curUser);
-//        } else {
-//            throw new AccessDeniedException("You do not have access to this Program");
-//        }
-//    }
+    @Override
+    public List<SimplePlanningUnitWithPrices> getPlanningUnitListWithPricesForProductCategory(int productCategoryId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForAutoComplete(autoCompleteInput, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForAutoCompleteFilterForProductCategory(AutocompleteInputWithProductCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForAutoCompleteFilterForProductCategory(autoCompleteInput, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitDropDownList(curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitDropDownListFilterProductCategory(String productCategorySortOrder, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitDropDownListFilterProductCategory(productCategorySortOrder, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitForDatasetByProgramAndVersion(input, curUser);
+    }
 
 }

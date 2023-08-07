@@ -22,22 +22,10 @@ public class ShipmentNotificationDTORowMapper implements RowMapper<ERPNotificati
     @Override
     public ERPNotificationDTO mapRow(ResultSet rs, int rows) throws SQLException {
         ERPNotificationDTO m = new ERPNotificationDTO();
-        m.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
-        m.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
-        m.setShipmentId(rs.getInt("SHIPMENT_ID"));
-        m.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
-        m.setOrderNo(rs.getString("ORDER_NO"));
-        m.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
-        m.setRoNo(rs.getString("RO_NO"));
-        m.setRoPrimeLineNo(rs.getInt("RO_PRIME_LINE_NO"));
-        m.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rows)));
-        m.setErpPlanningUnit(new SimpleObject(rs.getInt("ERP_PLANNING_UNIT_ID"), new LabelRowMapper("ERP_PLANNING_UNIT_").mapRow(rs, rows)));
-        m.setNotes(rs.getString("NOTES"));
-        m.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
-        m.setNotificationType(new SimpleObject(rs.getInt("NOTIFICATION_TYPE_ID"), new LabelRowMapper("").mapRow(rs, rows)));
         m.setNotificationId(rs.getInt("NOTIFICATION_ID"));
+        m.setNotificationType(new SimpleObject(rs.getInt("NOTIFICATION_TYPE_ID"), new LabelRowMapper("").mapRow(rs, rows)));
         m.setAddressed(rs.getBoolean("ADDRESSED"));
-        m.setErpStatus(rs.getString("STATUS"));
+        m.setShipmentLinkingId(rs.getInt("SHIPMENT_LINKING_ID"));
         return m;
     }
     

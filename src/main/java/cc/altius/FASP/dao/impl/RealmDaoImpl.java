@@ -45,7 +45,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE,  "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.`MIN_COUNT_FOR_MODE`, r.`MIN_PERC_FOR_MODE`, "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
@@ -70,6 +70,11 @@ public class RealmDaoImpl implements RealmDao {
         params.put("MIN_QPL_TOLERANCE", r.getMinQplTolerance());
         params.put("MIN_QPL_TOLERANCE_CUT_OFF", r.getMinQplToleranceCutOff());
         params.put("MAX_QPL_TOLERANCE", r.getMaxQplTolerance());
+        params.put("ACTUAL_CONSUMPTION_MONTHS_IN_PAST", r.getActualConsumptionMonthsInPast());
+        params.put("FORECAST_CONSUMPTION_MONTH_IN_PAST", r.getForecastConsumptionMonthsInPast());
+        params.put("INVENTORY_MONTHS_IN_PAST", r.getInventoryMonthsInPast());
+        params.put("MIN_COUNT_FOR_MODE", r.getMinCountForMode());
+        params.put("MIN_PERC_FOR_MODE", r.getMinPercForMode());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -99,6 +104,11 @@ public class RealmDaoImpl implements RealmDao {
         params.put("minQplTolerance", r.getMinQplTolerance());
         params.put("minQplToleranceCutOff", r.getMinQplToleranceCutOff());
         params.put("maxQplTolerance", r.getMaxQplTolerance());
+        params.put("actualConsumptionMonthsInPast", r.getActualConsumptionMonthsInPast());
+        params.put("forecastConsumptionMonthsInPast", r.getForecastConsumptionMonthsInPast());
+        params.put("inventoryMonthsInPast", r.getInventoryMonthsInPast());
+        params.put("minCountForMode", r.getMinCountForMode());
+        params.put("minPercForMode", r.getMinPercForMode());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
@@ -111,6 +121,11 @@ public class RealmDaoImpl implements RealmDao {
                 + "r.MIN_QPL_TOLERANCE=:minQplTolerance,"
                 + "r.MIN_QPL_TOLERANCE_CUT_OFF=:minQplToleranceCutOff,"
                 + "r.MAX_QPL_TOLERANCE=:maxQplTolerance,"
+                + "r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST=:actualConsumptionMonthsInPast,"
+                + "r.FORECAST_CONSUMPTION_MONTH_IN_PAST=:forecastConsumptionMonthsInPast,"
+                + "r.INVENTORY_MONTHS_IN_PAST=:inventoryMonthsInPast,"
+                + "r.MIN_COUNT_FOR_MODE=:minCountForMode,"
+                + "r.MIN_PERC_FOR_MODE=:minPercForMode,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=:curUser, "
                 + "r.LAST_MODIFIED_DATE=:curDate, "

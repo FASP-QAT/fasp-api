@@ -21,9 +21,9 @@ public class TreeNodeDataPu implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean sharePlanningUnit;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Integer refillMonths;
+    private Double refillMonths;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Integer puPerVisit;
+    private Double puPerVisit;
 
     public int getNodeDataPuId() {
         return nodeDataPuId;
@@ -49,19 +49,19 @@ public class TreeNodeDataPu implements Serializable {
         this.sharePlanningUnit = sharePlanningUnit;
     }
 
-    public Integer getRefillMonths() {
+    public Double getRefillMonths() {
         return refillMonths;
     }
 
-    public void setRefillMonths(Integer refillMonths) {
+    public void setRefillMonths(Double refillMonths) {
         this.refillMonths = refillMonths;
     }
 
-    public Integer getPuPerVisit() {
+    public Double getPuPerVisit() {
         return puPerVisit;
     }
 
-    public void setPuPerVisit(Integer puPerVisit) {
+    public void setPuPerVisit(Double puPerVisit) {
         this.puPerVisit = puPerVisit;
     }
 

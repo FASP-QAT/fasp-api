@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class ForecastTree<T> {
     }
 
     private final ForecastNode<T> root;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<ForecastNode<T>> flatList = new LinkedList<>();
 
     public void addNode(ForecastNode<T> n) throws Exception {

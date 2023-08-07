@@ -17,6 +17,8 @@ public class DatabaseTranslationsDTO extends Label {
 
     @JsonView(Views.InternalView.class)
     private String labelFor;
+    @JsonView(Views.InternalView.class)
+    private Label relatedTo;
 
     public String getLabelFor() {
         return labelFor;
@@ -24,6 +26,14 @@ public class DatabaseTranslationsDTO extends Label {
 
     public void setLabelFor(String labelFor) {
         this.labelFor = labelFor;
+    }
+
+    public Label getRelatedTo() {
+        return relatedTo;
+    }
+
+    public void setRelatedTo(Label relatedTo) {
+        this.relatedTo = relatedTo;
     }
 
 }

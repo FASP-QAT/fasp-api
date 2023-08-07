@@ -20,7 +20,7 @@ import java.util.Date;
  * @author akil
  */
 public class StockStatusForProgramOutput implements Serializable {
-    
+
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
@@ -39,6 +39,8 @@ public class StockStatusForProgramOutput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date lastStockCount;
+    @JsonView(Views.ReportView.class)
+    private int planBasedOn;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -103,5 +105,13 @@ public class StockStatusForProgramOutput implements Serializable {
     public void setLastStockCount(Date lastStockCount) {
         this.lastStockCount = lastStockCount;
     }
-    
+
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
+    }
+
 }

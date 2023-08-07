@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ManualProblem;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
@@ -33,4 +34,6 @@ public interface ProblemService {
     public List<ProblemReport> getProblemReportListForSync(int programId, int versionId, String lastSyncDate);
     
     public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser);
+    
+    public int createManualProblem(ManualProblem problemReport, CustomUserDetails curUser);
 }

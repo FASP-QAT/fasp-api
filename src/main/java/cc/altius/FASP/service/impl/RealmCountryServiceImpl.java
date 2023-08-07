@@ -8,11 +8,13 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.LinkedList;
@@ -93,6 +95,11 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryDropdownList(realmId, curUser);
+    }
+
+    @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
         if (rc == null) {
@@ -129,7 +136,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
         return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
     }
 

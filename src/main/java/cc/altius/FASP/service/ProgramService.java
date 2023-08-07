@@ -6,13 +6,10 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
-import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
-import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
@@ -21,10 +18,15 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
+import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -32,7 +34,11 @@ import java.util.List;
  */
 public interface ProgramService {
 
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, CustomUserDetails curUser);
 
@@ -44,7 +50,11 @@ public interface ProgramService {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser);
+
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
 
@@ -98,26 +108,26 @@ public interface ProgramService {
 
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
 
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
-
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
-
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
-
-    public int getNotificationCount(CustomUserDetails curUser);
-
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
-
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
-
-    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+
+    public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
+    
+    public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser);
+
+    public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
+
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
 }
