@@ -6,7 +6,6 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -16,6 +15,7 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
@@ -855,6 +855,39 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastError")
     public ResponseEntity getForecastError(@RequestBody ForecastErrorInput fei, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/forecastError", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Report no 31 new
+    // Reports -> Consumption Reports -> Forecast Error Report
+    /**
+     * <pre>
+     * Sample JSON
+     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
+     * -- programId must be a valid single Supply Plan Program
+     * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
+     * -- viewBy 1 for PU, 2 for FU
+     * -- unitId Either the PU or FU that you want the report for based on the viewBy
+     * -- startDate and stopDate that you want to run the report for
+     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
+     * -- regionIds list of region ids that the report should run for or blank for all
+     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
+     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
+     * </pre>
+     *
+     * @param sspi
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/forecastErrorNew")
+    public ResponseEntity getForecastError(@RequestBody ForecastErrorInputNew fei, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
