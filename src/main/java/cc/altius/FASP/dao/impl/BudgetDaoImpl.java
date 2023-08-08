@@ -248,7 +248,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     @Override
     public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (bp.PROGRAM_ID=:programId OR :programId=-1) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (bp.PROGRAM_ID=:programId OR :programId=-1) AND p.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);
