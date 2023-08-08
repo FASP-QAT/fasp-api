@@ -8,8 +8,10 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +83,7 @@ public class BudgetRestController {
     }
 
     @PostMapping("/budget/programIds")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -92,6 +95,7 @@ public class BudgetRestController {
     }
 
     @GetMapping("/budget")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -120,6 +124,7 @@ public class BudgetRestController {
     }
 
     @GetMapping("/budget/realmId/{realmId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -136,65 +141,4 @@ public class BudgetRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/budget/{lastSyncDate}")
-//    @Operation(
-//            summary = "Used to Sync the Budgets with users machines for Offline use",
-//            tags = {"Sync", "Budget"},
-//            parameters = {
-//                @Parameter(
-//                        in = ParameterIn.PATH,
-//                        name = "lastSyncDate",
-//                        required = true,
-//                        description = "parameter description",
-//                        allowEmptyValue = false,
-//                        schema = @Schema(
-//                                type = "string",
-//                                format = "yyyy-MM-dd",
-//                                description = "Last date that Budget data was synced. The Application will include all the Budgets where LastModifiedDate is greater than or equal to lastSyncDate. If you have not Synced before then use 2020-01-01.",
-//                                accessMode = Schema.AccessMode.READ_ONLY)
-//                )},
-//            responses = {
-//                @ApiResponse(
-//                        responseCode = "200",
-//                        description = "Success response",
-//                        content = {
-//                            @Content(
-//                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = Budget.class))
-//                            )
-//                        }),
-//                @ApiResponse(
-//                        responseCode = "406",
-//                        description = "Failed response, most probably the lastSyncDate was not in the required format of yyyy-MM-dd HH:mm:ss",
-//                        content = {
-//                            @Content(
-//                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = ResponseCode.class))
-//                            )
-//                        }),
-//                @ApiResponse(
-//                        responseCode = "500",
-//                        description = "Failed response, an unkown error occurred",
-//                        content = {
-//                            @Content(
-//                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = ResponseCode.class))
-//                            )
-//                        })
-//            }
-//    )
-//    public ResponseEntity getBudgetListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.budgetService.getBudgetListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing budget", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing budget", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }
