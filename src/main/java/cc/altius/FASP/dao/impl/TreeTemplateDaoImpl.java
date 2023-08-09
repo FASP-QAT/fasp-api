@@ -71,9 +71,13 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
-        String sql = treeTemplateSql + " ORDER BY tt.LABEL_EN";
-        return this.namedParameterJdbcTemplate.query(sql, new TreeTemplateListResultSetExtractor());
+    public List<TreeTemplate> getTreeTemplateList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlBuilder = new StringBuilder(treeTemplateSql);
+        if (active) {
+            sqlBuilder.append(" WHERE tt.ACTIVE ");
+        }
+        sqlBuilder.append(" ORDER BY tt.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), new TreeTemplateListResultSetExtractor());
     }
 
     // To change this query to match with the new method of extraction

@@ -32,9 +32,9 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser) {
-        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(curUser);
-        if (nodeData) {
+    public List<TreeTemplate> getTreeTemplateList(boolean showNodeData, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(false, curUser);
+        if (showNodeData) {
             ttList.forEach(tt -> {
                 tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
                 tt.getFlatList().forEach(n -> {
@@ -55,7 +55,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
     
     public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser) {
-        return this.treeTemplateDao.getTreeTemplateList(curUser);
+        return this.treeTemplateDao.getTreeTemplateList(false, curUser);
     }
 
     @Override

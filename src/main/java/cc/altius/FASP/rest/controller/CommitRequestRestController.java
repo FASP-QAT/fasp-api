@@ -57,8 +57,8 @@ public class CommitRequestRestController {
     private CommitRequestService commitRequestService;
     @Autowired
     private ProgramService programService;
-    @Value("${qat.commitRequestPropertiesPath}")
-    private String QAT_COMMIT_REQUEST_PROPERTIES_PATH;
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -185,13 +185,11 @@ public class CommitRequestRestController {
     }
 
     // Part 2 of the Commit Request
-//    @GetMapping("/processCommitRequest")
-    //sec min hour day_of_month month day_of_week
-//    @Scheduled(cron = "00 */1 * * * *")
+    // @GetMapping("/processCommitRequest")
     @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
     public ResponseEntity processCommitRequest() {
         try {
-            String propertyFilePath = QAT_COMMIT_REQUEST_PROPERTIES_PATH;
+            String propertyFilePath = QAT_FILE_PATH+"/properties/scheduler.properties";
             Properties props = new Properties();
             props.load(new FileInputStream(propertyFilePath));
             String propertyValue = props.getProperty("commitRequestSchedulerActive");
