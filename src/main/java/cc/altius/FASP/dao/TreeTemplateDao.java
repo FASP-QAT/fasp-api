@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public interface TreeTemplateDao {
 
-    public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser);
+    public List<TreeTemplate> getTreeTemplateList(boolean active, CustomUserDetails curUser);
 
     public TreeTemplate getTreeTemplateById(int treeTemplateId, CustomUserDetails curUser);
 
