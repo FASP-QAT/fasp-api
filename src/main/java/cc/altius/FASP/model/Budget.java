@@ -7,7 +7,9 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import cc.altius.utils.DateUtils;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,22 +23,35 @@ import java.util.List;
  */
 public class Budget extends BaseModel implements Serializable {
 
+    @JsonView({Views.ReportView.class})
     private int budgetId;
+    @JsonView({Views.ReportView.class})
     private String budgetCode;
+    @JsonView({Views.ReportView.class})
     private List<SimpleCodeObject> programs;
+//    @JsonView({Views.ReportView.class})
     private List<SimpleCodeObject> programsWithAccess;
+    @JsonView({Views.ReportView.class})
     private FundingSource fundingSource;
+    @JsonView({Views.ReportView.class})
     private Label label;
+    @JsonView({Views.ReportView.class})
     private Currency currency;
+    @JsonView({Views.ReportView.class})
     private double budgetAmt;
+    @JsonView({Views.ReportView.class})
     private double budgetUsdAmt;
+    @JsonView({Views.ReportView.class})
     private double usedUsdAmt; // Will always be converted into USD
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class})
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class})
     private Date stopDate;
+    @JsonView({Views.ReportView.class})
     private String notes;
 
     public Budget() {
@@ -165,6 +180,22 @@ public class Budget extends BaseModel implements Serializable {
         } else {
             return false;
         }
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public boolean isActive() {
+        return super.isActive();
+    }
+    
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.ReportView.class})
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
     }
 
     public List<SimpleCodeObject> getProgramsWithAccess() {
