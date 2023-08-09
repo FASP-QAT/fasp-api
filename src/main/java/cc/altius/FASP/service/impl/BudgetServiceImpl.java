@@ -72,14 +72,14 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser) {
         List<Budget> bList = this.budgetDao.getBudgetListForProgramIds(programIds, curUser);
-        this.updateProgramsWithAccess(bList, curUser);
+//        this.updateProgramsWithAccess(bList, curUser);
         return bList;
     }
 
     @Override
     public List<Budget> getBudgetList(CustomUserDetails curUser) {
         List<Budget> bList = this.budgetDao.getBudgetList(curUser);
-        this.updateProgramsWithAccess(bList, curUser);
+//        this.updateProgramsWithAccess(bList, curUser);
         return bList;
     }
 
@@ -88,7 +88,7 @@ public class BudgetServiceImpl implements BudgetService {
         Realm r = this.realmService.getRealmById(realmId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             List<Budget> bList = this.budgetDao.getBudgetListForRealm(realmId, curUser);
-            this.updateProgramsWithAccess(bList, curUser);
+//            this.updateProgramsWithAccess(bList, curUser);
             return bList;
         } else {
             throw new AccessDeniedException("Access denied");
