@@ -98,7 +98,7 @@ DROP procedure IF EXISTS `buildErpOrder`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildErpOrder`(VAR_DT VARCHAR(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `buildErpOrder`(VAR_DT VARCHAR(10))
 BEGIN
 	DECLARE VAR_FINISHED INTEGER DEFAULT 0;
 	DECLARE VAR_FILE_NAME varchar(45) DEFAULT "";
@@ -182,7 +182,7 @@ DROP procedure IF EXISTS `buildErpShipment`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildErpShipment`(VAR_DT VARCHAR(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `buildErpShipment`(VAR_DT VARCHAR(10))
 BEGIN
 	DECLARE VAR_FINISHED INTEGER DEFAULT 0;
 	DECLARE VAR_FILE_NAME varchar(45) DEFAULT "";
@@ -249,7 +249,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentListForManualLinking`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
@@ -310,7 +310,7 @@ DROP procedure IF EXISTS `fasp`.`getNotLinkedQatShipments`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;
@@ -393,7 +393,7 @@ DROP procedure IF EXISTS `fasp`.`getNotLinkedQatShipments`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;
@@ -510,7 +510,7 @@ DROP procedure IF EXISTS `fasp`.`getNotLinkedQatShipments`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getNotLinkedQatShipments`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_PROCUREMENT_AGENT_ID INT (10),VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;
@@ -654,7 +654,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentLinkingData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
@@ -930,7 +930,7 @@ CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL ;
 
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_notification_type` AS
     SELECT 
@@ -1030,7 +1030,7 @@ DROP TRIGGER IF EXISTS `fasp`.`rm_erp_order_consolidated_AFTER_UPDATE`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` TRIGGER `rm_erp_order_consolidated_AFTER_UPDATE` AFTER UPDATE ON `rm_erp_order_consolidated` FOR EACH ROW BEGIN
+CREATE DEFINER=`faspUser`@`localhost` TRIGGER `rm_erp_order_consolidated_AFTER_UPDATE` AFTER UPDATE ON `rm_erp_order_consolidated` FOR EACH ROW BEGIN
 	IF NEW.PLANNING_UNIT_SKU_CODE!=OLD.PLANNING_UNIT_SKU_CODE THEN
 		SELECT sl.SHIPMENT_LINKING_ID INTO @SHIPMENT_LINKING_ID FROM rm_shipment_linking sl WHERE sl.RO_NO=NEW.RO_NO AND sl.RO_PRIME_LINE_NO=NEW.RO_PRIME_LINE_NO AND sl.ORDER_NO=NEW.ORDER_NO AND sl.PRIME_LINE_NO=NEW.PRIME_LINE_NO;
         IF @SHIPMENT_LINKING_ID IS NOT NULL THEN
@@ -1058,7 +1058,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentLinkingNotifications`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @procurementAgentId = 1;

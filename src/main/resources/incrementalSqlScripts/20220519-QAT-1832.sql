@@ -3,7 +3,7 @@ ALTER TABLE `fasp`.`ap_extrapolation_method` ADD COLUMN `SORT_ORDER` INT(10) UNS
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_extrapolation_method` AS
     SELECT 

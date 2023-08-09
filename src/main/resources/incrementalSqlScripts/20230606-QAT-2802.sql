@@ -5,7 +5,7 @@ USE `fasp`;
 CREATE
     OR REPLACE
     ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_tree_template_node` AS
     SELECT 
@@ -36,7 +36,7 @@ USE `fasp`;
 CREATE 
     OR REPLACE
     ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_forecast_tree_node` AS
     SELECT 

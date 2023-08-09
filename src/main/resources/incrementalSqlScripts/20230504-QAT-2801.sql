@@ -4,7 +4,7 @@ UPDATE rm_program p SET p.ROAD_FREIGHT_PERC=10, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEA
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_program` AS
     SELECT 
@@ -50,7 +50,7 @@ USE `fasp`;
 
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_dataset` AS
     SELECT 
@@ -102,7 +102,7 @@ DROP procedure IF EXISTS `fasp`.`programLeadTimes`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `programLeadTimes`(VAR_PROGRAM_ID INT(10), VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `programLeadTimes`(VAR_PROGRAM_ID INT(10), VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	-- Report no 14

@@ -27,7 +27,7 @@ DROP TRIGGER IF EXISTS `fasp`.`rm_integration_program_AFTER_INSERT`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` TRIGGER `rm_integration_program_AFTER_INSERT` AFTER INSERT ON `rm_integration_program` FOR EACH ROW BEGIN
+CREATE DEFINER=`faspUser`@`localhost` TRIGGER `rm_integration_program_AFTER_INSERT` AFTER INSERT ON `rm_integration_program` FOR EACH ROW BEGIN
 INSERT INTO rm_integration_program_history (
 		INTEGRATION_PROGRAM_HISTORY_ID, INTEGRATION_PROGRAM_ID, INTEGRATION_ID, PROGRAM_ID, VERSION_TYPE_ID, 
 		VERSION_STATUS_ID, `ACTIVE`, LAST_MODIFIED_BY, LAST_MODIFIED_DATE
@@ -44,7 +44,7 @@ DROP TRIGGER IF EXISTS `fasp`.`rm_integration_program_AFTER_UPDATE`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` TRIGGER `rm_integration_program_AFTER_UPDATE` AFTER UPDATE ON `rm_integration_program` FOR EACH ROW BEGIN
+CREATE DEFINER=`faspUser`@`localhost` TRIGGER `rm_integration_program_AFTER_UPDATE` AFTER UPDATE ON `rm_integration_program` FOR EACH ROW BEGIN
 INSERT INTO rm_integration_program_history (
 		INTEGRATION_PROGRAM_HISTORY_ID, INTEGRATION_PROGRAM_ID, INTEGRATION_ID, PROGRAM_ID, VERSION_TYPE_ID, 
 		VERSION_STATUS_ID, `ACTIVE`, LAST_MODIFIED_BY, LAST_MODIFIED_DATE
@@ -71,7 +71,7 @@ DROP TRIGGER IF EXISTS `fasp`.`rm_program_version_trans_AFTER_INSERT`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` TRIGGER `rm_program_version_trans_AFTER_INSERT` AFTER INSERT ON `rm_program_version_trans` FOR EACH ROW BEGIN
+CREATE DEFINER=`faspUser`@`localhost` TRIGGER `rm_program_version_trans_AFTER_INSERT` AFTER INSERT ON `rm_program_version_trans` FOR EACH ROW BEGIN
 	INSERT INTO rm_integration_program_completed 
 	SELECT 
 		new.PROGRAM_VERSION_TRANS_ID, ip.INTEGRATION_ID, ip.INTEGRATION_PROGRAM_ID, pv.PROGRAM_ID, null

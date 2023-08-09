@@ -4,7 +4,7 @@ DROP procedure IF EXISTS `shipmentOverview_planningUnitSplit`;
 DELIMITER $$
 USE `fasp`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_planningUnitSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentOverview_planningUnitSplit`(
     VAR_USER_ID INT(10),
     VAR_REALM_ID INT(10),
     VAR_START_DATE DATE,
