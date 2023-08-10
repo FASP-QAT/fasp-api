@@ -505,7 +505,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE pu.ACTIVE AND (pu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText,'%') OR pu.PLANNING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE pu.ACTIVE AND fu.ACTIVE AND (pu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText,'%') OR pu.PLANNING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
         Map<String, Object> params = new HashMap<>();
         params.put("searchText", autoCompleteInput.getSearchText());
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
@@ -515,7 +515,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForAutoCompleteFilterForProductCategory(AutocompleteInputWithProductCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID WHERE pu.ACTIVE AND (pu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText,'%') OR pu.PLANNING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID WHERE pu.ACTIVE AND fu.ACTIVE AND (pu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText,'%') OR pu.PLANNING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
         Map<String, Object> params = new HashMap<>();
         params.put("searchText", autoCompleteInput.getSearchText());
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
@@ -529,7 +529,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitDropDownList(CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE pu.ACTIVE ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE pu.ACTIVE AND fu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY pu.LABEL_EN");
@@ -551,7 +551,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_dataset_planning_unit dpu LEFT JOIN vw_dataset p ON dpu.PROGRAM_ID=p.PROGRAM_ID LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE dpu.PROGRAM_ID=:programId aND dpu.VERSION_ID=:versionId AND dpu.ACTIVE and pu.ACTIVE ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_dataset_planning_unit dpu LEFT JOIN vw_dataset p ON dpu.PROGRAM_ID=p.PROGRAM_ID LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE dpu.PROGRAM_ID=:programId aND dpu.VERSION_ID=:versionId AND dpu.ACTIVE and pu.ACTIVE AND fu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", input.getProgramId());
         params.put("versionId", input.getVersionId());

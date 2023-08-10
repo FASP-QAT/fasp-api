@@ -12,14 +12,14 @@ import com.fasterxml.jackson.annotation.JsonView;
  * @author palash
  */
 public class Currency extends BaseModel {
-    
-    @JsonView(Views.InternalView.class)
+
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int currencyId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
     private String currencyCode;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Label label;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double conversionRateToUsd;
     @JsonView(Views.InternalView.class)
     private boolean isSync;
@@ -75,10 +75,9 @@ public class Currency extends BaseModel {
         this.isSync = isSync;
     }
 
-    
     @Override
     public String toString() {
         return "Currency{" + "currencyId=" + currencyId + ", currencyCode=" + currencyCode + ", label=" + label + ", conversionRateToUsd=" + conversionRateToUsd + '}';
     }
- 
+
 }
