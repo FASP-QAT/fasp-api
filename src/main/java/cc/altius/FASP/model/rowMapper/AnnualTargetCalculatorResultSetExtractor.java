@@ -24,8 +24,9 @@ public class AnnualTargetCalculatorResultSetExtractor implements ResultSetExtrac
             if (isFirst) {
                 atc = new AnnualTargetCalculator();
                 atc.setNodeDataAnnualTargetCalculatorId(rs.getInt("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID"));
-                atc.setFirstMonthOfTarget(rs.getString("FIRST_MONTH_OF_TARGET"));
-                atc.setYearsOfTarget(rs.getInt("YEARS_OF_TARGET"));
+                atc.setFirstMonthOfTarget(rs.getString("CALCULATOR_FIRST_MONTH"));
+                atc.setYearsOfTarget(rs.getInt("CALCULATOR_YEARS_OF_TARGET"));
+                isFirst = false;
             }
             atc.getActualOrTargetValueList().add(rs.getInt("ACTUAL_OR_TARGET_VALUE"));
         }

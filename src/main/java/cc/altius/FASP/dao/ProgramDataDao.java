@@ -113,7 +113,7 @@ public interface ProgramDataDao {
 
     public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate);
 
-    public AnnualTargetCalculator getAnnualTargetCalculatorForNodeDataId(int nodeDataId);
+    public AnnualTargetCalculator getAnnualTargetCalculatorForNodeDataId(int nodeDataId, boolean isTemplate);
 
     public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId);
 

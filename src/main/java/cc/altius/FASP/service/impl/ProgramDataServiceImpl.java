@@ -14,7 +14,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.NotificationUser;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
@@ -220,7 +219,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
                 SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
-                if (sp!=null && sp.getCurrentVersionId() > versionId) {
+                if (sp != null && sp.getCurrentVersionId() > versionId) {
                     newer = true;
                 }
             }

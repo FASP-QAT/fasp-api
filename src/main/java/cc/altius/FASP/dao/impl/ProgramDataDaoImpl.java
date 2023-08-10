@@ -31,7 +31,6 @@ import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
@@ -1628,9 +1627,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("ACTIVE", 1);
                                 ndm.setNodeDataModelingId(ni.executeAndReturnKey(nodeDataParams).intValue());
                             }
-                            if (tnd.getAnnualTargetCalculator() != null && tnd.getAnnualTargetCalculator().getFirstMonthOfTarget() != null) {
+                            if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
                                 nodeDataParams.clear();
-                                nodeDataParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                                nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                                nodeDataParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
                                 nodeDataParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1638,11 +1638,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                                 int nodeDataAnnualTargetCalculatorId = n2.executeAndReturnKey(nodeDataParams).intValue();
-                                
+
                                 batchList.clear();
                                 for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
                                     Map<String, Object> batchParams = new HashMap<>();
-                                    batchParams.put("NODE_DATA_ANNUAL_CALCULATOR_ID", nodeDataAnnualTargetCalculatorId);
+                                    batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", nodeDataAnnualTargetCalculatorId);
                                     batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
                                     batchList.add(new MapSqlParameterSource(batchParams));
                                 }
@@ -2901,9 +2901,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sql = "SELECT "
                     + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                     + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
-//                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
+                    //                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
                     + "FROM rm_forecast_tree_node_data_modeling ttndm "
-//                    + "LEFT JOIN rm_forecast_tree_node_data_modeling_calculator ftndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
+                    //                    + "LEFT JOIN rm_forecast_tree_node_data_modeling_calculator ftndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
                     + "LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
                     + "WHERE ttndm.NODE_DATA_ID = ?";
         }
@@ -2927,10 +2927,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "WHERE atc.NODE_DATA_ID = ?";
         }
         return this.jdbcTemplate.query(sql, new AnnualTargetCalculatorResultSetExtractor(), nodeDataId);
-        
+
     }
-    
-    
 
     @Override
     public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId) {

@@ -291,17 +291,17 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("ACTIVE", 1);
                         ndm.setNodeDataModelingId(nidm.executeAndReturnKey(nodeParams).intValue());
                     }
-                    if (tnd.getAnnualTargetCalculator() != null && tnd.getAnnualTargetCalculator().getFirstMonthOfTarget() != null) {
+                    if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
-                        nodeParams.put("CALCULATOR_FIRST_MONTH_OF_TARGET", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                        nodeParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
                         nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
-                        
+
                         batchList.clear();
                         for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
                             Map<String, Object> batchParams = new HashMap<>();

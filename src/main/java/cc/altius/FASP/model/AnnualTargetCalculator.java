@@ -22,10 +22,10 @@ public class AnnualTargetCalculator extends BaseModel implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int yearsOfTarget;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    List<Integer> actualOrTargetValueList;
+    private List<Integer> actualOrTargetValueList;
 
     public AnnualTargetCalculator() {
-        this.actualOrTargetValueList = new LinkedList<>();
+        actualOrTargetValueList = new LinkedList<>();
     }
 
     public int getNodeDataAnnualTargetCalculatorId() {
@@ -62,8 +62,8 @@ public class AnnualTargetCalculator extends BaseModel implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 67 * hash + this.nodeDataAnnualTargetCalculatorId;
+        int hash = 3;
+        hash = 59 * hash + this.nodeDataAnnualTargetCalculatorId;
         return hash;
     }
 
