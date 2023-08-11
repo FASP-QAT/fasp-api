@@ -8,7 +8,6 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import cc.altius.FASP.model.SimpleObjectWithMultiplierAndActive;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
