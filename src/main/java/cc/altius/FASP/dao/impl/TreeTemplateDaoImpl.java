@@ -74,16 +74,20 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
-        String sql = treeTemplateSql + " ORDER BY tt.LABEL_EN";
-        return this.namedParameterJdbcTemplate.query(sql, new TreeTemplateListResultSetExtractor());
+    public List<TreeTemplate> getTreeTemplateList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlBuilder = new StringBuilder(treeTemplateSql);
+        if (active) {
+            sqlBuilder.append(" WHERE tt.ACTIVE ");
+        }
+        sqlBuilder.append(" ORDER BY tt.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), new TreeTemplateListResultSetExtractor());
     }
 
     // To change this query to match with the new method of extraction
     @Override
     public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, "
+                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -177,6 +181,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
             nodeParams.put("SORT_ORDER", n.getSortOrder());
             nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+            nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
             nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
             nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
             int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE_NODE, curUser.getUserId());
@@ -383,6 +388,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
             nodeParams.put("SORT_ORDER", n.getSortOrder());
             nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+            nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
             nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
             nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
             int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE_NODE, curUser.getUserId());

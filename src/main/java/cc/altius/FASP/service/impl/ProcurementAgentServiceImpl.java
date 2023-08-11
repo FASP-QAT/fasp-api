@@ -6,15 +6,19 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProcurementAgentDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
+import cc.altius.FASP.service.ProgramService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,8 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private RealmDao realmDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
 
@@ -70,6 +76,16 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentList(active, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentDropdownList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentDropdownListForFilterMultiplePrograms(programIds, curUser);
     }
 
     @Override
@@ -217,4 +233,9 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         return this.procurementAgentDao.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser);
     }
 
+    @Override
+    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessDeniedException {
+        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.procurementAgentDao.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser);
+    }
 }

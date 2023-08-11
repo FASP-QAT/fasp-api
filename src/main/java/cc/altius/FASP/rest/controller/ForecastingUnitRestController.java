@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
 
 /**
  *
@@ -72,6 +75,7 @@ public class ForecastingUnitRestController {
     }
 
     @GetMapping("/forecastingUnit")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnit(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,8 +88,21 @@ public class ForecastingUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @PostMapping("/forecastingUnit/byIds")
+    @JsonView(Views.ReportView.class)
+    public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByIds(forecastingUnitIdList, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/forecastingUnit/all")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -100,6 +117,7 @@ public class ForecastingUnitRestController {
     }
 
     @GetMapping("/forecastingUnit/realmId/{realmId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -134,6 +152,7 @@ public class ForecastingUnitRestController {
     }
 
     @GetMapping("/forecastingUnit/tracerCategory/{tracerCategoryId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -151,6 +170,7 @@ public class ForecastingUnitRestController {
     }
 
     @PostMapping("/forecastingUnit/tracerCategorys")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -168,6 +188,7 @@ public class ForecastingUnitRestController {
     }
 
     @GetMapping(value = "/forecastingUnit/programId/{programId}/versionId/{versionId}")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

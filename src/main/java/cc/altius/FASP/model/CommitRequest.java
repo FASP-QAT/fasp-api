@@ -37,6 +37,7 @@ public class CommitRequest {
     private Date completedDate;
     private String json;
     private int programTypeId;
+    @JsonIgnore
     private ProgramData programData;
     @JsonIgnore
     private DatasetData datasetData;

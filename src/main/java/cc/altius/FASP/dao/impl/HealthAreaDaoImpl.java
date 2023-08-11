@@ -10,8 +10,10 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
@@ -160,6 +162,17 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT ha.HEALTH_AREA_ID `ID`, ha.LABEL_ID, ha.LABEL_EN, ha.LABEL_FR, ha.LABEL_SP, ha.LABEL_PR, ha.HEALTH_AREA_CODE `CODE` FROM vw_health_area ha WHERE ha.ACTIVE AND (ha.REALM_ID=:realmId OR :realmId=-1) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "ha", curUser);
+        this.aclService.addUserAclForHealthArea(stringBuilder, params, "ha", curUser);
+        stringBuilder.append(" ORDER BY ha.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
@@ -221,7 +234,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
     }
-    
+
     @Override
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND ha.LAST_MODIFIED_DATE>:lastSyncDate ");

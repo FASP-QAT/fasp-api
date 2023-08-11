@@ -66,6 +66,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
@@ -155,7 +156,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -163,7 +164,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Check if this Program is from the deLinkedPrograms list and if it is it should not have any ERP linked Shipments
         String sqlString = "SELECT count(*) FROM tmp_erp_delinked_programs WHERE PROGRAM_ID=:programId";
         params.clear();
-        params.put("programId", p.getProgramId());
+        params.put("programId", sp.getId());
         int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (count > 0) {
             // This is a delinked Program
@@ -880,7 +881,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(sCnt + " records imported into the tmp table");
         sqlString = "UPDATE tmp_shipment s LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=s.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 SET s.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, s.SHIPMENT_RCPU_QTY=s.SHIPMENT_QTY WHERE s.REALM_COUNTRY_PLANNING_UNIT_ID IS NULL OR s.REALM_COUNTRY_PLANNING_UNIT_ID=0";
         params.clear();
-        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+        params.put("realmCountryId", sp.getRealmCountry().getId());
         int rcpuFixCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("RCPU fixed for " + rcpuFixCnt);
 
@@ -1417,6 +1418,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
             params.put("REGION_ID", fce.getRegion().getId());
             params.put("EXTRAPOLATION_METHOD_ID", fce.getExtrapolationMethod().getId());
+            params.put("NOTES", fce.getNotes());
             params.put("VERSION_ID", version.getVersionId());
             params.put("JSON_PROPERTIES", fce.getJsonPropertiesString());
             params.put("CREATED_BY", fce.getCreatedBy().getUserId());
@@ -1494,6 +1496,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("TREE_ID", treeId);
                 nodeParams.put("SORT_ORDER", n.getSortOrder());
                 nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+                nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
                 nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
@@ -2064,7 +2067,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -2101,8 +2104,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2111,7 +2114,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
@@ -2148,8 +2151,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{program.getProgramCode()};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2735,7 +2738,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -2803,7 +2806,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
-                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
+                + "     fce.JSON_PROPERTIES, fce.NOTES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
                 + "FROM rm_forecast_consumption_extrapolation fce "
                 + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
@@ -2870,9 +2873,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
                 + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "WHERE TRUE "
-                + "AND (:programIds='' OR FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
+                + "AND (FIND_IN_SET(pv.PROGRAM_ID, :programIds)) "
                 + "AND (pv.VERSION_TYPE_ID=:versionTypeId OR :versionTypeId=-1) "
-                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND (pv.CREATED_DATE BETWEEN :startDate AND :stopDate) "
                 + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_DATASET);
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", String.join(",", datasetVersionListInput.getProgramIds()));

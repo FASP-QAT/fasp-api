@@ -7,11 +7,15 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import cc.altius.utils.DateUtils;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -19,30 +23,46 @@ import java.util.Date;
  */
 public class Budget extends BaseModel implements Serializable {
 
+    @JsonView({Views.ReportView.class})
     private int budgetId;
+    @JsonView({Views.ReportView.class})
     private String budgetCode;
-    private SimpleCodeObject program;
+    @JsonView({Views.ReportView.class})
+    private List<SimpleCodeObject> programs;
+//    @JsonView({Views.ReportView.class})
+    private List<SimpleCodeObject> programsWithAccess;
+    @JsonView({Views.ReportView.class})
     private FundingSource fundingSource;
+    @JsonView({Views.ReportView.class})
     private Label label;
+    @JsonView({Views.ReportView.class})
     private Currency currency;
+    @JsonView({Views.ReportView.class})
     private double budgetAmt;
+    @JsonView({Views.ReportView.class})
     private double budgetUsdAmt;
+    @JsonView({Views.ReportView.class})
     private double usedUsdAmt; // Will always be converted into USD
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class})
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class})
     private Date stopDate;
+    @JsonView({Views.ReportView.class})
     private String notes;
 
     public Budget() {
+        this.programs = new LinkedList<>();
     }
 
     public Budget(int budgetId, String budgetCode, Label label) {
         this.budgetId = budgetId;
         this.budgetCode = budgetCode;
         this.label = label;
+        this.programs = new LinkedList<>();
     }
 
     public Budget(int budgetId, String budgetCode, FundingSource fundingSource, Label label) {
@@ -50,6 +70,7 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetCode = budgetCode;
         this.fundingSource = fundingSource;
         this.label = label;
+        this.programs = new LinkedList<>();
     }
 
     public int getBudgetId() {
@@ -68,12 +89,12 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetCode = budgetCode;
     }
 
-    public SimpleCodeObject getProgram() {
-        return program;
+    public List<SimpleCodeObject> getPrograms() {
+        return programs;
     }
 
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
+    public void setPrograms(List<SimpleCodeObject> programs) {
+        this.programs = programs;
     }
 
     public FundingSource getFundingSource() {
@@ -159,6 +180,30 @@ public class Budget extends BaseModel implements Serializable {
         } else {
             return false;
         }
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public boolean isActive() {
+        return super.isActive();
+    }
+    
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.ReportView.class})
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+    
+    @JsonView({Views.ReportView.class})
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
+    }
+
+    public List<SimpleCodeObject> getProgramsWithAccess() {
+        return programsWithAccess;
+    }
+
+    public void setProgramsWithAccess(List<SimpleCodeObject> programsWithAccess) {
+        this.programsWithAccess = programsWithAccess;
     }
 
     @Override

@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.TracerCategory;
 import java.util.List;
 
@@ -20,6 +21,10 @@ public interface TracerCategoryService {
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleObject> getTracerCategoryDropdownListForFilterMultiplerPrograms(String programIds, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser);
 
