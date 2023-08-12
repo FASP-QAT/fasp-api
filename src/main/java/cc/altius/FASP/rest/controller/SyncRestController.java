@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.CountryService;
 import cc.altius.FASP.service.CurrencyService;
@@ -290,6 +291,17 @@ public class SyncRestController {
         } catch (Exception e) {
             logger.error("Error while listing language", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping(value = "/sync/treeAnchor")
+    public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getTreeAnchorForSync(ta, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while getting Tree Anchor list", e);
+            return new ResponseEntity(new ResponseCode("    static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
