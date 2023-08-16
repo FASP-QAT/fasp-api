@@ -60,9 +60,9 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
-    private int minMos;
+    private Double minMos;
     @JsonView(Views.ReportView.class)
-    private int maxMos;
+    private Double maxMos;
     @JsonView(Views.ReportView.class)
     private Long unmetDemand;
     @JsonView(Views.ReportView.class)
@@ -72,9 +72,9 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Long nationalAdjustment;
     @JsonView(Views.ReportView.class)
-    private Long minStock;
+    private Double minStock;
     @JsonView(Views.ReportView.class)
-    private Long maxStock;
+    private Double maxStock;
     @JsonView(Views.ReportView.class)
     private int planBasedOn; //1- MoS , 2- Qty
     @JsonView(Views.ReportView.class)
@@ -197,19 +197,19 @@ public class StockStatusVerticalOutput implements Serializable {
         this.mos = mos;
     }
 
-    public int getMinMos() {
+    public Double getMinMos() {
         return minMos;
     }
 
-    public void setMinMos(int minMos) {
+    public void setMinMos(Double minMos) {
         this.minMos = minMos;
     }
 
-    public int getMaxMos() {
+    public Double getMaxMos() {
         return maxMos;
     }
 
-    public void setMaxMos(int maxMos) {
+    public void setMaxMos(Double maxMos) {
         this.maxMos = maxMos;
     }
 
@@ -269,19 +269,19 @@ public class StockStatusVerticalOutput implements Serializable {
         this.inventoryInfo = inventoryInfo;
     }
 
-    public Long getMinStock() {
+    public Double getMinStock() {
         return minStock;
     }
 
-    public void setMinStock(Long minStock) {
+    public void setMinStock(Double minStock) {
         this.minStock = minStock;
     }
 
-    public Long getMaxStock() {
+    public Double getMaxStock() {
         return maxStock;
     }
 
-    public void setMaxStock(Long maxStock) {
+    public void setMaxStock(Double maxStock) {
         this.maxStock = maxStock;
     }
 

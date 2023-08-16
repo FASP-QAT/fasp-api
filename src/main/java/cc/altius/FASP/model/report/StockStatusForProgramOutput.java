@@ -26,9 +26,9 @@ public class StockStatusForProgramOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject tracerCategory;
     @JsonView(Views.ReportView.class)
-    private int minMos;
+    private Double minMos;
     @JsonView(Views.ReportView.class)
-    private int maxMos;
+    private Double maxMos;
     @JsonView(Views.ReportView.class)
     private Long stock;
     @JsonView(Views.ReportView.class)
@@ -58,19 +58,19 @@ public class StockStatusForProgramOutput implements Serializable {
         this.tracerCategory = tracerCategory;
     }
 
-    public int getMinMos() {
+    public Double getMinMos() {
         return minMos;
     }
 
-    public void setMinMos(int minMos) {
+    public void setMinMos(Double minMos) {
         this.minMos = minMos;
     }
 
-    public int getMaxMos() {
+    public Double getMaxMos() {
         return maxMos;
     }
 
-    public void setMaxMos(int maxMos) {
+    public void setMaxMos(Double maxMos) {
         this.maxMos = maxMos;
     }
 
