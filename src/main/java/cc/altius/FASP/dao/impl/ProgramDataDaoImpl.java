@@ -2519,7 +2519,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "    LEFT JOIN ( "
                     + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
                     + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "            AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
                     + "        FROM tmp_supply_plan_amc1 spa "
                     + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
                     + "        LEFT JOIN (SELECT * FROM tmp_supply_plan_amc2 spa2) spa2 ON "
