@@ -53,3 +53,46 @@ VIEW `vw_forecast_tree` AS
         (`rm_forecast_tree` `ft`
         LEFT JOIN `ap_label` `l` ON ((`ft`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.goTo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Go to');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aller à');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ir a');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Vá para');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.updatePUSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Update Planning Unit Settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mettre à jour les paramètres d`unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Actualizar la configuración de la unidad de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualizar configurações da unidade de planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.localV','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Local v');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'V locale');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'V local');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'local v');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.serverV','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Server v');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Serveur v');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'servidor v');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'servidor v');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exculdeConsumptionTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this product will not appear in Server v{{serverVersionId}} for this region');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si coché, ce produit n`apparaîtra pas dans le serveur v{{serverVersionId}} pour cette région');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcado, este producto no aparecerá en el servidor v{{serverVersionId}} para esta región');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcado, este produto não aparecerá no servidor v{{serverVersionId}} para esta região');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exculdeTreeTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this tree will not appear in Server v{{serverVersionId}}');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si coché, cet arbre n`apparaîtra pas dans le serveur v{{serverVersionId}}');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcado, este árbol no aparecerá en el servidor v{{serverVersionId}}');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcada, esta árvore não aparecerá no Servidor v{{serverVersionId}}');-- pr
