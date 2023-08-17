@@ -5,10 +5,9 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Emailer;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramService;
@@ -51,14 +50,14 @@ public class TestRestController {
             for (int p : programIdList) {
                 sb.append("\nChecking for access to " + p + "\n");
                 try {
-                    Program prog = this.programService.getProgramById(p, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    SimpleProgram prog = this.programService.getSimpleProgramById(p, curUser);
                     boolean access = this.aclService.checkAccessForUser(
                             curUser,
-                            prog.getRealmCountry().getRealm().getRealmId(),
-                            prog.getRealmCountry().getRealmCountryId(),
+                            prog.getRealmId(),
+                            prog.getRealmCountry().getId(),
                             prog.getHealthAreaIdList(),
                             prog.getOrganisation().getId(),
-                            prog.getProgramId());
+                            prog.getId());
                     sb.append(p + " access = " + access + "\n");
                 } catch (AccessDeniedException ae) {
                     sb.append("Could not get the Program so cant check for access");

@@ -25,12 +25,6 @@ public class RealmCountryRowMapper implements RowMapper<RealmCountry> {
         rc.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
         rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, i)));
         rc.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
-//        rc.setAirFreightPercentage(rs.getDouble("AIR_FREIGHT_PERC"));
-//        rc.setSeaFreightPercentage(rs.getDouble("SEA_FREIGHT_PERC"));
-//        rc.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
-//        rc.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
-//        rc.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
-//        rc.setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, i), rs.getString("UNIT_CODE")));
         rc.setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, i), rs.getDouble("CONVERSION_RATE_TO_USD")));
         rc.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return rc;

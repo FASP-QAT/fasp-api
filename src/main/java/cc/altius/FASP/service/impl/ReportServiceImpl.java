@@ -31,6 +31,7 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryInfo;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.MonthlyForecastOutput;
@@ -132,7 +133,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         return this.reportDao.getInventoryTurns(it, curUser);
     }
 
@@ -244,7 +245,7 @@ public class ReportServiceImpl implements ReportService {
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         return this.reportDao.getForecastError(fei, curUser);
     }
-    
+
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
