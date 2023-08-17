@@ -37,6 +37,8 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.TreeAnchorInput;
+import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -477,4 +479,10 @@ public class ProgramServiceImpl implements ProgramService {
     public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser) {
         return this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
     }
+
+    @Override
+    public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser) {
+        return this.programDao.getTreeAnchorForSync(ta, curUser);
+    }
+
 }

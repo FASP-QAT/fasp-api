@@ -43,6 +43,9 @@ import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.TreeAnchorInput;
+import cc.altius.FASP.model.report.TreeAnchorOutput;
+import cc.altius.FASP.model.report.TreeAnchorOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
@@ -2793,6 +2796,17 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append("GROUP BY ppu.PROGRAM_ID ORDER BY p.PROGRAM_CODE");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT t.TREE_ANCHOR_ID, t.TREE_ID FROM vw_forecast_tree t LEFT JOIN vw_dataset p ON t.PROGRAM_ID=p.PROGRAM_ID WHERE t.PROGRAM_ID=:programId AND FIND_IN_SET(t.TREE_ID, :treeIdList)");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", ta.getProgramId());
+        params.put("treeIdList", ArrayUtils.convertArrayToString(ta.getTreeIds()));
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
+        
     }
 
 }

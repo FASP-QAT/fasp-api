@@ -19,6 +19,8 @@ public class DatasetTree extends BaseModel {
     @JsonView(Views.InternalView.class)
     private int treeId;
     @JsonView(Views.InternalView.class)
+    private int treeAnchorId;
+    @JsonView(Views.InternalView.class)
     private Label label;
     @JsonView(Views.InternalView.class)
     private SimpleObjectWithType forecastMethod;
@@ -47,6 +49,14 @@ public class DatasetTree extends BaseModel {
 
     public int getTreeId() {
         return treeId;
+    }
+
+    public int getTreeAnchorId() {
+        return treeAnchorId;
+    }
+
+    public void setTreeAnchorId(int treeAnchorId) {
+        this.treeAnchorId = treeAnchorId;
     }
 
     public void setTreeId(int treeId) {
