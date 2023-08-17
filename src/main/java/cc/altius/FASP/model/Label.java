@@ -15,15 +15,15 @@ import java.util.Objects;
  */
 public class Label extends BaseModel {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private Integer labelId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private String label_en;
-    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private String label_sp;
-    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private String label_fr;
-    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
     private String label_pr;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {
@@ -81,6 +81,7 @@ public class Label extends BaseModel {
     public void setLabel_pr(String label_pr) {
         this.label_pr = label_pr;
     }
+
     @JsonIgnore
     public String getLabel() {
         return this.label_en;
@@ -115,13 +116,13 @@ public class Label extends BaseModel {
     public String toString() {
         return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + '}';
     }
-    
+
     public void setLabel(Label l) {
-        this.labelId=l.getLabelId();
-        this.label_en=l.getLabel_en();
-        this.label_fr=l.getLabel_fr();
-        this.label_pr=l.getLabel_pr();
-        this.label_sp=l.getLabel_sp();
-        
+        this.labelId = l.getLabelId();
+        this.label_en = l.getLabel_en();
+        this.label_fr = l.getLabel_fr();
+        this.label_pr = l.getLabel_pr();
+        this.label_sp = l.getLabel_sp();
+
     }
 }

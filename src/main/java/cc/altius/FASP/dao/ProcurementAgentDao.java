@@ -21,6 +21,10 @@ import java.util.Map;
 public interface ProcurementAgentDao {
 
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser);
 
     public List<ProcurementAgentType> getProcurementAgentTypeList(boolean active, CustomUserDetails curUser);
 
@@ -69,4 +73,6 @@ public interface ProcurementAgentDao {
     public List<SimpleCodeObject> getProgramListByProcurementAgentId(int procurementAgentId, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getProcurementAgentListByProgramId(int programId, CustomUserDetails curUser);
+    
+    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser);
 }

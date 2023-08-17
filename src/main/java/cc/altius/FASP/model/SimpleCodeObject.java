@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class SimpleCodeObject extends SimpleObject {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class})
     private String code;
 
     public SimpleCodeObject() {
@@ -61,7 +61,7 @@ public class SimpleCodeObject extends SimpleObject {
 
     @Override
     public String toString() {
-        return "SimpleObject{" + "id=" + this.getId() + ", label=" + this.getLabel() + ", code=" + code + '}';
+        return "SimpleCodeObject{" + "id=" + this.getId() + ", label=" + this.getLabel() + ", code=" + code + '}';
     }
 
 }

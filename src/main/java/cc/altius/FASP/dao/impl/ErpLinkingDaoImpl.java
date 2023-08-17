@@ -531,7 +531,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                             params.put("freightCost", erpOrderDTO.getEoShippingCost());
                             params.put("productCost", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
                             params.put("price", erpOrderDTO.getEoPrice());
-                            params.put("shipBy", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                            params.put("shipBy", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                             params.put("qty", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                             params.put("shipmentStatusId", erpOrderDTO.getEoShipmentStatusId());
                             params.put("supplierId", erpOrderDTO.getEoSupplierId());
@@ -764,7 +764,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                             params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                             params.put("RATE", (erpOrderDTO.getEoPrice() / erpOrderDTO.getConversionFactor()));
                             params.put("PRODUCT_COST", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()) : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
-                            params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                            params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                             params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                             params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
                             params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
@@ -1020,7 +1020,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                         params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                         params.put("RATE", (erpOrderDTO.getEoPrice() / erpOrderDTO.getConversionFactor()));
                         params.put("PRODUCT_COST", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
-                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                         params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                         params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
                         params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
@@ -1388,7 +1388,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                         params.put("RATE", (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()));
                         params.put("PRODUCT_COST", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (manualTaggingOrderDTO.getConversionFactor() * manualTaggingOrderDTO.getQuantity()) * (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()) : (erpOrderDTO.getEoPrice() * manualTaggingOrderDTO.getQuantity())));
 //                    params.put("PRODUCT_COST", manualTaggingOrderDTO.getQuantity() * erpOrderDTO.getEoPrice());
-                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") ? "Road" : (erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : (erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"))));
                         params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                         params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
                         params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
@@ -2200,7 +2200,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "    e.`RO_NO`, e.`RO_PRIME_LINE_NO`, COALESCE(s.`STATUS`, e.`STATUS`) `ERP_SHIPMENT_STATUS`,  "
                 + "    e.`ORDER_NO`, e.`PRIME_LINE_NO`, COALESCE(s.`DELIVERED_QTY`, s.`SHIPPED_QTY`, e.`QTY`) `ERP_QTY`,  "
                 + "    COALESCE(s.`ACTUAL_DELIVERY_DATE`, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS `EXPECTED_DELIVERY_DATE`, e.`ACTIVE` `ORDER_ACTIVE`, "
-                + "    s.`KN_SHIPMENT_NO`, s.`BATCH_NO`, s.`EXPIRY_DATE`, s.`ACTIVE` `SHIPMENT_ACTIVE`, "
+                + "    s.`KN_SHIPMENT_NO`, s.`BATCH_NO`, s.`EXPIRY_DATE`, COALESCE(s.`ACTIVE`,e.`ACTIVE`) `SHIPMENT_ACTIVE`, "
                 + "    pu.`PLANNING_UNIT_ID` `ERP_PLANNING_UNIT_ID`, pu.`LABEL_ID` `ERP_PU_LABEL_ID`, pu.`LABEL_EN` `ERP_PU_LABEL_EN`, pu.`LABEL_FR` `ERP_PU_LABEL_FR`, pu.`LABEL_SP` `ERP_PU_LABEL_SP`, pu.`LABEL_PR` `ERP_PU_LABEL_PR`,  "
                 + "    e.`PRICE`, e.`SHIPPING_COST`, null `PARENT_SHIPMENT_ID`, null `PARENT_LINKED_SHIPMENT_ID`, null `CHILD_SHIPMENT_ID`, null `NOTES`, e.`SHIP_BY`,  "
                 + "    ss.`SHIPMENT_STATUS_ID`, ss.`LABEL_ID` `SS_LABEL_ID`, ss.`LABEL_EN` `SS_LABEL_EN`, ss.`LABEL_FR` `SS_LABEL_FR`, ss.`LABEL_SP` `SS_LABEL_SP`, ss.`LABEL_PR`  `SS_LABEL_PR`, null CONVERSION_FACTOR ,null AS TRACER_CATEGORY_ID  "
@@ -2215,7 +2215,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.`ORDER_NO`=s.`ORDER_NO` AND e.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu on papu.`PROCUREMENT_AGENT_ID`=1 AND LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE`  "
                 + "LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
-                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`  "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=COALESCE(s.`STATUS`, e.`STATUS`)  "
                 + "LEFT JOIN vw_shipment_status ss ON sm.`SHIPMENT_STATUS_ID`=ss.`SHIPMENT_STATUS_ID`  "
                 + "WHERE  "
                 + "    pu.`PLANNING_UNIT_ID` IS NOT NULL "

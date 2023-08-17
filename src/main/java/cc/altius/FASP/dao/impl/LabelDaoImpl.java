@@ -96,7 +96,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "            eu.REALM_ID, tt.REALM_ID, ttn.REALM_ID, ft.REALM_ID, ftn.REALM_ID, "
                 + "            s2.REALM_ID, dpu.REALM_ID, ftl.REALM_ID),0) `REALM_ID`, "
                 + "	IFNULL(COALESCE( "
-                + "		b.PROGRAM_ID, ds.PROGRAM_ID, p.PROGRAM_ID, ft.PROGRAM_ID, ftn.PROGRAM_ID, "
+                + "		ds.PROGRAM_ID, p.PROGRAM_ID, ft.PROGRAM_ID, ftn.PROGRAM_ID, "
                 + "            s2.PROGRAM_ID, dpu.PROGRAM_ID, ftl.PROGRAM_ID),0) `PROGRAM_ID`, "
                 + "     COALESCE(ft2.LABEL_ID, ft3.LABEL_ID, ft4.LABEL_ID, tt2.LABEL_ID, tt3.LABEL_ID) `RELATED_TO_LABEL_ID`, "
                 + "     COALESCE(ft2.LABEL_EN, ft3.LABEL_EN, ft4.LABEL_EN, tt2.LABEL_EN, tt3.LABEL_EN) `RELATED_TO_LABEL_EN`, "
@@ -119,7 +119,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN (SELECT r.REGION_ID, r.LABEL_ID, rc.REALM_ID FROM rm_region r LEFT JOIN rm_realm_country rc ON r.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID) as r3 ON l.LABEL_ID=r3.LABEL_ID " //-- 11
                 + "LEFT JOIN rm_procurement_agent pa ON l.LABEL_ID=pa.LABEL_ID " //-- 12
                 + "LEFT JOIN rm_funding_source fs ON l.LABEL_ID=fs.LABEL_ID " //-- 13
-                + "LEFT JOIN (SELECT b.BUDGET_ID, p.REALM_ID, p.PROGRAM_ID, b.LABEL_ID FROM rm_budget b LEFT JOIN rm_program p ON b.PROGRAM_ID=p.PROGRAM_ID) b ON l.LABEL_ID=b.LABEL_ID " //-- 14
+                + "LEFT JOIN (SELECT b.BUDGET_ID, p.REALM_ID, b.LABEL_ID FROM rm_budget_program bp LEFT JOIN rm_budget b ON bp.BUDGET_ID=bp.BUDGET_ID LEFT JOIN rm_program p ON bp.PROGRAM_ID=p.PROGRAM_ID GROUP BY b.BUDGET_ID) b ON l.LABEL_ID=b.LABEL_ID " //-- 14
                 + "LEFT JOIN rm_data_source ds ON l.LABEL_ID=ds.LABEL_ID " //-- 15
                 + "LEFT JOIN rm_data_source_type dst ON l.LABEL_ID=dst.LABEL_ID " //-- 16
                 + "LEFT JOIN ap_unit u ON l.LABEL_ID=u.LABEL_ID " //-- 17 
@@ -164,7 +164,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN (SELECT ttl.TREE_TEMPLATE_LEVEL_ID, ttl.TREE_TEMPLATE_ID, ttl.LABEL_ID, tt.REALM_ID FROM rm_tree_template_level ttl LEFT JOIN rm_tree_template tt ON ttl.TREE_TEMPLATE_ID=tt.TREE_TEMPLATE_ID) ttl ON ttl.LABEL_ID=l.LABEL_ID " // 54
                 + "LEFT JOIN vw_tree_template tt3 ON ttl.TREE_TEMPLATE_ID=tt3.TREE_TEMPLATE_ID "
                 + ") AS l2 "
-                + "LEFT JOIN vw_program p ON l2.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_program p ON l2.PROGRAM_ID=p.PROGRAM_ID "
                 + "WHERE l2.ID IS NOT NULL AND l2.LABEL_FOR IS NOT NULL ");
         if (curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BUSINESS_FUNCTION_EDIT_APPLICATION_LABELS"))) {
             sb.append(" AND l2.REALM_ID = 0 ");

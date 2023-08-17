@@ -120,7 +120,7 @@ public class AclServiceImpl implements AclService {
     }
 
     @Override
-    // Can only be called with the vw_program view  or vw_dataset view and not the rm_program table
+    // Can only be called with the vw_program view  or vw_dataset or vw_all_program view and not the rm_program table
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
         int count = 1;
         StringBuilder localSb = new StringBuilder();
