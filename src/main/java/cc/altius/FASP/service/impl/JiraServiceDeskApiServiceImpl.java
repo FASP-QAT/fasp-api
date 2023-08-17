@@ -49,7 +49,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     private String JIRA_SERVICE_DESK_API_URL;
     @Value("${jira.apiUsername}")
     private String JIRA_API_USERNAME;
-    @Value("${jira.apiToken}")
+    @Value("#{credentials['jira.apiToken']}")
     private String JIRA_API_TOKEN;
     @Value("${jira.projectName}")
     private String JIRA_PROJECT_NAME;

@@ -34,6 +34,7 @@ public class ForecastConsumptionExtrapolationListResultSetExtractor implements R
                 fces.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("R_").mapRow(rs, 1)));
                 fces.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
                 fces.setJsonProperties(rs.getString("JSON_PROPERTIES"));
+                fces.setNotes(rs.getString("NOTES"));
                 fces.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
                 fces.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
             } else {

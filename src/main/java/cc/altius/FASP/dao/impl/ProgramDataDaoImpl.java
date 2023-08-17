@@ -1417,6 +1417,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("PLANNING_UNIT_ID", fce.getPlanningUnit().getId());
             params.put("REGION_ID", fce.getRegion().getId());
             params.put("EXTRAPOLATION_METHOD_ID", fce.getExtrapolationMethod().getId());
+            params.put("NOTES", fce.getNotes());
             params.put("VERSION_ID", version.getVersionId());
             params.put("JSON_PROPERTIES", fce.getJsonPropertiesString());
             params.put("CREATED_BY", fce.getCreatedBy().getUserId());
@@ -2805,7 +2806,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
-                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
+                + "     fce.JSON_PROPERTIES, fce.NOTES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
                 + "FROM rm_forecast_consumption_extrapolation fce "
                 + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "

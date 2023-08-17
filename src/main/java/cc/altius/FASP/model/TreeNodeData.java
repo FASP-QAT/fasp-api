@@ -217,7 +217,7 @@ public class TreeNodeData implements Serializable {
 
     @Override
     public String toString() {
-        return "TreeNodeData{" + "nodeDataId=" + nodeDataId + '}';
+        return "TreeNodeData{" + "nodeDataId=" + nodeDataId + ", annualTargetCalculator=" + annualTargetCalculator + '}';
     }
 
 }

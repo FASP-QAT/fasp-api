@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
@@ -69,7 +68,7 @@ public class BudgetDaoImpl implements BudgetDao {
             + "    b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE  "
             + "FROM vw_budget b "
             + "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID "
-            + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID AND p.ACTIVE "
+            + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
             + "LEFT JOIN vw_realm r ON fs.REALM_ID=r.REALM_ID "
             + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
@@ -92,7 +91,7 @@ public class BudgetDaoImpl implements BudgetDao {
     @Override
     @Transactional
     public int addBudget(Budget b, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingColumns("BUDGET_CODE","FUNDING_SOURCE_ID","REALM_ID","BUDGET_AMT","CURRENCY_ID","CONVERSION_RATE_TO_USD","START_DATE","STOP_DATE","NOTES","LABEL_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE").usingGeneratedKeyColumns("BUDGET_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingColumns("BUDGET_CODE", "FUNDING_SOURCE_ID", "REALM_ID", "BUDGET_AMT", "CURRENCY_ID", "CONVERSION_RATE_TO_USD", "START_DATE", "STOP_DATE", "NOTES", "LABEL_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("BUDGET_CODE", b.getBudgetCode());
@@ -191,16 +190,16 @@ public class BudgetDaoImpl implements BudgetDao {
     public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         StringBuilder paramBuilder = new StringBuilder();
-        for (String pId : programIds) {
-            paramBuilder.append("'").append(pId).append("',");
-        }
         if (programIds.length > 0) {
+            for (String pId : programIds) {
+                paramBuilder.append("'").append(pId).append("',");
+            }
             paramBuilder.setLength(paramBuilder.length() - 1);
+            sqlStringBuilder.append(" AND bp.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         }
-        sqlStringBuilder.append(" AND bp.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-//        sqlStringBuilder.append(sqlGroupByString);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetListResultSetExtractor());
     }
 
@@ -248,7 +247,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     @Override
     public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (bp.PROGRAM_ID=:programId OR :programId=-1) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT b.BUDGET_ID `ID`, b.BUDGET_CODE `CODE`, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR  FROM vw_budget b LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID WHERE b.ACTIVE AND (bp.PROGRAM_ID=:programId OR :programId=-1) AND p.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "b", curUser);

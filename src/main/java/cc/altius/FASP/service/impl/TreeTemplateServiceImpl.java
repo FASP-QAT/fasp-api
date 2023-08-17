@@ -32,9 +32,9 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser) {
-        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(curUser);
-        if (nodeData) {
+    public List<TreeTemplate> getTreeTemplateList(boolean showNodeData, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(false, curUser);
+        if (showNodeData) {
             ttList.forEach(tt -> {
                 tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
                 tt.getFlatList().forEach(n -> {
@@ -55,9 +55,9 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
         }
         return ttList;
     }
-    
+
     public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser) {
-        return this.treeTemplateDao.getTreeTemplateList(curUser);
+        return this.treeTemplateDao.getTreeTemplateList(false, curUser);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
                             nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("ModelingData retrieved");
-                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
+                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("AnnualTargetCalculator retrieved");
                             nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("Override data retrieved");
