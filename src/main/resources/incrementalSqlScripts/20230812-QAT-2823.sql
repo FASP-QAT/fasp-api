@@ -9,7 +9,7 @@ CREATE TABLE `rm_forecast_tree_anchor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 UPDATE rm_forecast_tree ft SET ft.TREE_ANCHOR_ID=null;
-ALTER TABLE `fasp`.`rm_forecast_tree` ADD INDEX `fk_rm_forecast_tree_treeAnchorId_idx` (`TREE_ANCHOR_ID` ASC) VISIBLE;
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD INDEX `fk_rm_forecast_tree_treeAnchorId_idx` (`TREE_ANCHOR_ID` ASC);
 
 ALTER TABLE `fasp`.`rm_forecast_tree` 
 ADD CONSTRAINT `fk_rm_forecast_tree_treeAnchorId`
@@ -28,7 +28,7 @@ SET t.TREE_ANCHOR_ID=ta.TREE_ANCHOR_ID;
 
 USE `fasp`;
 CREATE 
-    ALGORITHM = UNDEFINED 
+    OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_forecast_tree` AS
