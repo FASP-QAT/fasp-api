@@ -22,6 +22,7 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateResultSetExtractor;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -159,8 +162,11 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
-        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
+        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
+        SimpleJdbcInsert nidatc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator").usingGeneratedKeyColumns("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID");
+        SimpleJdbcInsert nidatcd = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator_data");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
+        final List<SqlParameterSource> batchList = new ArrayList<>();
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (TreeLevel tl : tt.getLevelList()) {
             params.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -287,7 +293,28 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
-                        nidm.execute(nodeParams);
+                        ndm.setNodeDataModelingId(nidm.executeAndReturnKey(nodeParams).intValue());
+                    }
+                    if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
+                        nodeParams.clear();
+                        nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                        nodeParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                        nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+
+                        batchList.clear();
+                        for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
+                            Map<String, Object> batchParams = new HashMap<>();
+                            batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", tnd.getAnnualTargetCalculator().getNodeDataAnnualTargetCalculatorId());
+                            batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                            batchList.add(new MapSqlParameterSource(batchParams));
+                        }
+                        SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                        nidatcd.executeBatch(batchList.toArray(batchArray));
                     }
                 }
             }
@@ -329,6 +356,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("treeTemplateId", tt.getTreeTemplateId());
         this.namedParameterJdbcTemplate.update("DELETE ttndm.* FROM rm_tree_template_node_data_modeling ttndm LEFT JOIN rm_tree_template_node_data ttnd ON ttndm.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndo.* FROM rm_tree_template_node_data_override ttndo LEFT JOIN rm_tree_template_node_data ttnd ON ttndo.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttndatcd.*  FROM rm_tree_template_node_data_annual_target_calculator_data ttndatcd LEFT JOIN rm_tree_template_node_data_annual_target_calculator ttndatc ON ttndatcd.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID=ttndatc.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID LEFT JOIN rm_tree_template_node_data ttnd ON ttndatc.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttndatc.*  FROM rm_tree_template_node_data_annual_target_calculator ttndatc LEFT JOIN rm_tree_template_node_data_annual_target_calculator_data ttndatcd ON ttndatcd.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID=ttndatc.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID LEFT JOIN rm_tree_template_node_data ttnd ON ttndatc.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttnd.* FROM rm_tree_template_node_data ttnd LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndp.* FROM rm_tree_template_node_data_pu ttndp LEFT JOIN rm_tree_template_node_data ttnd ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID WHERE ttnd.NODE_DATA_PU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndf.* FROM rm_tree_template_node_data_fu ttndf LEFT JOIN rm_tree_template_node_data ttnd ON ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID WHERE ttnd.NODE_DATA_FU_ID IS NULL", params);
@@ -347,6 +376,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
         SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
+        SimpleJdbcInsert nidatc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator").usingGeneratedKeyColumns("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID");
+        SimpleJdbcInsert nidatcd = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator_data");
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (TreeLevel tl : tt.getLevelList()) {
             params.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -473,6 +504,24 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
                         nidm.execute(nodeParams);
+                    }
+                }
+                if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
+                    nodeParams.clear();
+                    nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                    nodeParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                    nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
+                    nodeParams.put("CREATED_BY", curUser.getUserId());
+                    nodeParams.put("CREATED_DATE", curDate);
+                    nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                    nodeParams.put("LAST_MODIFIED_DATE", curDate);
+//                    tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+                    int atcId = nidatc.executeAndReturnKey(nodeParams).intValue();
+                    for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
+                        Map<String, Object> batchParams = new HashMap<>();
+                        batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", atcId);
+                        batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                        nidatcd.execute(batchParams);
                     }
                 }
             }

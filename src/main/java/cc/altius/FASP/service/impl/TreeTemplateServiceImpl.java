@@ -43,6 +43,8 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
                             if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
                                 nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), true));
                                 logger.info("ModelingData retrieved");
+                                nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
+                                logger.info("AnnualTargetCalculator retrieved");
                                 nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), true));
                                 logger.info("Override data retrieved");
                             }
@@ -53,7 +55,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
         }
         return ttList;
     }
-    
+
     public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser) {
         return this.treeTemplateDao.getTreeTemplateList(false, curUser);
     }
@@ -69,6 +71,8 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
                             nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("ModelingData retrieved");
+                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), true));
+                            logger.info("AnnualTargetCalculator retrieved");
                             nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("Override data retrieved");
                         }
@@ -100,6 +104,8 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
                             nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("ModelingData retrieved");
+                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
+                            logger.info("AnnualTargetCalculator retrieved");
                             nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), true));
                             logger.info("Override data retrieved");
                         }

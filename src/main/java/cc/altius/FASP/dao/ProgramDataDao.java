@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.model.AnnualTargetCalculator;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -52,7 +53,7 @@ public interface ProgramDataDao {
     public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
 
     public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
-    
+
     public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
 
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
@@ -112,6 +113,8 @@ public interface ProgramDataDao {
     public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
 
     public List<NodeDataModeling> getModelingDataForNodeDataId(int nodeDataId, boolean isTemplate);
+
+    public AnnualTargetCalculator getAnnualTargetCalculatorForNodeDataId(int nodeDataId, boolean isTemplate);
 
     public List<NodeDataMom> getMomDataForNodeDataId(int nodeDataId);
 
