@@ -87,6 +87,7 @@ public class CommitRequestRestController {
                 .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
                 .registerTypeAdapter(Boolean.class, new EmptyStringToDefaultBooleanDeserializer())
                 .registerTypeAdapter(boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                .serializeSpecialFloatingPointValues()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
             Type type = new TypeToken<ProgramData>() {}.getType();
