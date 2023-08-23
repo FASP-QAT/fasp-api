@@ -663,7 +663,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("procurementAgentIds", strProcurementAgentIds);
         params.put("programId", programId);
         params.put("curDate", curDate);
-        this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds) OR pa.PROCUREMENT_AGENT_ID IN (SELECT * FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds) OR pa.PROCUREMENT_AGENT_ID IN (SELECT ppa.PROCUREMENT_AGENT_ID FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
         this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.LAST_MODIFIED_DATE=:curDate WHERE p.PROGRAM_ID=:programId", params);
         this.namedParameterJdbcTemplate.update("DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
         MapSqlParameterSource[] batchParams;
