@@ -32,5 +32,6 @@ public class GlobalConstants {
     public static final int COMMIT_STATUS_TYPE_FINAL_SUBMITTED = 1; // -> Final Submitted
     public static final int COMMIT_STATUS_TYPE_FINAL_APPROVED = 2; // -> Final Approved
     public static final int COMMIT_STATUS_TYPE_FINAL_REJECTED = 3; // -> Final Rejected
-
+    
+    public static final int COMPRESS_LIMIT_SIZE = 2; // In MBs
 }

@@ -16,8 +16,6 @@ import cc.altius.FASP.model.report.CommitRequestInput;
 import cc.altius.FASP.model.rowMapper.CommitRequestRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
-import java.io.File;
-import java.io.FileWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -172,8 +170,8 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
             sb.append(" AND STATUS=:requestStatus");
             params.put("requestStatus", requestStatus);
         }
-        params.put("startDate", spcr.getStartDateString() + " 00:00:00");
-        params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
+        params.put("startDate", spcr.getStartDate() + " 00:00:00");
+        params.put("stopDate", spcr.getStopDate() + " 23:59:59");
         params.put("curUser", curUser.getUserId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         try {

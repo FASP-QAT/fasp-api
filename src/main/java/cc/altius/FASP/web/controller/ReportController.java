@@ -16,6 +16,7 @@ import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
@@ -42,6 +43,7 @@ import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.LogUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -209,7 +211,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2029,2521,2140], "tracerCategoryIds":[6,7],"planningUnitIds":[], "startDate":"2020-10-01", "previousMonths":3}
+     *{"realmId": 1, "realmCountryIds": ["5","51"],"programIds": ["2531","2544","2563","2564","2565"],"planningUnitIds": [],"tracerCategoryIds": [],"startDate": "2022-10-01","previousMonths": 3,"useApprovedSupplyPlanOnly": true,"curUser": 9}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
