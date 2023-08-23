@@ -1,3 +1,11 @@
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
 USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
 	VAR_USER_ID INT(10), 
@@ -137,4 +145,8 @@ BEGIN
     PREPARE S3 FROM @sqlString;
     EXECUTE S3;
     -- INSERT INTO log VALUES (null, now(), "Main query completed");
-END
+END$$
+
+DELIMITER ;
+;
+

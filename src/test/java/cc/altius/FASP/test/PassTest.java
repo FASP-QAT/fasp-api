@@ -20,7 +20,8 @@ public class PassTest {
         String encodedPass = p.encode(pass);
         System.out.println("Password = " + pass);
         System.out.println("Encoded password = " + encodedPass);
-        System.out.println(p.matches("Pass@123", encodedPass));
+        System.out.println(p.matches("Weitl@v4", encodedPass));
     }
 
+//    UPDATE us_user u SET u.PASSWORD='$2a$10$1SWHXQoQqtbEKOUEEYArmOvsFyKTzPeEFIjq0O44SIIb1LfcHBunO', u.FAILED_ATTEMPTS=0 WHERE u.USER_ID=9;
 }

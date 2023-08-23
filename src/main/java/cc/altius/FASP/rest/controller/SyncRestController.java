@@ -41,9 +41,16 @@ import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UsagePeriodService;
 import cc.altius.FASP.service.UsageTemplateService;
 import cc.altius.FASP.service.UserService;
+import static cc.altius.FASP.utils.CompressUtils.compress;
+import static cc.altius.FASP.utils.CompressUtils.isCompress;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -268,6 +275,11 @@ public class SyncRestController {
             masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonString = objectMapper.writeValueAsString(masters);
+            if(isCompress(jsonString)){
+                return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            }
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
