@@ -96,3 +96,31 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this tree 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si coché, cet arbre n`apparaîtra pas dans le serveur v{{serverVersionId}}');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcado, este árbol no aparecerá en el servidor v{{serverVersionId}}');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcada, esta árvore não aparecerá no Servidor v{{serverVersionId}}');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.treeAndConsumptionLastModifiedDateTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This date refers to when the data element was last edited in this particular version.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cette date fait référence à la dernière fois que lélément de données a été modifié dans cette version particulière.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esta fecha se refiere a cuándo se editó por última vez el elemento de datos en esta versión en particular.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta data refere-se a quando o elemento de dados foi editado pela última vez nesta versão específica.');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Note: In order to commit to the server, users must resolve all conflicts first by right-clicking on the line items and selecting to either “Accept local version” or “Accept server version.'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Remarque : Pour s'engager sur le serveur, les utilisateurs doivent d'abord résoudre tous les conflits en cliquant avec le bouton droit sur les éléments de campagne et en sélectionnant « Accepter la version locale » ou « Accepter la version du serveur.'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nota: Para comprometerse con el servidor, los usuarios deben resolver todos los conflictos primero haciendo clic derecho en las líneas de pedido y seleccionando "Aceptar versión local" o "Aceptar versión del servidor".'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Observação: para se comprometer com o servidor, os usuários devem resolver todos os conflitos primeiro clicando com o botão direito nos itens de linha e selecionando “Aceitar versão local” ou “Aceitar versão do servidor.'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=4;
