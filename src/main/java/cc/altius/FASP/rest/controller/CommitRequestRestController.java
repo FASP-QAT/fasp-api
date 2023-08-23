@@ -11,16 +11,26 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
+import cc.altius.FASP.model.EmptyStringToDefaultBooleanDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultDateDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultDoubleDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultFloatDeserializer;
+import cc.altius.FASP.model.EmptyStringToDefaultIntDeserializer;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.CommitRequestInput;
 import cc.altius.FASP.service.CommitRequestService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.CompressUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.FileInputStream;
+import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
@@ -64,14 +74,24 @@ public class CommitRequestRestController {
 
     // Part 1 of the Commit Request for Supply Plan
     @PutMapping("/programData/{comparedVersionId}")
-    public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody ProgramData programData, Authentication auth) {
+    public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
         try {
+            String programDataBytes = CompressUtils.decompress(programDataCompressed);
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
-                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
-                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .setLenient()
-                    .create();
+                .registerTypeAdapter(Integer.class, new EmptyStringToDefaultIntDeserializer())
+                .registerTypeAdapter(int.class, new EmptyStringToDefaultIntDeserializer())
+                .registerTypeAdapter(Double.class, new EmptyStringToDefaultDoubleDeserializer())
+                .registerTypeAdapter(double.class, new EmptyStringToDefaultDoubleDeserializer())
+                .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
+                .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
+                .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
+                .registerTypeAdapter(Boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                .registerTypeAdapter(boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                .serializeSpecialFloatingPointValues()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
+            Type type = new TypeToken<ProgramData>() {}.getType();
+            ProgramData programData = gson.fromJson(programDataBytes, type);
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
@@ -108,7 +128,8 @@ public class CommitRequestRestController {
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
         String json = null;
         try {
-            json = IOUtils.toString(request.getReader());
+            String datasetBytes = CompressUtils.decompress(IOUtils.toString(request.getReader()));
+            json = datasetBytes;
             String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},\"noOfPersons\":\"\"}";
             String emptyFuNodeString2 = "\"fuNode\":{\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
             String emptyFuNodeString3 = "\"fuNode\":{\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{\"id\":3},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
