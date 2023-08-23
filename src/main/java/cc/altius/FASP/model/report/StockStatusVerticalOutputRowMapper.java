@@ -75,17 +75,23 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setMos(null);
                 }
-                ssv.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
-                ssv.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
+                ssv.setMinMos(rs.getDouble("MIN_MONTHS_OF_STOCK"));
+                if (rs.wasNull()) {
+                    ssv.setMinMos(null);
+                }
+                ssv.setMaxMos(rs.getDouble("MAX_MONTHS_OF_STOCK"));
+                if (rs.wasNull()) {
+                    ssv.setMinMos(null);
+                }
                 ssv.setUnmetDemand(rs.getLong("UNMET_DEMAND"));
                 if (rs.wasNull()) {
                     ssv.setUnmetDemand(null);
                 }
-                ssv.setMinStock(rs.getLong("MIN_STOCK_QTY"));
+                ssv.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
                 if (rs.wasNull()) {
                     ssv.setMinStock(null);
                 }
-                ssv.setMaxStock(rs.getLong("MAX_STOCK_QTY"));
+                ssv.setMaxStock(rs.getDouble("MAX_STOCK_QTY"));
                 if (rs.wasNull()) {
                     ssv.setMaxStock(null);
                 }
