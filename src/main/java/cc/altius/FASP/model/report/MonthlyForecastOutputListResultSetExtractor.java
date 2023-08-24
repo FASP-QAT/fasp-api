@@ -73,7 +73,7 @@ public class MonthlyForecastOutputListResultSetExtractor implements ResultSetExt
                     if (rs.wasNull()) {
                         calculatedMMDValue = null;
                     }
-                    mfd.setConsumptionQty(mfd.getConsumptionQty() + (calculatedMMDValue == null ? 0 : calculatedMMDValue));
+                    mfd.setConsumptionQty(mfd.getConsumptionQty() == null ? 0 : mfd.getConsumptionQty() + (calculatedMMDValue == null ? 0 : calculatedMMDValue));
                 }
             }
         }
