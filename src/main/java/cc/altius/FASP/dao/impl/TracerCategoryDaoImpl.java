@@ -183,6 +183,12 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
                 + "FROM rm_program_planning_unit ppu "
                 + "LEFT JOIN rm_planning_unit pu on ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.ACTIVE"
+                + " UNION "
+                + "SELECT DISTINCT(fu.TRACER_CATEGORY_ID) "
+                + "FROM rm_dataset_planning_unit ppu "
+                + "LEFT JOIN rm_planning_unit pu on ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "WHERE ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.ACTIVE) AND tc.REALM_ID=:realmId ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
