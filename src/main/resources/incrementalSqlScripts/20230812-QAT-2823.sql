@@ -85,17 +85,17 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'servidor v');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exculdeConsumptionTooltip','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this product will not appear in Server v{{serverVersionId}} for this region');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si coché, ce produit n`apparaîtra pas dans le serveur v{{serverVersionId}} pour cette région');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcado, este producto no aparecerá en el servidor v{{serverVersionId}} para esta región');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcado, este produto não aparecerá no servidor v{{serverVersionId}} para esta região');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, QAT will exclude any changes to this planning unit on version {{localVersionId}} (local) and revert to the latest server version {{serverVersionId}}.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette case est cochée, QAT exclura toute modification apportée à cette unité de planification sur la version {{localVersionId}} (local) et reviendra à la dernière version du serveur {{serverVersionId}}.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se marca, QAT excluirá cualquier cambio en esta unidad de planificación en la versión {{localVersionId}} (local) y volverá a la última versión del servidor {{serverVersionId}}.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcado, o QAT excluirá quaisquer alterações nesta unidade de planejamento na versão {{localVersionId}} (local) e reverterá para a versão mais recente do servidor {{serverVersionId}}.');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exculdeTreeTooltip','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this tree will not appear in Server v{{serverVersionId}}');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si coché, cet arbre n`apparaîtra pas dans le serveur v{{serverVersionId}}');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcado, este árbol no aparecerá en el servidor v{{serverVersionId}}');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcada, esta árvore não aparecerá no Servidor v{{serverVersionId}}');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, QAT will exclude any changes to this tree on version {{localVersionId}} (local) and revert to the latest server version {{serverVersionId}}.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette case est cochée, QAT exclura toute modification apportée à cette arborescence sur la version {{localVersionId}} (local) et reviendra à la dernière version du serveur {{serverVersionId}}.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se marca, QAT excluirá cualquier cambio en este árbol en la versión {{localVersionId}} (local) y volverá a la última versión del servidor {{serverVersionId}}.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcado, o QAT excluirá quaisquer alterações nesta árvore na versão {{localVersionId}} (local) e reverterá para a versão mais recente do servidor {{serverVersionId}}.');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.treeAndConsumptionLastModifiedDateTooltip','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -124,3 +124,11 @@ update ap_static_label l
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='Observação: para se comprometer com o servidor, os usuários devem resolver todos os conflitos primeiro clicando com o botão direito nos itens de linha e selecionando “Aceitar versão local” ou “Aceitar versão do servidor.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exclude','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Exclude local changes');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Exclure les modifications locales');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Excluir cambios locales');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Excluir alterações locais');-- pr
