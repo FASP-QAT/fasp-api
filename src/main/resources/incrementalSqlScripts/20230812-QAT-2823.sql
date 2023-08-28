@@ -107,12 +107,12 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta data refere-se a 
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Note: In order to commit to the server, users must resolve all conflicts first by right-clicking on the line items and selecting to either “Accept local version” or “Accept server version.'
+set ll.LABEL_TEXT='Note: In order to commit to the server, users must resolve all conflicts first by right-clicking on the line items and selecting to either “Accept local version” or “Accept server version”.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Remarque : Pour s'engager sur le serveur, les utilisateurs doivent d'abord résoudre tous les conflits en cliquant avec le bouton droit sur les éléments de campagne et en sélectionnant « Accepter la version locale » ou « Accepter la version du serveur.'
+set ll.LABEL_TEXT='Remarque : Pour s`engager sur le serveur, les utilisateurs doivent d`abord résoudre tous les conflits en cliquant avec le bouton droit sur les éléments de campagne et en sélectionnant "Accepter la version locale" ou "Accepter la version du serveur".'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=2;
 
 update ap_static_label l 
@@ -122,7 +122,7 @@ where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=3;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Observação: para se comprometer com o servidor, os usuários devem resolver todos os conflitos primeiro clicando com o botão direito nos itens de linha e selecionando “Aceitar versão local” ou “Aceitar versão do servidor.'
+set ll.LABEL_TEXT='Observação: para se comprometer com o servidor, os usuários devem resolver todos os conflitos primeiro clicando com o botão direito nos itens de linha e selecionando “Aceitar versão local” ou “Aceitar versão do servidor”.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=4;
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exclude','1'); 
