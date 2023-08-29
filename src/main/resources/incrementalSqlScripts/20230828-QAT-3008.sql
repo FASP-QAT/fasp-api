@@ -24,10 +24,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar árvore sem adic
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.addAbovePUs','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add selected planning units');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter les unités de planification sélectionnées');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregar unidades de planificación seleccionadas');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar unidades de planejamento selecionadas');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add/update selected planning units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter/mettre à jour les unités de planification sélectionnées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregar/actualizar unidades de planificación seleccionadas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar/atualizar unidades de planejamento selecionadas');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.youMustBeOnlineToCreatePU','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
