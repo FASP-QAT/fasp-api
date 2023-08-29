@@ -107,22 +107,22 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta data refere-se a 
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Note: In order to commit to the server, users must resolve all conflicts first by right-clicking on the line items and selecting to either “Accept local version” or “Accept server version”.'
+set ll.LABEL_TEXT='Note: Please check all tabs and rows for conflicts, which are highlighted yellow. To resolve conflicts, right-click on the line and select either “Accept local version” or “Accept server version”. Conflicts must be resolved before versions can be uploaded.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Remarque : Pour s`engager sur le serveur, les utilisateurs doivent d`abord résoudre tous les conflits en cliquant avec le bouton droit sur les éléments de campagne et en sélectionnant "Accepter la version locale" ou "Accepter la version du serveur".'
+set ll.LABEL_TEXT='Remarque : Veuillez vérifier tous les onglets et toutes les lignes pour détecter les conflits, qui sont surlignés en jaune. Pour résoudre les conflits, faites un clic droit sur la ligne et sélectionnez « Accepter la version locale » ou « Accepter la version du serveur ». Les conflits doivent être résolus avant que les versions puissent être téléchargées.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=2;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Nota: Para comprometerse con el servidor, los usuarios deben resolver todos los conflictos primero haciendo clic derecho en las líneas de pedido y seleccionando "Aceptar versión local" o "Aceptar versión del servidor".'
+set ll.LABEL_TEXT='Nota: verifique todas las pestañas y filas en busca de conflictos, que están resaltados en amarillo. Para resolver conflictos, haga clic derecho en la línea y seleccione "Aceptar versión local" o "Aceptar versión del servidor". Los conflictos deben resolverse antes de poder cargar las versiones.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=3;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Observação: para se comprometer com o servidor, os usuários devem resolver todos os conflitos primeiro clicando com o botão direito nos itens de linha e selecionando “Aceitar versão local” ou “Aceitar versão do servidor”.'
+set ll.LABEL_TEXT='Observação: verifique se há conflitos em todas as guias e linhas, que estão destacadas em amarelo. Para resolver conflitos, clique com o botão direito na linha e selecione “Aceitar versão local” ou “Aceitar versão do servidor”. Os conflitos devem ser resolvidos antes que as versões possam ser carregadas.'
 where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=4;
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.exclude','1'); 
