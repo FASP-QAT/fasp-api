@@ -1,3 +1,31 @@
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importIntoSupplyPlan.notes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Because QAT Supply Planning requires whole numbers without decimals, QAT converts forecasted consumption into whole numbers by rounding down and summing the “residuals” over time. By clicking “Import” QAT will utilize these converted “residual” quantities in the Supply Planning module. For more information and an example on this process, please see the Show Guidance.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Étant donné que QAT Supply Planning nécessite des nombres entiers sans décimales, QAT convertit la consommation prévue en nombres entiers en arrondissant et en additionnant les « résidus » au fil du temps. En cliquant sur « Importer », QAT utilisera ces quantités « résiduelles » converties dans le module Planification des approvisionnements. Pour plus d’informations et un exemple sur ce processus, veuillez consulter le guide de l’exposition.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Debido a que la planificación de suministro de QAT requiere números enteros sin decimales, QAT convierte el consumo previsto en números enteros redondeando hacia abajo y sumando los “residuales” a lo largo del tiempo. Al hacer clic en "Importar", QAT utilizará estas cantidades "residuales" convertidas en el módulo de planificación de suministros. Para obtener más información y un ejemplo sobre este proceso, consulte la Guía del espectáculo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Como o Planejamento de Fornecimento do QAT exige números inteiros sem decimais, o QAT converte o consumo previsto em números inteiros, arredondando para baixo e somando os “resíduos” ao longo do tempo. Ao clicar em “Importar”, o QAT utilizará essas quantidades “residuais” convertidas no módulo Planejamento de Fornecimento. Para obter mais informações e um exemplo sobre esse processo, consulte as Orientações do Show.');-- pr
+
+UPDATE ap_static_label_languages
+LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
+SET ap_static_label_languages.LABEL_TEXT='Rounded Converted Forecasted Consumption (to be imported)' where ap_static_label.LABEL_CODE='static.QATForecastImport.convertedForecastConsumption' 
+and ap_static_label_languages.LANGUAGE_ID=1;
+
+UPDATE ap_static_label_languages
+LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
+SET ap_static_label_languages.LABEL_TEXT='Consommation prévisionnelle convertie arrondie (à importer)' where ap_static_label.LABEL_CODE='static.QATForecastImport.convertedForecastConsumption' 
+and ap_static_label_languages.LANGUAGE_ID=2;
+
+UPDATE ap_static_label_languages
+LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
+SET ap_static_label_languages.LABEL_TEXT='Consumo pronosticado convertido redondeado (a importar)' where ap_static_label.LABEL_CODE='static.QATForecastImport.convertedForecastConsumption' 
+and ap_static_label_languages.LANGUAGE_ID=3;
+
+UPDATE ap_static_label_languages
+LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
+SET ap_static_label_languages.LABEL_TEXT='Consumo Previsto Convertido Arredondado (a ser importado)' where ap_static_label.LABEL_CODE='static.QATForecastImport.convertedForecastConsumption' 
+and ap_static_label_languages.LANGUAGE_ID=4;
+
 ALTER TABLE fasp.rm_tree_template_node_data 
 CHANGE COLUMN DATA_VALUE DATA_VALUE DECIMAL(24,8) NULL DEFAULT NULL COMMENT 'Based on the NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent' ;
 ALTER TABLE fasp.rm_forecast_tree_node_data 
