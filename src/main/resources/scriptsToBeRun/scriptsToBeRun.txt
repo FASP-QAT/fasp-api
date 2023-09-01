@@ -1,3 +1,1 @@
-src/main/resources/incrementalSqlScripts/20230811-QAT-3494.sql
-src/main/resources/incrementalSqlScripts/20230806-QAT-3362.sql
-src/main/resources/incrementalSqlScripts/20230816-QAT-3096.sql
+src/main/resources/incrementalSqlScripts/20230829-QAT-3541.sql
