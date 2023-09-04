@@ -29,7 +29,7 @@ public class ForecastSummaryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Label selectedForecast;
     @JsonView(Views.ReportView.class)
-    private Integer totalForecast;
+    private Double totalForecast;
     @JsonView(Views.ReportView.class)
     private Label notes;
     @JsonView(Views.ReportView.class)
@@ -77,11 +77,11 @@ public class ForecastSummaryOutput implements Serializable {
         this.selectedForecast = selectedForecast;
     }
 
-    public Integer getTotalForecast() {
+    public Double getTotalForecast() {
         return totalForecast;
     }
 
-    public void setTotalForecast(Integer totalForecast) {
+    public void setTotalForecast(Double totalForecast) {
         this.totalForecast = totalForecast;
     }
 
