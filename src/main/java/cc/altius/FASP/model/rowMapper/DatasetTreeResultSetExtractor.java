@@ -30,6 +30,7 @@ public class DatasetTreeResultSetExtractor implements ResultSetExtractor<List<Da
         while (rs.next()) {
             DatasetTree t = new DatasetTree();
             t.setTreeId(rs.getInt("TREE_ID"));
+            t.setTreeAnchorId(rs.getInt("TREE_ANCHOR_ID"));
             t.setNotes(rs.getString("NOTES"));
             int idx = treeList.indexOf(t);
             if (idx == -1) {
