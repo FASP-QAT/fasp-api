@@ -868,7 +868,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 31 new
     // Reports -> Consumption Reports -> Forecast Error Report
     /**
@@ -884,6 +884,9 @@ public class ReportController {
      * -- regionIds list of region ids that the report should run for or blank for all
      * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
      * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
+     * -- If the view is EquivalencyUnit then all PU or FU selected must be from the same EU
+     * -- If the view is FU then the PU's selected must be from the same FU
+     * -- If the view is PU then you cannot multi-select
      * </pre>
      *
      * @param sspi
