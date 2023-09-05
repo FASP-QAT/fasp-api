@@ -305,12 +305,13 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
-                        tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+//                        tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+                        int nodeDataAnnualTargetCalculatorId = nidatc.executeAndReturnKey(nodeParams).intValue();
 
                         batchList.clear();
                         for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
                             Map<String, Object> batchParams = new HashMap<>();
-                            batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", tnd.getAnnualTargetCalculator().getNodeDataAnnualTargetCalculatorId());
+                            batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", nodeDataAnnualTargetCalculatorId);
                             batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
                             batchList.add(new MapSqlParameterSource(batchParams));
                         }
