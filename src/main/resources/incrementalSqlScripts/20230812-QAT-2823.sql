@@ -29,7 +29,7 @@ SET t.TREE_ANCHOR_ID=ta.TREE_ANCHOR_ID;
 USE `fasp`;
 CREATE 
     OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_forecast_tree` AS
     SELECT 
