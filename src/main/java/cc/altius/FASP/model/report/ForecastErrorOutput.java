@@ -31,7 +31,7 @@ public class ForecastErrorOutput implements Serializable {
     private Double actualQty;
     @JsonView(Views.ReportView.class)
     private Double forecastQty;
-    private Double sumOfForecastMinusActual;
+    private Double sumOfForecast;
     private Double sumOfActual;
     @JsonView(Views.ReportView.class)
     private List<RegionForecastErrorOutput> regionData;
@@ -66,10 +66,10 @@ public class ForecastErrorOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
     public Double getErrorPerc() {
-        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfForecastMinusActual == null) {
+        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfForecast == null) {
             return null;
         } else {
-            return this.sumOfForecastMinusActual / this.sumOfActual;
+            return Math.abs(this.sumOfForecast - this.sumOfActual)/ this.sumOfActual;
         }
     }
 
@@ -85,8 +85,8 @@ public class ForecastErrorOutput implements Serializable {
             if (rfeo.getSumOfActual() != null) {
                 this.sumOfActual = (this.sumOfActual == null ? 0 : this.sumOfActual) + (rfeo.getSumOfActual() == null ? 0 : rfeo.getSumOfActual());
             }
-            if (rfeo.getSumOfForecastMinusActual() != null) {
-                this.sumOfForecastMinusActual = (this.sumOfForecastMinusActual == null ? 0 : this.sumOfForecastMinusActual) + (rfeo.getSumOfForecastMinusActual() == null ? 0 : rfeo.getSumOfForecastMinusActual());
+            if (rfeo.getSumOfForecast() != null) {
+                this.sumOfForecast = (this.sumOfForecast == null ? 0 : this.sumOfForecast) + (rfeo.getSumOfForecast() == null ? 0 : rfeo.getSumOfForecast());
             }
         }
     }
