@@ -47,9 +47,9 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             if (rs.wasNull()) {
                 re.setSumOfActual(null);
             }
-            re.setSumOfForecastMinusActual(rs.getDouble("SUM_OF_FORECAST_MINUS_ACTUAL"));
+            re.setSumOfForecast(rs.getDouble("SUM_OF_FORECAST"));
             if (rs.wasNull()) {
-                re.setSumOfForecastMinusActual(null);
+                re.setSumOfForecast(null);
             }
             fe.addRegionData(re);
         }
