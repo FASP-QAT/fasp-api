@@ -102,6 +102,18 @@ public class PlanningUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @PostMapping("/planningUnit/withPrices/byIds")
+    @JsonView(Views.ReportView.class)
+    public ResponseEntity getPlanningUnitWithPricesByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitListWithPricesByIds(planningUnitIdList, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit/basic")

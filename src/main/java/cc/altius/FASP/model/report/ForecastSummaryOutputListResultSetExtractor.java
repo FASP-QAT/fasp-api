@@ -55,7 +55,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
                 }
             }
             int idx = fsList.indexOf(fso);
-            Integer totalForecast = rs.getInt("TOTAL_FORECAST");
+            Double totalForecast = rs.getDouble("TOTAL_FORECAST");
             if (rs.wasNull()) {
                 totalForecast = null;
             }

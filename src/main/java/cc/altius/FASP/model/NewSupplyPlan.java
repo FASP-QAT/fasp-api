@@ -749,20 +749,6 @@ public class NewSupplyPlan implements Serializable {
 
         }
 
-        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
-            BatchData bd = getBatchData(x);
-            long tempCB = bd.getClosingBalance();
-            bd.setUnallocatedFEFO(unallocatedFEFO);
-            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
-                bd.setClosingBalance(tempCB - unallocatedFEFO);
-                bd.setCalculatedFEFO(unallocatedFEFO);
-                unallocatedFEFO = 0;
-            } else {
-                bd.setClosingBalance(0);
-                bd.setCalculatedFEFO(tempCB);
-                unallocatedFEFO -= tempCB;
-            }
-        }
         if (unallocatedLEFO != 0) {
             for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
                 if (unallocatedLEFO != 0) {
@@ -781,20 +767,7 @@ public class NewSupplyPlan implements Serializable {
                 }
             }
         }
-        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
-            BatchData bd = getBatchData(x);
-            long tempCB = bd.getClosingBalanceWps();
-            bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
-            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
-                bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
-                bd.setCalculatedFEFOWps(unallocatedFEFOWps);
-                unallocatedFEFOWps = 0;
-            } else {
-                bd.setClosingBalanceWps(0);
-                bd.setCalculatedFEFOWps(tempCB);
-                unallocatedFEFOWps -= tempCB;
-            }
-        }
+
         if (unallocatedLEFOWps != 0) {
             for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
                 if (unallocatedLEFOWps != 0) {
@@ -832,6 +805,36 @@ public class NewSupplyPlan implements Serializable {
             bdNew.setUseAdjustment(this.isUseAdjustment());
             this.batchDataList.add(bdNew);
             newBatchCounter--;
+        }
+
+        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+            BatchData bd = getBatchData(x);
+            long tempCB = bd.getClosingBalance();
+            bd.setUnallocatedFEFO(unallocatedFEFO);
+            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
+                bd.setClosingBalance(tempCB - unallocatedFEFO);
+                bd.setCalculatedFEFO(unallocatedFEFO);
+                unallocatedFEFO = 0;
+            } else {
+                bd.setClosingBalance(0);
+                bd.setCalculatedFEFO(tempCB);
+                unallocatedFEFO -= tempCB;
+            }
+        }
+
+        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+            BatchData bd = getBatchData(x);
+            long tempCB = bd.getClosingBalanceWps();
+            bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
+            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
+                bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
+                bd.setCalculatedFEFOWps(unallocatedFEFOWps);
+                unallocatedFEFOWps = 0;
+            } else {
+                bd.setClosingBalanceWps(0);
+                bd.setCalculatedFEFOWps(tempCB);
+                unallocatedFEFOWps -= tempCB;
+            }
         }
         return newBatchCounter;
     }
