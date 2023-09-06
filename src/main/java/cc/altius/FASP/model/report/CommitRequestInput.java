@@ -5,13 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *
@@ -19,28 +13,23 @@ import java.util.Date;
  */
 public class CommitRequestInput implements Serializable {
 
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date startDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date stopDate;
+    private String startDate;
+    private String stopDate;
     private String[] programIds;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Date getStopDate() {
+    public String getStopDate() {
         return stopDate;
     }
 
-    public void setStopDate(Date stopDate) {
+    public void setStopDate(String stopDate) {
         this.stopDate = stopDate;
     }
 
@@ -58,14 +47,6 @@ public class CommitRequestInput implements Serializable {
         } else {
             return String.join(",", this.programIds);
         }
-    }
-
-    public String getStartDateString() {
-        return sdf.format(startDate);
-    }
-
-    public String getStopDateString() {
-        return sdf.format(stopDate);
     }
 
 }

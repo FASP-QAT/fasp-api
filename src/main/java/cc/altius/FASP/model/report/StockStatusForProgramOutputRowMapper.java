@@ -22,8 +22,14 @@ public class StockStatusForProgramOutputRowMapper implements RowMapper<StockStat
         StockStatusForProgramOutput sspo = new StockStatusForProgramOutput();
         sspo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         sspo.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, i)));
-        sspo.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
-        sspo.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
+        sspo.setMinMos(rs.getDouble("MIN_MONTHS_OF_STOCK"));
+        if (rs.wasNull()) {
+            sspo.setMinMos(null);
+        }
+        sspo.setMaxMos(rs.getDouble("MAX_MONTHS_OF_STOCK"));
+        if (rs.wasNull()) {
+            sspo.setMaxMos(null);
+        }
         sspo.setMos(rs.getDouble("MoS"));
         if (rs.wasNull()) {
             sspo.setMos(null);

@@ -1446,18 +1446,33 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         for (DatasetTree dt : dd.getTreeList()) {
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree").usingGeneratedKeyColumns("TREE_ID");
             // Step 3Ai -- Insert the Forecast Tree
+            params.put("TREE_ANCHOR_ID", (dt.getTreeAnchorId() == 0 ? null : dt.getTreeAnchorId()));
             params.put("PROGRAM_ID", spcr.getProgram().getId());
             params.put("VERSION_ID", version.getVersionId());
             int labelId = this.labelDao.addLabel(dt.getLabel(), LabelConstants.RM_FORECAST_TREE, spcr.getCreatedBy().getUserId());
             params.put("LABEL_ID", labelId);
             params.put("FORECAST_METHOD_ID", dt.getForecastMethod().getId());
-            params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-            params.put("CREATED_DATE", spcr.getCreatedDate());
-            params.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-            params.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+            params.put("CREATED_BY", dt.getCreatedBy().getUserId());
+            params.put("CREATED_DATE", dt.getCreatedDate());
+            params.put("LAST_MODIFIED_BY", dt.getLastModifiedBy().getUserId());
+            params.put("LAST_MODIFIED_DATE", dt.getLastModifiedDate());
             params.put("ACTIVE", dt.isActive());
             params.put("NOTES", dt.getNotes());
             int treeId = si.executeAndReturnKey(params).intValue();
+            // Check if the TreeAnchorId is available if not then add it to the table and get the value here.
+            if (dt.getTreeAnchorId() == 0) {
+                SimpleJdbcInsert sita = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_anchor").usingGeneratedKeyColumns("TREE_ANCHOR_ID");
+                params.clear();
+                params.put("PROGRAM_ID", spcr.getProgram().getId());
+                params.put("TREE_NAME", dt.getLabel().getLabel_en());
+                params.put("CREATED_DATE", dt.getCreatedDate());
+                params.put("TREE_ID", treeId);
+                dt.setTreeAnchorId(sita.executeAndReturnKey(params).intValue());
+                params.clear();
+                params.put("treeId", treeId);
+                params.put("treeAnchorId", dt.getTreeAnchorId());
+                this.namedParameterJdbcTemplate.update("UPDATE rm_forecast_tree t SET t.TREE_ANCHOR_ID=:treeAnchorId WHERE t.TREE_ID=:treeId", params);
+            }
             updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), treeId);
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
             SimpleJdbcInsert n2 = null;
@@ -1500,10 +1515,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", nodeLabelId);
-                nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                nodeParams.put("CREATED_DATE", spcr.getCreatedDate());
-                nodeParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                nodeParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                nodeParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
+                nodeParams.put("CREATED_DATE", dt.getCreatedDate());
+                nodeParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
+                nodeParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                 nodeParams.put("ACTIVE", 1);
                 int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
                 updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
@@ -1524,11 +1539,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("TREE_ID", treeId);
                 int scenarioLabelId = this.labelDao.addLabel(ts.getLabel(), LabelConstants.RM_SCENARIO, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", scenarioLabelId);
-                nodeParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
-                nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                nodeParams.put("CREATED_DATE", spcr.getCreatedDate());
-                nodeParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                nodeParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                nodeParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
+                nodeParams.put("CREATED_DATE", dt.getCreatedDate());
+                nodeParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
+                nodeParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                 nodeParams.put("ACTIVE", 1);
                 nodeParams.put("NOTES", ts.getNotes());
                 int scenarioId = si.executeAndReturnKey(nodeParams).intValue();
@@ -1553,10 +1567,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
                             nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
                             nodeDataParams.put("REPEAT_USAGE_PERIOD_ID", (tnd.getFuNode().getRepeatUsagePeriod() == null ? null : (tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId())));
-                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
-                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_DATE", dt.getCreatedDate());
+                            nodeDataParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
+                            nodeDataParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                             nodeDataParams.put("ACTIVE", 1);
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
                             nodeDataFuId = ni.executeAndReturnKey(nodeDataParams).intValue();
@@ -1568,10 +1582,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
                             nodeDataParams.put("REFILL_MONTHS", tnd.getPuNode().getRefillMonths());
                             nodeDataParams.put("PU_PER_VISIT", tnd.getPuNode().getPuPerVisit());
-                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
-                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                            nodeDataParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
+                            nodeDataParams.put("CREATED_DATE", dt.getCreatedDate());
+                            nodeDataParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
+                            nodeDataParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                             nodeDataParams.put("ACTIVE", 1);
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
                             nodeDataPuId = ni.executeAndReturnKey(nodeDataParams).intValue();
@@ -1589,10 +1603,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
                         nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
                         nodeDataParams.put("NOTES", tnd.getNotes());
-                        nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                        nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
-                        nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                        nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                        nodeDataParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
+                        nodeDataParams.put("CREATED_DATE", dt.getCreatedDate());
+                        nodeDataParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
+                        nodeDataParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                         nodeDataParams.put("ACTIVE", 1);
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
                         int nodeDataId = ni.executeAndReturnKey(nodeDataParams).intValue();
@@ -1618,10 +1632,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
                                 nodeDataParams.put("NOTES", ndm.getNotes());
                                 nodeDataParams.put("MODELING_SOURCE", ndm.getModelingSource());
-//                                if (ndm.getModelingCalculator() != null && ndm.getModelingCalculator().getFirstMonthOfTarget() != null) {
-
-//                                }
-                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                                 nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -2498,8 +2508,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
-                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
                     + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
                     + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
                     + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
@@ -2511,8 +2521,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
-                    + "  `AMC` decimal(24,4) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,4) DEFAULT NULL, `MOS_WPS` decimal(24,4) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,4) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,4) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,4) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,4) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
+                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
                     + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
                     + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
                     + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
@@ -2550,7 +2560,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "    LEFT JOIN ( "
                     + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL CAST(ppu.MONTHS_IN_FUTURE_FOR_AMC AS SIGNED)-1 MONTH), "
                     + "            SUM(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "            AVG(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC, COUNT(IF(spa2.ACTUAL, spa2.ADJUSTED_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
                     + "        FROM tmp_supply_plan_amc1 spa "
                     + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
                     + "        LEFT JOIN (SELECT * FROM tmp_supply_plan_amc2 spa2) spa2 ON "
@@ -2712,7 +2722,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "ft.TREE_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
+                + "ft.TREE_ID, ft.TREE_ANCHOR_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
                 + "fm.FORECAST_METHOD_ID, fm.FORECAST_METHOD_TYPE_ID, "
                 + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, "
                 + "tl.TREE_LEVEL_ID `LEVEL_ID`, tl.LEVEL_NO, tl.LABEL_ID `TL_LABEL_ID`, tl.LABEL_EN `TL_LABEL_EN`, tl.LABEL_FR `TL_LABEL_FR`, tl.LABEL_SP `TL_LABEL_SP`, tl.LABEL_PR `TL_LABEL_PR`, "

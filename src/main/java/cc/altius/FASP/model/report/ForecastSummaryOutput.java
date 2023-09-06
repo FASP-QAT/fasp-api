@@ -8,7 +8,7 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleObjectWithMultiplier;
+import cc.altius.FASP.model.SimpleObjectWithMultiplierAndActive;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class ForecastSummaryOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
-    private SimpleObjectWithMultiplier planningUnit;
+    private SimpleObjectWithMultiplierAndActive planningUnit;
     @JsonView(Views.ReportView.class)
     private SimpleObject tracerCategory;
     @JsonView(Views.ReportView.class)
@@ -29,7 +29,7 @@ public class ForecastSummaryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Label selectedForecast;
     @JsonView(Views.ReportView.class)
-    private Integer totalForecast;
+    private Double totalForecast;
     @JsonView(Views.ReportView.class)
     private Label notes;
     @JsonView(Views.ReportView.class)
@@ -45,11 +45,11 @@ public class ForecastSummaryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double freightPerc;
 
-    public SimpleObjectWithMultiplier getPlanningUnit() {
+    public SimpleObjectWithMultiplierAndActive getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObjectWithMultiplier planningUnit) {
+    public void setPlanningUnit(SimpleObjectWithMultiplierAndActive planningUnit) {
         this.planningUnit = planningUnit;
     }
 
@@ -77,11 +77,11 @@ public class ForecastSummaryOutput implements Serializable {
         this.selectedForecast = selectedForecast;
     }
 
-    public Integer getTotalForecast() {
+    public Double getTotalForecast() {
         return totalForecast;
     }
 
-    public void setTotalForecast(Integer totalForecast) {
+    public void setTotalForecast(Double totalForecast) {
         this.totalForecast = totalForecast;
     }
 
