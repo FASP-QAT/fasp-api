@@ -49,6 +49,8 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataExtrapolationOption> nodeDataExtrapolationOptionList;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Boolean hasAnnualTargetCalculatorData; // Default is false. True indicates that this node has AnnualTargetCalculator values set
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private AnnualTargetCalculator annualTargetCalculator;
 
     public TreeNodeData() {
@@ -56,6 +58,7 @@ public class TreeNodeData implements Serializable {
         nodeDataOverrideList = new LinkedList<>();
         nodeDataMomList = new LinkedList<>();
         nodeDataExtrapolationOptionList = new LinkedList<>();
+        setHasAnnualTargetCalculatorData(false);
     }
 
     public TreeNodeData(int nodeDataId) {
@@ -182,12 +185,25 @@ public class TreeNodeData implements Serializable {
         this.calculatedDataValue = calculatedDataValue;
     }
 
+    public Boolean getHasAnnualTargetCalculatorData() {
+        return hasAnnualTargetCalculatorData;
+    }
+
+    public void setHasAnnualTargetCalculatorData(Boolean hasAnnualTargetCalculatorData) {
+        this.hasAnnualTargetCalculatorData = hasAnnualTargetCalculatorData;
+    }
+
     public AnnualTargetCalculator getAnnualTargetCalculator() {
         return annualTargetCalculator;
     }
 
     public void setAnnualTargetCalculator(AnnualTargetCalculator annualTargetCalculator) {
         this.annualTargetCalculator = annualTargetCalculator;
+        if (annualTargetCalculator != null) {
+            setHasAnnualTargetCalculatorData(true);
+        } else {
+            setHasAnnualTargetCalculatorData(false);
+        }
     }
 
     @Override

@@ -1631,10 +1631,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                                 nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
                                 nodeDataParams.put("NOTES", ndm.getNotes());
-                                nodeDataParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
-                                nodeDataParams.put("CREATED_DATE", dt.getCreatedDate());
-                                nodeDataParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
-                                nodeDataParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
+                                nodeDataParams.put("MODELING_SOURCE", ndm.getModelingSource());
+                                nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                                nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                                 nodeDataParams.put("ACTIVE", 1);
                                 ndm.setNodeDataModelingId(ni.executeAndReturnKey(nodeDataParams).intValue());
                             }
@@ -1684,7 +1685,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 }*/
                             }
                         }
-
+                        
                         // Step 3J -- Add the Node Data Extrapolation and Data values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
@@ -2901,16 +2902,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String sql = "";
         if (isTemplate) {
             sql = "SELECT "
-                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`MODELING_SOURCE`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                     + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
-//                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
+                    //                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
                     + "FROM rm_tree_template_node_data_modeling ttndm "
-//                    + "LEFT JOIN rm_tree_template_node_data_modeling_calculator ttndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
+                    //                    + "LEFT JOIN rm_tree_template_node_data_modeling_calculator ttndmc ON ttndm.`NODE_DATA_MODELING_ID`=ttndmc.`NODE_DATA_MODELING_ID` "
                     + "LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
                     + "WHERE ttndm.NODE_DATA_ID = ?";
         } else {
             sql = "SELECT "
-                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                    + "     ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`MODELING_SOURCE`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                     + "     mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
                     //                    + "     ttndmc.`NODE_DATA_MODELING_CALCULATOR_ID`, ttndm.`CALCULATOR_FIRST_MONTH`, ttndm.`CALCULATOR_YEARS_OF_TARGET`, ttndmc.`ACTUAL_OR_TARGET_VALUE` "
                     + "FROM rm_forecast_tree_node_data_modeling ttndm "

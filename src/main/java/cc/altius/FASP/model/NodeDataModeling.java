@@ -34,6 +34,8 @@ public class NodeDataModeling implements Serializable {
     private Integer transferNodeDataId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int modelingSource; // 0 for Manual or Old calculator method; 1 for Annual Target Calculator
 
     public NodeDataModeling() {
         this.increaseDecrease = 1;
@@ -121,6 +123,14 @@ public class NodeDataModeling implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public int getModelingSource() {
+        return modelingSource;
+    }
+
+    public void setModelingSource(int modelingSource) {
+        this.modelingSource = modelingSource;
     }
 
     @Override

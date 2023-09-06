@@ -51,6 +51,7 @@ public class NodeDataModelingListRowMapper implements RowMapper<NodeDataModeling
             ndm.setTransferNodeDataId(null);
         }
         ndm.setNotes(rs.getString("MODELING_NOTES"));
+        ndm.setModelingSource(rs.getInt("MODELING_SOURCE"));
         ndm.setModelingType(new SimpleObject(rs.getInt("MODELING_TYPE_ID"), new LabelRowMapper("MODELING_TYPE_").mapRow(rs, 1)));
         return ndm;
     }
