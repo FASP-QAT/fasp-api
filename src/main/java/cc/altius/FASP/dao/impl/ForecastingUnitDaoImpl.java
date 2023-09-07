@@ -283,17 +283,17 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
 
     @Override
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE AND (fu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText '%') OR fu.FORECASTING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE AND (COALESCE(fu.LABEL_").append(autoCompleteInput.getLanguage()).append(",fu.LABEL_EN) LIKE CONCAT('%',:searchText '%') OR fu.FORECASTING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
         Map<String, Object> params = new HashMap<>();
         params.put("searchText", autoCompleteInput.getSearchText());
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
-        stringBuilder.append(" ORDER BY fu.LABEL_").append(autoCompleteInput.getLanguage());
+        stringBuilder.append(" ORDER BY COALESCE(fu.LABEL_").append(autoCompleteInput.getLanguage()).append(",fu.LABEL_EN)");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
     @Override
     public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE AND (fu.LABEL_").append(autoCompleteInput.getLanguage()).append(" LIKE CONCAT('%',:searchText '%') OR fu.FORECASTING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE AND (COALESCE(fu.LABEL_").append(autoCompleteInput.getLanguage()).append(",fu.LABEL_EN) LIKE CONCAT('%',:searchText '%') OR fu.FORECASTING_UNIT_ID LIKE CONCAT('%',:searchText,'%')) ");
         Map<String, Object> params = new HashMap<>();
         params.put("searchText", autoCompleteInput.getSearchText());
         if (autoCompleteInput.getTracerCategoryId() != null) {
@@ -301,7 +301,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             params.put("tracerCategoryId", autoCompleteInput.getTracerCategoryId());
         }
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
-        stringBuilder.append(" ORDER BY fu.LABEL_").append(autoCompleteInput.getLanguage());
+        stringBuilder.append(" ORDER BY COALESCE(fu.LABEL_").append(autoCompleteInput.getLanguage()).append(",fu.LABEL_EN)");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
