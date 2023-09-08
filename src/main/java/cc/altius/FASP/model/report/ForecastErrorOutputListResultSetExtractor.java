@@ -74,6 +74,10 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             if (rs.wasNull()) {
                 re.setSumOfAbsDiff(null);
             }
+            re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
+            if (rs.wasNull()) {
+                re.setDaysOfStockOut(null);
+            }
             fe.addRegionData(re);
         }
         return feList;
