@@ -28,6 +28,8 @@ public class RegionForecastErrorOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double sumOfActual;
     private Double sumOfAbsDiff;
+    @JsonView(Views.ReportView.class)
+    private Integer daysOfStockOut;
 
     public RegionForecastErrorOutput(SimpleObject region) {
         this.region = region;
@@ -79,6 +81,14 @@ public class RegionForecastErrorOutput implements Serializable {
 
     public void setSumOfAbsDiff(Double sumOfAbsDiff) {
         this.sumOfAbsDiff = sumOfAbsDiff;
+    }
+
+    public Integer getDaysOfStockOut() {
+        return daysOfStockOut;
+    }
+
+    public void setDaysOfStockOut(Integer daysOfStockOut) {
+        this.daysOfStockOut = daysOfStockOut;
     }
     
     @JsonView(Views.ReportView.class)
