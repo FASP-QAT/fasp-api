@@ -57,7 +57,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
 
     public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser) {
-        return this.treeTemplateDao.getTreeTemplateList(false, curUser);
+        return this.treeTemplateDao.getTreeTemplateList(true, curUser);
     }
 
     @Override
