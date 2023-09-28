@@ -1858,6 +1858,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public Version getVersionInfo(int programId, int versionId) {
+        System.out.println("Going to ge the ProgramVersion for ProgramId:" + programId + ", and VersionId:" + versionId);
         if (versionId == -1) {
             String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
             Map<String, Object> params = new HashMap<>();
@@ -2044,7 +2045,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 insertParams.put("LAST_MODIFIED_DATE", curDate);
                 insertParams.put("CREATED_BY", curUser.getUserId());
                 insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
-                int problemReportId = problemReportInsert.executeAndReturnKey(params).intValue();
+                int problemReportId = problemReportInsert.executeAndReturnKey(insertParams).intValue();
                 insertParams.put("PROBLEM_REPORT_ID", problemReportId);
                 insertParams.put("NOTES", rp.getNotes());
                 problemReportInsert.execute(insertParams);
