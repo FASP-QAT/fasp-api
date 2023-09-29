@@ -2048,7 +2048,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 int problemReportId = problemReportInsert.executeAndReturnKey(insertParams).intValue();
                 insertParams.put("PROBLEM_REPORT_ID", problemReportId);
                 insertParams.put("NOTES", rp.getNotes());
-                problemReportInsert.execute(insertParams);
+                problemReportTransInsert.execute(insertParams);
             }
 
         }
