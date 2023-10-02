@@ -1886,6 +1886,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public Version getVersionInfo(int programId, int versionId) {
+        System.out.println("Going to ge the ProgramVersion for ProgramId:" + programId + ", and VersionId:" + versionId);
         if (versionId == -1) {
             String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
             Map<String, Object> params = new HashMap<>();
@@ -2038,26 +2039,56 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.`REVIEW_NOTES`=:notes,pr.`REVIEWED_DATE`=IF(:reviewed,:curDate,pr.`REVIEWED_DATE`),pr.REVIEWED=:reviewed,pr.PROBLEM_STATUS_ID=:problemStatusId, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, :problemStatusId, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
-        final List<SqlParameterSource> paramsList = new ArrayList<>();
+        SimpleJdbcInsert problemReportInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
+        SimpleJdbcInsert problemReportTransInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report_trans");
+        final List<SqlParameterSource> updateParamList = new ArrayList<>();
+        final List<SqlParameterSource> insertParamList = new ArrayList<>();
         for (ReviewedProblem rp : reviewedProblemList) {
-            Map<String, Object> updateParams = new HashMap<>();
-            updateParams.put("reviewed", rp.isReviewed());
-            updateParams.put("curUser", curUser.getUserId());
-            updateParams.put("curDate", curDate);
-            updateParams.put("notes", rp.getNotes());
-            updateParams.put("problemStatusId", rp.getProblemStatus().getId());
-            updateParams.put("problemReportId", rp.getProblemReportId());
-            paramsList.add(new MapSqlParameterSource(updateParams));
+            if (rp.getProblemReportId() != 0) {
+                Map<String, Object> updateParams = new HashMap<>();
+                updateParams.put("reviewed", rp.isReviewed());
+                updateParams.put("curUser", curUser.getUserId());
+                updateParams.put("curDate", curDate);
+                updateParams.put("notes", rp.getNotes());
+                updateParams.put("problemStatusId", rp.getProblemStatus().getId());
+                updateParams.put("problemReportId", rp.getProblemReportId());
+                updateParamList.add(new MapSqlParameterSource(updateParams));
+            } else if (rp.getProblemReportId() == 0) {
+                // This is a new record so you cannot update you have to insert
+                Map<String, Object> insertParams = new HashMap<>();
+                insertParams.put("REALM_PROBLEM_ID", rp.getRealmProblem().getRealmProblemId());
+                insertParams.put("PROGRAM_ID", programId);
+                insertParams.put("VERSION_ID", versionId);
+                insertParams.put("PROBLEM_TYPE_ID", rp.getRealmProblem().getProblemType().getId());
+                insertParams.put("PROBLEM_STATUS_ID", rp.getProblemStatus().getId());
+                insertParams.put("REVIEWED", rp.isReviewed());
+                insertParams.put("REVIEWED_NOTES", (rp.isReviewed() ? rp.getNotes() : null));
+                insertParams.put("REVIEWED_DATE", (rp.isReviewed() ? curDate : null));
+                insertParams.put("DATA1", rp.getDt());
+                insertParams.put("DATA2", rp.getRegion().getId());
+                insertParams.put("DATA3", rp.getPlanningUnit().getId());
+                insertParams.put("DATA4", rp.getShipmentId());
+                insertParams.put("DATA5", rp.getData5());
+                insertParams.put("CREATED_DATE", curDate);
+                insertParams.put("LAST_MODIFIED_DATE", curDate);
+                insertParams.put("CREATED_BY", curUser.getUserId());
+                insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                int problemReportId = problemReportInsert.executeAndReturnKey(insertParams).intValue();
+                insertParams.put("PROBLEM_REPORT_ID", problemReportId);
+                insertParams.put("NOTES", rp.getNotes());
+                problemReportTransInsert.execute(insertParams);
+            }
+
         }
-        if (paramsList.size() > 0) {
-            SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
-            this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+        if (updateParamList.size() > 0) {
+            SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
+            this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
         }
 
         if (versionStatusId == 2) {
-            paramsList.clear();
+            updateParamList.clear();
             String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
             List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
             problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
@@ -2067,11 +2098,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 updateParams.put("curUser", curUser.getUserId());
                 updateParams.put("curDate", curDate);
                 updateParams.put("problemReportId", rp);
-                paramsList.add(new MapSqlParameterSource(updateParams));
+                updateParamList.add(new MapSqlParameterSource(updateParams));
             }
-            if (paramsList.size() > 0) {
-                SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
-                this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+            if (updateParamList.size() > 0) {
+                SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
             }
