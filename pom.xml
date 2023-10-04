@@ -10,7 +10,7 @@
     </parent>
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
-    <version>2.56[4314]</version>
+    <version>2.57[4321]</version>
     <name>QAT</name>
     <description>Quantification Analytics Tool</description>
     <packaging>jar</packaging>
