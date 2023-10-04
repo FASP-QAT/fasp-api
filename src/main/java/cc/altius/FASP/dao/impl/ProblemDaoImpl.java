@@ -164,7 +164,7 @@ public class ProblemDaoImpl implements ProblemDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_PROBLEM_ID", manualProblem.getRealmProblem().getRealmProblemId()); 
+        params.put("REALM_PROBLEM_ID", manualProblem.getRealmProblem().getRealmProblemId());
         params.put("PROGRAM_ID", manualProblem.getProgram().getId());
         params.put("VERSION_ID", manualProblem.getVersionId());
         params.put("PROBLEM_TYPE_ID", manualProblem.getRealmProblem().getProblemType().getId()); 

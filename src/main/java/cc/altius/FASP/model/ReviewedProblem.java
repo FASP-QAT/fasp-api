@@ -18,6 +18,14 @@ public class ReviewedProblem implements Serializable {
     private String notes;
     private SimpleObject problemStatus;
 
+    // Will come in the case where problemReportId is 0 (which means this is a new problem)
+    private RealmProblem realmProblem;
+    private String dt;                  // data1
+    private SimpleObject region;        // data2
+    private SimpleObject planningUnit;  // data3
+    private Integer shipmentId;         // data4
+    private String data5;
+
     public int getProblemReportId() {
         return problemReportId;
     }
@@ -48,6 +56,54 @@ public class ReviewedProblem implements Serializable {
 
     public void setProblemStatus(SimpleObject problemStatus) {
         this.problemStatus = problemStatus;
+    }
+
+    public RealmProblem getRealmProblem() {
+        return realmProblem;
+    }
+
+    public void setRealmProblem(RealmProblem realmProblem) {
+        this.realmProblem = realmProblem;
+    }
+
+    public String getDt() {
+        return dt;
+    }
+
+    public void setDt(String dt) {
+        this.dt = dt;
+    }
+
+    public SimpleObject getRegion() {
+        return region;
+    }
+
+    public void setRegion(SimpleObject region) {
+        this.region = region;
+    }
+
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
+    }
+
+    public Integer getShipmentId() {
+        return shipmentId;
+    }
+
+    public void setShipmentId(Integer shipmentId) {
+        this.shipmentId = shipmentId;
+    }
+
+    public String getData5() {
+        return data5;
+    }
+
+    public void setData5(String data5) {
+        this.data5 = data5;
     }
 
 }
