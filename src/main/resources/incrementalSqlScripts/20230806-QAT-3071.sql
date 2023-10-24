@@ -112,3 +112,10 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.missingDataNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'`Current month does not contain actual consumption and forecasted consumption` OR `Current month does not contain actual consumption`.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'« Le mois en cours ne contient pas la consommation réelle ni la consommation prévue » OU « Le mois en cours ne contient pas la consommation réelle ».');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'`El mes actual no contiene el consumo real ni el consumo previsto` O `El mes actual no contiene el consumo real`.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'`O mês atual não contém o consumo real e o consumo previsto` OU `O mês atual não contém o consumo real`.');-- pr
