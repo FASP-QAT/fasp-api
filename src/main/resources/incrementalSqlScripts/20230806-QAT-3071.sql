@@ -112,3 +112,25 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.missingDataNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current month does not contain forecasted consumption and/or actual consumption.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le mois en cours ne contient pas de consommation prévue et/ou de consommation réelle.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El mes actual no contiene el consumo previsto y/o el consumo real.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O mês atual não contém consumo previsto e/ou consumo real.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.noData','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current month does not contain forecasted consumption and actual consumption');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le mois en cours ne contient pas la consommation prévue ni la consommation réelle');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El mes actual no contiene el consumo previsto ni el consumo real.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O mês atual não contém o consumo previsto e o consumo real');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.noActualData','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current month does not contain actual consumption');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le mois en cours ne contient pas la consommation réelle');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El mes actual no contiene el consumo real.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O mês atual não contém o consumo real');-- pr
