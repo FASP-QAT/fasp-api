@@ -25,6 +25,8 @@ public class RegionForecastErrorOutput implements Serializable {
     private Double forecastQty;
     @JsonView(Views.ReportView.class)
     private int daysOfStockOut;
+    private Double sumOfForecastMinusActual;
+    private Double sumOfActual;
 
     public RegionForecastErrorOutput(SimpleObject region) {
         this.region = region;
@@ -62,6 +64,31 @@ public class RegionForecastErrorOutput implements Serializable {
         this.daysOfStockOut = daysOfStockOut;
     }
 
+    public Double getSumOfForecastMinusActual() {
+        return sumOfForecastMinusActual;
+    }
+
+    public void setSumOfForecastMinusActual(Double sumOfForecastMinusActual) {
+        this.sumOfForecastMinusActual = sumOfForecastMinusActual;
+    }
+
+    public Double getSumOfActual() {
+        return sumOfActual;
+    }
+
+    public void setSumOfActual(Double sumOfActual) {
+        this.sumOfActual = sumOfActual;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getErrorPerc() {
+        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfForecastMinusActual == null) {
+            return null;
+        } else {
+            return this.sumOfForecastMinusActual / this.sumOfActual;
+        }
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -86,6 +113,5 @@ public class RegionForecastErrorOutput implements Serializable {
         }
         return true;
     }
-    
-    
+
 }
