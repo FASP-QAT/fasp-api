@@ -19,13 +19,33 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtractor<List<ForecastErrorOutput>> {
-
+    
     @Override
     public List<ForecastErrorOutput> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<ForecastErrorOutput> feList = new LinkedList<>();
         while (rs.next()) {
             ForecastErrorOutput fe = new ForecastErrorOutput();
             fe.setMonth(rs.getDate("MONTH"));
+            fe.setActualQty(rs.getDouble("NTL_ADJUSTED_ACTUAL_CONSUMPTION"));
+            if (rs.wasNull()) {
+                fe.setActualQty(null);
+            }
+            fe.setForecastQty(rs.getDouble("NTL_FORECAST_CONSUMPTION"));
+            if (rs.wasNull()) {
+                fe.setForecastQty(null);
+            }
+            fe.setSumOfActual(rs.getDouble("NTL_TOTAL_ADJUSTED_ACTUAL_CONSUMPTION"));
+            if (rs.wasNull()) {
+                fe.setSumOfActual(null);
+            }
+            fe.setSumOfForecast((rs.getDouble("NTL_TOTAL_FORECAST_CONSUMPTION")));
+            if (rs.wasNull()) {
+                fe.setSumOfForecast(null);
+            }            
+            fe.setSumOfAbsDiff(rs.getDouble("NTL_TOTAL_ABS_DIFF_CONSUMPTION"));
+            if (rs.wasNull()) {
+                fe.setSumOfAbsDiff(null);
+            }
             int idx1 = -1;
             idx1 = feList.indexOf(fe);
             if (idx1 == -1) {
@@ -34,8 +54,7 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
                 fe = feList.get(idx1);
             }
             RegionForecastErrorOutput re = new RegionForecastErrorOutput(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper().mapRow(rs, 1)));
-            re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
-            re.setActualQty(rs.getDouble("ACTUAL_CONSUMPTION"));
+            re.setActualQty(rs.getDouble("ADJUSTED_ACTUAL_CONSUMPTION"));
             if (rs.wasNull()) {
                 re.setActualQty(null);
             }
@@ -43,17 +62,25 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             if (rs.wasNull()) {
                 re.setForecastQty(null);
             }
-            re.setSumOfActual(rs.getDouble("SUM_OF_ACTUAL"));
+            re.setSumOfActual(rs.getDouble("TOTAL_ADJUSTED_ACTUAL_CONSUMPTION"));
             if (rs.wasNull()) {
                 re.setSumOfActual(null);
             }
-            re.setSumOfForecastMinusActual(rs.getDouble("SUM_OF_FORECAST_MINUS_ACTUAL"));
+            re.setSumOfForecast(rs.getDouble("TOTAL_FORECAST_CONSUMPTION"));
             if (rs.wasNull()) {
-                re.setSumOfForecastMinusActual(null);
+                re.setSumOfForecast(null);
+            }
+            re.setSumOfAbsDiff(rs.getDouble("TOTAL_ABS_DIFF_CONSUMPTION"));
+            if (rs.wasNull()) {
+                re.setSumOfAbsDiff(null);
+            }
+            re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
+            if (rs.wasNull()) {
+                re.setDaysOfStockOut(null);
             }
             fe.addRegionData(re);
         }
         return feList;
     }
-
+    
 }

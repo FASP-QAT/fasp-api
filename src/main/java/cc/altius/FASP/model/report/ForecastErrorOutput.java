@@ -31,8 +31,11 @@ public class ForecastErrorOutput implements Serializable {
     private Double actualQty;
     @JsonView(Views.ReportView.class)
     private Double forecastQty;
-    private Double sumOfForecastMinusActual;
+    @JsonView(Views.ReportView.class)
+    private Double sumOfForecast;
+    @JsonView(Views.ReportView.class)
     private Double sumOfActual;
+    private Double sumOfAbsDiff;
     @JsonView(Views.ReportView.class)
     private List<RegionForecastErrorOutput> regionData;
 
@@ -64,30 +67,54 @@ public class ForecastErrorOutput implements Serializable {
         this.forecastQty = forecastQty;
     }
 
+    public Double getSumOfForecast() {
+        return sumOfForecast;
+    }
+
+    public void setSumOfForecast(Double sumOfForecast) {
+        this.sumOfForecast = sumOfForecast;
+    }
+
+    public Double getSumOfActual() {
+        return sumOfActual;
+    }
+
+    public void setSumOfActual(Double sumOfActual) {
+        this.sumOfActual = sumOfActual;
+    }
+
+    public Double getSumOfAbsDiff() {
+        return sumOfAbsDiff;
+    }
+
+    public void setSumOfAbsDiff(Double sumOfAbsDiff) {
+        this.sumOfAbsDiff = sumOfAbsDiff;
+    }
+
     @JsonView(Views.ReportView.class)
     public Double getErrorPerc() {
-        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfForecastMinusActual == null) {
+        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfAbsDiff == null) {
             return null;
         } else {
-            return this.sumOfForecastMinusActual / this.sumOfActual;
+            return this.sumOfAbsDiff / this.sumOfActual;
         }
     }
 
     public void addRegionData(RegionForecastErrorOutput rfeo) {
         if (this.regionData.indexOf(rfeo) == -1) {
             this.regionData.add(rfeo);
-            if (rfeo.getActualQty() != null) {
-                this.actualQty = (this.actualQty == null ? 0 : this.actualQty) + (rfeo.getActualQty() == null ? 0 : rfeo.getActualQty());
-            }
-            if (rfeo.getForecastQty() != null) {
-                this.forecastQty = (this.forecastQty == null ? 0 : this.forecastQty) + (rfeo.getForecastQty() == null ? 0 : rfeo.getForecastQty());
-            }
-            if (rfeo.getSumOfActual() != null) {
-                this.sumOfActual = (this.sumOfActual == null ? 0 : this.sumOfActual) + (rfeo.getSumOfActual() == null ? 0 : rfeo.getSumOfActual());
-            }
-            if (rfeo.getSumOfForecastMinusActual() != null) {
-                this.sumOfForecastMinusActual = (this.sumOfForecastMinusActual == null ? 0 : this.sumOfForecastMinusActual) + (rfeo.getSumOfForecastMinusActual() == null ? 0 : rfeo.getSumOfForecastMinusActual());
-            }
+//            if (rfeo.getActualQty() != null) {
+//                this.actualQty = (this.actualQty == null ? 0 : this.actualQty) + (rfeo.getActualQty() == null ? 0 : rfeo.getActualQty());
+//            }
+//            if (rfeo.getForecastQty() != null) {
+//                this.forecastQty = (this.forecastQty == null ? 0 : this.forecastQty) + (rfeo.getForecastQty() == null ? 0 : rfeo.getForecastQty());
+//            }
+//            if (rfeo.getSumOfActual() != null) {
+//                this.sumOfActual = (this.sumOfActual == null ? 0 : this.sumOfActual) + (rfeo.getSumOfActual() == null ? 0 : rfeo.getSumOfActual());
+//            }
+//            if (rfeo.getSumOfForecast() != null) {
+//                this.sumOfForecast = (this.sumOfForecast == null ? 0 : this.sumOfForecast) + (rfeo.getSumOfForecast() == null ? 0 : rfeo.getSumOfForecast());
+//            }
         }
     }
 

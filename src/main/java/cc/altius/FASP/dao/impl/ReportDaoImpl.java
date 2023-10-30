@@ -25,6 +25,7 @@ import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ExpiredStockOutputResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastErrorOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -665,6 +666,25 @@ public class ReportDaoImpl implements ReportDao {
         params.put("daysOfStockOut", fei.isDaysOfStockOut());
         params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
         String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
+        List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
+        return feList;
+    }
+    
+    // Report no 31
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fei.getProgramId());
+        params.put("versionId", fei.getVersionId());
+        params.put("startDate", fei.getStartDate());
+        params.put("stopDate", fei.getStopDate());
+        params.put("viewBy", fei.getViewBy());
+        params.put("unitIds", fei.getUnitIdString());
+        params.put("regionIds", fei.getRegionIdString());
+        params.put("previousMonths", fei.getPreviousMonths());
+        params.put("daysOfStockOut", fei.isDaysOfStockOut());
+        params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
+        String sql = "CALL getForecastErrorNew(:programId, :versionId, :viewBy, :unitIds, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
