@@ -78,6 +78,7 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
                     spcr.setDatasetData(data);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 spcr.setFailedReason(e.getMessage());
             }
         }

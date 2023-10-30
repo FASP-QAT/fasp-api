@@ -40,7 +40,7 @@ public class CommitRequest {
     @JsonIgnore
     private ProgramData programData;
     @JsonIgnore
-    private DatasetData datasetData;
+    public DatasetData datasetData;
     private String failedReason;
 
     public int getCommitRequestId() {
@@ -162,5 +162,12 @@ public class CommitRequest {
     public void setFailedReason(String failedReason) {
         this.failedReason = failedReason;
     }
+
+    @Override
+    public String toString() {
+        return "CommitRequest{" + "commitRequestId=" + commitRequestId + ", program=" + program + ", committedVersionId=" + committedVersionId + ", versionType=" + versionType + ", notes=" + notes + ", saveData=" + saveData + ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", status=" + status + ", completedDate=" + completedDate + ", json=" + json + ", programTypeId=" + programTypeId + ", programData=" + programData + ", datasetData=" + datasetData + ", failedReason=" + failedReason + '}';
+    }
+    
+    
 
 }

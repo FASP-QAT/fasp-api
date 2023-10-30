@@ -1349,6 +1349,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     @Transactional
     public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+        System.out.println("in dao impl");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Get the Dataset that needs to be committed
         DatasetData dd = spcr.getDatasetData();
@@ -1835,6 +1836,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.jdbcTemplate.update(sqlString);
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_extrapolation_data`; ";
         this.jdbcTemplate.update(sqlString);
+        System.out.println("commpleted");
         return version;
     }
 

@@ -80,6 +80,10 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         try {
             return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper(QAT_FILE_PATH + QAT_COMMIT_REQUEST_PATH));
         } catch (EmptyResultDataAccessException erda) {
+            erda.printStackTrace();
+            return null;
+        }catch(Exception e){
+            e.printStackTrace();
             return null;
         }
     }

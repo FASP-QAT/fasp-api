@@ -217,6 +217,7 @@ public class CommitRequestRestController {
             if (propertyValue.equals("1")) {
                 logger.info("Starting the Commit request scheduler");
                 CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
+                System.out.println("above process commit request");
                 this.commitRequestService.processCommitRequest(curUser);
                 return new ResponseEntity(HttpStatus.OK);
             } else {
@@ -233,6 +234,7 @@ public class CommitRequestRestController {
             logger.error("Error while trying to processCommitRequest", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Error while trying to processCommitRequest", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }

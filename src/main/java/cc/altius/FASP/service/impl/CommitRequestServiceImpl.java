@@ -78,14 +78,20 @@ public class CommitRequestServiceImpl implements CommitRequestService {
 
     @Override
     public void processCommitRequest(CustomUserDetails curUser) {
+        System.out.println("in service");
         CommitRequest spcr = this.commitRequestDao.getPendingCommitRequestProcessList();
+        System.out.println("spcr"+spcr);
         if (spcr != null) {
+            System.out.println("in spcr is not null");
             if (spcr.getFailedReason() != null) {
+                System.out.println("in if 1");
                 logger.error("Error while trying to process CommitRequest " + spcr.getFailedReason());
                 this.commitRequestDao.updateCommitRequest(spcr.getProgram().getId(), spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
             } else {
+                System.out.println("in else 1");
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+                    System.out.println("in if 2");
                     SimpleProgram p = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                     if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmId(), p.getId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                         Version version;
@@ -166,13 +172,20 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                     }
                     logger.info("Supply Plan batch commit completed");
                 } else if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_DATASET) {
+                    System.out.println("in mod2");
                     SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
                     if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
                         Version version;
                         CustomUserDetails user = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
                         try {
                             if (spcr.isSaveData()) {
+                                System.out.println("above process commit dataset");
+                                try{
                                 version = this.programDataDao.processDatasetCommitRequest(spcr, user);
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                version = new Version();    
+                                }
                             } else {
                                 version = new Version();
                                 version.setVersionId(spcr.getCommittedVersionId());
