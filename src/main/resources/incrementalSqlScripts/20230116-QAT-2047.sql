@@ -1,3 +1,16 @@
+UPDATE rm_equivalency_unit_mapping eum SET eum.PROGRAM_ID=null where eum.PROGRAM_ID=0;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getForecastError`;
+DROP procedure IF EXISTS `getForecastErrorUpdated`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getForecastError`;
+DROP procedure IF EXISTS `fasp`.`getForecastErrorUpdated`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getForecastError`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_VIEW_BY INT(10), VAR_UNIT_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REGION_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PREVIOUS_MONTHS INT(10), VAR_DAYS_OF_STOCK_OUT TINYINT (1))
 BEGIN
     SET @programId = VAR_PROGRAM_ID; 
@@ -54,4 +67,8 @@ BEGIN
     ) AS c1 ON c1.CONSUMPTION_DATE BETWEEN SUBDATE(mn.MONTH, INTERVAL @previousMonths MONTH) AND mn.MONTH AND pr.REGION_ID=c1.REGION_ID
     WHERE mn.MONTH BETWEEN @startDate AND @stopDate
     GROUP BY mn.MONTH, pr.PROGRAM_ID, pr.REGION_ID; 
-END
+END$$
+
+DELIMITER ;
+;
+
