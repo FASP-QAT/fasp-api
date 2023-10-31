@@ -253,6 +253,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 params.addValue("REALM_ID", curUser.getRealm().getRealmId());
                 params.addValue("EQUIVALENCY_UNIT_ID", eum.getEquivalencyUnit().getEquivalencyUnitId());
                 params.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
+
                 params.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : eum.getProgram().getId()));
                 params.addValue("NOTES", eum.getNotes());
                 params.addValue("CONVERT_TO_EU", eum.getConvertToEu());
