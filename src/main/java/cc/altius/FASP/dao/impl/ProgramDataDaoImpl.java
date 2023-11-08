@@ -2034,7 +2034,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 insertParams.put("PROBLEM_TYPE_ID", rp.getRealmProblem().getProblemType().getId());
                 insertParams.put("PROBLEM_STATUS_ID", rp.getProblemStatus().getId());
                 insertParams.put("REVIEWED", rp.isReviewed());
-                insertParams.put("REVIEWED_NOTES", (rp.isReviewed() ? rp.getReviewedNotes() : null));
+                insertParams.put("REVIEW_NOTES", (rp.isReviewed() ? rp.getReviewedNotes() : null));
                 insertParams.put("REVIEWED_DATE", (rp.isReviewed() ? curDate : null));
                 insertParams.put("DATA1", rp.getDt());
                 insertParams.put("DATA2", rp.getRegion().getId());
