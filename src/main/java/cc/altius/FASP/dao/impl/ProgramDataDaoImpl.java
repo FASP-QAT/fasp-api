@@ -2010,7 +2010,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
         this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.`REVIEW_NOTES`=:reviewedNotes, pr.`REVIEWED_DATE`=IF(:reviewed,:curDate,pr.`REVIEWED_DATE`),pr.REVIEWED=:reviewed,pr.PROBLEM_STATUS_ID=:problemStatusId, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
-        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, :problemStatusId, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, :problemStatusId, :reviewed, :reviewedNotes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         SimpleJdbcInsert problemReportInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
         SimpleJdbcInsert problemReportTransInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report_trans");
         final List<SqlParameterSource> updateParamList = new ArrayList<>();
@@ -2047,16 +2047,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                 int problemReportId = problemReportInsert.executeAndReturnKey(insertParams).intValue();
                 insertParams.put("PROBLEM_REPORT_ID", problemReportId);
-                insertParams.put("NOTES", rp.getNotes());
                 problemReportTransInsert.execute(insertParams);
             }
-
         }
         if (updateParamList.size() > 0) {
             SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
             this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
-
         }
 
         if (versionStatusId == 2) {
