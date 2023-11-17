@@ -96,7 +96,8 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     @Override
     public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlString = "UPDATE rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sb = new StringBuilder("UPDATE rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
                 + "SET  "
                 + "    fu.PRODUCT_CATEGORY_ID=:productCategoryId, "
                 + "    fu.TRACER_CATEGORY_ID=:tracerCategoryId, "
@@ -108,10 +109,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "    ful.LAST_MODIFIED_DATE=:curDate, "
                 + "    pgl.LABEL_EN=:genericLabelEn, "
                 + "    pgl.LAST_MODIFIED_BY=:curUser, "
-                + "    pgl.LAST_MODIFIED_DATE=:curDate "
-                + "WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+                + "    pgl.LAST_MODIFIED_DATE=:curDate ");
         params.put("productCategoryId", forecastingUnit.getProductCategory().getId());
         params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getId());
         params.put("active", forecastingUnit.isActive());
@@ -119,9 +117,16 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         params.put("genericLabelEn", forecastingUnit.getGenericLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+        if (curUser.hasBusinessFunction("ROLE_BF_UPDATE_UNIT_FOR_FU")) {
+            sb.append(",    fu.UNIT_ID=:unitId ");
+            params.put("unitId", forecastingUnit.getUnit().getId());
+        }
+        sb.append("WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId");
+        params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+
+        int rows = this.namedParameterJdbcTemplate.update(sb.toString(), params);
         if (!forecastingUnit.isActive()) {
-            sqlString = "SELECT p.`PLANNING_UNIT_ID` FROM rm_planning_unit p WHERE p.`FORECASTING_UNIT_ID`=?;";
+            String sqlString = "SELECT p.`PLANNING_UNIT_ID` FROM rm_planning_unit p WHERE p.`FORECASTING_UNIT_ID`=?;";
             List<Integer> list = this.jdbcTemplate.queryForList(sqlString, Integer.class, forecastingUnit.getForecastingUnitId());
 
             MapSqlParameterSource[] batchParams;

@@ -219,6 +219,11 @@ public class CustomUserDetails implements UserDetails, Serializable {
         }
     }
 
+    public boolean hasBusinessFunction(String businessFunction) {
+        SimpleGrantedAuthority s = new SimpleGrantedAuthority(businessFunction);
+        return (this.getBusinessFunction().indexOf(s) >= 0);
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
