@@ -19,6 +19,7 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
@@ -245,7 +246,13 @@ public class ReportServiceImpl implements ReportService {
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         return this.reportDao.getForecastError(fei, curUser);
     }
-
+    
+    // Report no 31 new
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
+        return this.reportDao.getForecastError(fei, curUser);
+    }
+    
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {

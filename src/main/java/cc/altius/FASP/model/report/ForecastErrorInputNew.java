@@ -7,6 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.utils.ArrayUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
@@ -15,12 +16,12 @@ import java.util.Date;
  *
  * @author akil
  */
-public class ForecastErrorInput {
+public class ForecastErrorInputNew {
 
     private int programId;
     private int versionId;
     private int viewBy; // 1 for Planning Unit; 2 for Forecasting Unit and 3 for Equivalency Unit 
-    private int unitId;
+    private String[] unitIds;
     private String[] regionIds;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -56,12 +57,12 @@ public class ForecastErrorInput {
         this.viewBy = viewBy;
     }
 
-    public int getUnitId() {
-        return unitId;
+    public String[] getUnitIds() {
+        return unitIds;
     }
 
-    public void setUnitId(int unitId) {
-        this.unitId = unitId;
+    public void setUnitIds(String[] unitIds) {
+        this.unitIds = unitIds;
     }
 
     public String[] getRegionIds() {
@@ -95,18 +96,13 @@ public class ForecastErrorInput {
     public void setEquivalencyUnitId(int equivalencyUnitId) {
         this.equivalencyUnitId = equivalencyUnitId;
     }
-    
+
     public String getRegionIdString() {
-        if (this.regionIds == null) {
-            return "";
-        } else {
-            String opt = String.join(",", this.regionIds);
-            if (this.regionIds.length > 0) {
-                return opt;
-            } else {
-                return "";
-            }
-        }
+        return ArrayUtils.convertArrayToString(this.regionIds);
+    }
+
+    public String getUnitIdString() {
+        return ArrayUtils.convertArrayToString(this.unitIds);
     }
 
     public int getPreviousMonths() {
@@ -124,5 +120,5 @@ public class ForecastErrorInput {
     public void setDaysOfStockOut(boolean daysOfStockOut) {
         this.daysOfStockOut = daysOfStockOut;
     }
-    
+
 }
