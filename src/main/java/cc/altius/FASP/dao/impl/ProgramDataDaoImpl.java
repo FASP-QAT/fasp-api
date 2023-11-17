@@ -2047,6 +2047,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                 int problemReportId = problemReportInsert.executeAndReturnKey(insertParams).intValue();
                 insertParams.put("PROBLEM_REPORT_ID", problemReportId);
+                insertParams.put("NOTES", (rp.isReviewed() ? rp.getReviewedNotes() : null));
                 problemReportTransInsert.execute(insertParams);
             }
         }
