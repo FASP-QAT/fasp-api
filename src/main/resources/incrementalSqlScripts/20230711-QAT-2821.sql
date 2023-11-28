@@ -140,10 +140,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Diferencia (objetivo f
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.tooltip.actualOrTarget','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of 12 months. You must provide the total for one year before the first target, and 1 year after after the last target.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme de 12 mois. Vous devez fournir le total pour un an avant le premier objectif et 1 an après le dernier objectif.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma de 12 meses. Você deve fornecer o total de um ano antes da primeira meta e 1 ano após a última meta.');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de 12 meses. Debe proporcionar el total de un año antes del primer objetivo y 1 año después del último objetivo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The calculator requires actual data for the year before the forecast, the annual targets during the forecast period, and the target for the year after the forecast.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le calculateur nécessite des données réelles pour l`année précédant la prévision, les objectifs annuels pendant la période de prévision et l`objectif pour l`année suivant la prévision.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A calculadora requer dados reais para o ano anterior à previsão, as metas anuais durante o período de previsão e a meta para o ano seguinte à previsão.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La calculadora requiere datos reales para el año anterior al pronóstico, los objetivos anuales durante el período del pronóstico y el objetivo para el año posterior al pronóstico.');-- sp
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.tooltip.annualChangePer','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;

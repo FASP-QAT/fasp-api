@@ -14,25 +14,13 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT recommande de four
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A QAT recomenda fornecer metas para o período de previsão e um ano além do período de previsão. Se você fornecer menos, o final da sua previsão não sofrerá alterações ao longo do tempo.');-- pr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'QAT recomienda proporcionar objetivos para el período de pronóstico y un año más allá del período de pronóstico. Si proporciona menos, el final de su pronóstico no tendrá cambios en el tiempo.');-- sp
 
-update ap_static_label l 
-left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='QAT supone que la meta anual/12 se alcanzará en el punto medio del año objetivo y luego interpola entre esos puntos medios suponiendo una tasa de cambio lineal o exponencial.'
-where l.LABEL_CODE='static.tooltip.calculatedTotal' and ll.LANGUAGE_ID=3;
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.tooltip.calculatedTotal','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-update ap_static_label l 
-left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='QAT assumes that the annual target/12 will be reached by the midpoint of the target year and then interpolates between those midpoints assuming either a linear or exponential rate of change.'
-where l.LABEL_CODE='static.tooltip.calculatedTotal' and ll.LANGUAGE_ID=1;
-
-update ap_static_label l 
-left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='QAT suppose que l`objectif annuel/12 sera atteint au milieu de l`année cible, puis interpole entre ces points médians en supposant un taux de changement linéaire ou exponentiel.'
-where l.LABEL_CODE='static.tooltip.calculatedTotal' and ll.LANGUAGE_ID=2;
-
-update ap_static_label l 
-left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='O QAT assume que a meta anual/12 será alcançada no ponto médio do ano-alvo e depois interpola entre esses pontos médios assumindo uma taxa de mudança linear ou exponencial.'
-where l.LABEL_CODE='static.tooltip.calculatedTotal' and ll.LANGUAGE_ID=4;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT assumes that the annual target/12 will be reached by the midpoint of the target year and then interpolates between those midpoints assuming either a linear or exponential rate of change.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT suppose que l`objectif annuel/12 sera atteint au milieu de l`année cible, puis interpole entre ces points médians en supposant un taux de changement linéaire ou exponentiel.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O QAT assume que a meta anual/12 será alcançada no ponto médio do ano-alvo e depois interpola entre esses pontos médios assumindo uma taxa de mudança linear ou exponencial.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'QAT supone que la meta anual/12 se alcanzará en el punto medio del año objetivo y luego interpola entre esos puntos medios suponiendo una tasa de cambio lineal o exponencial.');-- sp
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
