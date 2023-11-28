@@ -167,11 +167,11 @@ public class ProblemDaoImpl implements ProblemDao {
         params.put("REALM_PROBLEM_ID", manualProblem.getRealmProblem().getRealmProblemId());
         params.put("PROGRAM_ID", manualProblem.getProgram().getId());
         params.put("VERSION_ID", manualProblem.getVersionId());
-        params.put("PROBLEM_TYPE_ID", manualProblem.getRealmProblem().getProblemType().getId()); 
+        params.put("PROBLEM_TYPE_ID", manualProblem.getRealmProblem().getProblemType().getId());
         params.put("PROBLEM_STATUS_ID", manualProblem.getProblemStatus().getId());
-        params.put("REVIEWED", false);
-        params.put("REVIEWED_NOTES", null);
-        params.put("REVIEWED_DATE", null);
+        params.put("REVIEWED", manualProblem.isReviewed());
+        params.put("REVIEWED_NOTES", (manualProblem.isReviewed() ? manualProblem.getReviewedNotes() : null));
+        params.put("REVIEWED_DATE", (manualProblem.isReviewed() ? curDate : null));
         params.put("DATA1", manualProblem.getDt());
         params.put("DATA2", manualProblem.getRegion().getId());
         params.put("DATA3", manualProblem.getPlanningUnit().getId());

@@ -15,6 +15,7 @@ public class ReviewedProblem implements Serializable {
 
     private int problemReportId;
     private boolean reviewed;
+    private String reviewedNotes;
     private String notes;
     private SimpleObject problemStatus;
 
@@ -40,6 +41,14 @@ public class ReviewedProblem implements Serializable {
 
     public void setReviewed(boolean reviewed) {
         this.reviewed = reviewed;
+    }
+
+    public String getReviewedNotes() {
+        return reviewedNotes;
+    }
+
+    public void setReviewedNotes(String reviewedNotes) {
+        this.reviewedNotes = reviewedNotes;
     }
 
     public String getNotes() {

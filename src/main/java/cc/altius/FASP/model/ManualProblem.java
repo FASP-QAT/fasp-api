@@ -21,6 +21,8 @@ public class ManualProblem {
     private String data5;
     private SimpleObject problemStatus;
     private String notes;
+    private boolean reviewed;
+    private String reviewedNotes;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -100,6 +102,22 @@ public class ManualProblem {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
+    }
+
+    public String getReviewedNotes() {
+        return reviewedNotes;
+    }
+
+    public void setReviewedNotes(String reviewedNotes) {
+        this.reviewedNotes = reviewedNotes;
     }
 
 }
