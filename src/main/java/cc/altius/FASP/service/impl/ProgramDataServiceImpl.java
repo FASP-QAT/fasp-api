@@ -14,7 +14,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.NotificationUser;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
@@ -117,6 +116,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     s.forEach(nd -> {
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
                             nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
+                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
                             nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
                         }
                         nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
@@ -219,7 +219,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
                 SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
-                if (sp!=null && sp.getCurrentVersionId() > versionId) {
+                if (sp != null && sp.getCurrentVersionId() > versionId) {
                     newer = true;
                 }
             }
