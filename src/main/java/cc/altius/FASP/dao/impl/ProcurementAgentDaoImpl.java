@@ -23,6 +23,7 @@ import cc.altius.FASP.model.rowMapper.ProcurementAgentResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
@@ -32,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -223,6 +225,28 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pa.PROCUREMENT_AGENT_ID `ID`, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR, pa.PROCUREMENT_AGENT_CODE `CODE` FROM vw_procurement_agent pa WHERE pa.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(stringBuilder, params, "pa", curUser);
+        stringBuilder.append(" ORDER BY pa.PROCUREMENT_AGENT_CODE");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getProcurementAgentDropdownListForFilterMultiplePrograms(String programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pa.PROCUREMENT_AGENT_ID `ID`, pa.LABEL_ID, pa.LABEL_EN, pa.LABEL_FR, pa.LABEL_SP, pa.LABEL_PR, pa.PROCUREMENT_AGENT_CODE `CODE` FROM rm_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID LEFT JOIN vw_procurement_agent pa ON ppa.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID WHERE p.ACTIVE AND pa.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        if (programIds.length() > 0) {
+            stringBuilder.append(" AND FIND_IN_SET(ppa.PROGRAM_ID, :programIds) ");
+            params.put("programIds", programIds);
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "pa", curUser);
+        stringBuilder.append(" GROUP BY pa.PROCUREMENT_AGENT_ID ORDER BY pa.PROCUREMENT_AGENT_CODE");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override
@@ -630,4 +654,32 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleCodeObjectRowMapper(""));
     }
 
+    @Override
+    @Transactional
+    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        String strProcurementAgentIds = ArrayUtils.convertArrayToString(procurementAgentIds);
+        params.put("procurementAgentIds", strProcurementAgentIds);
+        params.put("programId", programId);
+        params.put("curDate", curDate);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :procurementAgentIds) OR pa.PROCUREMENT_AGENT_ID IN (SELECT ppa.PROCUREMENT_AGENT_ID FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_program p SET p.LAST_MODIFIED_DATE=:curDate WHERE p.PROGRAM_ID=:programId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[procurementAgentIds.length];
+        int x = 0;
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_procurement_agent");
+        for (int procurementAgentId : procurementAgentIds) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", programId);
+            params.put("PROCUREMENT_AGENT_ID", procurementAgentId);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        int[] resultArray = si.executeBatch(batchParams);
+        return IntStream.of(resultArray).sum();
+    }
 }

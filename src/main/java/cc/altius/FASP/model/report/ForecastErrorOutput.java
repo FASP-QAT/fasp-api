@@ -32,7 +32,10 @@ public class ForecastErrorOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double forecastQty;
     @JsonView(Views.ReportView.class)
-    private Double errorPerc;
+    private Double sumOfForecast;
+    @JsonView(Views.ReportView.class)
+    private Double sumOfActual;
+    private Double sumOfAbsDiff;
     @JsonView(Views.ReportView.class)
     private List<RegionForecastErrorOutput> regionData;
 
@@ -64,45 +67,54 @@ public class ForecastErrorOutput implements Serializable {
         this.forecastQty = forecastQty;
     }
 
-    public Double getErrorPerc() {
-        return this.errorPerc;
+    public Double getSumOfForecast() {
+        return sumOfForecast;
     }
 
-    public void calcErrorPerc() {
-        Double diff = null;
-        for (RegionForecastErrorOutput re : this.regionData) {
+    public void setSumOfForecast(Double sumOfForecast) {
+        this.sumOfForecast = sumOfForecast;
+    }
 
-            if (this.actualQty != null) {
-                this.actualQty += re.getActualQty();
-            } else {
-                this.actualQty = re.getActualQty();
-            }
-            if (this.forecastQty != null) {
-                this.forecastQty += re.getForecastQty();
-            } else {
-                this.forecastQty = re.getForecastQty();
-            }
-            if (re.getActualQty() != null && re.getForecastQty() != null) {
-                if (diff != null) {
-                    diff += Math.abs(re.getActualQty() - re.getForecastQty());
-                } else {
-                    diff = Math.abs(re.getActualQty() - re.getForecastQty());
-                }
-            }
-        }
-        if (diff == null || this.actualQty == null || this.actualQty == 0.0) {
-            this.errorPerc = null;
+    public Double getSumOfActual() {
+        return sumOfActual;
+    }
+
+    public void setSumOfActual(Double sumOfActual) {
+        this.sumOfActual = sumOfActual;
+    }
+
+    public Double getSumOfAbsDiff() {
+        return sumOfAbsDiff;
+    }
+
+    public void setSumOfAbsDiff(Double sumOfAbsDiff) {
+        this.sumOfAbsDiff = sumOfAbsDiff;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public Double getErrorPerc() {
+        if (this.sumOfActual == null || this.sumOfActual == 0 || this.sumOfAbsDiff == null) {
+            return null;
         } else {
-            this.errorPerc = diff / this.actualQty;
+            return this.sumOfAbsDiff / this.sumOfActual;
         }
     }
 
     public void addRegionData(RegionForecastErrorOutput rfeo) {
-        int idx = -1;
-        idx = this.regionData.indexOf(rfeo);
-        if (idx == -1) {
+        if (this.regionData.indexOf(rfeo) == -1) {
             this.regionData.add(rfeo);
-        } else {
+//            if (rfeo.getActualQty() != null) {
+//                this.actualQty = (this.actualQty == null ? 0 : this.actualQty) + (rfeo.getActualQty() == null ? 0 : rfeo.getActualQty());
+//            }
+//            if (rfeo.getForecastQty() != null) {
+//                this.forecastQty = (this.forecastQty == null ? 0 : this.forecastQty) + (rfeo.getForecastQty() == null ? 0 : rfeo.getForecastQty());
+//            }
+//            if (rfeo.getSumOfActual() != null) {
+//                this.sumOfActual = (this.sumOfActual == null ? 0 : this.sumOfActual) + (rfeo.getSumOfActual() == null ? 0 : rfeo.getSumOfActual());
+//            }
+//            if (rfeo.getSumOfForecast() != null) {
+//                this.sumOfForecast = (this.sumOfForecast == null ? 0 : this.sumOfForecast) + (rfeo.getSumOfForecast() == null ? 0 : rfeo.getSumOfForecast());
+//            }
         }
     }
 

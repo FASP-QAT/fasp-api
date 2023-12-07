@@ -39,8 +39,26 @@ public class ProgramVersionResultSetExtractor implements ResultSetExtractor<List
                     rs.getTimestamp("CREATED_DATE"),
                     new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")),
                     rs.getTimestamp("LAST_MODIFIED_DATE"));
+            pv.setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
+            pv.setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
+            pv.setDaysInMonth(rs.getInt("DAYS_IN_MONTH"));
+            if (rs.wasNull()) {
+                pv.setDaysInMonth(null);
+            }
+            pv.setFreightPerc(rs.getDouble("FREIGHT_PERC"));
+            if (rs.wasNull()) {
+                pv.setFreightPerc(null);
+            }
+            pv.setForecastThresholdHighPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
+            if (rs.wasNull()) {
+                pv.setForecastThresholdHighPerc(null);
+            }
+            pv.setForecastThresholdLowPerc(rs.getDouble("FORECAST_THRESHOLD_LOW_PERC"));
+            if (rs.wasNull()) {
+                pv.setForecastThresholdLowPerc(null);
+            }
             int idx = pvList.indexOf(pv);
-            if (idx==-1) {
+            if (idx == -1) {
                 pvList.add(pv);
             } else {
                 pv = pvList.get(idx);

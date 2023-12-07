@@ -6,7 +6,6 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -16,10 +15,14 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
+import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
@@ -37,10 +40,15 @@ import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.LogUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -51,6 +59,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,6 +80,8 @@ public class ReportController {
     private UserService userService;
     @Autowired
     private ProgramService programService;
+    @Autowired
+    private IntegrationProgramService integrationProgramService;
 
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
@@ -200,7 +212,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2029,2521,2140], "tracerCategoryIds":[6,7],"planningUnitIds":[], "startDate":"2020-10-01", "previousMonths":3}
+     *{"realmId": 1, "realmCountryIds": ["5","51"],"programIds": ["2531","2544","2563","2564","2565"],"planningUnitIds": [],"tracerCategoryIds": [],"startDate": "2022-10-01","previousMonths": 3,"useApprovedSupplyPlanOnly": true,"curUser": 9}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
@@ -248,7 +260,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
-    public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
+    public ResponseEntity getWarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
@@ -317,11 +329,13 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "dt":"2020-04-01", "includePlannedShipments":1}
-     * -- programId cannot be -1 (All) it must be a valid ProgramId
-     * -- versionId can be -1 or a valid VersionId for that Program. If it is -1 then the last committed Version is automatically taken.
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"1", "viewBy":1, "dt":"2022-04-01", "includePlannedShipments":1}
+     * {"programIds":"2030,2034,2526,2527,2531,2533,2534,2535,2536,2537,2540,2541,2542,2543,2544,2545,2557,2558,2559,2560,2563,2564,2565,2570", "productCategoryIds":"0", "viewBy":2, "dt":"2022-04-01", "includePlannedShipments":1}
      * -- StartDate is the date that you want to run the report for
-     * -- Include Planned Shipments = 1 menas that Shipments that are in the Planned, Draft, Submitted stages will also be considered in the report
+     * -- ViewBy = 1 View by RealmCountry, ViewBy = 2 View by ProductCategory
+     * -- RealmCountryIds is the list of RealmCountryIds that should be included in the final output, cannot be empty you must pass the RealmCountryIds that you want to view it by
+     * -- ProductCategoryIds is the list of ProductCategoryIds that should be included in the final output, cannot be empty if you want to select all pass '0'
+     * -- Include Planned Shipments = 1 means that Shipments that are in the Planned, Draft, Submitted stages will also be considered in the report
      * -- Include Planned Shipments = 0 means that Shipments that are in the Planned, Draft, Submitted stages will not be considered in the report
      * -- Inventory Turns = Total Consumption for the last 12 months (including current month) / Avg Stock during that period
      * </pre>
@@ -332,7 +346,7 @@ public class ReportController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/inventoryTurns")
-    public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
+    public ResponseEntity getInventoryTurns(@RequestBody InventoryTurnsInput it, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
@@ -501,7 +515,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
      * @param ssv
@@ -514,23 +528,14 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            List<List<StockStatusVerticalOutput>> ssvoFullList = new LinkedList<>();
-            if (ssv.isAllPlanningUnits()) {
-                ssvoFullList.add(ssvoList);
-                int originalPlanningUnit = ssv.getPlanningUnitId();
-                for (ProgramPlanningUnit ppu : this.programService.getPlanningUnitListForProgramId(ssv.getProgramId(), true, curUser)) {
-                    if (!ppu.getPlanningUnit().getId().equals(originalPlanningUnit)) {
-                        ssv.setPlanningUnitId(ppu.getPlanningUnit().getId());
-                        ssvoFullList.add(this.reportService.getStockStatusVertical(ssv, curUser));
-                    }
-                }
-                return new ResponseEntity(ssvoFullList, HttpStatus.OK);
-            } else {
-                return new ResponseEntity(ssvoList, HttpStatus.OK);
+            for (int planningUnitId : ssv.getPlanningUnitIds()) {
+                ssv.setPlanningUnitId(planningUnitId);
+                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
             }
+            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -832,23 +837,22 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 31
     // Reports -> Consumption Reports -> Forecast Error Report
     /**
      * <pre>
      * Sample JSON
-     * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
-     * -- programId must be a single Program cannot be muti-program select or -1 for all programs
+     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
+     * -- programId must be a valid single Supply Plan Program
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-     * -- dt is the month for which you want to run the report
-     * -- includePlannedShipments = 1 means that you want to include the shipments that are still in the Planned stage while running this report.
-     * -- includePlannedShipments = 0 means that you want to exclude the shipments that are still in the Planned stage while running this report.
-     * -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
-     * -- Current month is always included in AMC
-     * -- if a Month does not have Consumption then it is excluded from the AMC calculations
-     * -- MinMonthsOfStock is Max of MinMonth of Stock taken from the Program-planning Unit and 3
-     * -- MaxMonthsOfStock is Min of Min of MinMonthOfStock+ReorderFrequency and 15
+     * -- viewBy 1 for PU, 2 for FU
+     * -- unitId Either the PU or FU that you want the report for based on the viewBy
+     * -- startDate and stopDate that you want to run the report for
+     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
+     * -- regionIds list of region ids that the report should run for or blank for all
+     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
+     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
      * </pre>
      *
      * @param sspi
@@ -862,7 +866,43 @@ public class ReportController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("/api/report/stockStatusAcrossProducts", e);
+            logger.error("/api/report/forecastError", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Report no 31 new
+    // Reports -> Consumption Reports -> Forecast Error Report
+    /**
+     * <pre>
+     * Sample JSON
+     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
+     * -- programId must be a valid single Supply Plan Program
+     * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
+     * -- viewBy 1 for PU, 2 for FU
+     * -- unitId Either the PU or FU that you want the report for based on the viewBy
+     * -- startDate and stopDate that you want to run the report for
+     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
+     * -- regionIds list of region ids that the report should run for or blank for all
+     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
+     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
+     * -- If the view is EquivalencyUnit then all PU or FU selected must be from the same EU
+     * -- If the view is FU then the PU's selected must be from the same FU
+     * -- If the view is PU then you cannot multi-select
+     * </pre>
+     *
+     * @param sspi
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/forecastErrorNew")
+    public ResponseEntity getForecastError(@RequestBody ForecastErrorInputNew fei, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/forecastError", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -908,6 +948,63 @@ public class ReportController {
         } catch (Exception e) {
             logger.error("/api/report/forecastSummary", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Mod 1 Report no 32 API used to get the report for Manual Json push
+     * <pre>
+     * -- Manual Json push report
+     * -- startDate is the date from which you want the data
+     * -- stopDate is the date till which you want the data
+     * -- realmCountryIds is provided as a list of realmCountry's to filter the report on or empty for all
+     * -- programIds is provided as a list of program's to filter the report on or empty for all
+     * </pre>
+     *
+     * @param startDate Start date that you want to report for
+     * @param stopDate Stop date that you want to report for
+     * @param realmCountryIds list of realmCountry's to filter the report on or
+     * empty for all
+     * @param programIds list of program's to filter the report on or empty for
+     * all
+     * @param auth
+     * @return returns the list the Manual Json push based on the date variables
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/manualJson")
+    @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push", tags = ("integrationProgram"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
+    public ResponseEntity getManualJsonReport(@RequestBody ManualJsonPushReportInput mi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.integrationProgramService.getManualJsonPushReport(mi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Mod 1 or Mod 2 Report UpdateProgramInfo
+     * <pre>
+     * -- programTypeId : 1 for SupplyPlan and 2 for Forecast
+     * -- realmCountryId: -1 for all and value for that RealmCountry
+     * -- active: 1 for Active, 0 for Disabled, -1 for Any
+     * </pre>
+     */
+    @JsonView(Views.ReportView.class)
+    @GetMapping(value = "/updateProgramInfo/programTypeId/{programTypeId}/realmCountryId/{realmCountryId}/active/{active}")
+    @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
+    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

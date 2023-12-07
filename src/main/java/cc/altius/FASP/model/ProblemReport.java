@@ -38,7 +38,7 @@ public class ProblemReport implements Serializable {
     @JsonView(Views.InternalView.class)
     private Integer shipmentId;         // data4
     @JsonView(Views.InternalView.class)
-    private String data5;
+    private String data5;               // suggestion + description
     @JsonView(Views.InternalView.class)
     private SimpleObject problemCategory;
     @JsonView(Views.InternalView.class)

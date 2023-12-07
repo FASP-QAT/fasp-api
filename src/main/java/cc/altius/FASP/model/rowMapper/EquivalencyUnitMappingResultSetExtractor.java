@@ -34,7 +34,9 @@ public class EquivalencyUnitMappingResultSetExtractor implements ResultSetExtrac
                 eum.setEquivalencyUnit(new EquivalencyUnit(
                         rs.getInt("EQUIVALENCY_UNIT_ID"),
                         new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
-                        new LabelRowMapper().mapRow(rs, 1)));
+                        new SimpleCodeObject(rs.getInt("PROGRAM_ID1"), new LabelRowMapper("P1_").mapRow(rs, 1), rs.getString("PROGRAM_CODE1")),
+                        new LabelRowMapper().mapRow(rs, 1),
+                        rs.getString("NOTES")));
                 eum.getEquivalencyUnit().setActive(rs.getBoolean("EU_ACTIVE"));
                 eum.getEquivalencyUnit().setCreatedBy(new BasicUser(rs.getInt("EU_CB_USER_ID"), rs.getString("EU_CB_USERNAME")));
                 eum.getEquivalencyUnit().setCreatedDate(rs.getTimestamp("EU_CREATED_DATE"));
@@ -43,11 +45,11 @@ public class EquivalencyUnitMappingResultSetExtractor implements ResultSetExtrac
                 eum.setForecastingUnit(new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, 1)));
                 eum.setUnit(new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 eum.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)));
-                int programId = rs.getInt("PROGRAM_ID");
+                int programId = rs.getInt("PROGRAM_ID2");
                 if (programId == 0) {
                     eum.setProgram(null);
                 } else {
-                    eum.setProgram(new SimpleCodeObject(programId, new LabelRowMapper("P_").mapRow(rs, programId), rs.getString("PROGRAM_CODE")));
+                    eum.setProgram(new SimpleCodeObject(programId, new LabelRowMapper("P2_").mapRow(rs, programId), rs.getString("PROGRAM_CODE2")));
                 }
                 eum.setNotes(rs.getString("NOTES"));
                 eum.setConvertToEu(rs.getDouble("CONVERT_TO_EU"));

@@ -12,8 +12,10 @@ import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.List;
 import org.slf4j.Logger;
@@ -152,7 +154,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/programIds/planningUnit")
+    @PostMapping("/realmCountry/programIds/planningUnit")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

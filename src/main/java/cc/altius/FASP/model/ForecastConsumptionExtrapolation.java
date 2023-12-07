@@ -1,4 +1,4 @@
-/*
+/*  `
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
@@ -25,16 +26,26 @@ import java.util.Map;
  */
 public class ForecastConsumptionExtrapolation implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int consumptionExtrapolationId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject planningUnit;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject region;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject extrapolationMethod;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Map<String, Object> jsonProperties;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date createdDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<ExtrapolationData> extrapolationDataList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String notes;
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public ForecastConsumptionExtrapolation() {
@@ -124,6 +135,14 @@ public class ForecastConsumptionExtrapolation implements Serializable {
         } else {
             return null;
         }
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

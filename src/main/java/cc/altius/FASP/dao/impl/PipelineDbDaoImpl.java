@@ -1426,7 +1426,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("versionTypeId", 1);
         params.put("versionStatusId", 1);
         params.put("notes", "testing.............");
-        Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate)", params, new VersionRowMapper());
+        Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 1)", params, new VersionRowMapper());
 
         params.put("versionId", version.getVersionId());
 

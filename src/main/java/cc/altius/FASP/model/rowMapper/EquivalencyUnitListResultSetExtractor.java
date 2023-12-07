@@ -37,7 +37,9 @@ public class EquivalencyUnitListResultSetExtractor implements ResultSetExtractor
             EquivalencyUnit eq = new EquivalencyUnit(
                     rs.getInt("EQUIVALENCY_UNIT_ID"),
                     new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
-                    new LabelRowMapper().mapRow(rs, 1));
+                    new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")),
+                    new LabelRowMapper().mapRow(rs, 1),
+                    rs.getString("NOTES"));
             int idx = eqList.indexOf(eq);
             if (idx == -1) {
                 // Equivalency Unit is not found

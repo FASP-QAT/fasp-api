@@ -19,7 +19,7 @@ public class ForecastErrorInput {
 
     private int programId;
     private int versionId;
-    private int viewBy;
+    private int viewBy; // 1 for Planning Unit; 2 for Forecasting Unit and 3 for Equivalency Unit 
     private int unitId;
     private String[] regionIds;
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -28,7 +28,9 @@ public class ForecastErrorInput {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private int equivalencyUnitId;
+    private int equivalencyUnitId; // 0 if no Equivalency unit
+    private int previousMonths;  // the number of months that we need to include to calculate Average for WAPE
+    private boolean daysOfStockOut;
 
     public int getProgramId() {
         return programId;
@@ -102,8 +104,25 @@ public class ForecastErrorInput {
             if (this.regionIds.length > 0) {
                 return opt;
             } else {
-                return "0";
+                return "";
             }
         }
     }
+
+    public int getPreviousMonths() {
+        return previousMonths;
+    }
+
+    public void setPreviousMonths(int previousMonths) {
+        this.previousMonths = previousMonths;
+    }
+
+    public boolean isDaysOfStockOut() {
+        return daysOfStockOut;
+    }
+
+    public void setDaysOfStockOut(boolean daysOfStockOut) {
+        this.daysOfStockOut = daysOfStockOut;
+    }
+    
 }

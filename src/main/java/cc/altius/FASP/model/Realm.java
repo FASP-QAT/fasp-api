@@ -33,8 +33,18 @@ public class Realm extends BaseModel implements Serializable {
     private int minQplToleranceCutOff;
     @JsonView(Views.InternalView.class)
     private int maxQplTolerance;
+    @JsonView(Views.InternalView.class)
+    private int actualConsumptionMonthsInPast;
+    @JsonView(Views.InternalView.class)
+    private int forecastConsumptionMonthsInPast;
+    @JsonView(Views.InternalView.class)
+    private int inventoryMonthsInPast;
+    @JsonView(Views.InternalView.class)
+    private int minCountForMode;
+    @JsonView(Views.InternalView.class)
+    private double minPercForMode;
 
-    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance) {
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
         }
@@ -47,6 +57,9 @@ public class Realm extends BaseModel implements Serializable {
         this.minQplTolerance = minQplTolerance;
         this.minQplToleranceCutOff = minQplToleranceCutOff;
         this.maxQplTolerance = maxQplTolerance;
+        this.actualConsumptionMonthsInPast = actualConsumptionMonthsInPast;
+        this.forecastConsumptionMonthsInPast = forecastConsumtionMonthsInPast;
+        this.inventoryMonthsInPast = inventoryMonthsInPast;
     }
 
     public Realm(Integer realmId, Label label, String realmCode) {
@@ -149,6 +162,46 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setMaxQplTolerance(int maxQplTolerance) {
         this.maxQplTolerance = maxQplTolerance;
+    }
+
+    public int getActualConsumptionMonthsInPast() {
+        return actualConsumptionMonthsInPast;
+    }
+
+    public void setActualConsumptionMonthsInPast(int actualConsumptionMonthsInPast) {
+        this.actualConsumptionMonthsInPast = actualConsumptionMonthsInPast;
+    }
+
+    public int getForecastConsumptionMonthsInPast() {
+        return forecastConsumptionMonthsInPast;
+    }
+
+    public void setForecastConsumptionMonthsInPast(int forecastConsumptionMonthsInPast) {
+        this.forecastConsumptionMonthsInPast = forecastConsumptionMonthsInPast;
+    }
+
+    public int getInventoryMonthsInPast() {
+        return inventoryMonthsInPast;
+    }
+
+    public void setInventoryMonthsInPast(int inventoryMonthsInPast) {
+        this.inventoryMonthsInPast = inventoryMonthsInPast;
+    }
+
+    public int getMinCountForMode() {
+        return minCountForMode;
+    }
+
+    public void setMinCountForMode(int minCountForMode) {
+        this.minCountForMode = minCountForMode;
+    }
+
+    public double getMinPercForMode() {
+        return minPercForMode;
+    }
+
+    public void setMinPercForMode(double minPercForMode) {
+        this.minPercForMode = minPercForMode;
     }
 
     @Override

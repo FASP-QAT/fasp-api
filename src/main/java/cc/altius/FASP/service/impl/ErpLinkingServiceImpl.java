@@ -9,9 +9,9 @@ import cc.altius.FASP.dao.ErpLinkingDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ArtmisHistory;
-import cc.altius.FASP.model.DTO.ArtmisHistoryErpOrder;
 import cc.altius.FASP.model.DTO.AutoCompletePuDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
+import cc.altius.FASP.model.DTO.ErpAutoCompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
@@ -158,14 +158,14 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     // ################################## New functions ###########################################
     @Override
     public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
-        this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
     }
 
     @Override
-    public List<String> autoCompleteOrder(String roPo, int programId, int erpPlanningUnitId, int qatPlanningUnitId, CustomUserDetails curUser) {
-        this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        return this.erpLinkingDao.autoCompleteOrder(roPo, programId, erpPlanningUnitId, qatPlanningUnitId, curUser);
+    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
+        this.programService.getSimpleProgramById(erpAutoCompleteDTO.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        return this.erpLinkingDao.autoCompleteOrder(erpAutoCompleteDTO, curUser);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     @Override
     public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
         if (input.getProgramId() != 0) {
-            this.programService.getProgramById(input.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            this.programService.getSimpleProgramById(input.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         }
         return this.erpLinkingDao.getNotLinkedErpShipmentsTab1AndTab3(input, curUser);
     }
@@ -188,7 +188,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
 
     @Override
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
-        this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
     }
 
@@ -197,7 +197,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
         Map<Integer, List<ShipmentLinkingOutput>> result = new HashMap<>();
         for (ShipmentSyncInput ssi : shipmentSyncInputList) {
             try {
-                this.programService.getProgramById(ssi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                this.programService.getSimpleProgramById(ssi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                 // In case the lastSyncDate is not a valid format check and throw an exception now
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 sdf.parse(ssi.getLastSyncDate());

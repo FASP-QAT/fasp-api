@@ -22,6 +22,7 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateResultSetExtractor;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,8 +64,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.`UNIT_CODE`, "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `R_LABEL_ID`,  r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
             + "    fm.FORECAST_METHOD_ID, fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, fm.FORECAST_METHOD_TYPE_ID, "
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
-            + "    tt.BRANCH "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
             + "FROM vw_tree_template tt  "
             + "LEFT JOIN vw_tree_template_level tl ON tt.TREE_TEMPLATE_ID=tl.TREE_TEMPLATE_ID "
             + "LEFT JOIN vw_unit u ON tl.UNIT_ID=u.UNIT_ID "
@@ -72,18 +74,20 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
 
     @Override
-    public List<TreeTemplate> getTreeTemplateList(boolean isBranch, CustomUserDetails curUser) {
-        String sql = treeTemplateSql + "WHERE tt.BRANCH=:isBranch ORDER BY tt.LABEL_EN";
-        Map<String, Object> params = new HashMap<>();
-        params.put("isBranch", isBranch);
-        return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());
+    public List<TreeTemplate> getTreeTemplateList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlBuilder = new StringBuilder(treeTemplateSql);
+        if (active) {
+            sqlBuilder.append(" WHERE tt.ACTIVE ");
+        }
+        sqlBuilder.append(" ORDER BY tt.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), new TreeTemplateListResultSetExtractor());
     }
 
     // To change this query to match with the new method of extraction
     @Override
     public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, "
+                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -151,7 +155,6 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         params.put("ACTIVE", 1);
-        params.put("BRANCH", tt.isBranch());
         params.put("NOTES", tt.getNotes());
         int treeTemplateId = si.executeAndReturnKey(params).intValue();
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
@@ -159,15 +162,18 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
-        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
+        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling").usingGeneratedKeyColumns("NODE_DATA_MODELING_ID");
+        SimpleJdbcInsert nidatc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator").usingGeneratedKeyColumns("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID");
+        SimpleJdbcInsert nidatcd = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator_data");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
+        final List<SqlParameterSource> batchList = new ArrayList<>();
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (TreeLevel tl : tt.getLevelList()) {
             params.put("TREE_TEMPLATE_ID", treeTemplateId);
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId() == null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
@@ -175,6 +181,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
             nodeParams.put("SORT_ORDER", n.getSortOrder());
             nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+            nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
             nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
             nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
             int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE_NODE, curUser.getUserId());
@@ -281,12 +288,35 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                         nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
+                        nodeParams.put("MODELING_SOURCE", ndm.getModelingSource());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
-                        nidm.execute(nodeParams);
+                        ndm.setNodeDataModelingId(nidm.executeAndReturnKey(nodeParams).intValue());
+                    }
+                    if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
+                        nodeParams.clear();
+                        nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                        nodeParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                        nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+//                        tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+                        int nodeDataAnnualTargetCalculatorId = nidatc.executeAndReturnKey(nodeParams).intValue();
+
+                        batchList.clear();
+                        for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
+                            Map<String, Object> batchParams = new HashMap<>();
+                            batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", nodeDataAnnualTargetCalculatorId);
+                            batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                            batchList.add(new MapSqlParameterSource(batchParams));
+                        }
+                        SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                        nidatcd.executeBatch(batchList.toArray(batchArray));
                     }
                 }
             }
@@ -328,6 +358,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("treeTemplateId", tt.getTreeTemplateId());
         this.namedParameterJdbcTemplate.update("DELETE ttndm.* FROM rm_tree_template_node_data_modeling ttndm LEFT JOIN rm_tree_template_node_data ttnd ON ttndm.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndo.* FROM rm_tree_template_node_data_override ttndo LEFT JOIN rm_tree_template_node_data ttnd ON ttndo.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttndatcd.*  FROM rm_tree_template_node_data_annual_target_calculator_data ttndatcd LEFT JOIN rm_tree_template_node_data_annual_target_calculator ttndatc ON ttndatcd.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID=ttndatc.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID LEFT JOIN rm_tree_template_node_data ttnd ON ttndatc.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttndatc.*  FROM rm_tree_template_node_data_annual_target_calculator ttndatc LEFT JOIN rm_tree_template_node_data_annual_target_calculator_data ttndatcd ON ttndatcd.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID=ttndatc.NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID LEFT JOIN rm_tree_template_node_data ttnd ON ttndatc.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttnd.* FROM rm_tree_template_node_data ttnd LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndp.* FROM rm_tree_template_node_data_pu ttndp LEFT JOIN rm_tree_template_node_data ttnd ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID WHERE ttnd.NODE_DATA_PU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndf.* FROM rm_tree_template_node_data_fu ttndf LEFT JOIN rm_tree_template_node_data ttnd ON ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID WHERE ttnd.NODE_DATA_FU_ID IS NULL", params);
@@ -346,13 +378,15 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
         SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
         SimpleJdbcInsert nido = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_override");
+        SimpleJdbcInsert nidatc = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator").usingGeneratedKeyColumns("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID");
+        SimpleJdbcInsert nidatcd = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_annual_target_calculator_data");
         Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (TreeLevel tl : tt.getLevelList()) {
             params.put("TREE_TEMPLATE_ID", treeTemplateId);
             int treeLabelId = this.labelDao.addLabel(tl.getLabel(), LabelConstants.RM_TREE_TEMPLATE_LEVEL, curUser.getUserId());
             params.put("LABEL_ID", treeLabelId);
             params.put("LEVEL_NO", tl.getLevelNo());
-            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId()==null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
+            params.put("UNIT_ID", (tl.getUnit() == null || tl.getUnit().getId() == null || tl.getUnit().getId() == 0 ? null : tl.getUnit().getId()));
             ttl.executeAndReturnKey(params);
         }
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
@@ -360,6 +394,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
             nodeParams.put("SORT_ORDER", n.getSortOrder());
             nodeParams.put("LEVEL_NO", n.getLevel() + 1);
+            nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
             nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
             nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
             int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE_NODE, curUser.getUserId());
@@ -465,12 +500,31 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                         nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
+                        nodeParams.put("MODELING_SOURCE", ndm.getModelingSource());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                         nodeParams.put("LAST_MODIFIED_DATE", curDate);
                         nodeParams.put("ACTIVE", 1);
                         nidm.execute(nodeParams);
+                    }
+                }
+                if (tnd.getAnnualTargetCalculator() != null && !tnd.getAnnualTargetCalculator().getActualOrTargetValueList().isEmpty()) {
+                    nodeParams.clear();
+                    nodeParams.put("NODE_DATA_ID", nodeDataIdMap.get(tnd.getNodeDataId()));
+                    nodeParams.put("CALCULATOR_FIRST_MONTH", tnd.getAnnualTargetCalculator().getFirstMonthOfTarget());
+                    nodeParams.put("CALCULATOR_YEARS_OF_TARGET", tnd.getAnnualTargetCalculator().getYearsOfTarget());
+                    nodeParams.put("CREATED_BY", curUser.getUserId());
+                    nodeParams.put("CREATED_DATE", curDate);
+                    nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                    nodeParams.put("LAST_MODIFIED_DATE", curDate);
+//                    tnd.getAnnualTargetCalculator().setNodeDataAnnualTargetCalculatorId(nidatc.executeAndReturnKey(nodeParams).intValue());
+                    int atcId = nidatc.executeAndReturnKey(nodeParams).intValue();
+                    for (int actualOrTargetValue : tnd.getAnnualTargetCalculator().getActualOrTargetValueList()) {
+                        Map<String, Object> batchParams = new HashMap<>();
+                        batchParams.put("NODE_DATA_ANNUAL_TARGET_CALCULATOR_ID", atcId);
+                        batchParams.put("ACTUAL_OR_TARGET_VALUE", actualOrTargetValue);
+                        nidatcd.execute(batchParams);
                     }
                 }
             }
@@ -482,11 +536,10 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     }
 
     @Override
-    public List<TreeTemplate> getTreeTemplateListForSync(boolean isBranch, String lastSyncDate, CustomUserDetails curUser) {
-        String sql = treeTemplateSql + " WHERE tt.BRANCH=:isBranch AND tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
+    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sql = treeTemplateSql + " WHERE tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        params.put("isBranch", isBranch);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());
     }
 

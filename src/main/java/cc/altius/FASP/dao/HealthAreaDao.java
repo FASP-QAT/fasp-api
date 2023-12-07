@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
 /**
@@ -20,6 +21,8 @@ public interface HealthAreaDao {
     public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser);
     
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
 

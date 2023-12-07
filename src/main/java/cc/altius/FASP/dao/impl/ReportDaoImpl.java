@@ -25,6 +25,7 @@ import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ExpiredStockOutputResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastErrorOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -44,6 +45,7 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputResultSetExtractor;
 import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryInfoRowMapper;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
@@ -103,8 +105,10 @@ import cc.altius.FASP.model.report.WarehouseByCountryOutputRowMapper;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,6 +117,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -126,6 +132,7 @@ public class ReportDaoImpl implements ReportDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -239,13 +246,15 @@ public class ReportDaoImpl implements ReportDao {
 
     // Report no 9
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", it.getProgramId());
-        params.put("versionId", it.getVersionId());
+        params.put("programIdString", ArrayUtils.convertArrayToString(it.getProgramIds()));
+        params.put("productCategoryIdString", ArrayUtils.convertArrayToString(it.getProductCategoryIds()));
         params.put("dt", it.getDt());
+        params.put("viewBy", it.getViewBy());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
-        String sql = "CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)";
+        params.put("approvedSupplyPlanOnly", it.isUseApprovedSupplyPlanOnly());
+        String sql = "CALL inventoryTurns(:dt, :viewBy, :programIdString, :productCategoryIdString, :includePlannedShipments, :approvedSupplyPlanOnly)";
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 
@@ -259,7 +268,25 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", es.getStopDate());
         params.put("includePlannedShipments", es.isIncludePlannedShipments());
         String sql = "CALL getExpiredStock(:programId, :versionId, :startDate, :stopDate, :includePlannedShipments)";
-        return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
+        List<ExpiredStockOutput> expiredStockList = this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
+        String batchIdList = expiredStockList.stream().map(exp -> Integer.toString(exp.getBatchInfo().getBatchId())).collect(Collectors.joining(","));
+        if (batchIdList != null && !batchIdList.equals("")) {
+            sql = "SELECT stbi.BATCH_ID, st.RATE `COST`, st.VERSION_ID "
+                    + "FROM rm_shipment_trans_batch_info stbi "
+                    + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=:versionId "
+                    + "WHERE stbi.BATCH_ID in (" + batchIdList + ") "
+                    + "ORDER BY stbi.BATCH_ID, st.VERSION_ID DESC";
+            params.clear();
+            params.put("batchIdList", batchIdList);
+            params.put("versionId", es.getVersionId());
+            Map<Integer, Double> batchMap = this.namedParameterJdbcTemplate.query(sql, params, new BatchCostResultSetExtractor());
+            expiredStockList.stream().forEach(exp1 -> {
+                if (batchMap.get(exp1.getBatchInfo().getBatchId()) != null) {
+                    exp1.setCost(batchMap.get(exp1.getBatchInfo().getBatchId()));
+                }
+            });
+        }
+        return expiredStockList;
     }
 
     // Report no 12
@@ -544,12 +571,43 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", br.getProgramId());
-        params.put("versionId", br.getVersionId());
+        params.put("programIds", br.getProgramIdString());
         params.put("startDate", br.getStartDate());
         params.put("stopDate", br.getStopDate());
         params.put("fundingSourceIds", br.getFundingSourceIdString());
-        return this.namedParameterJdbcTemplate.query("CALL budgetReport(:programId, :versionId, :startDate, :stopDate, :fundingSourceIds)", params, new BudgetReportOutputRowMapper());
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "	b.BUDGET_ID, b.BUDGET_CODE, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR, "
+                + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+                + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
+                + "    c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`, "
+                + "    (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_AMT`, IFNULL(stc.PLANNED_BUDGET,0) `PLANNED_BUDGET_AMT`, IFNULL(stc.ORDERED_BUDGET,0) `ORDERED_BUDGET_AMT`, b.START_DATE, b.STOP_DATE "
+                + "FROM vw_budget b "
+                + "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID "
+                + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID AND p.ACTIVE "
+                + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+                + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
+                + "LEFT JOIN ( "
+                + "	SELECT "
+                + "		st.BUDGET_ID, "
+                + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
+                + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET` "
+                + "FROM rm_shipment s "
+                + "LEFT JOIN rm_shipment_trans st ON "
+                + "	s.SHIPMENT_ID=st.SHIPMENT_ID "
+                + "    AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "    AND st.SHIPMENT_STATUS_ID!=8 "
+                + "    AND st.ACCOUNT_FLAG=1 "
+                + "    AND st.ACTIVE "
+                + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
+                + "WHERE "
+                + "	TRUE AND b.ACTIVE "
+                + "     AND (:programIds='' OR FIND_IN_SET(bp.PROGRAM_ID, :programIds)) "
+                + "     AND (:fundingSourceIds='' OR FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds)) "
+                + "     AND (b.START_DATE BETWEEN :startDate AND :stopDate OR b.STOP_DATE BETWEEN :startDate AND :stopDate OR :startDate BETWEEN b.START_DATE AND b.STOP_DATE) ");
+        this.aclService.addUserAclForRealm(sb, params, "b", curUser);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" GROUP BY b.BUDGET_ID");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new BudgetReportOutputRowMapper());
     }
 
     // Report no 30 - Basic info
@@ -593,7 +651,7 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
     }
 
-    // Report no 30
+    // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
@@ -604,13 +662,30 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", fei.getViewBy());
         params.put("unitId", fei.getUnitId());
         params.put("regionIds", fei.getRegionIdString());
+        params.put("previousMonths", fei.getPreviousMonths());
+        params.put("daysOfStockOut", fei.isDaysOfStockOut());
         params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
-        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId); ";
-        System.out.println(LogUtils.buildStringForLog(sql, params));
+        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
-        for (ForecastErrorOutput fe : feList) {
-            fe.calcErrorPerc();
-        }
+        return feList;
+    }
+    
+    // Report no 31
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fei.getProgramId());
+        params.put("versionId", fei.getVersionId());
+        params.put("startDate", fei.getStartDate());
+        params.put("stopDate", fei.getStopDate());
+        params.put("viewBy", fei.getViewBy());
+        params.put("unitIds", fei.getUnitIdString());
+        params.put("regionIds", fei.getRegionIdString());
+        params.put("previousMonths", fei.getPreviousMonths());
+        params.put("daysOfStockOut", fei.isDaysOfStockOut());
+        params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
+        String sql = "CALL getForecastErrorNew(:programId, :versionId, :viewBy, :unitIds, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
+        List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
 

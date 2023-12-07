@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -14,22 +15,39 @@ import java.util.Map;
  */
 public class DatasetPlanningUnit extends BaseModel implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int programPlanningUnitId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean consuptionForecast;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean treeForecast;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer stock;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer existingShipments;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer monthsOfStock;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject procurementAgent;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double price;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double higherThenConsumptionThreshold;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double lowerThenConsumptionThreshold;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String planningUnitNotes;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String consumptionNotes;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObjectWithMultiplier otherUnit;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Map<Integer, SelectedForecast> selectedForecastMap;
-
+    
     public int getProgramPlanningUnitId() {
         return programPlanningUnitId;
     }
@@ -118,6 +136,14 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
         this.lowerThenConsumptionThreshold = lowerThenConsumptionThreshold;
     }
 
+    public String getPlanningUnitNotes() {
+        return planningUnitNotes;
+    }
+
+    public void setPlanningUnitNotes(String planningUnitNotes) {
+        this.planningUnitNotes = planningUnitNotes;
+    }
+
     public String getConsumptionNotes() {
         return consumptionNotes;
     }
@@ -148,6 +174,18 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
 
     public void setSelectedForecastMap(Map<Integer, SelectedForecast> selectedForecastMap) {
         this.selectedForecastMap = selectedForecastMap;
+    }
+
+    @Override
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    public boolean isActive() {
+        return super.isActive();
+    }
+
+    @Override
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    public void setActive(boolean active) {
+        super.setActive(active);
     }
 
     @Override

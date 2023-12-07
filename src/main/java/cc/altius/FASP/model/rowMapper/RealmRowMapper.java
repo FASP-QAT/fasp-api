@@ -28,6 +28,11 @@ public class RealmRowMapper implements RowMapper<Realm> {
         r.setMinQplTolerance(rs.getInt("MIN_QPL_TOLERANCE"));
         r.setMinQplToleranceCutOff(rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"));
         r.setMaxQplTolerance(rs.getInt("MAX_QPL_TOLERANCE"));
+        r.setActualConsumptionMonthsInPast(rs.getInt("ACTUAL_CONSUMPTION_MONTHS_IN_PAST"));
+        r.setForecastConsumptionMonthsInPast(rs.getInt("FORECAST_CONSUMPTION_MONTH_IN_PAST"));
+        r.setInventoryMonthsInPast(rs.getInt("INVENTORY_MONTHS_IN_PAST"));
+        r.setMinCountForMode(rs.getInt("MIN_COUNT_FOR_MODE"));
+        r.setMinPercForMode(rs.getDouble("MIN_PERC_FOR_MODE"));
         r.setActive(rs.getBoolean("ACTIVE"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         r.setLabel(new LabelRowMapper().mapRow(rs, i));

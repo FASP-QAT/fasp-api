@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -20,8 +21,11 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
     private String roNo;
     private String roPrimeLineNo;
     private double conversionFactor;
+    private double shipmentQty;
     private SimpleObject planningUnit;
     private SimpleObjectWithMultiplier realmCountryPlanningUnit;
+    private BasicUser lastModifiedBy;
+    private Date lastModifiedDate;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -93,6 +97,30 @@ public class ShipmentLinkedToOtherProgramOutput implements Serializable {
 
     public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+    }
+
+    public double getShipmentQty() {
+        return shipmentQty;
+    }
+
+    public void setShipmentQty(double shipmentQty) {
+        this.shipmentQty = shipmentQty;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
 }

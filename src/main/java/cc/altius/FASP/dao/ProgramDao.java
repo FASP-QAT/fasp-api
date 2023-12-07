@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
+import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
@@ -17,8 +18,11 @@ import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.report.TreeAnchorInput;
+import cc.altius.FASP.model.report.TreeAnchorOutput;
 import java.util.List;
 
 /**
@@ -27,7 +31,11 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<SimpleCodeObject> getProgramListForDropdown(int programTypeId, CustomUserDetails curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
+
+    public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
     public int addProgram(Program p, int realmId, CustomUserDetails curUser);
 
@@ -108,5 +116,10 @@ public interface ProgramDao {
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
+    
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
 
+    public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
+
+    public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
 }

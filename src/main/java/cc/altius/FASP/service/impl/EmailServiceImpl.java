@@ -25,7 +25,7 @@ public class EmailServiceImpl implements EmailService {
     private EmailDao emailDao;
 
     private @Value("#{scheduler['schedulerActive']}")
-    String schedulerActive;
+    String SCHEDULER_ACTIVE;
 
     @Override
     public EmailTemplate getEmailTemplateByEmailTemplateId(int emailTemplateId) {
@@ -86,10 +86,10 @@ public class EmailServiceImpl implements EmailService {
 //        System.out.println("schedulerActive---"+schedulerActive);
 //        schedulerActive ="1";
         try {
-//            if (schedulerActive.equals("1")) {
+            if (SCHEDULER_ACTIVE.equals("1")) {
 //                System.out.println("---------------send email------------------");
                 this.emailDao.sendMail(emailer);
-//            }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

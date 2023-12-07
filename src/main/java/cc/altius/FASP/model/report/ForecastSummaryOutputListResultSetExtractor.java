@@ -8,7 +8,7 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleObjectWithMultiplier;
+import cc.altius.FASP.model.SimpleObjectWithMultiplierAndActive;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,9 +34,9 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
         List<ForecastSummaryOutput> fsList = new LinkedList<>();
         while (rs.next()) {
             ForecastSummaryOutput fso = new ForecastSummaryOutput();
-            fso.setPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, 1), rs.getDouble("MULTIPLIER")));
+            fso.setPlanningUnit(new SimpleObjectWithMultiplierAndActive(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, 1), rs.getDouble("MULTIPLIER"), rs.getBoolean("ACTIVE")));
             String notes = rs.getString("NOTES");
-            if (notes!=null && notes.isBlank()) {
+            if (notes != null && notes.isBlank()) {
                 notes = null;
             }
             Label notesLabel = null;
@@ -73,7 +73,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
                     // Since curent Consumption Qty is not null then if the new Consumption Qty is also not null then add the two otherwise the current one is correct
                     fso.setTotalForecast(fso.getTotalForecast() + totalForecast);
                 }
-                if (fso.getNotes() == null ) {
+                if (fso.getNotes() == null) {
                     // If the current Notes is null therefore set to whatever we just read
                     fso.setNotes(notesLabel);
                 } else if (notesLabel != null) {

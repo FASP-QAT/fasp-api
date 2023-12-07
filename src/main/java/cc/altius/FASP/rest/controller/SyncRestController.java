@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.CountryService;
 import cc.altius.FASP.service.CurrencyService;
@@ -41,9 +42,16 @@ import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UsagePeriodService;
 import cc.altius.FASP.service.UsageTemplateService;
 import cc.altius.FASP.service.UserService;
+import static cc.altius.FASP.utils.CompressUtils.compress;
+import static cc.altius.FASP.utils.CompressUtils.isCompress;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,7 +212,8 @@ public class SyncRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
 //            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
+//            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
+            masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
@@ -263,11 +272,15 @@ public class SyncRestController {
             masters.setModelingTypeList(this.modelingTypeService.getModelingTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
             masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
-            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(false, lastSyncDate, curUser));
-            masters.setBranchTemplateList(this.treeTemplateService.getTreeTemplateListForSync(true, lastSyncDate, curUser));
+            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
             masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonString = objectMapper.writeValueAsString(masters);
+            if(isCompress(jsonString)){
+                return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            }
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
@@ -290,6 +303,17 @@ public class SyncRestController {
         } catch (Exception e) {
             logger.error("Error while listing language", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping(value = "/sync/treeAnchor")
+    public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getTreeAnchorForSync(ta, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while getting Tree Anchor list", e);
+            return new ResponseEntity(new ResponseCode("    static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

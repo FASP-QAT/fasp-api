@@ -19,6 +19,7 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
@@ -31,6 +32,7 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryInfo;
+import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.MonthlyForecastOutput;
@@ -132,7 +134,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
         return this.reportDao.getInventoryTurns(it, curUser);
     }
 
@@ -242,6 +244,12 @@ public class ReportServiceImpl implements ReportService {
     // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
+        return this.reportDao.getForecastError(fei, curUser);
+    }
+    
+    // Report no 31 new
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
         return this.reportDao.getForecastError(fei, curUser);
     }
     

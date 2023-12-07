@@ -15,14 +15,16 @@ import java.util.List;
  */
 public interface TreeTemplateService {
 
-    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, boolean isBranch, CustomUserDetails curUser);
+    public List<TreeTemplate> getTreeTemplateList(boolean showNodeData, CustomUserDetails curUser);
     
+    public List<TreeTemplate> getTreeTemplateListForDropDown(CustomUserDetails curUser);
+
     public TreeTemplate getTreeTemplateById(int treeTemplateId, boolean nodeData, CustomUserDetails curUser);
-    
+
     public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
+
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser);
-    
-    public List<TreeTemplate> getTreeTemplateListForSync(boolean isBranch, String lastSyncDate, CustomUserDetails curUser);
+
+    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

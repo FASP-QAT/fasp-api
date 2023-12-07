@@ -15,10 +15,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -195,6 +197,17 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND (rc.REALM_ID=:realmId OR :realmId=-1) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(stringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(stringBuilder, params, "rc", curUser);
+        stringBuilder.append(" ORDER BY c.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND rc.REALM_COUNTRY_ID=:realmCountryId ");
         Map<String, Object> params = new HashMap<>();
@@ -243,6 +256,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnitByProgram).append(" AND p.PROGRAM_ID IN (").append(getProgramIdString(programIds)).append(")");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY rcpu.REALM_COUNTRY_PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
     }
 
@@ -286,7 +300,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         Version version = null;
-        StringBuilder updatedPUList = new StringBuilder();
+        StringBuilder updatedRCPUList = new StringBuilder();
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
@@ -307,7 +321,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 insertList.add(new MapSqlParameterSource(params));
             } else {
                 // Update
-                updatedPUList.append(rcpu.getPlanningUnit().getId()).append(",");
+                updatedRCPUList.append(rcpu.getRealmCountryPlanningUnitId()).append(",");
                 params = new HashMap<>();
                 params.put("realmCountryPlanningUnitId", rcpu.getRealmCountryPlanningUnitId());
                 params.put("skuCode", rcpu.getSkuCode());
@@ -428,16 +442,14 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         }
 
         // Checking if any of the updated RCPU's that was disabled was the only RCPU for that PU with Multiplier 1
-        if (updatedPUList.length() > 0) {
-            updatedPUList.setLength(updatedPUList.length() - 1);
+        if (updatedRCPUList.length() > 0) {
+            updatedRCPUList.setLength(updatedRCPUList.length() - 1);
             StringBuilder sqlStringBuilder = new StringBuilder("SELECT count(*) "
-                    + "FROM rm_program_planning_unit ppu "
-                    + "LEFT JOIN rm_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
-                    + "LEFT JOIN rm_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID AND rcpu.MULTIPLIER=1 "
-                    + "WHERE rcpu.ACTIVE=0 AND ppu.PLANNING_UNIT_ID in (");
-            sqlStringBuilder.append(updatedPUList).append(")");
-            int inactivatedPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
-            if (inactivatedPUs > 0) {
+                    + "FROM rm_realm_country_planning_unit rcpu "
+                    + "WHERE rcpu.ACTIVE=0 AND rcpu.MULTIPLIER=1 AND rcpu.REALM_COUNTRY_PLANNING_UNIT_ID in (");
+            sqlStringBuilder.append(updatedRCPUList).append(")");
+            int inactivatedRCPUs = this.jdbcTemplate.queryForObject(sqlStringBuilder.toString(), Integer.class);
+            if (inactivatedRCPUs > 0) {
                 throw new CouldNotSaveException("You cannot deactivate a default ARU");
             }
         }

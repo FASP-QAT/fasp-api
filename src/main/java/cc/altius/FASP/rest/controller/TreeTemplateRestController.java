@@ -58,35 +58,35 @@ public class TreeTemplateRestController {
     public ResponseEntity getTreeTemplate(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, false, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list TreeTemplate", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
-    /**
-     * API used to get the active Tree template list where branch=true. Will only return those
-     * Tree Templates that are marked Active and Branch is true.
-     *
-     * @param auth
-     * @return returns the list of active Tree Templates that have Branch is true
-     */
-//    @JsonView(Views.InternalView.class)
-    @GetMapping("/branch")
-    @Operation(description = "API used to get the complete TreeTemplate list where Branch is active. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
-    public ResponseEntity getBranchTemplate(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list TreeTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * API used to get the active Tree template list. Will only return those
+     * Tree Templates that are marked Active.
+     *
+     * @param auth
+     * @return returns the list of active Tree Templates that have Branch is
+     * true
+     */
+//    @JsonView(Views.InternalView.class)
+//    @GetMapping("/branch")
+//    @Operation(description = "API used to get the complete TreeTemplate list where Branch is active. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
+//    public ResponseEntity getBranchTemplate(Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, true, curUser), HttpStatus.OK);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list TreeTemplate", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 //    /**
 //     * API used to get the complete TreeTemplate list.
 //     *
@@ -106,7 +106,6 @@ public class TreeTemplateRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     /**
      * API used to get the complete TreeTemplate list.
      *

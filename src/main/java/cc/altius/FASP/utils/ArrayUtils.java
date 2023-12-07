@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.utils;
 
+import java.util.List;
+
 /**
  *
  * @author akil
@@ -16,6 +18,44 @@ public class ArrayUtils {
             return "";
         } else {
             return String.join(",", ids);
+        }
+    }
+
+    public static String convertArrayToString(int[] ids) {
+        if (ids == null || ids.length == 0) {
+            return "";
+        } else {
+            StringBuilder strIds = new StringBuilder();
+            for (int id : ids) {
+                strIds.append(id).append(",");
+            }
+            if (strIds.length() > 0) {
+                strIds.setLength(strIds.length() - 1);
+            }
+            return strIds.toString();
+        }
+    }
+    
+    public static String convertArrayToString(Integer[] ids) {
+        if (ids == null || ids.length == 0) {
+            return "";
+        } else {
+            StringBuilder strIds = new StringBuilder();
+            for (int id : ids) {
+                strIds.append(id).append(",");
+            }
+            if (strIds.length() > 0) {
+                strIds.setLength(strIds.length() - 1);
+            }
+            return strIds.toString();
+        }
+    }
+
+    public static String convertListToString(List<String> lst) {
+        if (lst == null || lst.isEmpty()) {
+            return "";
+        } else {
+            return String.join(",", lst);
         }
     }
 }
