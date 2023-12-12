@@ -488,7 +488,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/shipmentListForDelinking/**").access("hasAnyRole('ROLE_BF_DELINKING')")
                 //.antMatchers(HttpMethod.GET, "/api/searchErpOrderData/**").access("hasAnyRole(')")
                 .antMatchers(HttpMethod.POST, "/api/getShipmentDetailsByParentShipmentId/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING','ROLE_BF_DELINKING')")
-                .antMatchers(HttpMethod.GET, "/anpi/erpLinking/getNotificationSummary/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING')")
+                .antMatchers(HttpMethod.GET, "/api/erpLinking/getNotificationSummary/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING')")
                 .antMatchers(HttpMethod.POST, "/api/erpLinking/notLinkedQatShipments/programId/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING')")
                 .antMatchers(HttpMethod.GET, "/api/erpLinking/autoCompleteOrder/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING')")
                 .antMatchers(HttpMethod.POST, "/api/erpLinking/autoCompletePu/**").access("hasAnyRole('ROLE_BF_MANUAL_TAGGING')")
