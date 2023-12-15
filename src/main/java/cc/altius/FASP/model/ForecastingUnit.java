@@ -129,6 +129,16 @@ public class ForecastingUnit extends BaseModel implements Serializable {
         return super.getLastModifiedBy();
     }
 
+    public void setForecastingUnit(ForecastingUnit fu) {
+        this.forecastingUnitId = fu.getForecastingUnitId();
+        this.realm = fu.getRealm();
+        this.genericLabel = fu.getGenericLabel();
+        this.label = fu.getLabel();
+        this.productCategory = fu.getProductCategory();
+        this.tracerCategory = fu.getTracerCategory();
+        this.unit = fu.getUnit();
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;

@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.ARTMIS.controller;
 
-import cc.altius.FASP.service.ImportProductCatalogueService;
+import cc.altius.FASP.ARTMIS.service.ImportProductCatalogueService;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +31,12 @@ public class ImportProductCatalogueController {
 //        String orderDataFilePath = "/home/akil/Documents/Altius/Software/FHI360/Artmis Data Import";
         return this.importProductCatalogueService.importProductCatalogue();
 
+    }
+    
+    @RequestMapping(value = "importProductCatalogLegacy")
+    @ResponseBody
+//    @Scheduled(cron = "00 */05 * * * *")
+    public String importProductcatalogueLegacy() throws ParserConfigurationException, SAXException, IOException {
+        return this.importProductCatalogueService.importProductCatalogueLegacy();
     }
 }

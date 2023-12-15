@@ -20,4 +20,6 @@ public interface ImportProductCatalogueDao {
     public void importProductCatalogue(StringBuilder sb) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
 
     public void rollBackAutoIncrement(StringBuilder sb);
+
+    public String importProductCatalogueLegacy() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
 }
