@@ -449,8 +449,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(this.userCommonString).append(this.userList)
-                .append(" AND user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
+        StringBuilder sb = new StringBuilder(this.userCommonString)
+                .append(" WHERE user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
                         + "FROM vw_all_program p "
                         + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                         + "LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "

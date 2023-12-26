@@ -239,9 +239,9 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
         response = restTemplate.exchange(
                 JIRA_SERVICE_DESK_API_URL + "/servicedesk/" + JIRA_PROJECT_NAME + "/customer?query="+emailId, HttpMethod.GET, entity, String.class);
-        
-        if (response.getStatusCode() == HttpStatus.OK) {
 
+        if (response.getStatusCode() == HttpStatus.OK) {
+            
             JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
             JsonElement element = jsonObject.get("size");
             total = element.getAsInt();
@@ -253,18 +253,18 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
                 } else {
                     userEmails = this.userService.getUserListForUpdateJiraAccountId();
                 }
-                jsonArray = jsonObject.getAsJsonArray("values");                
+                jsonArray = jsonObject.getAsJsonArray("values");
                 sb.append("{");
                 for(int i=0 ; i < total ; i++) {
                     String jiraEmailAddress = "", jiraAccountId = "";
                     JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
                     jiraEmailAddress = jsonObject1.get("emailAddress").getAsString();
-                    jiraAccountId = jsonObject1.get("accountId").getAsString();                        
+                    jiraAccountId = jsonObject1.get("accountId").getAsString();
                     for(int j=0 ; j<userEmails.size() ; j++) {                        
-                        if(userEmails.get(j).equalsIgnoreCase(jiraEmailAddress)) {
+//                        if(userEmails.get(j).equalsIgnoreCase(jiraEmailAddress)) {
                             this.userService.updateUserJiraAccountId(userEmails.get(j), jiraAccountId);
                             sb.append(jsonObject1);
-                        }
+//                        }
                     }
                 }
                 sb.append("}");
