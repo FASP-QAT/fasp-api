@@ -458,6 +458,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sb, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" GROUP BY pu.PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
     }
 
