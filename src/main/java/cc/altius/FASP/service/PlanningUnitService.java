@@ -78,5 +78,9 @@ public interface PlanningUnitService {
     public List<SimpleObject> getPlanningUnitDropDownListFilterProductCategory(String productCategorySortOrder, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser);
+    
+    public List<PlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
+    
+    public List<PlanningUnit> getPlanningUnitListForDatasetId(int programId, int versionId, CustomUserDetails curUser);
 
 }

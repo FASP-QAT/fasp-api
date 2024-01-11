@@ -260,4 +260,14 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getPlanningUnitForDatasetByProgramAndVersion(input, curUser);
     }
 
+    @Override
+    public List<PlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForProgramId(programId, active, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListForDatasetId(int programId, int versionId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForDatasetId(programId, versionId, curUser);
+    }
+
 }
