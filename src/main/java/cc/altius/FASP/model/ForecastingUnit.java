@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class ForecastingUnit extends BaseModel implements Serializable {
 
-    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
+    @JsonView({Views.ReportView.class})
     private int forecastingUnitId;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject realm;

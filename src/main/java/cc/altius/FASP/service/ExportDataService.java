@@ -6,7 +6,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.SupplyPlanExportDTO;
-import java.util.List;
+import cc.altius.FASP.model.SimpleProgram;
 
 /**
  *
@@ -14,6 +14,6 @@ import java.util.List;
  */
 public interface ExportDataService {
     
-    public List<SupplyPlanExportDTO> getSupplyPlanForProgramId(int programId, int versionId, CustomUserDetails curUser);
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, CustomUserDetails curUser);
     
 }

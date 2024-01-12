@@ -18,9 +18,9 @@ public class PlanningUnit extends BaseModel implements Serializable {
     @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private int planningUnitId;
     @JsonView({Views.ReportView.class, Views.ExportApiView.class})
-    private ForecastingUnit forecastingUnit;
-    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private Label label;
+    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
+    private ForecastingUnit forecastingUnit;
     @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private SimpleCodeObject unit;
     @JsonView({Views.ReportView.class, Views.ExportApiView.class})

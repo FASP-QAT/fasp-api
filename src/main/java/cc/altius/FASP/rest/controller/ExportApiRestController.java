@@ -47,40 +47,41 @@ public class ExportApiRestController {
     @Autowired
     private ExportDataService exportDataService;
 
-    @JsonView(Views.ExportApiView.class)
-    @GetMapping("/productCatalog/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            SimpleProgram p = this.programService.getSimpleProgramById(programId, curUser);
-            if (p != null) {
-                if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-                    return new ResponseEntity<>(this.planningUnitService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(this.planningUnitService.getPlanningUnitListForDatasetId(programId, (versionId == -1 ? p.getCurrentVersionId() : versionId), curUser), HttpStatus.OK);
-                }
-            } else {
-                throw new EmptyResultDataAccessException(1);
-            }
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @JsonView(Views.ExportApiView.class)
+//    @GetMapping("/productCatalog/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            SimpleProgram p = this.programService.getSimpleProgramById(programId, curUser);
+//            if (p != null) {
+//                if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+//                    return new ResponseEntity<>(this.exportDataService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
+//                } else {
+//                    return new ResponseEntity<>(this.planningUnitService.getPlanningUnitListForDatasetId(programId, (versionId == -1 ? p.getCurrentVersionId() : versionId), curUser), HttpStatus.OK);
+//                }
+//            } else {
+//                throw new EmptyResultDataAccessException(1);
+//            }
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
+    @JsonView(Views.ExportApiView.class)
     @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getSupplyPlanForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             if (p != null) {
-                return new ResponseEntity(this.exportDataService.getSupplyPlanForProgramId(programId, (versionId == -1 ? p.getCurrentVersionId() : versionId), curUser), HttpStatus.OK);
+                return new ResponseEntity(this.exportDataService.getSupplyPlanForProgramId(p, versionId, curUser), HttpStatus.OK);
             } else {
                 // ProgramId not found
                 throw new EmptyResultDataAccessException(1);
@@ -97,30 +98,30 @@ public class ExportApiRestController {
         }
     }
 
-    @JsonView(Views.ExportApiView.class)
-    @GetMapping("/forecast/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getForecastForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            SimpleProgram p = this.programService.getSimpleProgramById(programId, curUser);
-            if (p != null) {
-                if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-                    return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
-                } else {
-                    return new ResponseEntity(this.planningUnitService.getPlanningUnitListForDatasetId(programId, (versionId == -1 ? p.getCurrentVersionId() : versionId), curUser), HttpStatus.OK);
-                }
-            } else {
-                throw new EmptyResultDataAccessException(1);
-            }
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @JsonView(Views.ExportApiView.class)
+//    @GetMapping("/forecast/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getForecastForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            SimpleProgram p = this.programService.getSimpleProgramById(programId, curUser);
+//            if (p != null) {
+//                if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+//                    return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
+//                } else {
+//                    return new ResponseEntity(this.planningUnitService.getPlanningUnitListForDatasetId(programId, (versionId == -1 ? p.getCurrentVersionId() : versionId), curUser), HttpStatus.OK);
+//                }
+//            } else {
+//                throw new EmptyResultDataAccessException(1);
+//            }
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

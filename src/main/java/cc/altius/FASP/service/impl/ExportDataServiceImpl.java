@@ -7,8 +7,8 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ExportDataDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.SupplyPlanExportDTO;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.ExportDataService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +23,8 @@ public class ExportDataServiceImpl implements ExportDataService{
     private ExportDataDao exportDataDao;
     
     @Override
-    public List<SupplyPlanExportDTO> getSupplyPlanForProgramId(int programId, int versionId, CustomUserDetails curUser) {
-        return this.exportDataDao.getSupplyPlanForProgramId(programId, versionId, curUser);
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, CustomUserDetails curUser) {
+        return this.exportDataDao.getSupplyPlanForProgramId(program, versionId, curUser);
     }
     
 }
