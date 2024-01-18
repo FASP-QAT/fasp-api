@@ -500,7 +500,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 
     @Override
     public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString).append(" AND (pa.LAST_MODIFIED_DATE>:lastSyncDate OR ppa.LAST_MODIFIED_DATE>:lastSyncDate) ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.procurementAgentSqlString).append(" AND (pa.LAST_MODIFIED_DATE>:lastSyncDate OR EXISTS (SELECT 1 FROM rm_program_procurement_agent ppa WHERE pa.PROCUREMENT_AGENT_ID = ppa.PROCUREMENT_AGENT_ID AND ppa.LAST_MODIFIED_DATE > :lastSyncDate)) ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
