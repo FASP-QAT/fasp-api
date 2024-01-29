@@ -10,7 +10,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.CurrencyService;
 import cc.altius.FASP.service.UserService;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

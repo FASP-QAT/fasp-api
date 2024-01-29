@@ -16,22 +16,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(1000)
-public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class JWTWebSecurityConfig {
 
     @Autowired
     private JwtUnAuthorizedResponseAuthenticationEntryPoint jwtUnAuthorizedResponseAuthenticationEntryPoint;
@@ -49,94 +49,100 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoderBean());
-    }
-
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .userDetailsService(customUserDetailsService)
+//                .passwordEncoder(passwordEncoderBean());
+//    }
     @Bean
     public PasswordEncoder passwordEncoderBean() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-//                .antMatchers("/actuator/info").permitAll()
-                //                .antMatchers("/api/healthArea/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
-                //                .antMatchers("/api/organisation/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
-                //                .antMatchers("/api/unit/**").access("hasRole('ROLE_BF_UPDATE_APPL_MASTER')")
-                //                .antMatchers(HttpMethod.POST, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER')")
-                //                .antMatchers(HttpMethod.PUT, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER', 'ROLE_BF_UPDATE_REALM_MASTER')")
-                //                .antMatchers("/api/realmCountry/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
-                .anyRequest().authenticated();
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        httpSecurity
-                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoderBean());
 
-        httpSecurity
-                .headers()
-                .cacheControl(); //disable caching
+        return authProvider;
     }
 
-    @Override
-    public void configure(WebSecurity webSecurity) throws Exception {
-        webSecurity
-                .ignoring()
-                .antMatchers(HttpMethod.POST, authenticationPath)
-                .antMatchers(HttpMethod.GET, refreshPath)
-                .antMatchers(HttpMethod.OPTIONS, "/**")
-                .and()
-                .ignoring()
-                .antMatchers(HttpMethod.GET, "/")
-                //Other Stuff You want to Ignore
-                .and().ignoring().antMatchers("/actuator/**")
-                .and().ignoring().antMatchers("/favicon.ico**")
-                .and().ignoring().antMatchers("/actuator**")
-                .and().ignoring().antMatchers("/actuator/info")
-                .and().ignoring().antMatchers("/browser**")
-                .and().ignoring().antMatchers("/file**")
-                .and().ignoring().antMatchers("/file/**")
-                //                .and().ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui")
-                .and().ignoring().antMatchers("/api/locales/*/**")
-                .and().ignoring().antMatchers("/api/forgotPassword/**")
-                .and().ignoring().antMatchers("/api/coreui/version/**")
-                .and().ignoring().antMatchers("/api/getForgotPasswordToken/**")
-                .and().ignoring().antMatchers("/api/confirmForgotPasswordToken/**")
-                .and().ignoring().antMatchers("/api/updatePassword/**")
-                //                .and().ignoring().antMatchers("/api/user/**")
-                .and().ignoring().antMatchers("/api/updateExpiredPassword/**")
-                .and().ignoring().antMatchers("/exportSupplyPlan/**")
-                .and().ignoring().antMatchers("/exportProgramData/**")
-                .and().ignoring().antMatchers("/exportOrderData/**")
-                .and().ignoring().antMatchers("/exportManualJson/**")
-                .and().ignoring().antMatchers("/importShipmentData/**")
-                .and().ignoring().antMatchers("/importProductCatalog/**")
-                .and().ignoring().antMatchers("/api/sync/language/**")
-                .and().ignoring().antMatchers("/exportShipmentLinkingData/**")
-                .and().ignoring().antMatchers("/jira/syncJiraAccountIds/**")
-                .and().ignoring().antMatchers("/api/processCommitRequest/**");
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth
+                        -> auth
+                        .requestMatchers(HttpMethod.POST, authenticationPath).permitAll()
+                        .requestMatchers(HttpMethod.GET, refreshPath).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/favicon.ico**").permitAll()
+                        .requestMatchers("/actuator**").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
+                        .requestMatchers("/browser**").permitAll()
+                        .requestMatchers("/file**").permitAll()
+                        .requestMatchers("/file/**").permitAll()
+                        //                .requestMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui").permitAll()
+                        .requestMatchers("/api/locales/*/**").permitAll()
+                        .requestMatchers("/api/forgotPassword/**").permitAll()
+                        .requestMatchers("/api/getForgotPasswordToken/**").permitAll()
+                        .requestMatchers("/api/confirmForgotPasswordToken/**").permitAll()
+                        .requestMatchers("/api/updatePassword/**").permitAll()
+                        //                .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/updateExpiredPassword/**").permitAll()
+                        .requestMatchers("/exportSupplyPlan/**").permitAll()
+                        .requestMatchers("/exportProgramData/**").permitAll()
+                        .requestMatchers("/exportOrderData/**").permitAll()
+                        .requestMatchers("/importShipmentData/**").permitAll()
+                        .requestMatchers("/importProductCatalog/**").permitAll()
+                        .requestMatchers("/api/sync/language/**").permitAll()
+                        .requestMatchers("/exportShipmentLinkingData/**").permitAll()
+                        .requestMatchers("/jira/syncJiraAccountIds/**").permitAll()
+                        .requestMatchers("/api/processCommitRequest/**").permitAll()
+                        .anyRequest().authenticated()
+                );
+
+        http.authenticationProvider(authenticationProvider());
+
+        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
-//    @EventListener
-//    public void authSuccessEventListener(AuthenticationSuccessEvent authorizedEvent){
-//        authorizedEvent.
-//    }
+//    @Override
+//    protected void configure(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity
+//                .csrf().disable()
+//                .exceptionHandling().authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint).and()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+//                .authorizeRequests()
+//                //                .antMatchers("/actuator/info").permitAll()
+//                //                .antMatchers("/api/healthArea/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+//                //                .antMatchers("/api/organisation/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+//                //                .antMatchers("/api/unit/**").access("hasRole('ROLE_BF_UPDATE_APPL_MASTER')")
+//                //                .antMatchers(HttpMethod.POST, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER')")
+//                //                .antMatchers(HttpMethod.PUT, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER', 'ROLE_BF_UPDATE_REALM_MASTER')")
+//                //                .antMatchers("/api/realmCountry/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+//                .anyRequest().authenticated();
 //
-//    @EventListener
-//    public void authFailedEventListener(AbstractAuthenticationFailureEvent oAuth2AuthenticationFailureEvent){
-//        
+////    @EventListener
+////    public void authSuccessEventListener(AuthenticationSuccessEvent authorizedEvent){
+////        authorizedEvent.
+////    }
+////
+////    @EventListener
+////    public void authFailedEventListener(AbstractAuthenticationFailureEvent oAuth2AuthenticationFailureEvent){
+////        
+////    }
 //    }
 }
