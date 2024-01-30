@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  *
@@ -53,10 +54,10 @@ public class CustomUserDetailsResultSetExtractorBasic implements ResultSetExtrac
 //            if (user.getAclList().indexOf(acl) == -1) {
 //                user.getAclList().add(acl);
 //            }
-//            SimpleGrantedAuthority bf = new SimpleGrantedAuthority(rs.getString("BUSINESS_FUNCTION_ID"));
-//            if (user.getBusinessFunction().indexOf(bf) == -1) {
-//                user.getBusinessFunction().add(bf);
-//            }
+            SimpleGrantedAuthority bf = new SimpleGrantedAuthority(rs.getString("BUSINESS_FUNCTION_ID"));
+            if (user.getBusinessFunction().indexOf(bf) == -1) {
+                user.getBusinessFunction().add(bf);
+            }
             isFirst = false;
         }
         if (isFirst) {
