@@ -366,7 +366,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/api/getStaticLabelsListAll/").hasAnyAuthority("ROLE_BF_LABEL_TRANSLATIONS")
                         .requestMatchers("/api/saveDatabaseLabels/").hasAnyAuthority("ROLE_BUSINESS_FUNCTION_EDIT_APPLICATION_LABELS","ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS","ROLE_BUSINESS_FUNCTION_EDIT_PROGRAM_LABELS")
                         .requestMatchers("/api/saveStaticLabels/").hasAnyAuthority("ROLE_BF_LABEL_TRANSLATIONS")
-                        .anyRequest().authenticated()
+//                        .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
