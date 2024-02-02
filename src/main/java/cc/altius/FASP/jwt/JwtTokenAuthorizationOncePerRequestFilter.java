@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.jwt;
 
+import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import java.io.IOException;
@@ -36,6 +37,9 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    
+    @Autowired
+    UserDao userDao;
 
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
@@ -43,7 +47,7 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         logger.debug("Authentication Request For '{}'", request.getRequestURL());
-        
+
         final String requestTokenHeader = request.getHeader(this.tokenHeader);
         String username = null;
         String jwtToken = null;
@@ -64,6 +68,7 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+                userDetails.setBusinessFunction(this.userDao.getBusinessFunctionsForUserId(userDetails.getUserId()));
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
