@@ -371,9 +371,10 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/api/saveStaticLabels/").hasAnyAuthority("ROLE_BF_LABEL_TRANSLATIONS")
                         .requestMatchers("/api/programData/shipmentSync/programId/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers("/api/sync/allMasters/forPrograms/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
-                        .requestMatchers("/api/erpLinking/shipmentSync/").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers("/api/erpLinking/shipmentSync").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.POST,"/api/getCommitRequest/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.GET,"/api/erpLinking/getNotificationCount").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.POST,"/api/programData/getLatestVersionForPrograms").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
 //                        .anyRequest().authenticated()
                 );
 
