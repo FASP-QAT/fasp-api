@@ -121,7 +121,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/currency/").hasAnyAuthority("ROLE_BF_EDIT_CURRENCY")
                         .requestMatchers(HttpMethod.GET,"/api/currency/").hasAnyAuthority("ROLE_BF_LIST_CURRENCY","ROLE_BF_ADD_BUDGET","ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.GET,"api/currency/all/").hasAnyAuthority("ROLE_BF_LIST_CURRENCY","ROLE_BF_ADD_COUNTRY","ROLE_BF_EDIT_COUNTRY","ROLE_BF_MAP_REALM_COUNTRY")
-                        .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboard/").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
+                        .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboard").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboardUserList").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/ticket/openIssues").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD", "ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.GET,"/api/supplyPlanReviewerLevelDashboard").hasAnyAuthority("ROLE_SUPPLY_PLAN_REVIEWER")
