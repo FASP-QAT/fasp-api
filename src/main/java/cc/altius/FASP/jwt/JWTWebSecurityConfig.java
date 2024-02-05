@@ -262,7 +262,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/versionStatus/**").hasAnyAuthority("ROLE_BF_ADD_INTEGRATION_PROGRAM","ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.PUT,"/api/programVersion/programId/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.GET,"/api/versionType/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW","ROLE_BF_COMMIT_VERSION","ROLE_BF_ADD_INTEGRATION_PROGRAM","ROLE_BF_VERSION_SETTINGS")
-                        .requestMatchers(HttpMethod.POST,"/api/programData/checkNewerVersions/").hasAnyAuthority("ROLE_BF_IMPORT_DATASET","ROLE_BF_LOAD_DELETE_DATASET","ROLE_BF_IMPORT_PROGARM","ROLE_BF_DOWNLOAD_PROGARM")
+                        .requestMatchers(HttpMethod.POST,"/api/programData/checkNewerVersions/").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC", "ROLE_BF_IMPORT_DATASET","ROLE_BF_LOAD_DELETE_DATASET","ROLE_BF_IMPORT_PROGARM","ROLE_BF_DOWNLOAD_PROGARM")
                         .requestMatchers(HttpMethod.GET,"/api/healthArea/realmCountryId/**").hasAnyAuthority("ROLE_BF_ADD_DATASET","ROLE_BF_EDIT_DATASET","ROLE_BF_EDIT_PROGRAM","ROLE_BF_SET_UP_PROGRAM")
                         .requestMatchers(HttpMethod.GET,"/api/problemStatus/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.GET,"/api/programData/getLatestVersionForProgram/**").hasAnyAuthority("ROLE_BF_COMMIT_DATASET","ROLE_BF_COMMIT_VERSION")
@@ -371,6 +371,9 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/api/programData/shipmentSync/programId/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers("/api/sync/allMasters/forPrograms/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers("/api/erpLinking/shipmentSync/").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.GET,"/api/getCommitRequest/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.GET,"/api/erpLinking/getNotificationCount").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.GET,"/api/ticket/openIssues/").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
 //                        .anyRequest().authenticated()
                 );
 
