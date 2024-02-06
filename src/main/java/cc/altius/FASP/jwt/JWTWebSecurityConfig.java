@@ -121,8 +121,9 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/country/all").hasAnyAuthority("ROLE_BF_LIST_COUNTRY","ROLE_BF_ADD_HEALTH_AREA","ROLE_BF_MAP_REALM_COUNTRY","ROLE_BF_LIST_REALM")
                         .requestMatchers(HttpMethod.POST,"/api/currency").hasAnyAuthority("ROLE_BF_ADD_CURRENCY")
                         .requestMatchers(HttpMethod.PUT,"/api/currency").hasAnyAuthority("ROLE_BF_EDIT_CURRENCY")
-                        .requestMatchers(HttpMethod.GET,"/api/currency").hasAnyAuthority("ROLE_BF_LIST_CURRENCY","ROLE_BF_ADD_BUDGET","ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW","ROLE_BF_EDIT_COUNTRY","ROLE_BF_ADD_COUNTRY")
+                        .requestMatchers(HttpMethod.GET,"/api/currency").hasAnyAuthority("ROLE_BF_LIST_CURRENCY","ROLE_BF_ADD_BUDGET","ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW","ROLE_BF_EDIT_COUNTRY","ROLE_BF_ADD_COUNTRY", "ROLE_BF_MAP_REALM_COUNTRY")
                         .requestMatchers(HttpMethod.GET,"api/currency/all").hasAnyAuthority("ROLE_BF_LIST_CURRENCY","ROLE_BF_ADD_COUNTRY","ROLE_BF_EDIT_COUNTRY","ROLE_BF_MAP_REALM_COUNTRY")
+                        .requestMatchers(HttpMethod.GET,"/api/currency/**").hasAnyAuthority("ROLE_BF_EDIT_CURRENCY")
                         .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboard").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboardUserList").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/ticket/openIssues").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD", "ROLE_BF_MASTER_DATA_SYNC")
@@ -377,7 +378,11 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/api/getCommitRequest/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.GET,"/api/erpLinking/getNotificationCount").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.POST,"/api/programData/getLatestVersionForPrograms").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
-//                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST,"/api/dimension").hasAnyAuthority("ROLE_BF_ADD_DIMENSION")
+                        .requestMatchers(HttpMethod.GET,"/api/dimension/all").hasAnyAuthority("ROLE_BF_LIST_DIMENSION", "ROLE_BF_ADD_UNIT", "ROLE_BF_LIST_UNIT")
+                        .requestMatchers(HttpMethod.PUT,"/api/dimension").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
+                        .requestMatchers(HttpMethod.GET,"/api/dimension/**").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
+                        .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
