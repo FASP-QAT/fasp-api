@@ -347,7 +347,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/organisation/**").hasAnyAuthority("ROLE_BF_ADD_ORGANIZATION")
                         .requestMatchers(HttpMethod.PUT,"/api/organisation/**").hasAnyAuthority("ROLE_BF_EDIT_ORGANIZATION")
                         .requestMatchers(HttpMethod.GET,"/api/organisation/**").hasAnyAuthority("ROLE_BF_LIST_ORGANIZATION")
-                        .requestMatchers(HttpMethod.GET,"/api/realmCountry/realmId/**").hasAnyAuthority("ROLE_BF_MAP_REALM_COUNTRY","ROLE_BF_CREATE_A_PROGRAM","ROLE_BF_PIPELINE_PROGRAM_IMPORT","ROLE_BF_EDIT_HEALTH_AREA","ROLE_BF_ADD_ORGANIZATION","ROLE_BF_EDIT_ORGANIZATION")
+                        .requestMatchers(HttpMethod.GET,"/api/realmCountry/realmId/**").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_MAP_REALM_COUNTRY","ROLE_BF_CREATE_A_PROGRAM","ROLE_BF_PIPELINE_PROGRAM_IMPORT","ROLE_BF_EDIT_HEALTH_AREA","ROLE_BF_ADD_ORGANIZATION","ROLE_BF_EDIT_ORGANIZATION")
                         .requestMatchers(HttpMethod.GET,"/api/organisation/getDisplayName/realmId/**").hasAnyAuthority("ROLE_BF_ADD_ORGANIZATION")
                         .requestMatchers(HttpMethod.GET,"/api/modelingType/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES")
                         .requestMatchers(HttpMethod.GET,"/api/modelingType/all/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_MODELING_TYPE")
