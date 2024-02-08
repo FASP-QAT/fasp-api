@@ -343,7 +343,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/pipeline/procurementagent/**").hasAnyAuthority("ROLE_BF_PIPELINE_PROGRAM_IMPORT")
                         .requestMatchers(HttpMethod.PUT,"/api/pipeline/realmCountryPlanningUnit/**").hasAnyAuthority("ROLE_BF_PIPELINE_PROGRAM_IMPORT")
                         .requestMatchers(HttpMethod.GET,"/api/organisationType/all").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_LIST_ORGANIZATION_TYPE")
-                        .requestMatchers(HttpMethod.POST,"/api/organisationType/**").hasAnyAuthority("ROLE_BF_ADD_ORGANIZATION_TYPE")
+                        .requestMatchers(HttpMethod.POST,"/api/organisationType").hasAnyAuthority("ROLE_BF_ADD_ORGANIZATION_TYPE")
                         .requestMatchers(HttpMethod.PUT,"/api/organisationType").hasAnyAuthority("ROLE_BF_EDIT_ORGANIZATION_TYPE")
                         .requestMatchers("/api/organisationType/**").hasAnyAuthority("ROLE_BF_EDIT_ORGANIZATION_TYPE")
                         .requestMatchers(HttpMethod.GET,"/api/organisationType/realmId/**").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_ADD_ORGANIZATION_TYPE","ROLE_BF_EDIT_ORGANIZATION_TYPE")
