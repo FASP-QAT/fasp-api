@@ -5,16 +5,14 @@
 package cc.altius.FASP.utils;
 
 import cc.altius.FASP.framework.GlobalConstants;
-import java.io.BufferedReader;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import javax.xml.bind.DatatypeConverter;
 
 /**
  *
