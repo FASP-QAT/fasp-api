@@ -391,7 +391,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/dimension").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
                         .requestMatchers(HttpMethod.GET,"/api/dimension/**").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
                         .requestMatchers(HttpMethod.GET,"/api/realmCountry/**").hasAnyAuthority("ROLE_BF_MAP_REGION","ROLE_BF_PIPELINE_PROGRAM_IMPORT")
-//                        .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
