@@ -1,3 +1,9 @@
+APP Version: 2.66.4481
+Front End Version: 11634
+Date: 2024-02-10
+QAT-2649
+Spring Boot V3, Mysql V8 and Java V17
+
 APP Version: 2.66.4438
 Front End Version: 11618
 Date: 2024-02-06
