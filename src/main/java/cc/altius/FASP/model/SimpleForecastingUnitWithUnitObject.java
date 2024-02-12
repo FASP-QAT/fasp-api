@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class SimpleForecastingUnitWithUnitObject extends SimpleObject {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.DropDownView.class})
     SimpleCodeObject unit;
 
     public SimpleForecastingUnitWithUnitObject() {
