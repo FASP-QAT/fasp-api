@@ -24,7 +24,9 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.SimpleForecastingUnitWithUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
@@ -311,12 +313,12 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM vw_forecasting_unit fu WHERE fu.ACTIVE ");
+    public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fu.`FORECASTING_UNIT_ID` `ID`, fu.`LABEL_ID`, fu.`LABEL_EN`, fu.`LABEL_FR`, fu.`LABEL_SP`, fu.`LABEL_PR`, u.`UNIT_ID` `U_ID`, u.`LABEL_ID` `U_LABEL_ID`, u.`LABEL_EN` `U_LABEL_EN`, u.`LABEL_FR` `U_LABEL_FR`, u.`LABEL_SP` `U_LABEL_SP`, u.`LABEL_PR` `U_LABEL_PR`, u.`UNIT_CODE` `U_CODE` FROM vw_forecasting_unit fu LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID WHERE fu.`ACTIVE` ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY fu.LABEL_EN");
-        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleForecastingUnitWithUnitObjectRowMapper());
     }
 
     @Override
