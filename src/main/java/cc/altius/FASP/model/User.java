@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,19 +22,27 @@ import java.util.List;
  */
 public class User extends BaseModel implements Serializable {
 
+    @JsonView({Views.UserListView.class})
     private int userId;
+    @JsonView({Views.UserListView.class})
     private String username;
     private String password;
+    @JsonView({Views.UserListView.class})
     private String emailId;
+    @JsonView({Views.UserListView.class})
     private String orgAndCountry;
+    @JsonView({Views.UserListView.class})
     private Realm realm;
+    @JsonView({Views.UserListView.class})
     private List<Role> roleList;
     private String[] roles;
     private Language language;
     private int defaultModuleId;
+    @JsonView({Views.UserListView.class})
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView({Views.UserListView.class})
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
     private UserAcl[] userAcls;
@@ -177,6 +186,24 @@ public class User extends BaseModel implements Serializable {
         this.businessFunctionList = businessFunctionList;
     }
 
+    @JsonView({Views.UserListView.class})
+    @Override
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+    
+    @JsonView({Views.UserListView.class})
+    @Override
+    public boolean isActive() {
+        return super.isActive();
+    }
+    
+    @JsonView({Views.UserListView.class})
+    @Override
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
+    }
+    
     @Override
     public String toString() {
         return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", orgAndCountry=" + orgAndCountry + ", realm=" + realm + ", roleList=" + roleList + ", roles=" + roles + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + ", userAcls=" + userAcls + '}';

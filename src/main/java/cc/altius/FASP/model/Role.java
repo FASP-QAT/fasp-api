@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.Objects;
  */
 public class Role implements Serializable {
 
+    @JsonView({Views.IgnoreView.class, Views.UserListView.class})
     private String roleId;
+    @JsonView({Views.IgnoreView.class, Views.UserListView.class})
     private Label label;
     private List<BusinessFunction> businessFunctionList;
     private String[] businessFunctions;

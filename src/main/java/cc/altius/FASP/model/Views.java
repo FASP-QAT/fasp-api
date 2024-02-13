@@ -42,5 +42,9 @@ public class Views {
     public interface DropDown3View {
 
     }
+    
+    public interface UserListView {
+
+    }
 
 }

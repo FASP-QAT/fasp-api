@@ -16,9 +16,11 @@ import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -149,6 +151,7 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/user")
+    @JsonView(Views.UserListView.class)
     public ResponseEntity getUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -160,6 +163,7 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/user/realmId/{realmId}")
+    @JsonView(Views.UserListView.class)
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -177,6 +181,7 @@ public class UserRestController {
     }
     
     @GetMapping(value = "/user/programId/{programId}")
+    @JsonView(Views.UserListView.class)
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

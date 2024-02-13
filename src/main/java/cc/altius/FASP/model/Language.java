@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,8 +14,11 @@ import java.io.Serializable;
  */
 public class Language extends BaseModel implements Serializable {
 
+    @JsonView({Views.UserListView.class})
     private Integer languageId;
+    @JsonView({Views.UserListView.class})
     private Label label;
+    @JsonView({Views.UserListView.class})
     private String languageCode;
     private String countryCode;
 
