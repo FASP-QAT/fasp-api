@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dropdown")
 public class DropDownRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -79,7 +79,7 @@ public class DropDownRestController {
     private BudgetService budgetService;
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/program/realm/{realmId}/programType/{programTypeId}")
+    @GetMapping("/program/realm/{realmId}/programType/{programTypeId}")
     public ResponseEntity getProgramForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -91,7 +91,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDown2View.class)
-    @GetMapping("/dropdown/program/realm/{realmId}/programType/{programTypeId}/expanded")
+    @GetMapping("/program/realm/{realmId}/programType/{programTypeId}/expanded")
     public ResponseEntity getProgramExpandedForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -103,7 +103,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/program/realm/{realmId}/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
+    @PostMapping("/program/realm/{realmId}/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -115,7 +115,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/program/programType/{programTypeId}/filter/multipleRealmCountry")
+    @PostMapping("/program/programType/{programTypeId}/filter/multipleRealmCountry")
     public ResponseEntity getProgramWithFilterForMultipleRealmCountryForDropdown(@RequestBody String[] realmCountryIds, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -127,7 +127,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/planningUnit/autocomplete")
+    @PostMapping("/planningUnit/autocomplete")
     public ResponseEntity getPlanningUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -139,7 +139,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDown3View.class)
-    @GetMapping("/dropdown/planningUnit/autocomplete/filter/productCategory/{searchText}/{language}/{productCategorySortOrder}")
+    @GetMapping("/planningUnit/autocomplete/filter/productCategory/{searchText}/{language}/{productCategorySortOrder}")
     public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "productCategorySortOrder", required = true) String productCategorySortOrder, Authentication auth) {
         try {
             AutocompleteInputWithProductCategoryDTO aci = new AutocompleteInputWithProductCategoryDTO();
@@ -155,7 +155,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/planningUnit")
+    @GetMapping("/planningUnit")
     public ResponseEntity getPlanningUnitDropDownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -167,7 +167,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/planningUnit/filter/productCategory")
+    @PostMapping("/planningUnit/filter/productCategory")
     public ResponseEntity getPlanningUnitFilterForProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -179,7 +179,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/forecastingUnit/autocomplete")
+    @PostMapping("/forecastingUnit/autocomplete")
     public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -191,7 +191,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDown3View.class)
-    @GetMapping("/dropdown/forecastingUnit/autocomplete/filter/tracerCategory/{searchText}/{language}/{tracerCategoryId}")
+    @GetMapping("/forecastingUnit/autocomplete/filter/tracerCategory/{searchText}/{language}/{tracerCategoryId}")
     public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
             AutocompleteInputWithTracerCategoryDTO aci = new AutocompleteInputWithTracerCategoryDTO();
@@ -207,7 +207,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/forecastingUnit")
+    @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -219,7 +219,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/forecastingUnit/filter/pcAndTc")
+    @PostMapping("/forecastingUnit/filter/pcAndTc")
     public ResponseEntity getForecastingUnitDropdownListWithFilterForPcAndTc(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -231,7 +231,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/realmCountry/realm/{realmId}")
+    @GetMapping("/realmCountry/realm/{realmId}")
     public ResponseEntity getRealmCountryDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -243,7 +243,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/healthArea/realm/{realmId}")
+    @GetMapping("/healthArea/realm/{realmId}")
     public ResponseEntity getHealthAreaDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -255,7 +255,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/organisation/realm/{realmId}")
+    @GetMapping("/organisation/realm/{realmId}")
     public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -267,7 +267,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/organisation/realmCountryId/{realmCountryId}")
+    @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -279,7 +279,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/tracerCategory")
+    @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategoryDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -291,7 +291,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/tracerCategory/filter/multiplePrograms")
+    @PostMapping("/tracerCategory/filter/multiplePrograms")
     public ResponseEntity getTracerCategoryDropdownList(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -303,7 +303,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/fundingSource")
+    @GetMapping("/fundingSource")
     public ResponseEntity getFundingSourceDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -315,7 +315,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/procurementAgent")
+    @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgentDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -327,7 +327,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/procurementAgent/filter/multiplePrograms")
+    @PostMapping("/procurementAgent/filter/multiplePrograms")
     public ResponseEntity getProcurementAgentDropdownListForFilterMultiplePrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -339,7 +339,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/equivalencyUnit")
+    @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -351,7 +351,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/user")
+    @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -363,7 +363,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/planningUnit/program/filter/multipleProgramAndTracerCategory")
+    @PostMapping("/planningUnit/program/filter/multipleProgramAndTracerCategory")
     public ResponseEntity getProgramPlanningUnitDropdownList(@RequestBody MultipleProgramAndTracerCategoryDTO input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -375,7 +375,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/planningUnit/dataset/filter/programAndVersion")
+    @PostMapping("/planningUnit/dataset/filter/programAndVersion")
     public ResponseEntity getDatasetPlanningUnitDropdownList(@RequestBody ProgramAndVersionDTO input, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -387,7 +387,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/budget/filter/multipleFundingSources")
+    @PostMapping("/budget/filter/multipleFundingSources")
     public ResponseEntity getBudgetDropdownFilterMultipleFundingSources(@RequestBody String[] fundingSources, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -399,7 +399,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/budget/program/{programId}")
+    @GetMapping("/budget/program/{programId}")
     public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -411,7 +411,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/version/filter/programTypeId/{programTypeId}/programId/{programId}")
+    @GetMapping("/version/filter/programTypeId/{programTypeId}/programId/{programId}")
     public ResponseEntity getVersionListForProgram(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -423,7 +423,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/dropdown/version/filter/programTypeId/{programTypeId}/programs")
+    @PostMapping("/version/filter/programTypeId/{programTypeId}/programs")
     public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -435,7 +435,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/dropdown/treeTemplate")
+    @GetMapping("/treeTemplate")
     public ResponseEntity getTreeTemplateList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
