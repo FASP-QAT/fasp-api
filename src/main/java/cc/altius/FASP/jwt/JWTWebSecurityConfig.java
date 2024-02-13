@@ -410,8 +410,8 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/dropdown/version/filter/programTypeId/**").hasAnyAuthority("ROLE_BF_MANUAL_INTEGRATION")
                         .requestMatchers(HttpMethod.GET,"/api/dropdown/organisation/realmCountryId/**").hasAnyAuthority("ROLE_BF_ADD_DATASET","ROLE_BF_EDIT_DATASET","ROLE_BF_EDIT_PROGRAM","ROLE_BF_SET_UP_PROGRAM")
                         .requestMatchers(HttpMethod.GET,"/api/dropdown/treeTemplate").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES")
-                        .requestMatchers(HttpMethod.GET,"/api/dropdown/forecastingUnit/autocomplete/filter/tracerCategory/**").hasAnyAuthority("ROLE_BF_LIST_USAGE_TEMPLATE")
-                        .requestMatchers(HttpMethod.GET,"/api/dropdown/planningUnit/autocomplete/filter/productCategory/**").hasAnyAuthority("ROLE_BF_LIST_PLANNING_UNIT_SETTING")
+//                        .requestMatchers(HttpMethod.GET,"/api/dropdown/forecastingUnit/autocomplete/filter/tracerCategory/**").hasAnyAuthority("ROLE_BF_LIST_USAGE_TEMPLATE")
+//                        .requestMatchers(HttpMethod.GET,"/api/dropdown/planningUnit/autocomplete/filter/productCategory/**").hasAnyAuthority("ROLE_BF_LIST_PLANNING_UNIT_SETTING")
 //                        .anyRequest().authenticated()
                 );
 
