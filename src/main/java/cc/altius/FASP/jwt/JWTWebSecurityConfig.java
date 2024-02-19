@@ -127,6 +127,8 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboard").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/applicationLevelDashboardUserList").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/ticket/openIssues").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD", "ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.POST,"/api/ticket/addIssue").hasAnyAuthority("ROLE_BF_TICKETING")
+                        .requestMatchers(HttpMethod.POST,"/api/ticket/addIssueAttachment/**").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET,"/api/supplyPlanReviewerLevelDashboard").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.GET,"/api/realmLevelDashboard").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.GET,"/api/realmLevelDashboardUserList").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
