@@ -204,7 +204,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/usagePeriod/all").hasAnyAuthority("ROLE_BF_LIST_USAGE_PERIOD","ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET,"/api/usagePeriod/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_USAGE_TEMPLATE","ROLE_BF_LIST_USAGE_PERIOD")
                         .requestMatchers(HttpMethod.POST,"/api/usagePeriod/**").hasAnyAuthority("ROLE_BF_LIST_USAGE_PERIOD")
-                        .requestMatchers(HttpMethod.POST,"/api/unit/dimension/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_USAGE_TEMPLATE")
+                        .requestMatchers(HttpMethod.GET,"/api/unit/dimension/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_USAGE_TEMPLATE")
                         .requestMatchers(HttpMethod.POST,"/api/unit/**").hasAnyAuthority("ROLE_BF_ADD_UNIT")
                         .requestMatchers(HttpMethod.PUT,"/api/unit/**").hasAnyAuthority("ROLE_BF_EDIT_UNIT")
                         .requestMatchers(HttpMethod.GET,"/api/unit").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING","ROLE_BF_ADD_FORECASTING_UNIT","ROLE_BF_EDIT_FORECASTING_UNIT","ROLE_BF_ADD_PLANNING_UNIT","ROLE_BF_EDIT_PLANNING_UNIT","ROLE_BF_ADD_PROCUREMENT_UNIT","ROLE_BF_EDIT_PROCUREMENT_UNIT","ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT","ROLE_BF_LIST_USAGE_TEMPLATE")
