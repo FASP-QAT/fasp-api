@@ -1,10 +1,28 @@
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  akil
+ * Created: 22-Feb-2024
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusReportVertical`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`stockStatusReportVertical`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16
     -- %%%%%%%%%%%%%%%%%%%%%
     
-    SET @startDate = VAR_START_DATE;
+    SET @startDate = VAR_START_DATE; 
     SET @stopDate = VAR_STOP_DATE;
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;
@@ -159,4 +177,8 @@ BEGIN
         mn.MONTH BETWEEN @startDate AND @stopDate 
     ORDER BY mn.MONTH, sh.sHIPMENT_ID) AS s2;
     
-END
+END$$
+
+DELIMITER ;
+;
+
