@@ -7,7 +7,6 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.JiraServiceDeskIssuesDTO;
-import javax.mail.Multipart;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
