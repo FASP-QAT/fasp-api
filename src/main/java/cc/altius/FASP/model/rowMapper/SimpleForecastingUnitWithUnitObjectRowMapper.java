@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 /**
  *
- * @author rohit
+ * @author akil
  */
 public class SimpleForecastingUnitWithUnitObjectRowMapper implements RowMapper<SimpleForecastingUnitWithUnitObject> {
 

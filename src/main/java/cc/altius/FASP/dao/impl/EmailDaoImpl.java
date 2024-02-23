@@ -12,17 +12,18 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
 import cc.altius.utils.DateUtils;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import java.net.PasswordAuthentication;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -133,9 +134,10 @@ public class EmailDaoImpl implements EmailDao {
             props.setProperty("mail.user", from);
             props.setProperty("mail.password", password);
             props.setProperty("mail.debug", "true");
-            Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
+            Session session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                    return new jakarta.mail.PasswordAuthentication(from, password);
                 }
             });
 
