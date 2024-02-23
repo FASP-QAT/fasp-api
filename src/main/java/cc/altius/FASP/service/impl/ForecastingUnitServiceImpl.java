@@ -21,6 +21,7 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleProgram;
 import java.util.LinkedList;
@@ -131,7 +132,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
+    public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitDropdownList(curUser);
     }
 
