@@ -20,7 +20,7 @@ import java.util.List;
  * @author altius
  */
 public interface UserService {
-
+    
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
