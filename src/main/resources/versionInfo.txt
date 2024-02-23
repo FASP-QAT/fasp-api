@@ -18,6 +18,11 @@ QAT-3824
 QAT-2649
 Spring Boot V3, Mysql V8 and Java V17
 
+APP Version: 2.66.4627
+Front End Version: 11681
+Date: 2024-02-14
+QAT-4268
+
 APP Version: 2.66.4438
 Front End Version: 11618
 Date: 2024-02-06
@@ -510,6 +515,11 @@ QAT-2371
 QAT-890
 QAT-887
 QAT-867
+
+APP Version: 2.47.4018
+Front End Version: 10489
+Date: 2023-05-18
+Commit Bug
 
 APP Version: 2.47.4018
 Front End Version: 10489
