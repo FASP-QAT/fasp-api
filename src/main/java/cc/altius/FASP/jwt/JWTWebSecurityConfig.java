@@ -193,6 +193,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/role/**").hasAnyAuthority("ROLE_BF_EDIT_ROLE")
                         .requestMatchers(HttpMethod.POST,"/api/role/**").hasAnyAuthority("ROLE_BF_ADD_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/api/role/**").hasAnyAuthority("ROLE_BF_EDIT_ROLE")
+                        .requestMatchers(HttpMethod.POST,"/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.POST,"/api/user/**").hasAnyAuthority("ROLE_BF_ADD_USER")
                         .requestMatchers(HttpMethod.PUT,"/api/user/**").hasAnyAuthority("ROLE_BF_LIST_USER","ROLE_BF_EDIT_USER")
                         .requestMatchers(HttpMethod.GET,"/api/user").hasAnyAuthority("ROLE_BF_LIST_USER")
@@ -402,6 +403,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/dimension").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
                         .requestMatchers(HttpMethod.GET,"/api/dimension/**").hasAnyAuthority("ROLE_BF_EDIT_DIMENSION")
                         .requestMatchers(HttpMethod.GET,"/api/realmCountry/**").hasAnyAuthority("ROLE_BF_MAP_REGION","ROLE_BF_PIPELINE_PROGRAM_IMPORT")
+                        .requestMatchers(HttpMethod.POST,"/api/forecastStats/**").hasAnyAuthority("ROLE_BF_EXTRAPOLATION")
                         .requestMatchers("/api/dropdown/**").hasAnyAuthority("ROLE_BF_TICKETING")
 //                        .anyRequest().authenticated()
                 );
