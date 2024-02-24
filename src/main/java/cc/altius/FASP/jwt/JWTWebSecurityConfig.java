@@ -86,7 +86,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, refreshPath).permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/logout").permitAll()
+                        .requestMatchers("/api/logout").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/favicon.ico**").permitAll()
                         .requestMatchers("/actuator**").permitAll()
