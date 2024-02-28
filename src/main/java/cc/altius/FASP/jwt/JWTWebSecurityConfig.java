@@ -111,6 +111,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/exportShipmentLinkingData/**").permitAll()
                         .requestMatchers("/jira/syncJiraAccountIds/**").permitAll()
                         .requestMatchers("/api/processCommitRequest/**").permitAll()
+                        .requestMatchers("/api/rebuildSupplyPlans").permitAll()
                                 
                         .requestMatchers(HttpMethod.POST,"/api/budget").hasAnyAuthority("ROLE_BF_ADD_BUDGET")
                         .requestMatchers(HttpMethod.GET,"/api/budget").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_LIST_BUDGET")
@@ -196,6 +197,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/role/**").hasAnyAuthority("ROLE_BF_EDIT_ROLE")
                         .requestMatchers(HttpMethod.POST,"/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.POST,"/api/programData/getLatestVersionForPrograms","/api/user/module/**").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
+                        .requestMatchers(HttpMethod.POST,"/api/user/agreement").hasAnyAuthority("ROLE_BF_MASTER_DATA_SYNC")
                         .requestMatchers(HttpMethod.POST,"/api/user/**").hasAnyAuthority("ROLE_BF_ADD_USER")
                         .requestMatchers(HttpMethod.PUT,"/api/user/**").hasAnyAuthority("ROLE_BF_LIST_USER","ROLE_BF_EDIT_USER")
                         .requestMatchers(HttpMethod.GET,"/api/user").hasAnyAuthority("ROLE_BF_LIST_USER")
