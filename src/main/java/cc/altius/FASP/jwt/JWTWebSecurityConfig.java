@@ -272,7 +272,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/loadProgram/programId/**").hasAnyAuthority("ROLE_BF_DOWNLOAD_PROGARM")
                         .requestMatchers(HttpMethod.POST,"/api/program/realmCountryList").hasAnyAuthority("ROLE_BF_INVENTORY_TURNS_REPORT")
                         .requestMatchers(HttpMethod.POST,"/api/program/productCategoryList").hasAnyAuthority("ROLE_BF_INVENTORY_TURNS_REPORT")
-                        .requestMatchers(HttpMethod.POST,"/api/program/**").hasAnyAuthority("ROLE_BF_CREATE_A_PROGRAM","ROLE_BF_ADD_PROGRAM_PRODUCT","ROLE_BF_MAP_PROCUREMENT_AGENT")
+                        .requestMatchers(HttpMethod.POST,"/api/program/**").hasAnyAuthority("ROLE_BF_CREATE_A_PROGRAM","ROLE_BF_ADD_PROGRAM_PRODUCT","ROLE_BF_MAP_PROCUREMENT_AGENT","ROLE_BF_LIST_IMPORT_FROM_QAT_SUPPLY_PLAN")
                         .requestMatchers(HttpMethod.PUT,"/api/program").hasAnyAuthority("ROLE_BF_EDIT_PROGRAM")
                         .requestMatchers(HttpMethod.GET,"/api/organisation/realmId/**").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_PIPELINE_PROGRAM_IMPORT","ROLE_BF_CREATE_A_PROGRAM")
                         .requestMatchers(HttpMethod.PUT,"/api/region").hasAnyAuthority("ROLE_BF_TICKETING")
