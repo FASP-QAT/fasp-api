@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static jxl.biff.BaseCellFeatures.logger;
 
 /**
  *
@@ -86,11 +87,14 @@ public class MasterSupplyPlan implements Serializable {
 
     private void updateOpeningBalance(NewSupplyPlan nsp) throws ParseException {
         NewSupplyPlan prevNsp = getPrevMonth(nsp.getPlanningUnitId(), nsp.getPrevTransDate());
+        logger.info("Prev NSP PU Id "+nsp.getPlanningUnitId()+ "Trans Date "+nsp.getPrevTransDate()+" Prev Nsp"+prevNsp);
         if (prevNsp == null) {
             nsp.setOpeningBalance(0);
             nsp.setOpeningBalanceWps(0);
         } else {
+            logger.info("Prev Closing Balance "+prevNsp.getClosingBalance());
             nsp.setOpeningBalance(prevNsp.getClosingBalance());
+            logger.info("NSP Opening Balance "+nsp.getOpeningBalance());
             nsp.setOpeningBalanceWps(prevNsp.getClosingBalanceWps());
             for (BatchData bd : prevNsp.getBatchDataList()) {
                 BatchData newBd = new BatchData();
