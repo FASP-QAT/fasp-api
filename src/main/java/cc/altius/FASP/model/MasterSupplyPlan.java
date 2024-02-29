@@ -14,13 +14,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static jxl.biff.BaseCellFeatures.logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author akil
  */
 public class MasterSupplyPlan implements Serializable {
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /* introduced newBatchCounter in this class */
     private int programId;
