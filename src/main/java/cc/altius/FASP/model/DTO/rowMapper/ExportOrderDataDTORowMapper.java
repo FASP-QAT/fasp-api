@@ -23,7 +23,7 @@ public class ExportOrderDataDTORowMapper implements RowMapper<ExportOrderDataDTO
         e.setSkuCode(rs.getString("SKU_CODE"));
         e.setProgramId(rs.getInt("PROGRAM_ID"));
         e.setProcurementAgentCode(rs.getString("PROCUREMENT_AGENT_CODE"));
-        e.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+        e.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
         e.setExpectedDeliveryDate(rs.getDate("EXPECTED_DELIVERY_DATE"));
         e.setTracerCategoryId(rs.getInt("TRACER_CATEGORY_ID"));
         e.setTracerCategoryDesc(rs.getString("TRACER_CATEGORY_DESC"));

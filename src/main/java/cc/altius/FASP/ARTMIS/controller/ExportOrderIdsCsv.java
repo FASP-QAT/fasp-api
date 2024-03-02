@@ -107,7 +107,7 @@ public class ExportOrderIdsCsv {
                     fileWriter.append(',');
                     fileWriter.append(e.getProcurementAgentCode());
                     fileWriter.append(',');
-                    fileWriter.append(Integer.toString(e.getShipmentQty()));
+                    fileWriter.append(Long.toString(e.getShipmentQty()));
                     fileWriter.append(',');
                     fileWriter.append(DateUtils.formatDate(e.getExpectedDeliveryDate(), DateUtils.YMD));
                     fileWriter.append(',');
