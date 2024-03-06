@@ -12,7 +12,8 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
-import static jxl.biff.BaseCellFeatures.logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class TestRestController {
     private ProgramService programService;
     @Autowired
     private EmailService emailService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @PostMapping(path = "/aclTest")
     public ResponseEntity postCheckAccessToProgram(@RequestBody Integer[] programIdList, Authentication auth) {
