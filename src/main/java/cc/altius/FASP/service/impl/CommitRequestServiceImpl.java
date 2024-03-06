@@ -27,7 +27,8 @@ import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.util.List;
-import static jxl.biff.BaseCellFeatures.logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     private UserService userService;
     @Autowired
     private EmailService emailService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
@@ -139,12 +141,6 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                             sbBccEmails.append(ns.getEmailId()).append(",");
                                         }
                                     }
-//                                if (sbToEmails.length() != 0) {
-//                                    System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-//                                }
-//                                if (sbCcEmails.length() != 0) {
-//                                    System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-//                                }
                                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                                     String[] subjectParam = new String[]{};
                                     String[] bodyParam = null;
@@ -154,8 +150,11 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
-                                    this.emailService.sendMail(emailer);
-                                    logger.info("Emails sent out");
+                                    if (this.emailService.sendMail(emailer)==1) {
+                                        logger.info("Emails sent out");
+                                    } else {
+                                        logger.info("Email could not be sent out");
+                                    }
                                 }
                             }
                         } catch (ParseException pe) {
