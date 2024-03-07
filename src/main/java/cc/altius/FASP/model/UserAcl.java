@@ -154,7 +154,7 @@ public class UserAcl implements Serializable {
         final UserAcl other = (UserAcl) obj;
         if (this.userId != other.userId) {
             return false;
-        }
+    }
         if (this.realmCountryId != other.realmCountryId) {
             return false;
         }

@@ -47,4 +47,26 @@ public class BasicUser implements Serializable {
         this.username = username;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + this.userId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BasicUser other = (BasicUser) obj;
+        return this.userId == other.userId;
+    }
+
 }

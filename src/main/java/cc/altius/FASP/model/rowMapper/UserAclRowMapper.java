@@ -21,7 +21,7 @@ public class UserAclRowMapper implements RowMapper<UserAcl> {
         UserAcl userAcl = new UserAcl();
         userAcl.setUserId(rs.getInt("USER_ID"));
         userAcl.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
-        userAcl.setCountryName(new LabelRowMapper("COUNTRY_").mapRow(rs, rowNum));
+        userAcl.setCountryName(new LabelRowMapper("REALM_COUNTRY_").mapRow(rs, rowNum));
         userAcl.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
         userAcl.setHealthAreaName(new LabelRowMapper("HEALTH_AREA_").mapRow(rs, rowNum));
         userAcl.setOrganisationId(rs.getInt("ORGANISATION_ID"));

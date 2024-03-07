@@ -150,54 +150,45 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/user")
+    /**
+     * If the user is an Application level user and you want users from all
+     * Realms pass -1 if you want Users from a specific Realm pass the RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/user/realmId/{realmId}")
     @JsonView(Views.UserListView.class)
-    public ResponseEntity getUserList(Authentication auth) {
+    public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.userService.getUserList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.userService.getUserList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Could not get User list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping(value = "/user/realmId/{realmId}")
+    /**
+     * If the user is an Application level user and you want users from all
+     * Realms pass -1 if you want Users from a specific Realm pass the RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/user/acl/realmId/{realmId}")
     @JsonView(Views.UserListView.class)
-    public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
+    public ResponseEntity getUserAclList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.userService.getUserListForRealm(realmId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Could not get User list for RealmId=" + realmId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Could not get User list for RealmId=" + realmId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.userService.getUserAclList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Could not get User list for RealmId=" + realmId, e);
+            logger.error("Could not get User list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping(value = "/user/programId/{programId}")
-    @JsonView(Views.UserListView.class)
-    public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Could not get User list for ProgramId=" + programId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Could not get User list for ProgramId=" + programId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Could not get User list for ProgramId=" + programId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
 
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {

@@ -12,24 +12,19 @@ import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.UserAclDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ForgotPasswordToken;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,9 +43,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AclService aclService;
 
-//    @Value("${urlHost}")
-//    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
     @Value("${urlHost}")
     private String HOST_URL;
     @Value("${urlPasswordReset}")
@@ -71,10 +63,6 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getCustomUserByUserId(userId);
     }
 
-//    @Override
-//    public Map<String, Object> checkIfUserExists(String username, String password) {
-//        return this.userDao.checkIfUserExists(username, password);
-//    }
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         return this.userDao.resetFailedAttemptsByUsername(emailId);
@@ -101,8 +89,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserList(CustomUserDetails curUser) {
-        return this.userDao.getUserList(curUser);
+    public List<User> getUserList(int realmId, CustomUserDetails curUser) {
+        return this.userDao.getUserList(realmId, curUser);
+    }
+
+    @Override
+    public List<UserAclDTO> getUserAclList(int realmId, CustomUserDetails curUser) {
+        return this.userDao.getUserAclList(realmId, curUser);
     }
 
     @Override
@@ -111,18 +104,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        Realm r = this.realmDao.getRealmById(realmId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.userDao.getUserListForRealm(realmId, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+    public List<BasicUser> getUserDropDownList(int realmId, CustomUserDetails curUser) {
+        return this.userDao.getUserDropDownList(realmId, curUser);
     }
+    
+//    @Override
+//    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
+//        Realm r = this.realmDao.getRealmById(realmId, curUser);
+//        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+//            return this.userDao.getUserListForRealm(realmId, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
+//    }
 
     @Override
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        return this.userDao.getUserListForProgram(programId, curUser);
+    public List<BasicUser> getUserDropDownListForProgram(int programId, CustomUserDetails curUser) {
+        return this.userDao.getUserDropDownListForProgram(programId, curUser);
     }
 
     @Override

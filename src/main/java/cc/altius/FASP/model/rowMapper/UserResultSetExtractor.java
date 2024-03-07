@@ -9,7 +9,6 @@ import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
-import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.rest.controller.UserRestController;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,18 +51,18 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
             if (user.getRoleList().indexOf(r) == -1) {
                 user.getRoleList().add(r);
             }
-            if (rs.getInt("USER_ACL_ID") != 0) {
-                UserAcl acl = new UserAcl(
-                        user.getUserId(),
-                        rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
-                        rs.getInt("ACL_HEALTH_AREA_ID"), new LabelRowMapper("ACL_HEALTH_AREA_").mapRow(rs, 1),
-                        rs.getInt("ACL_ORGANISATION_ID"), new LabelRowMapper("ACL_ORGANISATION_").mapRow(rs, 1),
-                        rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1),
-                        rs.getString("ACL_LAST_MODIFIED_DATE"));
-                if (user.getUserAclList().indexOf(acl) == -1) {
-                    user.getUserAclList().add(acl);
-                }
-            }
+//            if (rs.getInt("USER_ACL_ID") != 0) {
+//                UserAcl acl = new UserAcl(
+//                        user.getUserId(),
+//                        rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
+//                        rs.getInt("ACL_HEALTH_AREA_ID"), new LabelRowMapper("ACL_HEALTH_AREA_").mapRow(rs, 1),
+//                        rs.getInt("ACL_ORGANISATION_ID"), new LabelRowMapper("ACL_ORGANISATION_").mapRow(rs, 1),
+//                        rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1),
+//                        rs.getString("ACL_LAST_MODIFIED_DATE"));
+//                if (user.getUserAclList().indexOf(acl) == -1) {
+//                    user.getUserAclList().add(acl);
+//                }
+//            }
             String bf = new String(rs.getString("BUSINESS_FUNCTION_ID"));
             if (user.getBusinessFunctionList().indexOf(bf) == -1) {
                 user.getBusinessFunctionList().add(bf);

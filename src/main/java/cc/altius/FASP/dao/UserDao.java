@@ -10,6 +10,7 @@ import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.UserAclDTO;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
@@ -37,13 +38,17 @@ public interface UserDao {
 
     public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
 
-    public List<User> getUserList(CustomUserDetails curUser);
+    public List<User> getUserList(int realmId, CustomUserDetails curUser);
+    
+    public List<UserAclDTO> getUserAclList(int realmId, CustomUserDetails curUser);
     
     public List<BasicUser> getUserDropDownList(CustomUserDetails curUser);
-
-    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
     
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
+    public List<BasicUser> getUserDropDownList(int realmId, CustomUserDetails curUser);
+
+//    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
+    
+    public List<BasicUser> getUserDropDownListForProgram(int programId, CustomUserDetails curUser);
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
