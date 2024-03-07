@@ -102,7 +102,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers("/api/updatePassword/**").permitAll()
                         //                .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/updateExpiredPassword/**").permitAll()
-                        .requestMatchers("/exportSupplyPlan/**").permitAll()
+                        .requestMatchers("/exportSupplyPlan/**","/exportManualJson").permitAll()
                         .requestMatchers("/exportProgramData/**").permitAll()
                         .requestMatchers("/exportOrderData/**").permitAll()
                         .requestMatchers("/importShipmentData/**").permitAll()
