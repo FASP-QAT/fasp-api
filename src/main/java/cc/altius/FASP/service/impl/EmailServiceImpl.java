@@ -81,15 +81,27 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    /**
+     * Returns -1 if the scheduler is off and it cannot send out the email
+     * Returns 0 if it failed to send out the email Returns 1 if the email was
+     * sent out
+     *
+     * @param emailer
+     * @return -1 if the scheduler is off and it cannot send out the
+     * email, 0 if it failed to send out the email and 1 if the email
+     * was sent out
+     */
     @Override
-    public void sendMail(Emailer emailer) {
+    public int sendMail(Emailer emailer) {
         try {
             if (SCHEDULER_ACTIVE.equals("1")) {
-//                System.out.println("---------------send email------------------");
-                this.emailDao.sendMail(emailer);
+                return this.emailDao.sendMail(emailer);
+            } else {
+                return -1;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return 0;
         }
     }
 
