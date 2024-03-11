@@ -1,3 +1,15 @@
+APP Version: 2.68.4538
+Front End Version: 11689
+Date: 2024-03-11
+QAT-4498
+QAT-4494
+QAT-4485
+QAT-4315
+QAT-4280
+QAT-4268
+QAT-3785
+QAT-3472
+
 APP Version: 2.67.4529
 Front End Version: 11675
 Date: 2024-02-29
