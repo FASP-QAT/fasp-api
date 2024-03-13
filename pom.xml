@@ -58,7 +58,7 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>cc.altius</groupId>
+            <groupId>cc.altius.utils</groupId>
             <artifactId>altiusUtilsMaven</artifactId>
             <version>1.37</version>
         </dependency>
