@@ -121,7 +121,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/api/dataSourceType").hasAnyAuthority("ROLE_BF_EDIT_DATA_SOURCE_TYPE")
                         .requestMatchers(HttpMethod.GET,"/api/dataSourceType").hasAnyAuthority("ROLE_BF_LIST_DATA_SOURCE_TYPE","ROLE_BF_PIPELINE_PROGRAM_IMPORT","ROLE_BF_EDIT_DATA_SOURCE_TYPE")
                         .requestMatchers(HttpMethod.GET,"/api/dataSourceType/all").hasAnyAuthority("ROLE_BF_LIST_DATA_SOURCE_TYPE","ROLE_BF_LIST_DATA_SOURCE")
-                        .requestMatchers(HttpMethod.GET,"/api/dataSourceType/realmId/**").hasAnyAuthority("ROLE_BF_ADD_DATA_SOURCE")
+                        .requestMatchers(HttpMethod.GET,"/api/dataSourceType/realmId/**").hasAnyAuthority("ROLE_BF_ADD_DATA_SOURCE","ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET,"/api/dataSourceType/**").hasAnyAuthority("ROLE_BF_EDIT_DATA_SOURCE_TYPE")
                         .requestMatchers(HttpMethod.GET,"/api/equivalencyUnit/mapping/all").hasAnyAuthority("ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING","ROLE_BF_LIST_MONTHLY_FORECAST","ROLE_BF_FORECAST_ERROR_OVER_TIME_REPORT")
                         .requestMatchers(HttpMethod.POST,"/api/equivalencyUnit/mapping").hasAnyAuthority("ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING")
