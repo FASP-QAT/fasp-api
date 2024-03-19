@@ -165,7 +165,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/role/**").hasAnyAuthority("ROLE_BF_EDIT_ROLE")
                         .requestMatchers(HttpMethod.POST,"/api/role/**").hasAnyAuthority("ROLE_BF_ADD_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/api/role/**").hasAnyAuthority("ROLE_BF_EDIT_ROLE")
-                        .requestMatchers(HttpMethod.POST,"/api/programData/getLatestVersionForPrograms","/api/user/module/**","/api/user/agreement","/api/programData/checkNewerVersions").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/api/programData/getLatestVersionForPrograms","/api/user/module/**","/api/user/agreement","/api/programData/checkNewerVersions","/api/changePassword").authenticated()
                         .requestMatchers(HttpMethod.POST,"/api/user/**").hasAnyAuthority("ROLE_BF_ADD_USER")
                         .requestMatchers(HttpMethod.PUT,"/api/user/**").hasAnyAuthority("ROLE_BF_LIST_USER","ROLE_BF_EDIT_USER")
                         .requestMatchers(HttpMethod.GET,"/api/user").hasAnyAuthority("ROLE_BF_LIST_USER")
