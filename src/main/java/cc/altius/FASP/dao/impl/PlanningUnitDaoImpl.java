@@ -429,17 +429,12 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
         params.clear();
         sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID` , pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR "
-                + "FROM rm_program_planning_unit ppu "
-                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "FROM vw_planning_unit pu "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
                 + "WHERE "
                 + "    FIND_IN_SET(fu.PRODUCT_CATEGORY_ID,:finalProductCategoryIds) "
                 + "    AND pu.ACTIVE "
-                + "    AND fu.ACTIVE "
-                + "    AND ppu.ACTIVE "
-                + "    AND p.ACTIVE ");
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+                + "    AND fu.ACTIVE ");
         sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID ORDER BY pu.LABEL_EN");
         params.put("finalProductCategoryIds", finalProductCategoryIds);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());

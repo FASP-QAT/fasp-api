@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `buildNewSupplyPlanRegion`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`buildNewSupplyPlanRegion`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildNewSupplyPlanRegion`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
@@ -171,4 +180,8 @@ BEGIN
     order by tn.PLANNING_UNIT_ID,tn.TRANS_DATE,tn.REGION_ID
     ;
 
-END
+END$$
+
+DELIMITER ;
+;
+
