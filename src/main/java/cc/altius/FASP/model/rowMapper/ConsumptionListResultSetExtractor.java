@@ -45,7 +45,8 @@ public class ConsumptionListResultSetExtractor implements ResultSetExtractor<Lis
                             new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                             new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1)))));
             c.setRealmCountryPlanningUnit(new SimpleObject(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("RCPU_").mapRow(rs, idx)));
-            c.setMultiplier(rs.getDouble("MULTIPLIER"));
+            c.setConversionNumber(rs.getDouble("CONVERSION_NUMBER"));
+            c.setConversionMethod(rs.getDouble("CONVERSION_METHOD"));
             c.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             c.setConsumptionDate(rs.getString("CONSUMPTION_DATE"));
             c.setActualFlag(rs.getBoolean("ACTUAL_FLAG"));

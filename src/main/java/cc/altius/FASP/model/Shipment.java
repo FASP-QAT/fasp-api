@@ -30,7 +30,11 @@ public class Shipment implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.InternalView.class})
-    private SimpleObjectWithMultiplier realmCountryPlanningUnit;
+    private SimpleObject realmCountryPlanningUnit;
+    @JsonView({Views.InternalView.class})
+    private double conversionNumber;
+    @JsonView({Views.InternalView.class})
+    private double conversionMethod;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -464,11 +468,11 @@ public class Shipment implements Serializable {
         this.tempShipmentId = tempShipmentId;
     }
 
-    public SimpleObjectWithMultiplier getRealmCountryPlanningUnit() {
+    public SimpleObject getRealmCountryPlanningUnit() {
         return realmCountryPlanningUnit;
     }
 
-    public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
+    public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
     }
 
@@ -478,6 +482,22 @@ public class Shipment implements Serializable {
 
     public void setShipmentRcpuQty(long shipmentRcpuQty) {
         this.shipmentRcpuQty = shipmentRcpuQty;
+    }
+
+    public double getConversionNumber() {
+        return conversionNumber;
+    }
+
+    public void setConversionNumber(double conversionNumber) {
+        this.conversionNumber = conversionNumber;
+    }
+
+    public double getConversionMethod() {
+        return conversionMethod;
+    }
+
+    public void setConversionMethod(double conversionMethod) {
+        this.conversionMethod = conversionMethod;
     }
 
     @Override

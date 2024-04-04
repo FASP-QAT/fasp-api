@@ -13,7 +13,6 @@ import cc.altius.FASP.model.SimpleBudgetObject;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleProcurementAgentObject;
 import java.sql.ResultSet;
@@ -52,7 +51,9 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
-            s.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("RCPU_ID"), new LabelRowMapper("RCPU_").mapRow(rs, 1), rs.getDouble("RCPU_MULTIPLIER")));
+            s.setRealmCountryPlanningUnit(new SimpleObject(rs.getInt("RCPU_ID"), new LabelRowMapper("RCPU_").mapRow(rs, 1)));
+            s.setConversionNumber(rs.getDouble("CONVERSION_NUMBER"));
+            s.setConversionMethod(rs.getInt("CONVERSION_METHOD"));
             s.setParentLinkedShipmentId(rs.getInt("PARENT_LINKED_SHIPMENT_ID"));
             if(rs.wasNull()) {
                 s.setParentLinkedShipmentId(null);
