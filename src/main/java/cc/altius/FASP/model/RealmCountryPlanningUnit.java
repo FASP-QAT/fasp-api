@@ -18,9 +18,9 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
     private SimpleObject planningUnit;
     private String skuCode;
     private Label label;
-    private double multiplier;
+    private int conversionMethod; // 1 for Multiply and 2 for Divide
+    private double conversionNumber;
     private Unit unit;
-//    private String gtin;
 
     public RealmCountryPlanningUnit() {
     }
@@ -71,13 +71,22 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.label = label;
     }
 
-    public double getMultiplier() {
-        return multiplier;
+    public int getConversionMethod() {
+        return conversionMethod;
     }
 
-    public void setMultiplier(double multiplier) {
-        this.multiplier = multiplier;
+    public void setConversionMethod(int conversionMethod) {
+        this.conversionMethod = conversionMethod;
     }
+
+    public double getConversionNumber() {
+        return conversionNumber;
+    }
+
+    public void setConversionNumber(double conversionNumber) {
+        this.conversionNumber = conversionNumber;
+    }
+
 
     public Unit getUnit() {
         return unit;
@@ -87,12 +96,6 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.unit = unit;
     }
 
-//    public String getGtin() {
-//        return gtin;
-//    }
-//    public void setGtin(String gtin) {
-//        this.gtin = gtin;
-//    }
     @Override
     public int hashCode() {
         int hash = 7;
@@ -120,7 +123,7 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
 
     @Override
     public String toString() {
-        return "RealmCountryPlanningUnit{" + "realmCountryPlanningUnitId=" + realmCountryPlanningUnitId + ", realmCountry=" + realmCountry + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", label=" + label + ", multiplier=" + multiplier + ", unit=" + unit + '}';
+        return "RealmCountryPlanningUnit{" + "realmCountryPlanningUnitId=" + realmCountryPlanningUnitId + ", realmCountry=" + realmCountry + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", label=" + label + ", conversionMethod=" + conversionMethod + ", conversionNumber=" + conversionNumber + ", unit=" + unit + '}';
     }
 
 }
