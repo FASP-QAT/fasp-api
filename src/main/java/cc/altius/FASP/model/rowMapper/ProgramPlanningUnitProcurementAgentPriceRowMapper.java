@@ -27,6 +27,22 @@ public class ProgramPlanningUnitProcurementAgentPriceRowMapper implements RowMap
         ppupa.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         ppupa.setProgram(new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i)));
         ppupa.setPrice(rs.getDouble("PROGRAM_PRICE"));
+        ppupa.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
+        if (rs.wasNull()) {
+            ppupa.setSeaFreightPerc(null);
+        }
+        ppupa.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
+        if (rs.wasNull()) {
+            ppupa.setAirFreightPerc(null);
+        }
+        ppupa.setRoadFreightPerc(rs.getDouble("ROAD_FREIGHT_PERC"));
+        if (rs.wasNull()) {
+            ppupa.setRoadFreightPerc(null);
+        }
+        ppupa.setLocalProcurementLeadTime(rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setLocalProcurementLeadTime(null);
+        }
         ppupa.setBaseModel(new BaseModelRowMapper("PPUPA_").mapRow(rs, i));
         return ppupa;
     }

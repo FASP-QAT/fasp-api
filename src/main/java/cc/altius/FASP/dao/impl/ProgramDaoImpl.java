@@ -695,7 +695,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,    "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,    "
                 + "    p2.PROGRAM_ID, p2.LABEL_ID `PROGRAM_LABEL_ID`, p2.LABEL_EN `PROGRAM_LABEL_EN`, p2.LABEL_FR `PROGRAM_LABEL_FR`, p2.LABEL_SP `PROGRAM_LABEL_SP`, p2.LABEL_PR `PROGRAM_LABEL_PR`,  "
-                + "    ppupa.PRICE `PROGRAM_PRICE`,  "
+                + "    ppupa.PRICE `PROGRAM_PRICE`, ppupa.`SEA_FREIGHT_PERC`, ppupa.`AIR_FREIGHT_PERC`, ppupa.`ROAD_FREIGHT_PERC`, ppupa.`LOCAL_PROCUREMENT_LEAD_TIME`,  "
                 + "    cb2.USER_ID `PPUPA_CB_USER_ID`, cb2.USERNAME `PPUPA_CB_USERNAME`, lmb2.USER_ID `PPUPA_LMB_USER_ID`, lmb2.USERNAME `PPUPA_LMB_USERNAME`, ppupa.ACTIVE `PPUPA_ACTIVE`, ppupa.CREATED_DATE `PPUPA_CREATED_DATE`, ppupa.LAST_MODIFIED_DATE `PPUPA_LAST_MODIFIED_DATE` "
                 + "FROM rm_program_planning_unit_procurement_agent ppupa "
                 + "LEFT JOIN rm_program_planning_unit ppu ON ppupa.PROGRAM_PLANNING_UNIT_ID=ppu.PROGRAM_PLANNING_UNIT_ID "
@@ -733,6 +733,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("PROGRAM_PLANNING_UNIT_ID", ppupa.getProgramPlanningUnitId());
                 params.put("PROCUREMENT_AGENT_ID", ppupa.getProcurementAgent().getId());
                 params.put("PRICE", ppupa.getPrice());
+                params.put("SEA_FREIGHT_PERC", ppupa.getSeaFreightPerc());
+                params.put("AIR_FREIGHT_PERC", ppupa.getAirFreightPerc());
+                params.put("ROAD_FREIGHT_PERC", ppupa.getRoadFreightPerc());
+                params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppupa.getLocalProcurementLeadTime());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
@@ -744,6 +748,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 params = new HashMap<>();
                 params.put("programPlanningUnitProcurementAgentId", ppupa.getProgramPlanningUnitProcurementAgentId());
                 params.put("price", ppupa.getPrice());
+                params.put("seaFreightPerc", ppupa.getSeaFreightPerc());
+                params.put("airFreightPerc", ppupa.getAirFreightPerc());
+                params.put("roadFreightPerc", ppupa.getRoadFreightPerc());
+                params.put("localProcurementLeadTime", ppupa.getLocalProcurementLeadTime());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppupa.isActive());
@@ -760,6 +768,10 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "rm_program_planning_unit_procurement_agent ppupa "
                     + "SET "
                     + "ppupa.PRICE=:price, "
+                    + "ppupa.SEA_FREIGHT_PERC=:seaFreightPerc, "
+                    + "ppupa.AIR_FREIGHT_PERC=:airFreightPerc, "
+                    + "ppupa.ROAD_FREIGHT_PERC=:roadFreightPerc, "
+                    + "ppupa.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, "
                     + "ppupa.ACTIVE=:active, "
                     + "ppupa.LAST_MODIFIED_DATE=:curDate, "
                     + "ppupa.LAST_MODIFIED_BY=:curUser "

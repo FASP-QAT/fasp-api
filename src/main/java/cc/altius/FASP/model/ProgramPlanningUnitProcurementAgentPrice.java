@@ -19,6 +19,10 @@ public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implemen
     private SimpleObject planningUnit;
     private SimpleObject program;
     private Double price;
+    private Double seaFreightPerc;
+    private Double airFreightPerc;
+    private Double roadFreightPerc;
+    private Double localProcurementLeadTime;
 
     public int getProgramPlanningUnitProcurementAgentId() {
         return programPlanningUnitProcurementAgentId;
@@ -66,6 +70,38 @@ public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implemen
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getSeaFreightPerc() {
+        return seaFreightPerc;
+    }
+
+    public void setSeaFreightPerc(Double seaFreightPerc) {
+        this.seaFreightPerc = seaFreightPerc;
+    }
+
+    public Double getAirFreightPerc() {
+        return airFreightPerc;
+    }
+
+    public void setAirFreightPerc(Double airFreightPerc) {
+        this.airFreightPerc = airFreightPerc;
+    }
+
+    public Double getRoadFreightPerc() {
+        return roadFreightPerc;
+    }
+
+    public void setRoadFreightPerc(Double roadFreightPerc) {
+        this.roadFreightPerc = roadFreightPerc;
+    }
+
+    public Double getLocalProcurementLeadTime() {
+        return localProcurementLeadTime;
+    }
+
+    public void setLocalProcurementLeadTime(Double localProcurementLeadTime) {
+        this.localProcurementLeadTime = localProcurementLeadTime;
     }
 
 }
