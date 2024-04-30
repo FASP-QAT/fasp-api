@@ -8,7 +8,7 @@ Up to the point of going Opensource we have released all of the code on the `mas
 To get the latest Release version you can always pull from the `master2` branch
 In progress development code can be pulled from the `devMod2` branch
 
-Information on how to build  and host plus additional technical information is provided in our Technical documentation located in the docs folder. 
+Information on how to build  and host plus additional technical information is provided in our [Technical documentation](https://https://github.com/HSS-FASP-Team/fasp-api/edit/master2/docs/QAT-technical-manual.md) located in the docs folder. 
 
 Permission is hereby granted, free of charge, by Chemonics International Inc. to any person or organization obtaining a copy of the software and accompanying documentation covered by this license (the "Software") to use, reproduce, display, distribute, execute, and transmit the Software, and to prepare derivative works of the Software, and to permit third parties to whom the Software is furnished to do so, all subject to the following:
  
