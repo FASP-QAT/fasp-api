@@ -12,8 +12,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,7 +28,8 @@ public class MasterSupplyPlan implements Serializable {
     private List<NewSupplyPlan> nspList;
     private static final String REGION_FILE = "/home/akil/Desktop/region.txt";
     private static final String BATCH_FILE = "/home/akil/Desktop/batch.txt";
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     public MasterSupplyPlan() {
         this.newBatchCounter = -1;
     }
@@ -226,7 +227,7 @@ public class MasterSupplyPlan implements Serializable {
             myWriter.write(batchString.toString());
             myWriter.close();
         } catch (IOException ex) {
-            Logger.getLogger(MasterSupplyPlan.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
         }
     }
 
