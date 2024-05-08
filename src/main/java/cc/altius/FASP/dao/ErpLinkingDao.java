@@ -14,8 +14,10 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
@@ -23,6 +25,7 @@ import cc.altius.FASP.model.ShipmentLinkedToOtherProgramInput;
 import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.utils.TreeUtils.Node;
 import java.util.List;
 
 /**
@@ -51,7 +54,7 @@ public interface ErpLinkingDao {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(int programId,int versionId);
+    public List<ERPNotificationDTO> getNotificationList(int programId, int versionId);
 
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
 
@@ -87,4 +90,6 @@ public interface ErpLinkingDao {
     public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo);
 
     public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
+
+    public List<ProductCategory> getProductCategoryListForRealmCountryForErpLinking(CustomUserDetails curUser, int realmCountryId);
 }
