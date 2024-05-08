@@ -367,12 +367,12 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/productCategoryList/active")
+    @PostMapping("/planningUnit/productCategoryList/active/realmCountryId/{realmCountryId}")
     @JsonView(Views.ReportView.class)
-    public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, Authentication auth) {
+    public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, @PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategoryList(productCategoryIds, true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategoryList(productCategoryIds,realmCountryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
