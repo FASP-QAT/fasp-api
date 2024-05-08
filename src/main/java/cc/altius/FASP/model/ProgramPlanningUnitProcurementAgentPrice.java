@@ -22,6 +22,13 @@ public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implemen
     private Double seaFreightPerc;
     private Double airFreightPerc;
     private Double roadFreightPerc;
+    private Double plannedToSubmittedLeadTime;
+    private Double submittedToApprovedLeadTime;
+    private Double approvedToShippedLeadTime;
+    private Double shippedToArrivedByAirLeadTime;
+    private Double shippedToArrivedBySeaLeadTime;
+    private Double shippedToArrivedByRoadLeadTime;
+    private Double arrivedToDeliveredLeadTime;
     private Double localProcurementLeadTime;
 
     public int getProgramPlanningUnitProcurementAgentId() {
@@ -94,6 +101,62 @@ public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implemen
 
     public void setRoadFreightPerc(Double roadFreightPerc) {
         this.roadFreightPerc = roadFreightPerc;
+    }
+
+    public Double getPlannedToSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
+    }
+
+    public void setPlannedToSubmittedLeadTime(Double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
+    }
+
+    public Double getSubmittedToApprovedLeadTime() {
+        return submittedToApprovedLeadTime;
+    }
+
+    public void setSubmittedToApprovedLeadTime(Double submittedToApprovedLeadTime) {
+        this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+    }
+
+    public Double getApprovedToShippedLeadTime() {
+        return approvedToShippedLeadTime;
+    }
+
+    public void setApprovedToShippedLeadTime(Double approvedToShippedLeadTime) {
+        this.approvedToShippedLeadTime = approvedToShippedLeadTime;
+    }
+
+    public Double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
+    }
+
+    public void setShippedToArrivedByAirLeadTime(Double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    public Double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
+    }
+
+    public void setShippedToArrivedBySeaLeadTime(Double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public Double getShippedToArrivedByRoadLeadTime() {
+        return shippedToArrivedByRoadLeadTime;
+    }
+
+    public void setShippedToArrivedByRoadLeadTime(Double shippedToArrivedByRoadLeadTime) {
+        this.shippedToArrivedByRoadLeadTime = shippedToArrivedByRoadLeadTime;
+    }
+
+    public Double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(Double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
     public Double getLocalProcurementLeadTime() {

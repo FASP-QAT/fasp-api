@@ -39,6 +39,34 @@ public class ProgramPlanningUnitProcurementAgentPriceRowMapper implements RowMap
         if (rs.wasNull()) {
             ppupa.setRoadFreightPerc(null);
         }
+        ppupa.setPlannedToSubmittedLeadTime(rs.getDouble("PLANNED_TO_SUBMITTED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setPlannedToSubmittedLeadTime(null);
+        }
+        ppupa.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setSubmittedToApprovedLeadTime(null);
+        }
+        ppupa.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setApprovedToShippedLeadTime(null);
+        }
+        ppupa.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setShippedToArrivedByAirLeadTime(null);
+        }
+        ppupa.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setShippedToArrivedBySeaLeadTime(null);
+        }
+        ppupa.setShippedToArrivedByRoadLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setShippedToArrivedByRoadLeadTime(null);
+        }
+        ppupa.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            ppupa.setArrivedToDeliveredLeadTime(null);
+        }
         ppupa.setLocalProcurementLeadTime(rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"));
         if (rs.wasNull()) {
             ppupa.setLocalProcurementLeadTime(null);
