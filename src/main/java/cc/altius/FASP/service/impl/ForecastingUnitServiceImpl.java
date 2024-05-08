@@ -16,6 +16,7 @@ import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
@@ -64,7 +65,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
+    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
         if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
             return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
         } else {
@@ -73,7 +74,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
+    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
         ForecastingUnit pr = this.getForecastingUnitById(forecastingUnit.getForecastingUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pr.getRealm().getId())) {
             return this.forecastingUnitDao.updateForecastingUnit(forecastingUnit, curUser);
