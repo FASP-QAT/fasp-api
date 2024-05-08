@@ -76,9 +76,9 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
 
     @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
-        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE fu.LABEL_EN=:forecastingUnitName";
+        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE LOWER(fu.LABEL_EN)=:forecastingUnitName";
         Map<String, Object> params = new HashMap<>();
-        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en());
+        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en().toLowerCase());
         int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (count > 0) {
             throw new DuplicateNameException("Forecasting unit with same name already exists");
@@ -105,9 +105,9 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
 
     @Override
     public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
-        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE fu.LABEL_EN=:forecastingUnitName AND fu.FORECASTING_UNIT_ID!=:forecastingUnitId";
+        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE LOWER(fu.LABEL_EN)=:forecastingUnitName AND fu.FORECASTING_UNIT_ID!=:forecastingUnitId";
         Map<String, Object> params = new HashMap<>();
-        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en());
+        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en().toLowerCase());
         params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
         int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (count > 0) {
