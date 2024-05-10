@@ -1,3 +1,8 @@
+APP Version: 2.72.4572
+Front End Version: 11811
+Date: 2024-05-10
+Bug for update program
+
 APP Version: 2.72.4571
 Front End Version: 11809
 Date: 2024-05-07
