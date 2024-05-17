@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
@@ -37,9 +38,9 @@ public interface PlanningUnitService {
 
     public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser);
 
-    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser);
+    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
-    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser);
+    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser);
 
