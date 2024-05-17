@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
@@ -127,60 +128,77 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException {
+        String sqlString = "SELECT COUNT(*) FROM vw_planning_unit pu WHERE LOWER(pu.LABEL_EN)=:planningUnitName";
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(planningUnit.getLabel(), LabelConstants.RM_PLANNING_UNIT, curUser.getUserId());
-        params.put("LABEL_ID", labelId);
-        params.put("FORECASTING_UNIT_ID", planningUnit.getForecastingUnit().getForecastingUnitId());
-        params.put("UNIT_ID", planningUnit.getUnit().getId());
-        params.put("MULTIPLIER", planningUnit.getMultiplier());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+        params.put("planningUnitName", planningUnit.getLabel().getLabel_en().toLowerCase());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Planning unit with same name already exists");
+        } else {
+            params.clear();
+            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            int labelId = this.labelDao.addLabel(planningUnit.getLabel(), LabelConstants.RM_PLANNING_UNIT, curUser.getUserId());
+            params.put("LABEL_ID", labelId);
+            params.put("FORECASTING_UNIT_ID", planningUnit.getForecastingUnit().getForecastingUnitId());
+            params.put("UNIT_ID", planningUnit.getUnit().getId());
+            params.put("MULTIPLIER", planningUnit.getMultiplier());
+            params.put("ACTIVE", true);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            return si.executeAndReturnKey(params).intValue();
+        }
     }
 
     @Override
-    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
-                + "SET  "
-                + "    pu.MULTIPLIER=:multiplier, "
-                + "    pu.UNIT_ID=:unitId, "
-                + "    pu.ACTIVE=:active, "
-                + "    pu.LAST_MODIFIED_BY=:curUser, "
-                + "    pu.LAST_MODIFIED_DATE=:curDate, "
-                + "    pul.LABEL_EN=:labelEn, "
-                + "    pul.LAST_MODIFIED_BY=:curUser, "
-                + "    pul.LAST_MODIFIED_DATE=:curDate "
-                + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
+    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException {
+        String sqlString = "SELECT COUNT(*) FROM vw_planning_unit pu WHERE LOWER(pu.LABEL_EN)=:planningUnitName AND pu.PLANNING_UNIT_ID!=:planningUnitId";
         Map<String, Object> params = new HashMap<>();
+        params.put("planningUnitName", planningUnit.getLabel().getLabel_en().toLowerCase());
         params.put("planningUnitId", planningUnit.getPlanningUnitId());
-        params.put("unitId", planningUnit.getUnit().getId());
-        params.put("active", planningUnit.isActive());
-        params.put("labelEn", planningUnit.getLabel().getLabel_en());
-        params.put("curUser", curUser.getUserId());
-        params.put("curDate", curDate);
-        params.put("multiplier", planningUnit.getMultiplier());
-        int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Planning unit with same name already exists");
+        } else {
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            params.clear();
+            sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                    + "SET  "
+                    + "    pu.MULTIPLIER=:multiplier, "
+                    + "    pu.UNIT_ID=:unitId, "
+                    + "    pu.ACTIVE=:active, "
+                    + "    pu.LAST_MODIFIED_BY=:curUser, "
+                    + "    pu.LAST_MODIFIED_DATE=:curDate, "
+                    + "    pul.LABEL_EN=:labelEn, "
+                    + "    pul.LAST_MODIFIED_BY=:curUser, "
+                    + "    pul.LAST_MODIFIED_DATE=:curDate "
+                    + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
+            params.put("planningUnitId", planningUnit.getPlanningUnitId());
+            params.put("unitId", planningUnit.getUnit().getId());
+            params.put("active", planningUnit.isActive());
+            params.put("labelEn", planningUnit.getLabel().getLabel_en());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            params.put("multiplier", planningUnit.getMultiplier());
+            int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
 
-        if (!planningUnit.isActive()) {
-            // Program planning unit
-            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            // Procurement agent planning unit
-            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            // Procurement unit and procurement agent procurement unit
-            sqlString = "UPDATE rm_procurement_unit p LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` SET p.`ACTIVE`=0, pu.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser,pu.LAST_MODIFIED_DATE=:curDate, pu.LAST_MODIFIED_BY=:curUser "
-                    + "WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
+            if (!planningUnit.isActive()) {
+                // Program planning unit
+                sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                // Procurement agent planning unit
+                sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                // Procurement unit and procurement agent procurement unit
+                sqlString = "UPDATE rm_procurement_unit p LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` SET p.`ACTIVE`=0, pu.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser,pu.LAST_MODIFIED_DATE=:curDate, pu.LAST_MODIFIED_BY=:curUser "
+                        + "WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+            return rows;
         }
-        return rows;
     }
 
     @Override

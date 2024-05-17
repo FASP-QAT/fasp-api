@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProcurementUnitDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProcurementUnit;
@@ -69,7 +70,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
     }
 
     @Override
-    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
+    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) throws DuplicateNameException {
         PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(procurementUnit.getPlanningUnit().getPlanningUnitId(), curUser);
         if (pu == null) {
             throw new EmptyResultDataAccessException(1);
@@ -82,7 +83,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
     }
 
     @Override
-    public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
+    public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) throws DuplicateNameException {
         ProcurementUnit pr = this.procurementUnitDao.getProcurementUnitById(procurementUnit.getProcurementUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pr.getPlanningUnit().getForecastingUnit().getRealm().getId())) {
             return this.procurementUnitDao.updateProcurementUnit(procurementUnit, curUser);
