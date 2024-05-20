@@ -1,3 +1,21 @@
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  akil
+ * Created: 20-May-2024
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusOverTime`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`stockStatusOverTime`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusOverTime`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
 
@@ -82,4 +100,8 @@ BEGIN
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
 
-END
+END$$
+
+DELIMITER ;
+;
+
