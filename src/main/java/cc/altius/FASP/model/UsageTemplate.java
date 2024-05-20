@@ -23,7 +23,7 @@ public class UsageTemplate extends BaseModel implements Serializable {
     private int lagInMonths;
     private SimpleObject usageType;
     private int noOfPatients;
-    private int noOfForecastingUnits;
+    private double noOfForecastingUnits;
     private boolean oneTimeUsage;
     private UsagePeriod usageFrequencyUsagePeriod;
     private Double usageFrequencyCount;
@@ -114,11 +114,11 @@ public class UsageTemplate extends BaseModel implements Serializable {
         this.noOfPatients = noOfPatients;
     }
 
-    public int getNoOfForecastingUnits() {
+    public double getNoOfForecastingUnits() {
         return noOfForecastingUnits;
     }
 
-    public void setNoOfForecastingUnits(int noOfForecastingUnits) {
+    public void setNoOfForecastingUnits(double noOfForecastingUnits) {
         this.noOfForecastingUnits = noOfForecastingUnits;
     }
 
