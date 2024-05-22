@@ -1,3 +1,19 @@
+APP Version: 2.72.4572
+Front End Version: 11811
+Date: 2024-05-10
+Bug for update program
+
+APP Version: 2.72.4571
+Front End Version: 11809
+Date: 2024-05-07
+QAT-4667
+QAT-4665
+QAT-4629
+QAT-4628
+QAT-4624
+QAT-4521
+QAT-3799
+
 APP Version: 2.71.4566
 Front End Version: 11789
 Date: 2024-04-23

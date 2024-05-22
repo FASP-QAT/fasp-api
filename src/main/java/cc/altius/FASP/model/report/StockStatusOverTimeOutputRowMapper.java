@@ -45,6 +45,8 @@ public class StockStatusOverTimeOutputRowMapper implements RowMapper<StockStatus
         if(rs.wasNull()) {
             s.setMos(null);
         }
+        s.setMosFuture(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
+        s.setMosPast(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
         return s;
     }
 

@@ -12,10 +12,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  *
@@ -30,8 +28,8 @@ public class MasterSupplyPlan implements Serializable {
     private List<NewSupplyPlan> nspList;
     private static final String REGION_FILE = "/home/akil/Desktop/region.txt";
     private static final String BATCH_FILE = "/home/akil/Desktop/batch.txt";
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     public MasterSupplyPlan() {
         this.newBatchCounter = -1;
     }
@@ -89,14 +87,14 @@ public class MasterSupplyPlan implements Serializable {
 
     private void updateOpeningBalance(NewSupplyPlan nsp) throws ParseException {
         NewSupplyPlan prevNsp = getPrevMonth(nsp.getPlanningUnitId(), nsp.getPrevTransDate());
-        logger.info("Prev NSP PU Id "+nsp.getPlanningUnitId()+ "Trans Date "+nsp.getPrevTransDate()+" Prev Nsp"+prevNsp);
+        logger.debug("Prev NSP PU Id "+nsp.getPlanningUnitId()+ "Trans Date "+nsp.getPrevTransDate()+" Prev Nsp"+prevNsp);
         if (prevNsp == null) {
             nsp.setOpeningBalance(0);
             nsp.setOpeningBalanceWps(0);
         } else {
-            logger.info("Prev Closing Balance "+prevNsp.getClosingBalance());
+            logger.debug("Prev Closing Balance "+prevNsp.getClosingBalance());
             nsp.setOpeningBalance(prevNsp.getClosingBalance());
-            logger.info("NSP Opening Balance "+nsp.getOpeningBalance());
+            logger.debug("NSP Opening Balance "+nsp.getOpeningBalance());
             nsp.setOpeningBalanceWps(prevNsp.getClosingBalanceWps());
             for (BatchData bd : prevNsp.getBatchDataList()) {
                 BatchData newBd = new BatchData();
@@ -166,8 +164,8 @@ public class MasterSupplyPlan implements Serializable {
                 .append("CaFEW").append("\t")
                 .append("UnLEW").append("\t")
                 .append("CaLEW").append("\t")
-//                .append("UnalCW").append("\t")
-//                .append("CaclCW").append("\t")
+                //                .append("UnalCW").append("\t")
+                //                .append("CaclCW").append("\t")
                 .append("CB").append("\t")
                 .append("CBW").append("\r\n");
         this.nspList.forEach(nsp -> {
@@ -232,7 +230,7 @@ public class MasterSupplyPlan implements Serializable {
             myWriter.write(batchString.toString());
             myWriter.close();
         } catch (IOException ex) {
-            Logger.getLogger(MasterSupplyPlan.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
         }
     }
 
