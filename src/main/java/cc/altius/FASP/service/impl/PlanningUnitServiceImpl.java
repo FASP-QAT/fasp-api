@@ -202,9 +202,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser) {
         if (productCategoryIds != null && productCategoryIds.length != 0) {
-            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, active, curUser);
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds,realmCountryId, active, curUser);
         } else {
             return null;
         }
