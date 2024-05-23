@@ -420,7 +420,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, int realmCountryId, boolean active, CustomUserDetails curUser) {
         StringBuilder subBuilder = new StringBuilder("SELECT DISTINCT(pc2.PRODUCT_CATEGORY_ID) `PRODUCT_CATEGORY_ID` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,\"%\") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, :productCategoryList) ");
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryList", String.join(",", productCategoryIds));
@@ -428,13 +428,35 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc3.`PRODUCT_CATEGORY_ID`) `allProductCategories` FROM (").append(subBuilder).append(") AS pc3");
         String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
         params.clear();
-        sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID` , pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR "
-                + "FROM vw_planning_unit pu "
-                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "WHERE "
-                + "    FIND_IN_SET(fu.PRODUCT_CATEGORY_ID,:finalProductCategoryIds) "
-                + "    AND pu.ACTIVE "
-                + "    AND fu.ACTIVE ");
+        String setDateQuery = "SET @dt = CURDATE() - INTERVAL 6 MONTH;";
+        String setCountryIdQuery = "SET @realmCountryId = ?;";
+        this.jdbcTemplate.update(setDateQuery);
+        this.jdbcTemplate.update(setCountryIdQuery, realmCountryId);
+        String getCountryNameQuery = "SELECT c.LABEL_EN INTO @countryName FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.REALM_COUNTRY_ID=@realmCountryId";
+        this.jdbcTemplate.execute(getCountryNameQuery);
+        sqlStringBuilder = new StringBuilder("SELECT  "
+                + "    pu.PLANNING_UNIT_ID ID, pu.LABEL_ID LABEL_ID, pu.LABEL_EN LABEL_EN, pu.LABEL_FR LABEL_FR, pu.LABEL_SP LABEL_SP, pu.LABEL_PR LABEL_PR "
+                + "FROM rm_erp_order_consolidated e  "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE   "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,'') OR ''='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE   "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.EXTERNAL_STATUS_STAGE=COALESCE(s.STATUS, e.STATUS)   "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  AND sl.ACTIVE  "
+                + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE   "
+                + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID   "
+                + "WHERE e.RECPIENT_COUNTRY=@countryName AND e.ACTIVE "
+                + "AND ( "
+                + "            ( "
+                + "                COALESCE(s.ACTUAL_DELIVERY_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE,e.AGREED_DELIVERY_DATE,e.REQ_DELIVERY_DATE) < @dt "
+                + "                AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15)  "
+                + "            ) "
+                + "        OR  "
+                + "            ( "
+                + "            COALESCE(s.ACTUAL_DELIVERY_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE,e.AGREED_DELIVERY_DATE,e.REQ_DELIVERY_DATE) >= @dt "
+                + "            AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) "
+                + "            ) "
+                + "        ) "
+                + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL AND FIND_IN_SET(fu.PRODUCT_CATEGORY_ID,:finalProductCategoryIds) AND pu.ACTIVE AND fu.ACTIVE   ");
         sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID ORDER BY pu.LABEL_EN");
         params.put("finalProductCategoryIds", finalProductCategoryIds);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());

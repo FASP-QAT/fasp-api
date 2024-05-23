@@ -497,4 +497,15 @@ public class ErpLinkingRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/api/erpLinking/productCategory/realmCountryId/{realmCountryId}")
+    public ResponseEntity getProductCategoryListForRealmCountryForErpLinking(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.erpLinkingService.getProductCategoryListForRealmCountryForErpLinking(curUser, realmCountryId), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Product Category", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -56,7 +56,7 @@ public interface PlanningUnitDao {
 
     public List<PlanningUnit> getPlanningUnitListForProductCategory(String productCategorySortOrder, boolean active, CustomUserDetails curUser);
 
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser);
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
 
