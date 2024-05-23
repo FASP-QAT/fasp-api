@@ -35,10 +35,8 @@ public class Inventory implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private double conversionNumber;
+    private double multiplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private double conversionMethod;
-    @JsonView({Views.GfpVanView.class})
     private double conversionFactor;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double actualQty;
@@ -129,20 +127,12 @@ public class Inventory implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getConversionNumber() {
-        return conversionNumber;
+    public double getMultiplier() {
+        return multiplier;
     }
 
-    public void setConversionNumber(double conversionNumber) {
-        this.conversionNumber = conversionNumber;
-    }
-
-    public double getConversionMethod() {
-        return conversionMethod;
-    }
-
-    public void setConversionMethod(double conversionMethod) {
-        this.conversionMethod = conversionMethod;
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public double getConversionFactor() {

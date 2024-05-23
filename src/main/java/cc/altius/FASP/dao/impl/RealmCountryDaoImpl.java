@@ -303,6 +303,9 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         StringBuilder updatedRCPUList = new StringBuilder();
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
+                if (rcpu.getConversionMethod() != 1 && rcpu.getConversionMethod() != 2) {
+                    throw new CouldNotSaveException("Incorrect Conversion method for ARU:" + rcpu.getSkuCode());
+                }
                 // Insert
                 params = new HashMap<>();
                 params.put("PLANNING_UNIT_ID", rcpu.getPlanningUnit().getId());
@@ -321,6 +324,9 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 insertList.add(new MapSqlParameterSource(params));
             } else {
                 // Update
+                if (rcpu.getConversionMethod() != 1 && rcpu.getConversionMethod() != 2) {
+                    throw new CouldNotSaveException("Incorrect Conversion method for ARU:" + rcpu.getSkuCode());
+                }
                 updatedRCPUList.append(rcpu.getRealmCountryPlanningUnitId()).append(",");
                 params = new HashMap<>();
                 params.put("realmCountryPlanningUnitId", rcpu.getRealmCountryPlanningUnitId());

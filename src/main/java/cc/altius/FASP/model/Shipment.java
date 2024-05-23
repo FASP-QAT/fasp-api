@@ -32,9 +32,7 @@ public class Shipment implements Serializable {
     @JsonView({Views.InternalView.class})
     private SimpleObject realmCountryPlanningUnit;
     @JsonView({Views.InternalView.class})
-    private double conversionNumber;
-    @JsonView({Views.InternalView.class})
-    private double conversionMethod;
+    private double multiplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -484,20 +482,12 @@ public class Shipment implements Serializable {
         this.shipmentRcpuQty = shipmentRcpuQty;
     }
 
-    public double getConversionNumber() {
-        return conversionNumber;
+    public double getMultiplier() {
+        return multiplier;
     }
 
-    public void setConversionNumber(double conversionNumber) {
-        this.conversionNumber = conversionNumber;
-    }
-
-    public double getConversionMethod() {
-        return conversionMethod;
-    }
-
-    public void setConversionMethod(double conversionMethod) {
-        this.conversionMethod = conversionMethod;
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
 
     @Override

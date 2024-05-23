@@ -26,7 +26,7 @@ public class JwtUnAuthorizedResponseAuthenticationEntryPoint implements Authenti
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        logger.info("Unauthorized or Invalid Token detected", request.getRemoteAddr(), null, request.getRequestURI());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"You would need to provide the Jwt Token to access this resource");
+        logger.info("Unauthorized or Invalid Token detected RemoteAddr->" + request.getRemoteAddr() + ", RequestURI->" + request.getRequestURI());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You would need to provide the Jwt Token to access this resource");
     }
 }

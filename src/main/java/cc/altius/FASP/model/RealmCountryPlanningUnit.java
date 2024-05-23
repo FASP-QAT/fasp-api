@@ -87,13 +87,24 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.conversionNumber = conversionNumber;
     }
 
-
     public Unit getUnit() {
         return unit;
     }
 
     public void setUnit(Unit unit) {
         this.unit = unit;
+    }
+
+    public double getMultiplier() {
+        switch (this.conversionMethod) {
+            case 1:
+            case 0:
+                return this.conversionNumber;
+            case 2:
+                return 1.0 / this.conversionNumber;
+            default:
+                return 0;
+        }
     }
 
     @Override
