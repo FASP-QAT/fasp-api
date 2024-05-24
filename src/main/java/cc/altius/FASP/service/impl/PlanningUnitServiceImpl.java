@@ -13,6 +13,7 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
@@ -258,6 +259,11 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitForDatasetByProgramAndVersion(input, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(input, curUser);
     }
 
 }

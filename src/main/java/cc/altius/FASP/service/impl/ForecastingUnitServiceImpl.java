@@ -141,4 +141,9 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
         return this.forecastingUnitDao.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser);
     }
 
+    @Override
+    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser);
+    }
+
 }
