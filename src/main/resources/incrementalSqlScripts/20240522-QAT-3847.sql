@@ -47,3 +47,18 @@ LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_lan
 SET ap_static_label_languages.LABEL_TEXT='Remova apenas as remessas que não cumprem o prazo de entrega' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
 and ap_static_label_languages.LANGUAGE_ID=4;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.tab1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenario Supply Plan');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Plan d`approvisionnement du scénario');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plan de suministro de escenario');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Plano de Fornecimento de Cenário');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.tab2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Local/Server Supply Plan - V');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Plan d`approvisionnement local/serveur - V');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plan de suministro local/servidor - V');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Plano de Fornecimento Local/Servidor - V');-- pr
+
