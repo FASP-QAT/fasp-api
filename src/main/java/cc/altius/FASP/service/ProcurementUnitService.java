@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementUnit;
 import java.util.List;
@@ -21,9 +22,9 @@ public interface ProcurementUnitService {
 
     public List<ProcurementUnit> getProcurementUnitListByPlanningUnit(int planningUnitId, boolean active, CustomUserDetails curUser);
 
-    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser);
+    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
-    public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser);
+    public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser);
 
