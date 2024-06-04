@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
@@ -26,9 +27,9 @@ public interface ForecastingUnitDao {
     
     public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser);
 
-    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser);
+    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
-    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser);
+    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser);
 

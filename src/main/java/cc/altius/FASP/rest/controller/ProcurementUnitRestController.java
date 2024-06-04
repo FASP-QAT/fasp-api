@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.ResponseCode;
@@ -47,6 +48,9 @@ public class ProcurementUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.procurementUnitService.addProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (DuplicateNameException de) {
+            logger.error("Error while trying to add ProcurementUnit", de);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add ProcurementUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -62,6 +66,9 @@ public class ProcurementUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.procurementUnitService.updateProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (DuplicateNameException de) {
+            logger.error("Error while trying to udpate ProcurementUnit", de);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ProcurementUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
