@@ -22,29 +22,29 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione Meses no Fut
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.whatIf.removePlannedShipments','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Remove all Planned shipments');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Supprimer toutes les expéditions planifiées');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eliminar todos los envíos planificados');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remover todas as remessas planejadas');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Remove Planned shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Supprimer les expéditions planifiées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eliminar envíos planificados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remover remessas planejadas');-- pr
 
 UPDATE ap_static_label_languages
 LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
-SET ap_static_label_languages.LABEL_TEXT='Remove only those shipments that do not comply with the lead time' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
+SET ap_static_label_languages.LABEL_TEXT='Remove only planned shipments that do not comply with the lead time' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
 and ap_static_label_languages.LANGUAGE_ID=1;
 
 UPDATE ap_static_label_languages
 LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
-SET ap_static_label_languages.LABEL_TEXT='Supprimez uniquement les expéditions qui ne respectent pas les délais' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
+SET ap_static_label_languages.LABEL_TEXT='Supprimez uniquement les expéditions planifiées qui ne respectent pas les délais' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
 and ap_static_label_languages.LANGUAGE_ID=2;
 
 UPDATE ap_static_label_languages
 LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
-SET ap_static_label_languages.LABEL_TEXT='Retire sólo aquellos envíos que no cumplan con el plazo de entrega' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
+SET ap_static_label_languages.LABEL_TEXT='Eliminar solo los envíos planificados que no cumplan con el plazo de entrega' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
 and ap_static_label_languages.LANGUAGE_ID=3;
 
 UPDATE ap_static_label_languages
 LEFT JOIN ap_static_label ON ap_static_label.STATIC_LABEL_ID=ap_static_label_languages.STATIC_LABEL_ID
-SET ap_static_label_languages.LABEL_TEXT='Remova apenas as remessas que não cumprem o prazo de entrega' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
+SET ap_static_label_languages.LABEL_TEXT='Remova apenas remessas planejadas que não cumpram o prazo de entrega' where ap_static_label.LABEL_CODE='static.whatIf.removePlannedShipmentsNotInLeadTimes' 
 and ap_static_label_languages.LANGUAGE_ID=4;
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.scenarioPlanning.tab1','1'); 
