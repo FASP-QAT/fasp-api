@@ -215,6 +215,7 @@ public class ProgramRestController {
         }
     }
 
+    // List of Programs and List of PlanningUnitIds instead of single select
     @GetMapping("/program/planningUnit/procurementAgent/{programPlanningUnitId}")
     public ResponseEntity getProgramPlanningUnitProcurementAgent(@PathVariable("programPlanningUnitId") int programPlanningUnitId, Authentication auth) {
         try {
@@ -229,6 +230,7 @@ public class ProgramRestController {
         }
     }
 
+//    Allow for -1 in PlanningUnit
     @PutMapping("/program/planningingUnit/procurementAgent")
     public ResponseEntity saveProgramPlanningUnitProcurementAgentPrices(@RequestBody ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, Authentication auth) {
         try {
