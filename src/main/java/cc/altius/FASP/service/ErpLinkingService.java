@@ -16,6 +16,7 @@ import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.ShipmentLinkingOutput;
 import cc.altius.FASP.model.Shipment;
@@ -51,7 +52,7 @@ public interface ErpLinkingService {
 
     public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
 
-    public List<ERPNotificationDTO> getNotificationList(int programId,int versionId);
+    public List<ERPNotificationDTO> getNotificationList(int programId, int versionId);
 
     public int updateNotification(List<ERPNotificationDTO> eRPNotificationDTOList, CustomUserDetails curUser);
 
@@ -73,12 +74,14 @@ public interface ErpLinkingService {
     public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab3(NotLinkedErpShipmentsInputTab3 input, CustomUserDetails curUser);
 
     public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser);
-    
+
     public Map<Integer, List<ShipmentLinkingOutput>> getShipmentListForSync(List<ShipmentSyncInput> shipmentSyncInputList, CustomUserDetails curUser) throws ParseException;
-    
+
     public List<ShipmentLinkedToOtherProgramOutput> getShipmentLinkedToOtherProgram(ShipmentLinkedToOtherProgramInput shipmentInput, CustomUserDetails curUser);
-    
+
     public ArtmisHistory getArtmisHistory(String roNo, int roPrimeLineNo);
-    
+
     public List<LinkedShipmentBatchDetails> getBatchDetails(List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, CustomUserDetails curUser);
+
+    public List<ProductCategory> getProductCategoryListForRealmCountryForErpLinking(CustomUserDetails curUser, int realmCountryId);
 }

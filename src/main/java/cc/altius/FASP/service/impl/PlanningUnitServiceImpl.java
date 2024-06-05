@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
@@ -93,7 +94,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
+    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException {
         ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(planningUnit.getForecastingUnit().getForecastingUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
             return this.planningUnitDao.addPlanningUnit(planningUnit, curUser);
@@ -103,7 +104,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
+    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException {
         PlanningUnit pr = this.getPlanningUnitById(planningUnit.getPlanningUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId())) {
             return this.planningUnitDao.updatePlanningUnit(planningUnit, curUser);
@@ -202,9 +203,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser) {
         if (productCategoryIds != null && productCategoryIds.length != 0) {
-            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, active, curUser);
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds,realmCountryId, active, curUser);
         } else {
             return null;
         }
