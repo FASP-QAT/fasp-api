@@ -117,8 +117,8 @@ public class Consumption implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getMultiplies() {
-        return this.multiplier;
+    public double getMultiplier() {
+        return multiplier;
     }
 
     public void setMultiplier(double multiplier) {
