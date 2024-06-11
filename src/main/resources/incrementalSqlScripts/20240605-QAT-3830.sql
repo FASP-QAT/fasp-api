@@ -89,3 +89,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PU Cost + Freight Cost
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût PU + coût de transport');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo de PU + Costo de flete');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo PU + Custo de Frete');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentTooltip.orderQtyPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Order Qty (ARU) * Conversion Factor');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité commandée (ARU) * Facteur de conversion');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de pedido (ARU) * Factor de conversión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade do pedido (ARU) * Fator de conversão');-- pr
