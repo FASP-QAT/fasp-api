@@ -38,6 +38,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimpleProgram;
@@ -158,8 +159,6 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
-    
-
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -237,16 +236,19 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  "
             + " WHERE TRUE ";
 
+    //TODO change to include all the settings
     public String sqlListStringForProgramPlanningUnitProcurementAgentPricing = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
             + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  pu.MULTIPLIER, "
+            + "    pu2.PLANNING_UNIT_ID `PPUPA_PLANNING_UNIT_ID`, pu2.LABEL_ID `PPUPA_LABEL_ID`, pu2.LABEL_EN `PPUPA_LABEL_EN`, pu2.LABEL_FR `PPUPA_LABEL_FR`, pu2.LABEL_PR `PPUPA_LABEL_PR`, pu2.LABEL_SP `PPUPA_LABEL_SP`,  pu2.MULTIPLIER, "
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
             + "    ppu.PLAN_BASED_ON, ppu.MIN_QTY, ppu.DISTRIBUTION_LEAD_TIME, "
             + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE,  "
             + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
-            + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PRICE `PROCUREMENT_AGENT_PRICE`, "
+            + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PRICE `PROCUREMENT_AGENT_PRICE`, ppupa.`SEA_FREIGHT_PERC`, ppupa.`AIR_FREIGHT_PERC`, ppupa.`ROAD_FREIGHT_PERC`, "
+            + "    ppupa.`PLANNED_TO_SUBMITTED_LEAD_TIME`, ppupa.`SUBMITTED_TO_APPROVED_LEAD_TIME`, ppupa.`APPROVED_TO_SHIPPED_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME`, ppupa.`ARRIVED_TO_DELIVERED_LEAD_TIME`, ppupa.`LOCAL_PROCUREMENT_LEAD_TIME`, "
             + "    ppupa.ACTIVE `PPUPA_ACTIVE`, cb2.USER_ID `PPUPA_CB_USER_ID`, cb2.USERNAME `PPUPA_CB_USERNAME`, ppupa.CREATED_DATE `PPUPA_CREATED_DATE`, lmb2.USER_ID `PPUPA_LMB_USER_ID`, lmb2.USERNAME `PPUPA_LMB_USERNAME`, ppupa.LAST_MODIFIED_DATE `PPUPA_LAST_MODIFIED_DATE`  "
             + " FROM  rm_program_planning_unit ppu   "
             + " LEFT JOIN vw_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID  "
@@ -256,7 +258,8 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
-            + " LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppupa.PROGRAM_PLANNING_UNIT_ID "
+            + " LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_ID=ppupa.PROGRAM_ID AND (ppu.PLANNING_UNIT_ID=ppupa.PLANNING_UNIT_ID OR ppupa.PLANNING_UNIT_ID is NULL) "
+            + " LEFT JOIN vw_planning_unit pu2 ON ppupa.PLANNING_UNIT_ID=pu2.PLANNING_UNIT_ID  "
             + " LEFT JOIN vw_procurement_agent pa ON ppupa.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
             + " LEFT JOIN us_user cb2 ON ppupa.CREATED_BY=cb2.USER_ID  "
             + " LEFT JOIN us_user lmb2 ON ppupa.LAST_MODIFIED_BY=lmb2.USER_ID "
@@ -689,33 +692,36 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
-                + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PROGRAM_PLANNING_UNIT_ID,    "
-                + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,    "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,    "
-                + "    p2.PROGRAM_ID, p2.LABEL_ID `PROGRAM_LABEL_ID`, p2.LABEL_EN `PROGRAM_LABEL_EN`, p2.LABEL_FR `PROGRAM_LABEL_FR`, p2.LABEL_SP `PROGRAM_LABEL_SP`, p2.LABEL_PR `PROGRAM_LABEL_PR`,  "
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, "
+                + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+                + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
                 + "    ppupa.PRICE `PROGRAM_PRICE`, ppupa.`SEA_FREIGHT_PERC`, ppupa.`AIR_FREIGHT_PERC`, ppupa.`ROAD_FREIGHT_PERC`, "
-                + "    ppupa.`PLANNED_TO_SUBMITTED_LEAD_TIME`, ppupa.`SUBMITTED_TO_APPROVED_LEAD_TIME`, ppupa.`APPROVED_TO_SHIPPED_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME`, ppupa.`ARRIVED_TO_DELIVERED_LEAD_TIME`, ppupa.`LOCAL_PROCUREMENT_LEAD_TIME`,  "
-                + "    cb2.USER_ID `PPUPA_CB_USER_ID`, cb2.USERNAME `PPUPA_CB_USERNAME`, lmb2.USER_ID `PPUPA_LMB_USER_ID`, lmb2.USERNAME `PPUPA_LMB_USERNAME`, ppupa.ACTIVE `PPUPA_ACTIVE`, ppupa.CREATED_DATE `PPUPA_CREATED_DATE`, ppupa.LAST_MODIFIED_DATE `PPUPA_LAST_MODIFIED_DATE` "
+                + "    ppupa.`PLANNED_TO_SUBMITTED_LEAD_TIME`, ppupa.`SUBMITTED_TO_APPROVED_LEAD_TIME`, ppupa.`APPROVED_TO_SHIPPED_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`, ppupa.`SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME`, ppupa.`ARRIVED_TO_DELIVERED_LEAD_TIME`, ppupa.`LOCAL_PROCUREMENT_LEAD_TIME`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppupa.ACTIVE `ACTIVE`, ppupa.CREATED_DATE `CREATED_DATE`, ppupa.LAST_MODIFIED_DATE `LAST_MODIFIED_DATE` "
                 + "FROM rm_program_planning_unit_procurement_agent ppupa "
-                + "LEFT JOIN rm_program_planning_unit ppu ON ppupa.PROGRAM_PLANNING_UNIT_ID=ppu.PROGRAM_PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID   "
-                + "LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=ppupa.PROCUREMENT_AGENT_ID    "
-                + "LEFT JOIN vw_program p2 ON ppu.PROGRAM_ID=p2.PROGRAM_ID  "
-                + "LEFT JOIN rm_realm_country rc ON p2.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN us_user cb2 ON ppupa.CREATED_BY=cb2.USER_ID     "
-                + "LEFT JOIN us_user lmb2 ON ppupa.LAST_MODIFIED_BY=lmb2.USER_ID  "
-                + "WHERE ppupa.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId");
+                + "LEFT JOIN vw_planning_unit pu ON ppupa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=ppupa.PROCUREMENT_AGENT_ID "
+                + "LEFT JOIN vw_program p ON ppupa.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN us_user cb ON ppupa.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ppupa.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE "
+                + "ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID IS NOT NULL "
+                + "AND (LENGTH(:programIdList)=0 OR FIND_IN_SET(ppupa.PROGRAM_ID, :programIdList)) "
+                + "AND (LENGTH(:planningUnitIdList)=0 OR FIND_IN_SET(ppupa.PLANNING_UNIT_ID, :planningUnitIdList) OR ppupa.PLANNING_UNIT_ID IS NULL) ");
         Map<String, Object> params = new HashMap<>();
-        params.put("programPlanningUnitId", programPlanningUnitId);
+        params.put("programIdList", ArrayUtils.convertListToString(ppupa.getProgramIdList()));
+        params.put("planningUnitIdList", ArrayUtils.convertListToString(ppupa.getPlanningUnitIdList()));
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p2", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ppupa.ACTIVE");
         }
-        sqlStringBuilder.append(" ORDER BY ppu.PROGRAM_ID, pu.LABEL_EN, pa.LABEL_EN");
+        sqlStringBuilder.append(" ORDER BY p.LABEL_EN, pu.LABEL_EN, pa.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitProcurementAgentPriceRowMapper());
     }
 
@@ -731,7 +737,8 @@ public class ProgramDaoImpl implements ProgramDao {
             if (ppupa.getProgramPlanningUnitProcurementAgentId() == 0) {
                 // Insert
                 params = new HashMap<>();
-                params.put("PROGRAM_PLANNING_UNIT_ID", ppupa.getProgramPlanningUnitId());
+                params.put("PROGRAM_ID", ppupa.getProgram().getId());
+                params.put("PLANNING_UNIT_ID", (ppupa.getPlanningUnit().getId() == -1 ? null : ppupa.getPlanningUnit().getId()));
                 params.put("PROCUREMENT_AGENT_ID", ppupa.getProcurementAgent().getId());
                 params.put("PRICE", ppupa.getPrice());
                 params.put("SEA_FREIGHT_PERC", ppupa.getSeaFreightPerc());
@@ -755,6 +762,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 // Update
                 params = new HashMap<>();
                 params.put("programPlanningUnitProcurementAgentId", ppupa.getProgramPlanningUnitProcurementAgentId());
+                params.put("planningUnitId", (ppupa.getPlanningUnit().getId() == -1 ? null : ppupa.getPlanningUnit().getId()));
                 params.put("price", ppupa.getPrice());
                 params.put("seaFreightPerc", ppupa.getSeaFreightPerc());
                 params.put("airFreightPerc", ppupa.getAirFreightPerc());
@@ -782,6 +790,7 @@ public class ProgramDaoImpl implements ProgramDao {
             String sqlString = "UPDATE "
                     + "rm_program_planning_unit_procurement_agent ppupa "
                     + "SET "
+                    + "ppupa.PLANNING_UNIT_ID=:planningUnitId, "
                     + "ppupa.PRICE=:price, "
                     + "ppupa.SEA_FREIGHT_PERC=:seaFreightPerc, "
                     + "ppupa.AIR_FREIGHT_PERC=:airFreightPerc, "
@@ -2842,7 +2851,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("treeIdList", ArrayUtils.convertArrayToString(ta.getTreeIds()));
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
-        
+
     }
 
 }

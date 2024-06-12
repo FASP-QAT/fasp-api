@@ -14,7 +14,6 @@ import java.io.Serializable;
 public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implements Serializable {
 
     private int programPlanningUnitProcurementAgentId;
-    private int programPlanningUnitId;
     private SimpleCodeObject procurementAgent;
     private SimpleObject planningUnit;
     private SimpleObject program;
@@ -37,14 +36,6 @@ public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implemen
 
     public void setProgramPlanningUnitProcurementAgentId(int programPlanningUnitProcurementAgentId) {
         this.programPlanningUnitProcurementAgentId = programPlanningUnitProcurementAgentId;
-    }
-
-    public int getProgramPlanningUnitId() {
-        return programPlanningUnitId;
-    }
-
-    public void setProgramPlanningUnitId(int programPlanningUnitId) {
-        this.programPlanningUnitId = programPlanningUnitId;
     }
 
     public SimpleCodeObject getProcurementAgent() {

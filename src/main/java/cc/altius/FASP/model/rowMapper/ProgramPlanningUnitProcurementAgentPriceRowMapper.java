@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
@@ -22,11 +23,18 @@ public class ProgramPlanningUnitProcurementAgentPriceRowMapper implements RowMap
     public ProgramPlanningUnitProcurementAgentPrice mapRow(ResultSet rs, int i) throws SQLException {
         ProgramPlanningUnitProcurementAgentPrice ppupa = new ProgramPlanningUnitProcurementAgentPrice();
         ppupa.setProgramPlanningUnitProcurementAgentId(rs.getInt("PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID"));
-        ppupa.setProgramPlanningUnitId(rs.getInt("PROGRAM_PLANNING_UNIT_ID"));
         ppupa.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
-        ppupa.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
+        int puId = rs.getInt("PLANNING_UNIT_ID");
+        if (rs.wasNull()) {
+            ppupa.setPlanningUnit(new SimpleObject(-1, new Label(null, "All Planning Units", null, null, null)));
+        } else {
+            ppupa.setPlanningUnit(new SimpleObject(puId, new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
+        }
         ppupa.setProgram(new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i)));
         ppupa.setPrice(rs.getDouble("PROGRAM_PRICE"));
+        if (rs.wasNull()) {
+            ppupa.setPrice(null);
+        }
         ppupa.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
         if (rs.wasNull()) {
             ppupa.setSeaFreightPerc(null);
@@ -71,7 +79,7 @@ public class ProgramPlanningUnitProcurementAgentPriceRowMapper implements RowMap
         if (rs.wasNull()) {
             ppupa.setLocalProcurementLeadTime(null);
         }
-        ppupa.setBaseModel(new BaseModelRowMapper("PPUPA_").mapRow(rs, i));
+        ppupa.setBaseModel(new BaseModelRowMapper("").mapRow(rs, i));
         return ppupa;
     }
 
