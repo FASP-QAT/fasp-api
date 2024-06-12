@@ -2,3 +2,5 @@ INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `
 
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`ap_version_status` (`VERSION_STATUS_ID`, `LABEL_ID`) VALUES (NULL, @MAX);
+
+UPDATE ap_label l SET l.LABEL_EN='Needs Revision',l.LABEL_FR='Nécessite une révision',l.LABEL_SP='Necesita revisión',l.LABEL_PR='Precisa de revisão' WHERE l.LABEL_ID=14;
