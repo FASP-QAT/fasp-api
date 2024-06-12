@@ -349,4 +349,21 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
+    @Override
+    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder(sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        if (input.getProductCategorySortOrder() != null) {
+            stringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder,'%') ");
+            params.put("productCategorySortOrder", input.getProductCategorySortOrder());
+        }
+        if (input.getTracerCategoryId() != null) {
+            stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+            params.put("tracerCategoryId", input.getTracerCategoryId());
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" ORDER BY fu.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new ForecastingUnitRowMapper());
+    }
+
 }

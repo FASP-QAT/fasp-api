@@ -12,6 +12,7 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
 import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.LabelConstants;
@@ -21,6 +22,7 @@ import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
+import cc.altius.FASP.model.rowMapper.ForecastingUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitWithPricesListResultSetExtractor;
@@ -710,4 +712,26 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
         }
 
+    @Override
+    public List<PlanningUnit> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder(sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        if (input.getProductCategorySortOrder() != null) {
+            stringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder,'%') ");
+            params.put("productCategorySortOrder", input.getProductCategorySortOrder());
+        }
+        if (input.getTracerCategoryId() != null) {
+            stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+            params.put("tracerCategoryId", input.getTracerCategoryId());
+        }
+        if (input.getForecastingUnitId() != null) {
+            stringBuilder.append(" AND fu.FORECASTING_UNIT_ID=:forecastingUnitId ");
+            params.put("forecastingUnitId", input.getForecastingUnitId());
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" ORDER BY pu.LABEL_EN");
+        System.out.println(stringBuilder.toString());
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new PlanningUnitRowMapper());
     }
+
+}
