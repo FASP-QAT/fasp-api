@@ -21,7 +21,9 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
+import cc.altius.FASP.model.ForecastingUnitWithCount;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleProgram;
@@ -143,8 +145,13 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+    public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getListOfProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getListOfProgramsForForecastingUnitId(forecastingUnitId, curUser);
     }
 
 }

@@ -24,9 +24,13 @@ import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
+import cc.altius.FASP.model.ForecastingUnitWithCount;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.ForecastingUnitWithCountRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleForecastingUnitWithUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -56,23 +60,24 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     @Autowired
     private AclService aclService;
 
-    private String sqlListString = "SELECT fu.FORECASTING_UNIT_ID,  "
+    private String sqlStringSelect = "SELECT fu.FORECASTING_UNIT_ID,  "
             + "	fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_PR, fu.LABEL_SP, "
             + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`, "
             + "    u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_PR `UNIT_LABEL_PR`, u.LABEL_SP `UNIT_LABEL_SP`, "
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fu.ACTIVE, fu.CREATED_DATE, fu.LAST_MODIFIED_DATE "
-            + "FROM vw_forecasting_unit fu  "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fu.ACTIVE, fu.CREATED_DATE, fu.LAST_MODIFIED_DATE ";
+    private String sqlStringFrom = "FROM vw_forecasting_unit fu  "
             + "LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
             + "LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID "
             + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
             + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
             + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
             + "LEFT JOIN us_user cb ON fu.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON fu.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+            + "LEFT JOIN us_user lmb ON fu.LAST_MODIFIED_BY=lmb.USER_ID ";
+
+    private String sqlListString = this.sqlStringSelect + this.sqlStringFrom + "WHERE TRUE ";
 
     @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
@@ -350,8 +355,12 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
-    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder(sqlListString);
+    public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder(sqlStringSelect)
+                .append(", IFNULL(f2.COUNT_OF_PROGRAMS,0) `COUNT_OF_PROGRAMS` ")
+                .append(sqlStringFrom)
+                .append(" LEFT JOIN (SELECT f1.FORECASTING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.FORECASTING_UNIT_ID, ppu.PROGRAM_ID FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE group by pu.FORECASTING_UNIT_ID, ppu.PROGRAM_ID) f1 group by f1.FORECASTING_UNIT_ID) f2 ON f2.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ")
+                .append(" WHERE TRUE ");
         Map<String, Object> params = new HashMap<>();
         if (input.getProductCategorySortOrder() != null) {
             stringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder,'%') ");
@@ -363,7 +372,16 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         }
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY fu.LABEL_EN");
-        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new ForecastingUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new ForecastingUnitWithCountRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getListOfProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE AND pu.FORECASTING_UNIT_ID=:forecastingUnitId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("forecastingUnitId", forecastingUnitId);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
 }
