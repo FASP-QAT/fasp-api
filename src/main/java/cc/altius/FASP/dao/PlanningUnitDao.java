@@ -84,5 +84,7 @@ public interface PlanningUnitDao {
 
     public List<PlanningUnitWithCount> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getListOfProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser);
 }

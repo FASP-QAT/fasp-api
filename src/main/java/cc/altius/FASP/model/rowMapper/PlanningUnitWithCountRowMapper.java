@@ -36,7 +36,8 @@ public class PlanningUnitWithCountRowMapper implements RowMapper<PlanningUnitWit
                 rs.getBoolean("ACTIVE")
         );
         puc.getForecastingUnit().setUnit(new SimpleCodeObject(rs.getInt("FU_UNIT_ID"), new LabelRowMapper("FU_UNIT_").mapRow(rs, rowNum), rs.getString("FU_UNIT_CODE")));
-        puc.setCountOfPrograms(rs.getInt("COUNT_OF_PROGRAMS"));
+        puc.setCountOfSpPrograms(rs.getInt("COUNT_OF_SP_PROGRAMS"));
+        puc.setCountOfFcPrograms(rs.getInt("COUNT_OF_FC_PROGRAMS"));
         puc.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return puc;
     }

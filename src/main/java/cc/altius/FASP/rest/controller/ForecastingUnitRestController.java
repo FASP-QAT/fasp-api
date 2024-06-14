@@ -167,7 +167,8 @@ public class ForecastingUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             Map<String, Object> data = new HashMap<>();
             data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
-            data.put("programList", this.forecastingUnitService.getListOfProgramsForForecastingUnitId(forecastingUnitId, curUser));
+            data.put("spProgramList", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, curUser));
+            data.put("fcProgramList", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, curUser));
             return new ResponseEntity(data, HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);

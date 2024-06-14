@@ -357,9 +357,10 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     @Override
     public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder(sqlStringSelect)
-                .append(", IFNULL(f2.COUNT_OF_PROGRAMS,0) `COUNT_OF_PROGRAMS` ")
+                .append(", IFNULL(f2.COUNT_OF_PROGRAMS,0) `COUNT_OF_SP_PROGRAMS`, IFNULL(d2.COUNT_OF_PROGRAMS,0) `COUNT_OF_FC_PROGRAMS` ")
                 .append(sqlStringFrom)
                 .append(" LEFT JOIN (SELECT f1.FORECASTING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.FORECASTING_UNIT_ID, ppu.PROGRAM_ID FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE group by pu.FORECASTING_UNIT_ID, ppu.PROGRAM_ID) f1 group by f1.FORECASTING_UNIT_ID) f2 ON f2.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ")
+                .append(" LEFT JOIN (SELECT d1.FORECASTING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.FORECASTING_UNIT_ID, dpu.PROGRAM_ID FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE dpu.ACTIVE AND d.ACTIVE group by pu.FORECASTING_UNIT_ID, dpu.PROGRAM_ID) d1 group by d1.FORECASTING_UNIT_ID) d2 ON d2.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ")
                 .append(" WHERE TRUE ");
         Map<String, Object> params = new HashMap<>();
         if (input.getProductCategorySortOrder() != null) {
@@ -376,11 +377,20 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getListOfProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE AND pu.FORECASTING_UNIT_ID=:forecastingUnitId");
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", forecastingUnitId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+    
+    @Override
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT d.PROGRAM_ID `ID`, d.PROGRAM_CODE `CODE`, d.LABEL_ID, d.LABEL_EN, d.LABEL_FR, d.LABEL_SP, d.LABEL_PR FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE dpu.ACTIVE AND d.ACTIVE AND pu.FORECASTING_UNIT_ID=:forecastingUnitId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("forecastingUnitId", forecastingUnitId);
+        this.aclService.addFullAclForProgram(stringBuilder, params, "d", curUser);
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 

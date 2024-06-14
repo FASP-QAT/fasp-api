@@ -13,14 +13,24 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class PlanningUnitWithCount extends PlanningUnit {
 
     @JsonView(Views.ReportView.class)
-    private int countOfPrograms;
+    private int countOfSpPrograms;
+    @JsonView(Views.ReportView.class)
+    private int countOfFcPrograms;
 
-    public int getCountOfPrograms() {
-        return countOfPrograms;
+    public int getCountOfSpPrograms() {
+        return countOfSpPrograms;
     }
 
-    public void setCountOfPrograms(int countOfPrograms) {
-        this.countOfPrograms = countOfPrograms;
+    public void setCountOfSpPrograms(int countOfSpPrograms) {
+        this.countOfSpPrograms = countOfSpPrograms;
+    }
+
+    public int getCountOfFcPrograms() {
+        return countOfFcPrograms;
+    }
+
+    public void setCountOfFcPrograms(int countOfFcPrograms) {
+        this.countOfFcPrograms = countOfFcPrograms;
     }
 
     public PlanningUnitWithCount() {

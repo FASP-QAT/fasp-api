@@ -26,7 +26,7 @@ public interface ForecastingUnitDao {
     public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser);
 
     public List<ForecastingUnit> getForecastingUnitList(int realmId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser);
 
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
@@ -46,14 +46,16 @@ public interface ForecastingUnitDao {
     public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser);
-    
+
     public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
-    
+
     public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
-    
-    public List<SimpleCodeObject> getListOfProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser);
 }

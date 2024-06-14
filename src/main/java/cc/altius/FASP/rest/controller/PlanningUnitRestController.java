@@ -205,7 +205,8 @@ public class PlanningUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             Map<String, Object> data = new HashMap<>();
             data.put("planningUnit", this.planningUnitService.getPlanningUnitById(planningUnitId, curUser));
-            data.put("programList", this.planningUnitService.getListOfProgramsForPlanningUnitId(planningUnitId, curUser));
+            data.put("spProgramList", this.planningUnitService.getListOfSpProgramsForPlanningUnitId(planningUnitId, curUser));
+            data.put("fcProgramList", this.planningUnitService.getListOfFcProgramsForPlanningUnitId(planningUnitId, curUser));
             return new ResponseEntity(data, HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list PlanningUnit", er);

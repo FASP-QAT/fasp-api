@@ -28,7 +28,8 @@ public class ForecastingUnitWithCountRowMapper implements RowMapper<ForecastingU
                 new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
                 new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
         );
-        fuc.setCountOfPrograms(rs.getInt("COUNT_OF_PROGRAMS"));
+        fuc.setCountOfSpPrograms(rs.getInt("COUNT_OF_SP_PROGRAMS"));
+        fuc.setCountOfFcPrograms(rs.getInt("COUNT_OF_FC_PROGRAMS"));
         fuc.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return fuc;
     }
