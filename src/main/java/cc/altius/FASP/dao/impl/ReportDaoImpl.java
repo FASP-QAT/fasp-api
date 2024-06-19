@@ -598,12 +598,15 @@ public class ReportDaoImpl implements ReportDao {
                 + "    AND st.SHIPMENT_STATUS_ID!=8 "
                 + "    AND st.ACCOUNT_FLAG=1 "
                 + "    AND st.ACTIVE "
+                + "    LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "    LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "    WHERE ppu.ACTIVE AND pu.ACTIVE "
                 + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
                 + "WHERE "
                 + "	TRUE AND b.ACTIVE "
                 + "     AND (:programIds='' OR FIND_IN_SET(bp.PROGRAM_ID, :programIds)) "
                 + "     AND (:fundingSourceIds='' OR FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds)) "
-                + "     AND (b.START_DATE BETWEEN :startDate AND :stopDate OR b.STOP_DATE BETWEEN :startDate AND :stopDate OR :startDate BETWEEN b.START_DATE AND b.STOP_DATE) ");
+                + "     AND ((b.START_DATE BETWEEN :startDate AND :stopDate) OR (b.STOP_DATE BETWEEN :startDate AND :stopDate) OR (:startDate BETWEEN b.START_DATE AND b.STOP_DATE)) ");
         this.aclService.addUserAclForRealm(sb, params, "b", curUser);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         sb.append(" GROUP BY b.BUDGET_ID");
