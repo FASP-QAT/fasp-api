@@ -586,7 +586,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Transactional
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit").usingColumns("PLANNING_UNIT_ID", "PROGRAM_ID", "REORDER_FREQUENCY_IN_MONTHS", "MIN_MONTHS_OF_STOCK", "LOCAL_PROCUREMENT_LEAD_TIME", "SHELF_LIFE", "CATALOG_PRICE", "MONTHS_IN_PAST_FOR_AMC", "MONTHS_IN_FUTURE_FOR_AMC", "PLAN_BASED_ON", "MIN_QTY", "DISTRIBUTION_LEAD_TIME", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
-        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
+        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("REALM_COUNTRY_PLANNING_UNIT_ID","PLANNING_UNIT_ID","REALM_COUNTRY_ID","LABEL_ID","SKU_CODE","UNIT_ID","CONVERSION_METHOD","CONVERSION_NUMBER","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE");
         List<SqlParameterSource> updateList = new ArrayList<>();
         List<Integer> programIds = new ArrayList<>();
         int rowsEffected = 0;
