@@ -30,7 +30,7 @@ public class Shipment implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.InternalView.class})
-    private SimpleObject realmCountryPlanningUnit;
+    private SimpleObjectWithMultiplier realmCountryPlanningUnit;
     @JsonView({Views.InternalView.class})
     private double multiplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -466,11 +466,11 @@ public class Shipment implements Serializable {
         this.tempShipmentId = tempShipmentId;
     }
 
-    public SimpleObject getRealmCountryPlanningUnit() {
+    public SimpleObjectWithMultiplier getRealmCountryPlanningUnit() {
         return realmCountryPlanningUnit;
     }
 
-    public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
+    public void setRealmCountryPlanningUnit(SimpleObjectWithMultiplier realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
     }
 
