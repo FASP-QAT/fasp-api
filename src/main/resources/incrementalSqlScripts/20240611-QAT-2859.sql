@@ -12,9 +12,9 @@ ALTER TABLE `fasp`.`rm_program_planning_unit_procurement_agent`
 CHANGE COLUMN `PROGRAM_ID` `PROGRAM_ID` INT UNSIGNED NOT NULL ;
 
 ALTER TABLE `fasp`.`rm_program_planning_unit_procurement_agent` 
-ADD INDEX `fk_rm_papup_PROGRAM_ID_idx` (`PROGRAM_ID` ASC) VISIBLE,
-ADD INDEX `fk_rm_papup_PLANNING_UNIT_ID_idx` (`PLANNING_UNIT_ID` ASC) VISIBLE;
-;
+ADD INDEX `fk_rm_papup_PROGRAM_ID_idx` (`PROGRAM_ID` ASC),
+ADD INDEX `fk_rm_papup_PLANNING_UNIT_ID_idx` (`PLANNING_UNIT_ID` ASC);
+
 ALTER TABLE `fasp`.`rm_program_planning_unit_procurement_agent` 
 ADD CONSTRAINT `fk_rm_papup_PROGRAM_ID`
   FOREIGN KEY (`PROGRAM_ID`)
