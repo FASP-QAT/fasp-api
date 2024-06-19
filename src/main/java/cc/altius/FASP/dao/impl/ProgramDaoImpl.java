@@ -158,8 +158,6 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
-    
-
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -635,7 +633,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("LABEL_ID", rcpuLabelId);
                     params.put("SKU_CODE", skuCode);
                     params.put("UNIT_ID", pu.getUnit().getId());
-                    params.put("MULTIPLIER", 1);
+                    params.put("CONVERSION_NUMBER", 1);
+                    params.put("CONVERSION_METHOD", 1);
                     params.put("CREATED_DATE", curDate);
                     params.put("CREATED_BY", curUser.getUserId());
                     params.put("LAST_MODIFIED_DATE", curDate);
@@ -2808,7 +2807,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("treeIdList", ArrayUtils.convertArrayToString(ta.getTreeIds()));
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
-        
+
     }
 
 }
