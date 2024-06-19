@@ -21,7 +21,6 @@ import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
-import cc.altius.FASP.model.rowMapper.ForecastingUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitWithPricesListResultSetExtractor;
