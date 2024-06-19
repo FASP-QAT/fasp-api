@@ -31,8 +31,6 @@ public class Shipment implements Serializable {
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.InternalView.class})
     private SimpleObjectWithMultiplier realmCountryPlanningUnit;
-    @JsonView({Views.InternalView.class})
-    private double multiplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -480,14 +478,6 @@ public class Shipment implements Serializable {
 
     public void setShipmentRcpuQty(long shipmentRcpuQty) {
         this.shipmentRcpuQty = shipmentRcpuQty;
-    }
-
-    public double getMultiplier() {
-        return multiplier;
-    }
-
-    public void setMultiplier(double multiplier) {
-        this.multiplier = multiplier;
     }
 
     @Override
