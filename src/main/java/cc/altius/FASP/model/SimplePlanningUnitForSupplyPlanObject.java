@@ -34,6 +34,7 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
     private int minMonthsOfStock;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private SimpleObject productCategory;
+    private String notes;
 
     public SimplePlanningUnitForSupplyPlanObject() {
         super();
@@ -110,6 +111,14 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
 
     public void setProductCategory(SimpleObject productCategory) {
         this.productCategory = productCategory;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

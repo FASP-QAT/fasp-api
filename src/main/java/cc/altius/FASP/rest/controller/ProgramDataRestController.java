@@ -55,16 +55,6 @@ public class ProgramDataRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private EmailService emailService;
-//    @Value("${qat.filePath}")
-//    private String QAT_FILE_PATH;
-//    @Value("${exportSupplyPlanFilePath}")
-//    private String EXPORT_SUPPLY_PLAN_FILE_PATH;
-//    @Value("${email.toList}")
-//    private String toList;
-//    @Value("${email.ccList}")
-//    private String ccList;
 
     @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
