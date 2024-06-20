@@ -34,6 +34,7 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
     private int minMonthsOfStock;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private SimpleObject productCategory;
+    @JsonView({Views.InternalView.class})
     private String notes;
 
     public SimplePlanningUnitForSupplyPlanObject() {

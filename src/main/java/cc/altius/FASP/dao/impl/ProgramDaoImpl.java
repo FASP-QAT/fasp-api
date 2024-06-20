@@ -633,7 +633,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("LABEL_ID", rcpuLabelId);
                     params.put("SKU_CODE", skuCode);
                     params.put("UNIT_ID", pu.getUnit().getId());
-                    params.put("MULTIPLIER", 1);
+                    params.put("CONVERSION_METHOD", 1);
+                    params.put("CONVERSION_NUMBER", 1);
                     params.put("CREATED_DATE", curDate);
                     params.put("CREATED_BY", curUser.getUserId());
                     params.put("LAST_MODIFIED_DATE", curDate);
