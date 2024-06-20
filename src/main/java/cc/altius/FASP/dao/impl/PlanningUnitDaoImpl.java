@@ -672,8 +672,8 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         StringBuilder stringBuilder = new StringBuilder(sqlStringSelect)
                 .append(", IFNULL(p2.COUNT_OF_PROGRAMS,0) `COUNT_OF_SP_PROGRAMS`, IFNULL(d2.COUNT_OF_PROGRAMS,0) `COUNT_OF_FC_PROGRAMS` ")
                 .append(this.sqlStringFrom)
-                .append(" LEFT JOIN (SELECT p1.PLANNING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.PLANNING_UNIT_ID, ppu.PROGRAM_ID FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE group by pu.PLANNING_UNIT_ID, ppu.PROGRAM_ID) p1 group by p1.PLANNING_UNIT_ID) p2 ON p2.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
-                .append(" LEFT JOIN (SELECT d1.PLANNING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.PLANNING_UNIT_ID, dpu.PROGRAM_ID FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE dpu.ACTIVE AND d.ACTIVE group by pu.PLANNING_UNIT_ID, dpu.PROGRAM_ID) d1 group by d1.PLANNING_UNIT_ID) d2 ON d2.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
+                .append(" LEFT JOIN (SELECT p1.PLANNING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.PLANNING_UNIT_ID, ppu.PROGRAM_ID FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE TRUE group by pu.PLANNING_UNIT_ID, ppu.PROGRAM_ID) p1 group by p1.PLANNING_UNIT_ID) p2 ON p2.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
+                .append(" LEFT JOIN (SELECT d1.PLANNING_UNIT_ID, count(*) `COUNT_OF_PROGRAMS` FROM (SELECT pu.PLANNING_UNIT_ID, dpu.PROGRAM_ID FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE TRUE group by pu.PLANNING_UNIT_ID, dpu.PROGRAM_ID) d1 group by d1.PLANNING_UNIT_ID) d2 ON d2.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
                 .append(" WHERE TRUE ");
         Map<String, Object> params = new HashMap<>();
         if (input.getProductCategorySortOrder() != null) {
@@ -695,19 +695,21 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     
     @Override
     public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE AND pu.PLANNING_UNIT_ID=:planningUnitId");
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
     
     @Override
     public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_dataset p LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND p.CURRENT_VERSION_ID=ppu.VERSION_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.ACTIVE AND p.ACTIVE AND pu.PLANNING_UNIT_ID=:planningUnitId");
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_dataset p LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND p.CURRENT_VERSION_ID=ppu.VERSION_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
