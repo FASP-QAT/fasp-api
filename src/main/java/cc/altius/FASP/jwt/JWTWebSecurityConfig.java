@@ -109,7 +109,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/treeTemplate/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_TREE_TEMPLATE")
                         .requestMatchers(HttpMethod.GET,"/api/usageType").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES")
                         .requestMatchers(HttpMethod.POST,"/api/treeTemplate/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES","ROLE_BF_LIST_TREE_TEMPLATE")
-                        .requestMatchers(HttpMethod.PUT,"/api/treeTemplate/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES")
+                        .requestMatchers(HttpMethod.PUT,"/api/treeTemplate").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE","ROLE_BF_ADD_TREE_TEMPLATE","ROLE_BF_VIEW_TREE_TEMPLATES")
                         .requestMatchers(HttpMethod.POST,"/api/datasetData").hasAnyAuthority("ROLE_BF_COMMIT_DATASET", "ROLE_BF_LIST_TREE", "ROLE_BF_LOAD_DELETE_DATASET", "ROLE_BF_MODELING_VALIDATION", "ROLE_BF_PRODUCT_VALIDATION")
                         .requestMatchers(HttpMethod.PUT,"/api/datasetData/**").hasAnyAuthority("ROLE_BF_COMMIT_DATASET")
                         .requestMatchers(HttpMethod.GET,"/api/datasetData/programId/**").hasAnyAuthority("ROLE_BF_VERSION_SETTINGS","ROLE_BF_LIST_TREE")
