@@ -134,6 +134,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/forecastingUnit").hasAnyAuthority("ROLE_BF_TICKETING","ROLE_BF_ADD_PLANNING_UNIT")
                         .requestMatchers(HttpMethod.GET,"/api/forecastingUnit/all").hasAnyAuthority("ROLE_BF_LIST_FORECASTING_UNIT")
                         .requestMatchers(HttpMethod.PUT,"/api/forecastingUnit/**").hasAnyAuthority("ROLE_BF_EDIT_FORECASTING_UNIT")
+                        .requestMatchers(HttpMethod.POST,"/api/forecastingUnit/tracerCategory/productCategory", "/api/planningUnit/tracerCategory/productCategory/forecastingUnit").hasAnyAuthority("ROLE_BF_LIST_FORECASTING_UNIT")
                         .requestMatchers(HttpMethod.GET,"/api/forecastingUnit/realmId/**").hasAnyAuthority("ROLE_BF_LIST_FORECASTING_UNIT","ROLE_BF_LIST_PLANNING_UNIT","ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET,"/api/forecastingUnit/programId/**").hasAnyAuthority("ROLE_BF_LIST_MONTHLY_FORECAST")
                         .requestMatchers(HttpMethod.GET,"/api/forecastingUnit/**").hasAnyAuthority("ROLE_BF_ADD_PLANNING_UNIT")
