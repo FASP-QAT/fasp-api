@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
@@ -31,4 +32,16 @@ public interface FundingSourceDao {
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
     
     public List<SimpleCodeObject> getFundingSourceDropdownList(CustomUserDetails curUser);
+    
+    public int addFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser);
+
+    public int updateFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser);
+
+    public List<FundingSourceType> getFundingSourceTypeList(boolean active, CustomUserDetails curUser);
+
+    public List<FundingSourceType> getFundingSourceTypeByRealm(int realmId, CustomUserDetails curUser);
+
+    public FundingSourceType getFundingSourceTypeById(int fundingSourceTypeId, CustomUserDetails curUser);
+    
+    public List<FundingSourceType> getFundingSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }
