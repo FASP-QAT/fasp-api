@@ -55,7 +55,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
             + "    fs.`LABEL_ID`, fs.`LABEL_EN`, fs.`LABEL_FR`, fs.`LABEL_PR`, fs.`LABEL_SP`,  "
             + "    r.REALM_ID, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN` , r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
             + "    fs.ALLOWED_IN_BUDGET, "
-            + "    fst.`FUNDING_SOURCE_TYPE_ID` `FST_ID`, fst.`LABEL_ID` `FST_LABEL_ID`, fst.`LABEL_EN` `FST_LABEL_EN`, fst.`LABEL_FR` `FST_LABEL_FR`, fst.`LABEL_SP` `FST_LABEL_SP`, fst.`LABEL_PR` `FST_LABEL_PR`, fst.`FUNDING_SOURCE_CODE` `FST_CODE`, "
+            + "    fst.`FUNDING_SOURCE_TYPE_ID` `FST_ID`, fst.`LABEL_ID` `FST_LABEL_ID`, fst.`LABEL_EN` `FST_LABEL_EN`, fst.`LABEL_FR` `FST_LABEL_FR`, fst.`LABEL_SP` `FST_LABEL_SP`, fst.`LABEL_PR` `FST_LABEL_PR`, fst.`FUNDING_SOURCE_TYPE_CODE` `FST_CODE`, "
             + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
             + "FROM vw_funding_source fs  "
             + "LEFT JOIN vw_realm r ON fs.`REALM_ID`=r.`REALM_ID`  "
