@@ -1,3 +1,18 @@
+ALTER TABLE `fasp`.`rm_program_planning_unit` 
+ADD COLUMN `FORECAST_ERROR_THRESHOLD` DECIMAL(10,4) NULL AFTER `DISTRIBUTION_LEAD_TIME`,
+ADD COLUMN `NOTES` TEXT NULL AFTER `FORECAST_ERROR_THRESHOLD`;
+
+UPDATE `rm_program_planning_unit` ppu SET ppu.FORECAST_ERROR_THRESHOLD = 50, ppu.LAST_MODIFIED_DATE=now();
+
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
 	VAR_USER_ID INT(10), 
 	VAR_REALM_ID INT(10), 
@@ -142,4 +157,36 @@ BEGIN
     PREPARE S3 FROM @sqlString;
     EXECUTE S3;
     -- INSERT INTO log VALUES (null, now(), "Main query completed");
-END
+END$$
+
+DELIMITER ;
+;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.pu.forecastErrorThresholdPercentage','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Error Threshold (%)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil d`erreur de prévision (%)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de error de pronóstico (%)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de erro de previsão (%)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.pu.puNotesTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add notes about product phase in/out, data sources, primary funders. etc. Notes will be visible in Supply Plan Report and in Supply Plan Version and Review screen.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajoutez des notes sur l`entrée/sortie progressive du produit, les sources de données et les principaux bailleurs de fonds. etc. Les notes seront visibles dans le rapport du plan d`approvisionnement et dans l`écran Version et révision du plan d`approvisionnement.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregue notas sobre la entrada/salida gradual del producto, fuentes de datos y financiadores principales. etc. Las notas serán visibles en el Informe del plan de suministro y en la pantalla Versión y revisión del plan de suministro.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicione notas sobre a entrada/saída progressiva do produto, fontes de dados, financiadores primários. etc. As notas ficarão visíveis no Relatório do Plano de Fornecimento e na tela Versão e Revisão do Plano de Fornecimento.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.planningUnitNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planning Unit Notes');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Notes sur l`unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notas de la unidad de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notas da Unidade de Planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.conversionFUToPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FU:PU Conversion Factor');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion FU:PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FU:Factor de conversión de PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FU: Fator de conversão PU');-- pr

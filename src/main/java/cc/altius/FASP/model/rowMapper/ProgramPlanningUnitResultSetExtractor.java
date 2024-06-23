@@ -44,6 +44,8 @@ public class ProgramPlanningUnitResultSetExtractor implements ResultSetExtractor
             ppu.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
             ppu.setMinQty(rs.getInt("MIN_QTY"));
             ppu.setDistributionLeadTime(rs.getDouble("DISTRIBUTION_LEAD_TIME"));
+            ppu.setNotes(rs.getString("NOTES"));
+            ppu.setForecastErrorThreshold(rs.getDouble("FORECAST_ERROR_THRESHOLD"));
             ppu.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
             int idx = ppuList.indexOf(ppu);
             if (idx == -1) {
