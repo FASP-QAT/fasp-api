@@ -190,3 +190,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FU:PU Conversion Facto
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion FU:PU');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FU:Factor de conversión de PU');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FU: Fator de conversão PU');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.conversionFactorPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For more details, go to Realm Level Masters > Products > Planning Units. If data looks incorrect, please submit a ticket in the QAT helpdesk.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour plus de détails, accédez à Maîtres de niveau domaine > Produits > Unités de planification. Si les données semblent incorrectes, veuillez soumettre un ticket au service d`assistance QAT.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para obtener más detalles, vaya a Realm Level Masters > Productos > Unidades de planificación. Si los datos parecen incorrectos, envíe un ticket al servicio de asistencia técnica de QAT.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para obter mais detalhes, acesse Mestres de nível de reino > Produtos > Unidades de planejamento. Se os dados parecerem incorretos, envie um ticket no helpdesk do QAT.');-- pr
