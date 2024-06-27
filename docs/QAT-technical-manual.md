@@ -153,7 +153,7 @@ Table 1 QAT Server Scripts
 
 Script Location `/home/ubuntu/QAT/script/task1.sh` (QAT Server)
 
-**Task2.sh** [exportProgramAndOrder.sh](http://exportprogramandorder.sh/)
+**Task2.sh** exportProgramAndOrder.sh
 
 1.  Generate the Program and Order csv files in `/home/ubuntu/QAT/supplyPlan` folder
 2.  We have Local path in QAT server `/home/ubuntu/QAT/supplyPlan` in which we need to transfer the csv file on SFTP server in `/FASP/supplyPlan` directory.
