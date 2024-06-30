@@ -530,7 +530,7 @@ sudo systemctl restart QATAPI.service
 
 ### List of API's
 
-The [QAT API Master](https://www.google.com/url?q=https://app.swaggerhub.com/apis/Altius/QAT/1.09&sa=D&source=hangouts&ust=1613216661474000&usg=AFQjCNFxS6ivBEXC2SMQWoOxb5eYzRGwTA) is available for reference. Refer to the Index html file in the zip for a list of the APIs:
+The [QAT API Master](https://app.swaggerhub.com/apis/Altius/QAT/1.09&sa=D&source=hangouts&ust=1613216661474000&usg=AFQjCNFxS6ivBEXC2SMQWoOxb5eYzRGwTA) is available for reference. Refer to the Index html file in the zip for a list of the APIs:
 
 <https://app.swaggerhub.com/apis/Altius/QAT/1.12>
 
