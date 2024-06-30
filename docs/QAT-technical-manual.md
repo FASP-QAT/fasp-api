@@ -182,13 +182,11 @@ Script Location `/home/ubuntu/QAT/script/`
 sh QAT/script/sftp.sh
 ```
 
-Prodcution Server SFTP: 192.255.50.133
+Prodcution Server SFTP: <YOUR_PROD_SFTP_SERVER_IP_ADDRESS>
 
-UAT Server SFTP: 192.255.49.158
+UAT Server SFTP: <YOUR_UAT_SFTP_SERVER_IP_ADDRESS>
 
-SHAREPOINT:
-
-<https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Supply%20Plans%20from%20QAT?csf=1&web=1&e=QaVWOE>
+SHAREPOINT: <YOUR_SHAREPOINT_URL>
 
 GFPVAN SFTP for UAT :bastion3.e2open.net
 
