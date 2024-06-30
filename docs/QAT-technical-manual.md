@@ -132,8 +132,7 @@ Files shared with ARTMIS are done via SFTP (xml formats); files imported from Pi
 
 Note there is no task 4 and task 5. Note that edits are made to the ERP-linking functionality, after which time this section will updated to include those edits, including detail on fields to be shared and which items are shared as deltas versus full files. Only if the scripts below fail will QAT send an automated notification of this failure.
 
-- Scripts files on Sharepoint [here](https://chemonics.sharepoint.com/sites/FASP-FHI360_Suncontract/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FFASP%2DFHI360%5FSuncontract%2FShared%20Documents%2FGeneral%2FDocumentation%2FBatch%20job%20scripts&viewid=5438e9ce%2D8d16%2D4183%2D8b68%2Daf909e3acd8e)
-- ARTMIS Sample file details [here](https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/ARTMIS%20Data%20Interface/Sample_ARTMIS_Feeds?csf=1&web=1&e=p4QUO6)
+- [ARTMIS Sample files](Sample%20ARTMIS%20Feeds)
 
 | **Script name**              | **Description**                                                                          | **Script Path**                  | **Source folder**                                  | **Source folder after completing script**                    | **Destination folder**                                                           | **Log Path**                                      | **Schedule Time (EST)** |
 | ---------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
