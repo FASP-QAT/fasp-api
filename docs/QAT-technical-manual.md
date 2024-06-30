@@ -754,7 +754,7 @@ Note: BR5 was removed during the development process.
 
 (_updated July 26th, 2022_)
 
-Please see the corresponding png files in the zipped folder for the ten [Entity-Relationship Diagrams](https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Documentation/Database%20ER%20Diagrams?csf=1&web=1&e=F5sEWI).
+Please see the corresponding png files in the zipped folder for the ten [Entity-Relationship Diagrams](Database%20ER%20Diagrams).
 
 ![](images/image6.png)
 
@@ -764,7 +764,7 @@ Figure 3: Example of an Entity-Relationship Diagram
 
 (_updated on July 26th 2022_)
 
-Please see the corresponding excel file in the zipped folder for the [Data Dictionary v2.9](https://chemonics.sharepoint.com/:x:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Documentation/Data%20Dictionaries/Data%20dictionary%20QAT%20SP%20v2.9.xlsx?d=w78350806743548d5b8b21bd5413c5790&csf=1&web=1&e=MGawm1).
+Please see the corresponding excel file in the zipped folder for the [Data Dictionary v2.9](Data%20dictionary%20QAT%20SP%20v2.9.xlsx).
 
 **Note:** while this data dictionary has been created for the supply plan output that's sent to the GFPVAN & ARTMIS - the fields cover all data fields in the broader database structure.
 
