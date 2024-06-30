@@ -1,0 +1,10 @@
+<tns:LMISStatus messageType="Status" routingCode="Shipment" messageTimestamp="" xsi:schemaLocation="http://www.Chemonics.org/PSM/LMIS" xmlns:tns="http://www.Chemonics.org/PSM/LMIS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <tns:EventCode>3000</tns:EventCode>
+   <tns:EventLocation>TZDAR</tns:EventLocation>
+   <tns:EventDate>20191101</tns:EventDate>
+   <tns:EventTime>04:00:00+03:00</tns:EventTime>
+   <tns:EventLevel>Shipment</tns:EventLevel>
+   <tns:EventRemarks></tns:EventRemarks>
+   <tns:ShipmentNumber>WWWE2664727753</tns:ShipmentNumber>
+   <tns:ContainerNumber/>
+</tns:LMISStatus>
