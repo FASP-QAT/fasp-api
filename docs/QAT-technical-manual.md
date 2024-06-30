@@ -81,7 +81,7 @@ Once a User has logged in the application stores his credentials and access righ
 
 To begin editing a Program the user will need to Load the Program from the Server. Once a program has been loaded the user can then begin editing the Supply Plan by making changes to the Consumption, Inventory and Shipments. All of the changes that the user has made are stored locally on the IndexedDb. Once the user is ready to commit his changes to the Server he then selects the Commit version option.
 
-Please refer to [this folder](Process Flows) for additional information on process flows.
+Please refer to [this folder](Process-Flows) for additional information on process flows.
 
 ### Back End - Java Spring Boot Application
 
