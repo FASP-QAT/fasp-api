@@ -81,7 +81,7 @@ Once a User has logged in the application stores his credentials and access righ
 
 To begin editing a Program the user will need to Load the Program from the Server. Once a program has been loaded the user can then begin editing the Supply Plan by making changes to the Consumption, Inventory and Shipments. All of the changes that the user has made are stored locally on the IndexedDb. Once the user is ready to commit his changes to the Server he then selects the Commit version option.
 
-Please refer to [this folder](https://chemonics.sharepoint.com/sites/FASP-FHI360_Suncontract/Shared%20Documents/Forms/AllItems.aspx?csf=1&web=1&e=3UfOu1&cid=d3ef8b5f%2Dd6ba%2D4200%2D80ac%2D27a8b8dd6011&FolderCTID=0x012000D2605F5B239D614EB181D7483530BBE1&id=%2Fsites%2FFASP%2DFHI360%5FSuncontract%2FShared%20Documents%2FGeneral%2FDocumentation%2FProcess%20Flows&viewid=5438e9ce%2D8d16%2D4183%2D8b68%2Daf909e3acd8e) for additional information on process flows.
+Please refer to [this folder](Process Flows) for additional information on process flows.
 
 ### Back End - Java Spring Boot Application
 
