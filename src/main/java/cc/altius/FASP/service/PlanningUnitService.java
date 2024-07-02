@@ -85,8 +85,8 @@ public interface PlanningUnitService {
 
     public List<PlanningUnitWithCount> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
 }

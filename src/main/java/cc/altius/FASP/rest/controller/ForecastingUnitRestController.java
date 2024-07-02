@@ -162,13 +162,16 @@ public class ForecastingUnitRestController {
     }
 
     @GetMapping("/forecastingUnit/{forecastingUnitId}/withPrograms")
+    @JsonView(Views.InternalView.class)
     public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             Map<String, Object> data = new HashMap<>();
             data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
-            data.put("spProgramList", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, curUser));
-            data.put("fcProgramList", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, curUser));
+            data.put("spProgramListActive", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("spProgramListDisabled", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
+            data.put("fcProgramListActive", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("fcProgramListDisabled", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
             return new ResponseEntity(data, HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);

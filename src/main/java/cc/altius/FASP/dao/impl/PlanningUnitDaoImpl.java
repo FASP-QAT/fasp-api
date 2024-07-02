@@ -694,20 +694,22 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
     
     @Override
-    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId");
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId AND ((:active=1 AND p.ACTIVE AND ppu.ACTIVE) OR (:active=0 AND (p.ACTIVE=0 OR ppu.ACTIVE=0))) ");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
+        params.put("active", active);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
         stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
     
     @Override
-    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_dataset p LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND p.CURRENT_VERSION_ID=ppu.VERSION_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId");
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_dataset p LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND p.CURRENT_VERSION_ID=ppu.VERSION_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId AND ((:active=1 AND p.ACTIVE AND ppu.ACTIVE) OR (:active=0 AND (p.ACTIVE=0 OR ppu.ACTIVE=0))) ");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
+        params.put("active", active);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
         stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));

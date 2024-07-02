@@ -55,8 +55,8 @@ public interface ForecastingUnitService {
 
     public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser);
 
 }

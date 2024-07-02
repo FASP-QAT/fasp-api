@@ -270,13 +270,13 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        return this.planningUnitDao.getListOfSpProgramsForPlanningUnitId(planningUnitId, curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getListOfSpProgramsForPlanningUnitId(planningUnitId, active, curUser);
     }
     
     @Override
-    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, CustomUserDetails curUser) {
-        return this.planningUnitDao.getListOfFcProgramsForPlanningUnitId(planningUnitId, curUser);
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getListOfFcProgramsForPlanningUnitId(planningUnitId, active, curUser);
     }
 
 }

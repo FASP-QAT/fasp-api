@@ -378,19 +378,21 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.FORECASTING_UNIT_ID=:forecastingUnitId ");
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.FORECASTING_UNIT_ID=:forecastingUnitId AND ((:active=1 AND p.ACTIVE AND ppu.ACTIVE) OR (:active=0 AND (p.ACTIVE=0 OR ppu.ACTIVE=0))) ");
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", forecastingUnitId);
+        params.put("active", active);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
         stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
     
     @Override
-    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT d.PROGRAM_ID `ID`, d.PROGRAM_CODE `CODE`, d.LABEL_ID, d.LABEL_EN, d.LABEL_FR, d.LABEL_SP, d.LABEL_PR FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.FORECASTING_UNIT_ID=:forecastingUnitId");
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT d.PROGRAM_ID `ID`, d.PROGRAM_CODE `CODE`, d.LABEL_ID, d.LABEL_EN, d.LABEL_FR, d.LABEL_SP, d.LABEL_PR FROM vw_dataset d LEFT JOIN rm_dataset_planning_unit dpu ON d.PROGRAM_ID=dpu.PROGRAM_ID AND d.CURRENT_VERSION_ID=dpu.VERSION_ID LEFT JOIN rm_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.FORECASTING_UNIT_ID=:forecastingUnitId  AND ((:active=1 AND d.ACTIVE AND dpu.ACTIVE) OR (:active=0 AND (d.ACTIVE=0 OR dpu.ACTIVE=0))) ");
         Map<String, Object> params = new HashMap<>();
+        params.put("active", active);
         params.put("forecastingUnitId", forecastingUnitId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "d", curUser);
         stringBuilder.append(" GROUP BY d.PROGRAM_ID ORDER BY d.LABEL_EN");

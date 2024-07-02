@@ -150,13 +150,13 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
-        return this.forecastingUnitDao.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, active, curUser);
     }
     
     @Override
-    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, CustomUserDetails curUser) {
-        return this.forecastingUnitDao.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, curUser);
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, active, curUser);
     }
 
 }

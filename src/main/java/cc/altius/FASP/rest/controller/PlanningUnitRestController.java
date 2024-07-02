@@ -198,15 +198,18 @@ public class PlanningUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/planningUnit/{planningUnitId}/withPrograms")
+    @JsonView(Views.InternalView.class)
     public ResponseEntity getPlanningUnitWithProgramsById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             Map<String, Object> data = new HashMap<>();
             data.put("planningUnit", this.planningUnitService.getPlanningUnitById(planningUnitId, curUser));
-            data.put("spProgramList", this.planningUnitService.getListOfSpProgramsForPlanningUnitId(planningUnitId, curUser));
-            data.put("fcProgramList", this.planningUnitService.getListOfFcProgramsForPlanningUnitId(planningUnitId, curUser));
+            data.put("spProgramListActive", this.planningUnitService.getListOfSpProgramsForPlanningUnitId(planningUnitId, true, curUser));
+            data.put("spProgramListDisabled", this.planningUnitService.getListOfSpProgramsForPlanningUnitId(planningUnitId, false, curUser));
+            data.put("fcProgramListActive", this.planningUnitService.getListOfFcProgramsForPlanningUnitId(planningUnitId, true, curUser));
+            data.put("fcProgramListDisabled", this.planningUnitService.getListOfFcProgramsForPlanningUnitId(planningUnitId, false, curUser));
             return new ResponseEntity(data, HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list PlanningUnit", er);
