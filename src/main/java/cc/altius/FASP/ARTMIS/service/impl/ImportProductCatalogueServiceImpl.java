@@ -39,7 +39,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Value("${qat.filePath}")
     private String QAT_FILE_PATH;
-    @Value("${catalogFilePath}")
+    @Value("${qat.catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${email.catalogToList}")
     private String toList;
