@@ -21,8 +21,7 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class ApplicationConfiguration {
 
-    @Value("${qat.filePath}")
-    private String QAT_HOME;
+    private String QAT_HOME = "/home/ubuntu/QAT";
 
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {
