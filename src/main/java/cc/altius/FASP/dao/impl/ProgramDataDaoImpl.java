@@ -1065,7 +1065,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
                 + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
                 + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, "
-                + "  `KN_SHIPMENT_NO` VARCHAR(20) NULL, "
+                + "  `KN_SHIPMENT_NO` VARCHAR(45) NULL, "
                 + "  `VERSION_ID` INT(10) NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
                 + "  PRIMARY KEY (`ID`), "
