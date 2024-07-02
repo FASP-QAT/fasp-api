@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,8 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class ApplicationConfiguration {
 
-    private String QAT_HOME = "/home/ubuntu/QAT";
+    @Value("${qat.filePath}")
+    private String QAT_HOME;
 
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {
