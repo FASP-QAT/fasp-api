@@ -20,20 +20,19 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class ApplicationConfiguration {
 
-//    @Value("${qat.filePath}")
-    private String QAT_FILE_PATH = "/home/ubuntu/QAT";
+    private String QAT_HOME = "/home/ubuntu/QAT";
 
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {
         PropertiesFactoryBean bean = new PropertiesFactoryBean();
-        bean.setLocation(new FileSystemResource(QAT_FILE_PATH + "/properties/scheduler.properties"));
+        bean.setLocation(new FileSystemResource(QAT_HOME + "/properties/scheduler.properties"));
         return bean;
     }
 
     @Bean(name = "credentials")
     public PropertiesFactoryBean credentialsProperties() {
         PropertiesFactoryBean bean = new PropertiesFactoryBean();
-        bean.setLocation(new FileSystemResource(QAT_FILE_PATH + "/properties/credentials.properties"));
+        bean.setLocation(new FileSystemResource(QAT_HOME + "/properties/credentials.properties"));
         return bean;
     }
 
@@ -42,28 +41,11 @@ public class ApplicationConfiguration {
         PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
         Resource[] resources = new Resource[]{
             new ClassPathResource("application.properties"),
-            new FileSystemResource(QAT_FILE_PATH + "/properties/qat.properties"),
+            new FileSystemResource(QAT_HOME + "/properties/qat.properties"),
             new ClassPathResource("version.properties")};
         pspc.setLocations(resources);
         pspc.setIgnoreUnresolvablePlaceholders(true);
         return pspc;
     }
 
-//    @Bean("jasyptStringEncryptor")
-//    @DependsOn("credentials")
-//    public StringEncryptor stringEncryptor() throws IOException {
-//        Properties props = credentialsProperties().getObject();
-//        String jasyptPassword = props.getProperty("jasypt.password");
-//        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-//        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-//        config.setPassword(jasyptPassword);
-//        config.setAlgorithm("PBEWithMD5AndDES");
-//        config.setKeyObtentionIterations("1000");
-//        config.setPoolSize("1");
-//        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-//        config.setIvGeneratorClassName("org.jasypt.salt.NoOpIVGenerator");
-//        config.setStringOutputType("base64");
-//        encryptor.setConfig(config);
-//        return encryptor;
-//    }
 }
