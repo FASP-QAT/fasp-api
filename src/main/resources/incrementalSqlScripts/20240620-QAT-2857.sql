@@ -198,3 +198,19 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For more details, go t
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour plus de détails, accédez à Maîtres de niveau domaine > Produits > Unités de planification. Si les données semblent incorrectes, veuillez soumettre un ticket au service d`assistance QAT.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para obtener más detalles, vaya a Realm Level Masters > Productos > Unidades de planificación. Si los datos parecen incorrectos, envíe un ticket al servicio de asistencia técnica de QAT.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para obter mais detalhes, acesse Mestres de nível de reino > Produtos > Unidades de planejamento. Se os dados parecerem incorretos, envie um ticket no helpdesk do QAT.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Settings under Program Management > Update Planning Unit.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les paramètres de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar la configuración de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as configurações da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Notes under Program Management > Update Planning Unit.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les notes de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar las notas de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as notas da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
