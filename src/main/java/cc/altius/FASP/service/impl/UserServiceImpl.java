@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AclService aclService;
 
-    @Value("#{urlHost}")
+    @Value("${qat.urlHost}")
     private String HOST_URL;
     @Value("${urlPasswordReset}")
     private String PASSWORD_RESET_URL;
