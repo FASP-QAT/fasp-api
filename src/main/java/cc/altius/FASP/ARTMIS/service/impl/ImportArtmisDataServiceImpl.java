@@ -50,7 +50,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.catalogFilePath}")
     private String CATALOG_FILE_PATH;

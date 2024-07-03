@@ -40,7 +40,7 @@ public class ExportShipmentLinkingCsv {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private EmailService emailService;
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;

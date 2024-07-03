@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property resource="application.properties" />
-    <property name="LOGS" value="${qat.filePath}${qat.logfilePath}" />
+    <property name="LOGS" value="${qat.homeFolder}${qat.logfilePath}" />
 <!--    <property name="jdbcUrl" value="${spring.datasource.url}"/>
     <property name="jdbcUsername" value="${spring.datasource.username}"/>
     <property name="jdbcPassword" value="${spring.datasource.password}"/>-->

@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 @Service
 public class QuantimedImportServiceImpl implements QuantimedImportService {
 
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.quantimedFilePath}")
     private String QMED_FILE_PATH;

@@ -5,7 +5,8 @@
  */
 package cc.altius.FASP;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.io.IOException;
+import java.util.Properties;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,16 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class ApplicationConfiguration {
 
-    private String QAT_HOME = "/home/ubuntu/QAT";
+    private String QAT_HOME;
+
+    public ApplicationConfiguration() throws IOException {
+        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+        PropertiesFactoryBean bean = new PropertiesFactoryBean();
+        bean.setLocation(new ClassPathResource("application.properties"));
+        bean.afterPropertiesSet();
+        Properties props = bean.getObject();
+        QAT_HOME = props.getProperty("qat.homeFolder");
+    }
 
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {

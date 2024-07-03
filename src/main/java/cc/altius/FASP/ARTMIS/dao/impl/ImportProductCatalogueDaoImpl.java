@@ -78,7 +78,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Autowired
     private EmailService emailService;
 
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.catalogFilePath}")
     private String CATALOG_FILE_PATH;
