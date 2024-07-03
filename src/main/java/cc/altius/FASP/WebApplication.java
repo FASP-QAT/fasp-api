@@ -1,6 +1,5 @@
 package cc.altius.FASP;
 
-import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -9,7 +8,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableEncryptableProperties
 @ComponentScan(basePackages = {"cc.altius.FASP"})
 public class WebApplication extends SpringBootServletInitializer {
 
