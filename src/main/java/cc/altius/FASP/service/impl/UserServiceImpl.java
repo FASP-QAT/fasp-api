@@ -22,14 +22,10 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,9 +44,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AclService aclService;
 
-//    @Value("${urlHost}")
-//    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
     @Value("${urlHost}")
     private String HOST_URL;
     @Value("${urlPasswordReset}")

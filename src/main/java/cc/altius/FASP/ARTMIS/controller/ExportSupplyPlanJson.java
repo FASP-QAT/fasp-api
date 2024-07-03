@@ -50,9 +50,9 @@ public class ExportSupplyPlanJson {
     private UserService userService;
     @Autowired
     private EmailService emailService;
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
-    @Value("${exportSupplyPlanFilePath}")
+    @Value("${qat.exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
     @Value("${email.exportToList}")
     private String toList;

@@ -635,9 +635,9 @@ sudo npm install npm@latest -g
 
 To run a QAT application on your local machine download it from git repository. 
 Download the file https://github.com/FASP-QAT/fasp-api/blob/master2/docs/QATFolders.7z and expand it into the QAT Home folder.
-The default Home folder is /home/ubuntu/QAT. If you want to change the Home folder please make a change in the ApplicationsConfiguration.java file
+The default Home folder is /home/ubuntu/QAT. If you want to change the Home folder please make a change in the application.properties file
 ```bash
-private String QAT_HOME = "/home/ubuntu/QAT";
+qat.homeFolder=/home/ubuntu/QAT
 ```
 In the properties folder inside the QAT directory you will need to follow instructions and fill in the parameters specific to your instance.
 
