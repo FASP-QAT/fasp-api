@@ -109,7 +109,6 @@ import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -447,7 +446,12 @@ public class ReportDaoImpl implements ReportDao {
         params.put("groupByProcurementAgentType", so.isGroupByProcurementAgentType());
         params.put("curUser", curUser.getUserId());
         ShipmentOverviewOutput soo = new ShipmentOverviewOutput();
-        String sql = "CALL shipmentOverview_FundingSourceSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        String sql = "";
+        if (!so.isGroupByFundingSourceType()) {
+            sql = "CALL shipmentOverview_FundingSourceSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        } else {
+            sql = "CALL shipmentOverview_FundingSourceTypeSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        }
         soo.setFundingSourceSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFundindSourceSplitRowMapper()));
         sql = "CALL shipmentOverview_PlanningUnitSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         soo.setPlanningUnitSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitSplitRowMapper()));
@@ -478,7 +482,7 @@ public class ReportDaoImpl implements ReportDao {
         return soo;
     }
 
-    // Report no 21
+// Report no 21
     @Override
     public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -505,6 +509,9 @@ public class ReportDaoImpl implements ReportDao {
             case 3: // Procurement Agent Type
                 sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
                 break;
+            case 4: // Funding Source Type
+                sql = "CALL shipmentGlobalDemand_FundingSourceTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+                break;
         }
         sgdo.setDateSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandDateSplitRowMapper()));
 
@@ -517,6 +524,9 @@ public class ReportDaoImpl implements ReportDao {
                 break;
             case 3: // Procurement Agent Type
                 sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+                break;
+            case 4: // Funding Source Type
+                sql = "CALL shipmentGlobalDemand_FundingSourceTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
                 break;
         }
         sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
@@ -669,7 +679,7 @@ public class ReportDaoImpl implements ReportDao {
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
-    
+
     // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
