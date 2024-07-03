@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FileController {
 
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.additionalFiles.path}")
     private String QAT_ADDITIONAL_FILES;
