@@ -38,7 +38,7 @@ public interface ProgramDataService {
 
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser);
+    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser);
 
     public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser);
 
