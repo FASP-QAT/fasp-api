@@ -202,10 +202,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para obter mais detalh
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitSettings','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Settings under Program Management > Update Planning Unit.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les paramètres de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar la configuración de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as configurações da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Settings & Notes under Program Management > Update Planning Unit.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les paramètres et les notes de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar la configuración y las notas de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as configurações e notas da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitNotes','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
