@@ -83,7 +83,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.multiplier = multiplier;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public boolean isActive() {
         return super.isActive();
     }

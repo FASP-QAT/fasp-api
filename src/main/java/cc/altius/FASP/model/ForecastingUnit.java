@@ -114,7 +114,7 @@ public class ForecastingUnit extends BaseModel implements Serializable {
         this.unit = unit;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public boolean isActive() {
         return super.isActive();
     }
