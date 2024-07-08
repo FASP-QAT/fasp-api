@@ -50,4 +50,6 @@ public interface ForecastingUnitDao {
     public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser);
     
     public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
+    
+    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
 }

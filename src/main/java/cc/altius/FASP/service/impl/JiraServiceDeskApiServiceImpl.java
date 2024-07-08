@@ -43,15 +43,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService {
 
-    @Value("${jira.apiUrl}")
+    @Value("#{credentials['jira.apiUrl']}")
     private String JIRA_API_URL;
-    @Value("${jira.serviceDeskApiUrl}")
+    @Value("#{credentials['jira.serviceDeskApiUrl']}")
     private String JIRA_SERVICE_DESK_API_URL;
-    @Value("${jira.apiUsername}")
+    @Value("#{credentials['jira.apiUsername']}")
     private String JIRA_API_USERNAME;
     @Value("#{credentials['jira.apiToken']}")
     private String JIRA_API_TOKEN;
-    @Value("${jira.projectName}")
+    @Value("#{credentials['jira.projectName']}")
     private String JIRA_PROJECT_NAME;
 
     @Autowired
