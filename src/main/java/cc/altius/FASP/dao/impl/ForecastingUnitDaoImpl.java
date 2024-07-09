@@ -155,7 +155,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                         + "LEFT JOIN rm_procurement_unit pcu ON pu.PLANNING_UNIT_ID=pcu.PLANNING_UNIT_ID "
                         + "LEFT JOIN rm_procurement_agent_planning_unit papu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
                         + "LEFT JOIN rm_procurement_agent_procurement_unit papcu ON pcu.PROCUREMENT_UNIT_ID=papcu.PROCUREMENT_UNIT_ID "
-                        + "LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppupa.PROGRAM_PLANNING_UNIT_ID "
+                        + "LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_ID=ppupa.PROGRAM_ID AND (ppu.PLANNING_UNIT_ID=ppupa.PLANNING_UNIT_ID "
                         + "SET "
                         + "    pu.LAST_MODIFIED_DATE=IF(pu.ACTIVE=1, :curDate, pu.LAST_MODIFIED_DATE), pu.LAST_MODIFIED_BY=IF(pu.ACTIVE=1, :curUser, pu.LAST_MODIFIED_BY), pu.ACTIVE=0, "
                         + "    ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE=1, :curDate, ppu.LAST_MODIFIED_DATE), ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE=1, :curUser, ppu.LAST_MODIFIED_BY), ppu.ACTIVE=0, "

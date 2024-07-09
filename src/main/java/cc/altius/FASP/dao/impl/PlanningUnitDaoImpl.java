@@ -195,6 +195,9 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 // Program planning unit
                 sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
+                // Program Planning Unit Procurement Agent
+                sqlString = "UPDATE rm_program_planning_unit_procurement_agent p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
                 // Procurement agent planning unit
                 sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
