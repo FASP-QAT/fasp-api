@@ -35,3 +35,48 @@ DROP COLUMN `PROGRAM_PLANNING_UNIT_ID`,
 DROP INDEX `fk_rm_papup_idx_PROGRAM_PLANNING_UNIT_ID` ,
 DROP INDEX `unq_rm_papu_PROGRAM_PLANNING_UNIT_ID_PROCUREMENT_AGENT_ID` ;
 ;
+
+ALTER TABLE `fasp`.`rm_program_planning_unit_procurement_agent` CHANGE `PRICE` `PRICE` DECIMAL(14,4) NULL ; 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePU.noteText1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note : If you want to update procurement agent specific details, go to');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Si vous souhaitez mettre à jour les détails spécifiques de l`agent d`approvisionnement, accédez à');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Si desea actualizar los detalles específicos del agente de adquisiciones, vaya a');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Observação: se você quiser atualizar detalhes específicos do agente de compras, vá para');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePU.noteText2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'écran');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'pantalla');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePPUPA.noteText1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note : If you want to update program specific specific details, go to');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Si vous souhaitez mettre à jour les détails spécifiques au programme, accédez à');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Si desea actualizar detalles específicos del programa, vaya a');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Se você deseja atualizar detalhes específicos do programa, vá para');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePPUPA.noteText2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'écran');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'pantalla');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePPUPA.atleastOneValue','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter atleast one of the value');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez au moins une des valeurs');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese al menos uno de los valores');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira pelo menos um dos valores');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.ppupaAlreadyExists','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program, planning unit and procurement agent mapping already exists');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La cartographie des programmes, des unités de planification et des agents d’approvisionnement existe déjà');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ya existe un mapeo del programa, la unidad de planificación y los agentes de adquisiciones');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O mapeamento do programa, da unidade de planejamento e do agente de compras já existe');-- pr
