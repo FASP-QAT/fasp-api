@@ -214,3 +214,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can upd
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les notes de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar las notas de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as notas da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.planningUnitAboveThreshold','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planning Unit Error is above the Forecast Error Threshold');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'L'erreur de l'unité de planification est supérieure au seuil d`erreur de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El error de la unidad de planificación está por encima del umbral de error de previsión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O erro da unidade de planejamento está acima do limite de erro de previsão');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.forecastErrorThreshold','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Error Threshold');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil d`erreur de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de error de pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de erro de previsão');-- pr
