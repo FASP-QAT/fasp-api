@@ -25,7 +25,7 @@ public class CurrencyConversionController {
 
     @Autowired
     CurrencyService currencyService;
-    private @Value("#{credentials['apilayerToken']}")
+    private @Value("#{credentials['apilayer.token']}")
     String APILAYER_TOKEN;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

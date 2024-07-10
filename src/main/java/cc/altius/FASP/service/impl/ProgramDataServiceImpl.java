@@ -101,33 +101,35 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser) {
+    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser) {
         if (versionId == -1) {
             versionId = this.programDao.getLatestVersionForPrograms("" + programId).get(0).getVersionId();
         }
         DatasetData dd = new DatasetData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
         dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(programId, versionId));
         dd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
-        dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
-        dd.getTreeList().forEach(t -> {
-            t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
-            t.getTree().getFlatList().forEach(n -> {
-                n.getPayload().getNodeDataMap().values().forEach(s -> {
-                    s.forEach(nd -> {
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
-                            nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
-                            nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
-                            nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
-                        }
-                        nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
-                        if (nd.isExtrapolation()) {
-                            nd.setNodeDataExtrapolation(this.programDataDao.getNodeDataExtrapolationForNodeDataId(nd.getNodeDataId()));
-                            nd.setNodeDataExtrapolationOptionList(this.programDataDao.getNodeDataExtrapolationOptionForNodeDataId(nd.getNodeDataId()));
-                        }
+        if (includeTreeData) {
+            dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
+            dd.getTreeList().forEach(t -> {
+                t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
+                t.getTree().getFlatList().forEach(n -> {
+                    n.getPayload().getNodeDataMap().values().forEach(s -> {
+                        s.forEach(nd -> {
+                            if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                                nd.setNodeDataModelingList(this.programDataDao.getModelingDataForNodeDataId(nd.getNodeDataId(), false));
+                                nd.setAnnualTargetCalculator(this.programDataDao.getAnnualTargetCalculatorForNodeDataId(nd.getNodeDataId(), false));
+                                nd.setNodeDataOverrideList(this.programDataDao.getOverrideDataForNodeDataId(nd.getNodeDataId(), false));
+                            }
+                            nd.setNodeDataMomList(this.programDataDao.getMomDataForNodeDataId(nd.getNodeDataId()));
+                            if (nd.isExtrapolation()) {
+                                nd.setNodeDataExtrapolation(this.programDataDao.getNodeDataExtrapolationForNodeDataId(nd.getNodeDataId()));
+                                nd.setNodeDataExtrapolationOptionList(this.programDataDao.getNodeDataExtrapolationOptionForNodeDataId(nd.getNodeDataId()));
+                            }
+                        });
                     });
                 });
             });
-        });
+        }
         dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
         dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
         return dd;
@@ -147,7 +149,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<DatasetData> datasetDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
-            datasetDataList.add(getDatasetData(pv.getProgramId(), pv.getVersionId(), curUser));
+            datasetDataList.add(getDatasetData(pv.getProgramId(), pv.getVersionId(), true, curUser));
         });
         return datasetDataList;
     }

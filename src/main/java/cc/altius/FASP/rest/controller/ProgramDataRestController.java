@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
@@ -82,7 +81,7 @@ public class ProgramDataRestController {
             List<ProgramData> masters = this.programDataService.getProgramData(programVersionList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
-            if(isCompress(jsonString)){
+            if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
             }
             return new ResponseEntity(masters, HttpStatus.OK);
@@ -185,75 +184,8 @@ public class ProgramDataRestController {
 
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
     public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
-//        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
-//        String[] subjectParam = new String[]{};
-//        String[] bodyParam = null;
-//        Emailer emailer = new Emailer();
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
-//        String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            //Generate supply plan files
-//            if (versionStatusId == 2) {
-//                File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
-//                if (directory.isDirectory()) {
-//                    try {
-//                        ProgramData programData = this.programDataService.getProgramData(programId, versionId, curUser);
-//                        ObjectMapper mapper = new ObjectMapper();
-//                        String json = mapper
-//                                .writerWithView(Views.ArtmisView.class)
-//                                .writeValueAsString(programData);
-//                        System.out.println("json---" + json);
-//                        String path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_SupplyPlan_" + StringUtils.leftPad(Integer.toString(programData.getProgramId()), 8, "0") + ".json";
-//                        FileWriter fileWriter = new FileWriter(path);
-//                        fileWriter.write(json);
-//                        fileWriter.flush();
-//                        fileWriter.close();
-//                        logger.info("Export supply plan successful");
-//                    } catch (FileNotFoundException e) {
-//                        subjectParam = new String[]{"supply plan", "File not found"};
-//                        bodyParam = new String[]{"supply plan", date, "File not found", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("File not found exception occured", e);
-//                    } catch (IOException e) {
-//                        subjectParam = new String[]{"supply plan", "Input/Output error"};
-//                        bodyParam = new String[]{"supply plan", date, "Input/Output error", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("IO exception occured", e);
-//                    } catch (BadSqlGrammarException e) {
-//                        subjectParam = new String[]{"supply plan", "SQL Exception"};
-//                        bodyParam = new String[]{"supply plan", date, "SQL Exception", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("SQL exception occured", e);
-//                    } catch (Exception e) {
-//                        subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
-//                        bodyParam = new String[]{"supply plan", date, e.getClass().getName().toString(), e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("Export supply plan exception occured", e);
-//                    }
-//                } else {
-//                    subjectParam = new String[]{"supply plan", "Directory does not exists"};
-//                    bodyParam = new String[]{"supply plan", date, "Directory does not exists", "Directory does not exists"};
-//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                    int emailerId = this.emailService.saveEmail(emailer);
-//                    emailer.setEmailerId(emailerId);
-//                    this.emailService.sendMail(emailer);
-//                    logger.error("Directory does not exists");
-//                }
-//
-//            }
             return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion.getNotes(), curUser, updateProgramVersion.getReviewedProblemList()), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
