@@ -22,6 +22,7 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -66,6 +67,8 @@ public interface ProgramService {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
+    
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
