@@ -41,6 +41,7 @@ import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.Views;
@@ -59,12 +60,12 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleObjectWithTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.PassPhrase;
@@ -585,6 +586,16 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+    
+    @Override
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `TYPE_ID`, pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", programIds);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY p.PROGRAM_ID, pu.PLANNING_UNIT_ID");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithTypeRowMapper());
     }
 
     @Override

@@ -263,6 +263,23 @@ public class ProgramRestController {
         }
     }
 
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/programAndPlanningUnit/programs")
+    public ResponseEntity getProgramAndPlanningUnitForProgramList(@RequestBody Integer[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramAndPlanningUnitListForProgramIds(programIds, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            e.printStackTrace();
+            logger.error("Error while trying to get PlanningUnit list for Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error while trying to get PlanningUnit list for Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/program/realmId/{realmId}")
     public ResponseEntity getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {

@@ -35,6 +35,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -235,7 +236,25 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             return new LinkedList<>();
         }
-
+    }
+    
+    @Override
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+        StringBuilder programList = new StringBuilder();
+        for (int programId : programIds) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+                programList.append("'").append(programId).append("',");
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        if (programList.length() > 0) {
+            programList.setLength(programList.length() - 1);
+            return this.programDao.getProgramAndPlanningUnitListForProgramIds(programList.toString(), curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
     @Override
