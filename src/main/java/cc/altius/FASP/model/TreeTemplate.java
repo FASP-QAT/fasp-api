@@ -29,14 +29,17 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private ForecastTree<TreeNode> tree;
     private String notes;
     private List<TreeLevel> levelList;
+    private SimpleObject rootNodeType;
 
     public TreeTemplate() {
         this.levelList = new LinkedList<>();
+        this.tree=new ForecastTree<>(new ForecastNode<>());
     }
 
     public TreeTemplate(int treeTemplateId) {
         this.treeTemplateId = treeTemplateId;
         this.levelList = new LinkedList<>();
+        this.tree=new ForecastTree<>(new ForecastNode<>());
     }
 
     public int getTreeTemplateId() {
@@ -104,7 +107,7 @@ public class TreeTemplate extends BaseModel implements Serializable {
     }
 
     public List<ForecastNode<TreeNode>> getFlatList() {
-        return this.tree.getFlatList();
+           return this.tree.getFlatList();
     }
 
     public void setFlatList(ForecastNode<TreeNode>[] flatList) throws Exception {
@@ -125,6 +128,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
 
     public void setLevelList(List<TreeLevel> levelList) {
         this.levelList = levelList;
+    }
+
+    public SimpleObject getRootNodeType() {
+        return rootNodeType;
+    }
+
+    public void setRootNodeType(SimpleObject rootNodeType) {
+        this.rootNodeType = rootNodeType;
     }
 
     @Override

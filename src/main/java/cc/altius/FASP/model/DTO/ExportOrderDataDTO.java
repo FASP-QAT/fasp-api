@@ -17,7 +17,7 @@ public class ExportOrderDataDTO {
     private String skuCode;
     private int programId;
     private String procurementAgentCode;
-    private int shipmentQty;
+    private long shipmentQty;
     private Date expectedDeliveryDate;
     private int tracerCategoryId;
     private String tracerCategoryDesc;
@@ -56,11 +56,11 @@ public class ExportOrderDataDTO {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public int getShipmentQty() {
+    public long getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(long shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 

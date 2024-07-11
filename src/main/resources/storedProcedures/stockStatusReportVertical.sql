@@ -13,6 +13,61 @@ BEGIN
     IF @versionId = -1 THEN 
 	SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
+    DROP TEMPORARY TABLE IF EXISTS `tmp_supply_plan_amc`;
+    CREATE TEMPORARY TABLE `tmp_supply_plan_amc` (
+      `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT,
+      `PROGRAM_ID` int unsigned NOT NULL,
+      `VERSION_ID` int unsigned NOT NULL,
+      `PLANNING_UNIT_ID` int unsigned NOT NULL,
+      `TRANS_DATE` date NOT NULL,
+      `AMC` decimal(24,8) DEFAULT NULL,
+      `AMC_COUNT` int DEFAULT NULL,
+      `MOS` decimal(24,8) DEFAULT NULL,
+      `MOS_WPS` decimal(24,8) DEFAULT NULL,
+      `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+      `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
+      `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+      `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,
+      `OPENING_BALANCE` bigint DEFAULT NULL,
+      `OPENING_BALANCE_WPS` bigint DEFAULT NULL,
+      `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL,
+      `SHIPMENT_QTY` bigint DEFAULT NULL,
+      `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `ACTUAL` tinyint(1) DEFAULT NULL,
+      `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL,
+      `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL,
+      `REGION_COUNT` int unsigned NOT NULL,
+      `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL,
+      `EXPIRED_STOCK` bigint DEFAULT NULL,
+      `EXPIRED_STOCK_WPS` bigint DEFAULT NULL,
+      `CLOSING_BALANCE` bigint DEFAULT NULL,
+      `CLOSING_BALANCE_WPS` bigint DEFAULT NULL,
+      `UNMET_DEMAND` bigint DEFAULT NULL,
+      `UNMET_DEMAND_WPS` bigint DEFAULT NULL,
+      `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL,
+      `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL,
+      PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`),
+      KEY `idx_tmp_supply_plan_amc_programId` (`PROGRAM_ID`),
+      KEY `idx_tmp_supply_plan_amc_planningUnitId` (`PLANNING_UNIT_ID`),
+      KEY `idx_rm_supply_plan_amc_transDate` (`TRANS_DATE`),
+      KEY `idx_rm_supply_plan_amc_versionId` (`VERSION_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+    INSERT INTO tmp_supply_plan_amc SELECT sma.* FROM rm_supply_plan_amc sma  WHERE sma.PROGRAM_ID = @programId AND sma.VERSION_ID = @versionId AND sma.PLANNING_UNIT_ID = @planningUnitId AND sma.TRANS_DATE BETWEEN @startDate AND @stopDate;
+
     SET @prvMonthClosingBal = 0;
     SELECT 
         s2.`TRANS_DATE`, 
@@ -74,11 +129,7 @@ BEGIN
         ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, ss.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, ss.LABEL_Fr `SHIPMENT_STATUS_LABEL_FR`, ss.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, ss.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`
     FROM
         mn 
-        LEFT JOIN rm_supply_plan_amc sma ON 
-            mn.MONTH=sma.TRANS_DATE 
-            AND sma.PROGRAM_ID = @programId
-            AND sma.VERSION_ID = @versionId
-            AND sma.PLANNING_UNIT_ID = @planningUnitId
+        LEFT JOIN tmp_supply_plan_amc sma ON mn.MONTH=sma.TRANS_DATE 
         LEFT JOIN 
             (
             SELECT COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, s.SHIPMENT_ID, st.SHIPMENT_QTY , st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.SHIPMENT_STATUS_ID, st.NOTES, st.ORDER_NO, st.PRIME_LINE_NO, st.DATA_SOURCE_ID

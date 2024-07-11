@@ -16,11 +16,13 @@ import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleProgram;
 import java.util.LinkedList;
@@ -63,7 +65,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
+    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
         if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
             return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
         } else {
@@ -72,7 +74,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
+    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
         ForecastingUnit pr = this.getForecastingUnitById(forecastingUnit.getForecastingUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pr.getRealm().getId())) {
             return this.forecastingUnitDao.updateForecastingUnit(forecastingUnit, curUser);
@@ -131,13 +133,18 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
+    public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitDropdownList(curUser);
     }
 
     @Override
     public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser);
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser);
     }
 
 }

@@ -27,7 +27,7 @@ public interface EmailDao {
 
     public List<String> getFilePathForEmailerId(int emailerId);
 
-    public void sendMail(Emailer emailer);
+    public int sendMail(Emailer emailer);
 
     public Emailer buildEmail(int emailTemplateId, String toSend, String ccTo, String bccTo, String[] subjectParam, String[] bodyParam);
 

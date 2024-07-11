@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api/organisationType")
+@RequestMapping("/api")
 public class OrganisationTypeRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class OrganisationTypeRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/")
+    @PostMapping(path = "/organisationType")
     public ResponseEntity postOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -60,7 +60,7 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @PutMapping(path = "/")
+    @PutMapping(path = "/organisationType")
     public ResponseEntity putOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -81,7 +81,7 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping("/")
+    @GetMapping("/organisationType")
     public ResponseEntity getOrganisationTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -92,7 +92,7 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/organisationType/all")
     public ResponseEntity getOrganisationTypeListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -103,7 +103,7 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping("/realmId/{realmId}")
+    @GetMapping("/organisationType/realmId/{realmId}")
     public ResponseEntity getOrganisationTypeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -120,7 +120,7 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping("/{organisationTypeId}")
+    @GetMapping("/organisationType/{organisationTypeId}")
     public ResponseEntity getOrganisationType(@PathVariable("organisationTypeId") int organisationTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

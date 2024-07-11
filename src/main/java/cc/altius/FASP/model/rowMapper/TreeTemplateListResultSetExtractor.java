@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeTemplate;
@@ -43,6 +44,7 @@ public class TreeTemplateListResultSetExtractor implements ResultSetExtractor<Li
                 }
                 tt.setNotes(rs.getString("NOTES"));
                 tt.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+                tt.setRootNodeType(new SimpleObject(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NODE_TYPE_").mapRow(rs, 1)));
                 ttList.add(tt);
             } else {
                 tt = ttList.get(indx);

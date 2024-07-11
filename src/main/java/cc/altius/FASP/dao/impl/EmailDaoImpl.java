@@ -12,19 +12,22 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
 import cc.altius.utils.DateUtils;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -44,6 +47,13 @@ public class EmailDaoImpl implements EmailDao {
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
 
+    @Value("#{credentials['email.password']}")
+    private String emailPassword;
+    @Value("#{credentials['email.username']}")
+    private String emailUsername;
+    private final Logger emailLogger = LoggerFactory.getLogger(cc.altius.FASP.model.Emailer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -59,7 +69,6 @@ public class EmailDaoImpl implements EmailDao {
     @Override
     public int saveEmail(Emailer emailer) {
         int emailerId = 0;
-//        int curUser = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
         String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("em_emailer").usingGeneratedKeyColumns("EMAILER_ID");
         Map<String, Object> params = new HashMap<String, Object>();
@@ -102,40 +111,34 @@ public class EmailDaoImpl implements EmailDao {
 
     @Override
     public List<String> getFilePathForEmailerId(int emailerId) {
-        String sql = "SELECT fs.`FILE_PATH` FROM em_emailer_filepath_mapping efm \n"
-                + " LEFT JOIN em_file_store fs ON fs.`FILE_ID`=efm.`FILE_ID`\n"
+        String sql = "SELECT fs.`FILE_PATH` FROM em_emailer_filepath_mapping efm  "
+                + " LEFT JOIN em_file_store fs ON fs.`FILE_ID`=efm.`FILE_ID` "
                 + " WHERE efm.`EMAILER_ID`=?;";
         return this.jdbcTemplate.queryForList(sql, String.class, emailerId);
     }
 
     @Override
-    public void sendMail(Emailer emailer) {
+    public int sendMail(Emailer emailer) {
         int status = 0;
         String reason = null;
         int attempts = emailer.getAttempts();
-        String from = "QAT_noreply@quantificationanalytics.org";
-//        String from = "fasptestemail@gmail.com";
-        String password = "#Applesaretart";
-//        String password = "bzczjrnpdkhrzxhf";
-//        pass123%$";
+        String from = this.emailUsername;
+        String password = this.emailPassword;
         try {
             Properties props = System.getProperties();
             props.setProperty("mail.smtp.starttls.enable", "true");
             props.setProperty("mail.host", "smtp.office365.com");
-//            props.setProperty("mail.host", "smtp.gmail.com");
             props.setProperty("mail.smtp.port", "587");
-//            props.setProperty("mail.smtp.port", "587");
             props.setProperty("mail.smtp.auth", "true");
             props.setProperty("mail.smtp.socketFactory.port", "587");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-
-//            props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.user", from);
             props.setProperty("mail.password", password);
-            props.setProperty("mail.debug", "true");
-            Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
+            props.setProperty("mail.debug", "false");
+            Session session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                    return new jakarta.mail.PasswordAuthentication(from, password);
                 }
             });
 
@@ -155,20 +158,21 @@ public class EmailDaoImpl implements EmailDao {
             attempts++;
             reason = "Success";
             int rows = this.updateEmail(status, attempts, reason, emailer.getEmailerId());
-//            LogUtils.schedulerLogger.info(LogUtils.buildStringForSystemLog(rows + " rows updated"));
+            return 1;
         } catch (MessagingException ex) {
             reason = ex.toString();
             attempts++;
             status = 2;
             this.updateEmail(status, attempts, reason, emailer.getEmailerId());
+            this.emailLogger.info(ex.getMessage());
+            return 0;
         } catch (Exception ex) {
-//            LogUtils.schedulerLogger.info(LogUtils.buildStringForSystemLog(ex));
-//            LogUtils.systemLogger.error(LogUtils.buildStringForSystemLog(GlobalConstants.TAG_SCHEDULER, ex));
             reason = ex.toString();
             attempts++;
             status = 2;
             this.updateEmail(status, attempts, reason, emailer.getEmailerId());
-//            LogUtils.schedulerLogger.info(LogUtils.buildStringForSystemLog(r + " rows updated"));
+            this.emailLogger.info(ex.getMessage());
+            return 0;
         }
     }
 
