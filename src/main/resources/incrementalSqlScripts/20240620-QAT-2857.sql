@@ -229,3 +229,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Error Thresho
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil d`erreur de prévision');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de error de pronóstico');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de erro de previsão');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.planningUnitAboveThresholdNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: The Forecast Error Threshold values will not be highlighted red if viewing this report in Equivalency Units or multiple Forecasting Units/Planning Units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Les valeurs du seuil d`erreur de prévision ne seront pas surlignées en rouge si ce rapport est affiché en unités déquivalence ou en plusieurs unités de prévision/unités de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Los valores del Umbral de error de pronóstico no se resaltarán en rojo si se visualiza este informe en Unidades de equivalencia o en varias Unidades de pronóstico/Unidades de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Os valores do Limite de Erro de Previsão não serão destacados em vermelho se este relatório for visualizado em Unidades de Equivalência ou em múltiplas Unidades de Previsão/Unidades de Planejamento');-- pr
