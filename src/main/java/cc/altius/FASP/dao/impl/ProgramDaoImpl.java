@@ -158,8 +158,6 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
-    
-
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -588,7 +586,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Transactional
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit").usingColumns("PLANNING_UNIT_ID", "PROGRAM_ID", "REORDER_FREQUENCY_IN_MONTHS", "MIN_MONTHS_OF_STOCK", "LOCAL_PROCUREMENT_LEAD_TIME", "SHELF_LIFE", "CATALOG_PRICE", "MONTHS_IN_PAST_FOR_AMC", "MONTHS_IN_FUTURE_FOR_AMC", "PLAN_BASED_ON", "MIN_QTY", "DISTRIBUTION_LEAD_TIME", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
-        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
+        SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("REALM_COUNTRY_PLANNING_UNIT_ID","PLANNING_UNIT_ID","REALM_COUNTRY_ID","LABEL_ID","SKU_CODE","UNIT_ID","CONVERSION_METHOD","CONVERSION_NUMBER","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE");
         List<SqlParameterSource> updateList = new ArrayList<>();
         List<Integer> programIds = new ArrayList<>();
         int rowsEffected = 0;
@@ -619,7 +617,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 si.execute(params);
                 rowsEffected++;
                 SimpleProgram p = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND rcpu.MULTIPLIER=:multiplier AND rcpu.ACTIVE";
+                String sql = "SELECT count(*) ACTIVE_COUNT FROM rm_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId AND rcpu.PLANNING_UNIT_ID=:planningUnitId AND IF(rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2,1/rcpu.CONVERSION_NUMBER,0))=:multiplier AND rcpu.ACTIVE";
                 params.clear();
                 params.put("realmCountryId", p.getRealmCountry().getId());
                 params.put("planningUnitId", ppu.getPlanningUnit().getId());
@@ -635,7 +633,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("LABEL_ID", rcpuLabelId);
                     params.put("SKU_CODE", skuCode);
                     params.put("UNIT_ID", pu.getUnit().getId());
-                    params.put("MULTIPLIER", 1);
+                    params.put("CONVERSION_NUMBER", 1);
+                    params.put("CONVERSION_METHOD", 1);
                     params.put("CREATED_DATE", curDate);
                     params.put("CREATED_BY", curUser.getUserId());
                     params.put("LAST_MODIFIED_DATE", curDate);
@@ -2808,7 +2807,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("treeIdList", ArrayUtils.convertArrayToString(ta.getTreeIds()));
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
-        
+
     }
 
 }
