@@ -240,7 +240,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentLinkingDataNew`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), CUT_OFF_DATE DATE)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
