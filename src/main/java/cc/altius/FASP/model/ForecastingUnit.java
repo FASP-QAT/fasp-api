@@ -15,15 +15,15 @@ import java.util.Date;
  */
 public class ForecastingUnit extends BaseModel implements Serializable {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private int forecastingUnitId;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject realm;
     @JsonView(Views.ReportView.class)
     private Label genericLabel;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private Label label;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
     private SimpleObject productCategory;
     @JsonView(Views.ReportView.class)
     private SimpleObject tracerCategory;
