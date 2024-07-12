@@ -1,30 +1,60 @@
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.dateRange','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  akil
+ * Created: 04-Apr-2024
+ */
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Download specific range of supply plan data'); -- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Télécharger une gamme spécifique de données du plan d`approvisionnement'); -- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Descargue una gama específica de datos del plan de suministro'); -- sp 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Baixe uma gama específica de dados do plano de fornecimento'); -- pr
+ALTER TABLE `fasp`.`rm_realm_country_planning_unit` 
+ADD COLUMN `CONVERSION_METHOD` INT UNSIGNED NOT NULL COMMENT '1 for Multiply and 2 for Divide' AFTER `UNIT_ID`,
+CHANGE COLUMN `MULTIPLIER` `CONVERSION_NUMBER` DECIMAL(16,6) UNSIGNED NOT NULL ;
 
 USE `fasp`;
-DROP procedure IF EXISTS `getConsumptionDataNew`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_realm_country_planning_unit` AS
+    SELECT 
+        `rcpu`.`REALM_COUNTRY_PLANNING_UNIT_ID` AS `REALM_COUNTRY_PLANNING_UNIT_ID`,
+        `rcpu`.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,
+        `rcpu`.`REALM_COUNTRY_ID` AS `REALM_COUNTRY_ID`,
+        `rcpu`.`LABEL_ID` AS `LABEL_ID`,
+        `rcpu`.`SKU_CODE` AS `SKU_CODE`,
+        `rcpu`.`UNIT_ID` AS `UNIT_ID`,
+        `rcpu`.`CONVERSION_METHOD` AS `CONVERSION_METHOD`,
+        `rcpu`.`CONVERSION_NUMBER` AS `CONVERSION_NUMBER`,
+        `rcpu`.`GTIN` AS `GTIN`,
+        `rcpu`.`ACTIVE` AS `ACTIVE`,
+        `rcpu`.`CREATED_BY` AS `CREATED_BY`,
+        `rcpu`.`CREATED_DATE` AS `CREATED_DATE`,
+        `rcpu`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `rcpu`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `rcpul`.`LABEL_EN` AS `LABEL_EN`,
+        `rcpul`.`LABEL_FR` AS `LABEL_FR`,
+        `rcpul`.`LABEL_SP` AS `LABEL_SP`,
+        `rcpul`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_realm_country_planning_unit` `rcpu`
+        LEFT JOIN `ap_label` `rcpul` ON ((`rcpu`.`LABEL_ID` = `rcpul`.`LABEL_ID`)));
+
 
 USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getConsumptionDataNew`;
+DROP procedure IF EXISTS `getConsumptionData`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getConsumptionData`;
 ;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @planningUmitActive= PLANNING_UNIT_ACTIVE;
-    SET @cutOffDate = CUT_OFF_DATE;
-    SET @useCutOff = false; 
-    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
-        SET @useCutOff = true;
-    END IF;
     IF @versionId = -1 THEN 
         SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
     END IF;
@@ -37,7 +67,7 @@ BEGIN
             p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`,
             r.REGION_ID, r.LABEL_ID `REGION_LABEL_ID`, r.LABEL_EN `REGION_LABEL_EN`, r.LABEL_FR `REGION_LABEL_FR`, r.LABEL_SP `REGION_LABEL_SP`, r.LABEL_PR `REGION_LABEL_PR`,
             rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, rcpu.LABEL_ID `RCPU_LABEL_ID`, rcpu.LABEL_EN `RCPU_LABEL_EN`, rcpu.LABEL_FR `RCPU_LABEL_FR`, rcpu.LABEL_SP `RCPU_LABEL_SP`, rcpu.LABEL_PR `RCPU_LABEL_PR`, 
-            IF (rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2, 1/rcpu.CONVERSION_NUMBER, 0)) `MULTIPLIER`, pu.MULTIPLIER `CONVERSION_FACTOR`,
+            rcpu.CONVERSION_METHOD, rcpu.CONVERSION_NUMBER, pu.MULTIPLIER `CONVERSION_FACTOR`,
             pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
             fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`,
             pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`,
@@ -59,7 +89,7 @@ BEGIN
     LEFT JOIN rm_consumption_trans_batch_info ctbi ON ct.CONSUMPTION_TRANS_ID=ctbi.CONSUMPTION_TRANS_ID
     LEFT JOIN rm_batch_info bi ON ctbi.BATCH_ID=bi.BATCH_ID
     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=@programId AND ppu.PLANNING_UNIT_ID=ct.PLANNING_UNIT_ID
-    WHERE (@planningUmitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND ct.CONSUMPTION_DATE>=@cutOffDate))
+    WHERE (@planningUmitActive = FALSE OR ppu.ACTIVE)
     ORDER BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE, ct.ACTUAL_FLAG, bi.EXPIRY_DATE, bi.BATCH_ID;
 END$$
 
@@ -68,24 +98,20 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS `getInventoryDataNew`;
+DROP procedure IF EXISTS `getInventoryData`;
 
 USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getInventoryDataNew`;
+DROP procedure IF EXISTS `fasp`.`getInventoryData`;
 ;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @planningUnitActive = PLANNING_UNIT_ACTIVE;
-    SET @cutOffDate = CUT_OFF_DATE; 
-    SET @useCutOff = false;
-    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
-        SET @useCutOff = true;
-    END IF;
+
     IF @versionId = -1 THEN
 	SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
     END IF;
@@ -94,7 +120,7 @@ BEGIN
     SET @oldAdjustment = 0;
     SET @bal = 0;
     
-    SELECT @useCutOff, a.*, itbi.INVENTORY_TRANS_BATCH_INFO_ID, itbi.BATCH_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.BATCH_NO, bi.AUTO_GENERATED, bi.EXPIRY_DATE, itbi.ACTUAL_QTY `BATCH_ACTUAL_QTY`, bi.CREATED_DATE `BATCH_CREATED_DATE`, itbi.ADJUSTMENT_QTY `BATCH_ADJUSTMENT_QTY` 
+    SELECT a.*, itbi.INVENTORY_TRANS_BATCH_INFO_ID, itbi.BATCH_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.BATCH_NO, bi.AUTO_GENERATED, bi.EXPIRY_DATE, itbi.ACTUAL_QTY `BATCH_ACTUAL_QTY`, bi.CREATED_DATE `BATCH_CREATED_DATE`, itbi.ADJUSTMENT_QTY `BATCH_ADJUSTMENT_QTY` 
     FROM (
         SELECT 
             der.*, 
@@ -104,7 +130,7 @@ BEGIN
             @oldAdjustment:=der.ADJUSTMENT_QTY
         FROM (
             SELECT 
-                it.INVENTORY_ID, it.INVENTORY_DATE, it.ACTUAL_QTY, it.ADJUSTMENT_QTY, IF (rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2, 1/rcpu.CONVERSION_NUMBER, 0)) `MULTIPLIER`, pu.MULTIPLIER `CONVERSION_FACTOR`, it.VERSION_ID, it.NOTES, it.INVENTORY_TRANS_ID,
+                it.INVENTORY_ID, it.INVENTORY_DATE, it.ACTUAL_QTY, it.ADJUSTMENT_QTY, rcpu.CONVERSION_METHOD, rcpu.CONVERSION_NUMBER, pu.MULTIPLIER `CONVERSION_FACTOR`, it.VERSION_ID, it.NOTES, it.INVENTORY_TRANS_ID,
                 p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`,
                 r.REGION_ID, rl.LABEL_ID `REGION_LABEL_ID`, rl.LABEL_EN `REGION_LABEL_EN`, rl.LABEL_FR `REGION_LABEL_FR`, rl.LABEL_SP `REGION_LABEL_SP`, rl.LABEL_PR `REGION_LABEL_PR`,
                 rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, rcpul.LABEL_ID `REALM_COUNTRY_PLANNING_UNIT_LABEL_ID`, rcpul.LABEL_EN `REALM_COUNTRY_PLANNING_UNIT_LABEL_EN`, rcpul.LABEL_FR `REALM_COUNTRY_PLANNING_UNIT_LABEL_FR`, rcpul.LABEL_SP `REALM_COUNTRY_PLANNING_UNIT_LABEL_SP`, rcpul.LABEL_PR `REALM_COUNTRY_PLANNING_UNIT_LABEL_PR`,
@@ -141,7 +167,7 @@ BEGIN
     LEFT JOIN rm_inventory_trans_batch_info itbi ON a.INVENTORY_TRANS_ID=itbi.INVENTORY_TRANS_ID
     LEFT JOIN rm_batch_info bi ON itbi.BATCH_ID=bi.BATCH_ID
     LEFT JOIN rm_program_planning_unit ppu ON a.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
-    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND a.INVENTORY_DATE>=@cutOffDate))
+    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE)
     ORDER BY a.PLANNING_UNIT_ID, a.REALM_COUNTRY_PLANNING_UNIT_ID, a.REGION_ID, a.INVENTORY_DATE, bi.EXPIRY_DATE, bi.BATCH_ID;
 END$$
 
@@ -150,26 +176,21 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS `getShipmentDataNew`;
+DROP procedure IF EXISTS `getShipmentData`;
 
 USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getShipmentDataNew`;
+DROP procedure IF EXISTS `fasp`.`getShipmentData`;
 ;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), SHIPMENT_ACTIVE TINYINT(1), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10), SHIPMENT_ACTIVE TINYINT(1), PLANNING_UNIT_ACTIVE TINYINT(1))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @shipmentActive = SHIPMENT_ACTIVE;
     SET @planningUnitActive = PLANNING_UNIT_ACTIVE;
     SET @sql1 = "";	
-    SET @cutOffDate = CUT_OFF_DATE; 
-    SET @useCutOff = false;
-    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
-        SET @useCutOff = true;
-    END IF;
     IF @versionId = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
@@ -185,7 +206,7 @@ BEGIN
             fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`,
             pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`,
             pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID `PROCUREMENT_UNIT_LABEL_ID`, pru.LABEL_EN `PROCUREMENT_UNIT_LABEL_EN`, pru.LABEL_FR `PROCUREMENT_UNIT_LABEL_FR`, pru.LABEL_SP `PROCUREMENT_UNIT_LABEL_SP`, pru.LABEL_PR `PROCUREMENT_UNIT_LABEL_PR`,
-            rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `RCPU_ID`, rcpu.LABEL_ID `RCPU_LABEL_ID`, rcpu.LABEL_EN `RCPU_LABEL_EN`, rcpu.LABEL_FR `RCPU_LABEL_FR`, rcpu.LABEL_SP `RCPU_LABEL_SP`, rcpu.LABEL_PR `RCPU_LABEL_PR`, IF (rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2, 1/rcpu.CONVERSION_NUMBER, 0)) `RCPU_MULTIPLIER`,
+            rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `RCPU_ID`, rcpu.LABEL_ID `RCPU_LABEL_ID`, rcpu.LABEL_EN `RCPU_LABEL_EN`, rcpu.LABEL_FR `RCPU_LABEL_FR`, rcpu.LABEL_SP `RCPU_LABEL_SP`, rcpu.LABEL_PR `RCPU_LABEL_PR`, rcpu.CONVERSION_NUMBER, rcpu.CONVERSION_METHOD,
             su.SUPPLIER_ID, su.LABEL_ID `SUPPLIER_LABEL_ID`, su.LABEL_EN `SUPPLIER_LABEL_EN`, su.LABEL_FR `SUPPLIER_LABEL_FR`, su.LABEL_SP `SUPPLIER_LABEL_SP`, su.LABEL_PR `SUPPLIER_LABEL_PR`,
             shs.SHIPMENT_STATUS_ID, shs.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, shs.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, shs.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, shs.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, shs.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`,
             ds.DATA_SOURCE_ID, ds.LABEL_ID `DATA_SOURCE_LABEL_ID`, ds.LABEL_EN `DATA_SOURCE_LABEL_EN`, ds.LABEL_FR `DATA_SOURCE_LABEL_FR`, ds.LABEL_SP `DATA_SOURCE_LABEL_SP`, ds.LABEL_PR `DATA_SOURCE_LABEL_PR`,
@@ -222,60 +243,8 @@ BEGIN
     LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID = stbi.SHIPMENT_TRANS_ID
     LEFT JOIN rm_program_planning_unit ppu ON st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
     LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID
-    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)>=@cutOffDate))
+    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE)
     ORDER BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE), bi.EXPIRY_DATE, bi.BATCH_ID; 
-END$$
-
-DELIMITER ;
-;
-
-
-
-USE `fasp`;
-DROP procedure IF EXISTS `getShipmentLinkingDataNew`;
-
-USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getShipmentLinkingDataNew`;
-;
-
-DELIMITER $$
-USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), CUT_OFF_DATE DATE)
-BEGIN
-    SET @programId = PROGRAM_ID;
-    SET @versionId = VERSION_ID;
-    IF @versionId = -1 THEN
-        SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
-    END IF;
-    SET @cutOffDate = CUT_OFF_DATE; 
-    SET @useCutOff = false;
-    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
-        SET @useCutOff = true;
-    END IF;
-    SELECT 
-		sl.SHIPMENT_LINKING_ID, sl.PROGRAM_ID, slt.VERSION_ID,
-        pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE,
-        sl.PARENT_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, st.PLANNING_UNIT_ID QAT_PLANNING_UNIT_ID,
-        pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`,
-        sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.ORDER_NO, sl.PRIME_LINE_NO, sl.KN_SHIPMENT_NO, slt.CONVERSION_FACTOR,
-        slt.ACTIVE, sl.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, slt.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`,coalesce(es.STATUS,eo.STATUS) AS `ERP_SHIPMENT_STATUS` 
-    FROM (
-	SELECT sl.SHIPMENT_LINKING_ID, MAX(slt.VERSION_ID) MAX_VERSION_ID FROM rm_shipment_linking sl LEFT JOIN rm_shipment_linking_trans slt ON sl.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID WHERE (@versionId=-1 OR slt.VERSION_ID<=@versionId) AND sl.PROGRAM_ID=@programId GROUP BY slt.SHIPMENT_LINKING_ID
-    ) ts 
-    LEFT JOIN rm_shipment_linking sl ON ts.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID
-    LEFT JOIN rm_shipment_linking_trans slt ON ts.SHIPMENT_LINKING_ID=slt.SHIPMENT_LINKING_ID AND ts.MAX_VERSION_ID=slt.VERSION_ID
-    LEFT JOIN vw_procurement_agent pa on sl.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID 
-    LEFT JOIN rm_erp_order_consolidated eo ON sl.RO_NO=eo.RO_NO AND sl.RO_PRIME_LINE_NO=eo.RO_PRIME_LINE_NO AND eo.ACTIVE
-    LEFT JOIN rm_erp_shipment_consolidated es ON es.ORDER_NO=sl.ORDER_NO AND es.PRIME_LINE_NO=sl.PRIME_LINE_NO AND es.KN_SHIPMENT_NO=sl.KN_SHIPMENT_NO AND es.ACTIVE
-    LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.PROCUREMENT_AGENT_ID=sl.PROCUREMENT_AGENT_ID AND LEFT(papu.SKU_CODE,12)=eo.PLANNING_UNIT_SKU_CODE
-    LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
-    LEFT JOIN rm_shipment s ON sl.PARENT_SHIPMENT_ID=s.SHIPMENT_ID 
-    LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
-    LEFT JOIN us_user cb ON sl.CREATED_BY=cb.USER_ID 
-    LEFT JOIN us_user lmb ON slt.LAST_MODIFIED_BY=lmb.USER_ID
-    WHERE (@useCutOff = FALSE OR (@useCutOff = TRUE AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)>=@cutOffDate))
-    GROUP BY sl.SHIPMENT_LINKING_ID;
-    
 END$$
 
 DELIMITER ;
