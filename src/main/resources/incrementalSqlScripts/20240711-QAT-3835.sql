@@ -9,6 +9,11 @@ INSERT INTO us_business_function VALUES ('ROLE_BF_NOTIFICATION_CC_NOREVIEW', LAS
 INSERT INTO ap_label VALUES (null, 'SP - Notification To NoReview', null, null, null, 1, now(), 1, now(), 24);
 INSERT INTO us_business_function VALUES ('ROLE_BF_NOTIFICATION_BCC_NOREVIEW', LAST_INSERT_ID(), 1, now(), 1, now());
 
+INSERT INTO us_role_business_function VALUES (null, 'ROLE_PROGRAM_ADMIN','ROLE_BF_NOTIFICATION_BCC_NOREVIEW', 1, now(), 1, now());
+INSERT INTO us_role_business_function VALUES (null, 'ROLE_PROGRAM_USER','ROLE_BF_NOTIFICATION_BCC_NOREVIEW', 1, now(), 1, now());
+INSERT INTO us_role_business_function VALUES (null, 'ROLE_SUPPLY_PLAN_REVIEWER','ROLE_BF_NOTIFICATION_BCC_NOREVIEW', 1, now(), 1, now());
+INSERT INTO us_role_business_function VALUES (null, 'ROLE_REALM_ADMIN','ROLE_BF_NOTIFICATION_BCC_NOREVIEW', 1, now(), 1, now());
+
 USE `fasp`;
 DROP procedure IF EXISTS `getSupplyPlanNotificationToList`;
 
