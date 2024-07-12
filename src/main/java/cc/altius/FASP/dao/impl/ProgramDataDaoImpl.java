@@ -2025,10 +2025,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, "
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";
-
-//        if (versionStatusId == 2) {
-//            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
-//        }
         programVersionUpdateSql += " WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId;";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -2090,7 +2086,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
         }
 
-        if (versionStatusId == 2) {
+        if (versionStatusId == 2) { // Approved
             updateParamList.clear();
             String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
             List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
@@ -2109,17 +2105,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
             }
-        }
-        //        when version is rejcted
-        if (versionStatusId == 3) {
+        } 
+        if (versionStatusId == 3) { // Needs Revision
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
             List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "BCc");
-//            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
-//            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
-
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             StringBuilder sbBccEmails = new StringBuilder();
@@ -2138,13 +2129,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
-//            if (sbToEmails.length() != 0) {
-//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-//            }
-//            if (sbCcEmails.length() != 0) {
-//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-//            }
-
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
@@ -2155,18 +2139,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-        }
-
-//        when version is approved
-        if (versionStatusId == 2) {
+        } else if (versionStatusId == 2) { // Approved
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
             List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "BCc");
-//            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
-//            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
-
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             StringBuilder sbBccEmails = new StringBuilder();
@@ -2185,14 +2162,40 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
-//            if (sbToEmails.length() != 0) {
-//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-//            }
-//            if (sbCcEmails.length() != 0) {
-//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-//            }
-
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
+            String[] subjectParam = new String[]{};
+            String[] bodyParam = null;
+            Emailer emailer = new Emailer();
+            subjectParam = new String[]{sp.getCode()};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+        } else if (versionStatusId == 4) { // No review needed
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 4, "To");
+            List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 4, "Cc");
+            List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 4, "BCc");
+            StringBuilder sbToEmails = new StringBuilder();
+            StringBuilder sbCcEmails = new StringBuilder();
+            StringBuilder sbBccEmails = new StringBuilder();
+            if (toEmailIdsList.size() > 0) {
+                for (NotificationUser ns : toEmailIdsList) {
+                    sbToEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (ccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : ccEmailIdsList) {
+                    sbCcEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (bccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : bccEmailIdsList) {
+                    sbBccEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(8);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
