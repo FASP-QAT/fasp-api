@@ -131,10 +131,10 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS `getSupplyPlanNotificationToList`;
+DROP procedure IF EXISTS `getSupplyPlanNotificationCcList`;
 
 USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`getSupplyPlanNotificationToList`;
+DROP procedure IF EXISTS `fasp`.`getSupplyPlanNotificationCcList`;
 ;
 
 DELIMITER $$
