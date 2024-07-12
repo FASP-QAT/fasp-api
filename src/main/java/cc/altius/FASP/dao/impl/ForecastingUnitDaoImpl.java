@@ -109,7 +109,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         }
     }
 
-    @Override
+        @Override
     public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
         String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE LOWER(fu.LABEL_EN)=:forecastingUnitName AND fu.FORECASTING_UNIT_ID!=:forecastingUnitId";
         Map<String, Object> params = new HashMap<>();
@@ -120,6 +120,19 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             throw new DuplicateNameException("Forecasting unit with same name already exists");
         } else {
             Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            if (forecastingUnit.getGenericLabel() != null && forecastingUnit.getGenericLabel().getLabel_en() != null) {
+                ForecastingUnit fu = this.getForecastingUnitById(forecastingUnit.getForecastingUnitId(), curUser);
+                if ((fu.getGenericLabel() == null || fu.getGenericLabel().getLabelId() == null || fu.getGenericLabel().getLabelId() == 0)) {
+                    int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
+                    String sql = "UPDATE rm_forecasting_unit fu SET fu.GENERIC_LABEL_ID=:genericLabelId, fu.LAST_MODIFIED_DATE=:curDate, fu.LAST_MODIFIED_BY=:curUser WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
+                    params.put("genericLabelId", genericLabelId);
+                    params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+                    params.put("curUser", curUser.getUserId());
+                    params.put("curDate", curDate);
+                    int rows = this.namedParameterJdbcTemplate.update(sql, params);
+                }
+            }
+            
             params.clear();
             StringBuilder sb = new StringBuilder("UPDATE rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
                     + "SET  "
@@ -134,6 +147,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                     + "    pgl.LABEL_EN=:genericLabelEn, "
                     + "    pgl.LAST_MODIFIED_BY=:curUser, "
                     + "    pgl.LAST_MODIFIED_DATE=:curDate ");
+            params.clear();
             params.put("productCategoryId", forecastingUnit.getProductCategory().getId());
             params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getId());
             params.put("active", forecastingUnit.isActive());
