@@ -293,7 +293,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     @Override
     @Transactional
     public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("PLANNING_UNIT_ID","REALM_COUNTRY_ID","SKU_CODE","LABEL_ID","CONVERSION_NUMBER","CONVERSION_METHOD","UNIT_ID","CREATED_DATE","CREATED_BY","LAST_MODIFIED_DATE","LAST_MODIFIED_BY","ACTIVE");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
         int rowsEffected = 0;
