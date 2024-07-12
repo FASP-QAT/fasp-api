@@ -1,8 +1,13 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
 SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @planningUmitActive= PLANNING_UNIT_ACTIVE;
+    SET @cutOffDate = CUT_OFF_DATE;
+    SET @useCutOff = false;
+    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
+        SET @useCutOff = true;
+    END IF;
     IF @versionId = -1 THEN 
         SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
     END IF;
@@ -37,6 +42,6 @@ SET @programId = PROGRAM_ID;
     LEFT JOIN rm_consumption_trans_batch_info ctbi ON ct.CONSUMPTION_TRANS_ID=ctbi.CONSUMPTION_TRANS_ID
     LEFT JOIN rm_batch_info bi ON ctbi.BATCH_ID=bi.BATCH_ID
     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=@programId AND ppu.PLANNING_UNIT_ID=ct.PLANNING_UNIT_ID
-    WHERE (@planningUmitActive = FALSE OR ppu.ACTIVE)
+    WHERE (@planningUmitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND ct.CONSUMPTION_DATE>=@cutOffDate))
     ORDER BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE, ct.ACTUAL_FLAG, bi.EXPIRY_DATE, bi.BATCH_ID;
 END

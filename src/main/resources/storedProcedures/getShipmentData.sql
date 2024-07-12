@@ -1,10 +1,15 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10), SHIPMENT_ACTIVE TINYINT(1), PLANNING_UNIT_ACTIVE TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10), SHIPMENT_ACTIVE TINYINT(1), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @shipmentActive = SHIPMENT_ACTIVE;
     SET @planningUnitActive = PLANNING_UNIT_ACTIVE;
     SET @sql1 = "";	
+    SET @cutOffDate = CUT_OFF_DATE;
+    SET @useCutOff = false;
+    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
+        SET @useCutOff = true;
+    END IF;
     IF @versionId = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
@@ -57,6 +62,6 @@ BEGIN
     LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID = stbi.SHIPMENT_TRANS_ID
     LEFT JOIN rm_program_planning_unit ppu ON st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
     LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID
-    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE)
+    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)>=@cutOffDate))
     ORDER BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE), bi.EXPIRY_DATE, bi.BATCH_ID; 
 END
