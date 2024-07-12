@@ -63,6 +63,7 @@ import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.PassPhrase;
@@ -2434,6 +2435,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programTypeId", programTypeId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" ORDER BY c.LABEL_EN, p.PROGRAM_CODE ");
         List<LoadProgram> programList = this.namedParameterJdbcTemplate.query(sb.toString(), params, new LoadProgramListResultSetExtractor());
         params.clear();
         params.put("programId", 0);
@@ -2482,7 +2484,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("programTypeId", programTypeId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        sb.append(" GROUP BY p.PROGRAM_ID");
+        sb.append(" GROUP BY p.PROGRAM_ID ORDER BY c.LABEL_EN, p.PROGRAM_CODE ");
         LoadProgram program = this.namedParameterJdbcTemplate.query(sb.toString(), params, new LoadProgramResultSetExtractor());
         program.setCurrentPage(page);
         params.clear();

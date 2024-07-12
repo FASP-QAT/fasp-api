@@ -386,11 +386,9 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sqlString = "CALL stockStatusOverTime(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :mosPast, :mosFuture)";
+        String sqlString = "CALL stockStatusOverTime(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)";
         params.put("startDate", ssot.getStartDate());
         params.put("stopDate", ssot.getStopDate());
-        params.put("mosFuture", ssot.getMosFuture());
-        params.put("mosPast", ssot.getMosPast());
         params.put("programId", ssot.getProgramId());
         params.put("versionId", ssot.getVersionId());
         params.put("planningUnitIds", ssot.getPlanningUnitIdString());

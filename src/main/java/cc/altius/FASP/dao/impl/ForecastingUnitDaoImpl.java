@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
@@ -31,7 +32,6 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 /**
  *
@@ -75,86 +75,97 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             + "WHERE TRUE ";
 
     @Override
-    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
+        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE LOWER(fu.LABEL_EN)=:forecastingUnitName";
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(forecastingUnit.getLabel(), LabelConstants.RM_FORECASTING_UNIT, curUser.getUserId());
-        params.put("LABEL_ID", labelId);
-        int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
-        params.put("GENERIC_LABEL_ID", genericLabelId);
-        params.put("REALM_ID", forecastingUnit.getRealm().getId());
-        params.put("UNIT_ID", forecastingUnit.getUnit().getId());
-        params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getId());
-        params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getId());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en().toLowerCase());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Forecasting unit with same name already exists");
+        } else {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+            int labelId = this.labelDao.addLabel(forecastingUnit.getLabel(), LabelConstants.RM_FORECASTING_UNIT, curUser.getUserId());
+            params.put("LABEL_ID", labelId);
+            int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
+            params.put("GENERIC_LABEL_ID", genericLabelId);
+            params.put("REALM_ID", forecastingUnit.getRealm().getId());
+            params.put("UNIT_ID", forecastingUnit.getUnit().getId());
+            params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getId());
+            params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getId());
+            params.put("ACTIVE", true);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            return si.executeAndReturnKey(params).intValue();
+        }
     }
 
     @Override
-    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
+        String sqlString = "SELECT COUNT(*) FROM vw_forecasting_unit fu WHERE LOWER(fu.LABEL_EN)=:forecastingUnitName AND fu.FORECASTING_UNIT_ID!=:forecastingUnitId";
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sb = new StringBuilder("UPDATE rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
-                + "SET  "
-                + "    fu.PRODUCT_CATEGORY_ID=:productCategoryId, "
-                + "    fu.TRACER_CATEGORY_ID=:tracerCategoryId, "
-                + "    fu.ACTIVE=:active, "
-                + "    fu.LAST_MODIFIED_BY=:curUser, "
-                + "    fu.LAST_MODIFIED_DATE=:curDate, "
-                + "    ful.LABEL_EN=:labelEn, "
-                + "    ful.LAST_MODIFIED_BY=:curUser, "
-                + "    ful.LAST_MODIFIED_DATE=:curDate, "
-                + "    pgl.LABEL_EN=:genericLabelEn, "
-                + "    pgl.LAST_MODIFIED_BY=:curUser, "
-                + "    pgl.LAST_MODIFIED_DATE=:curDate ");
-        params.put("productCategoryId", forecastingUnit.getProductCategory().getId());
-        params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getId());
-        params.put("active", forecastingUnit.isActive());
-        params.put("labelEn", forecastingUnit.getLabel().getLabel_en());
-        params.put("genericLabelEn", forecastingUnit.getGenericLabel().getLabel_en());
-        params.put("curUser", curUser.getUserId());
-        params.put("curDate", curDate);
-        if (curUser.hasBusinessFunction("ROLE_BF_UPDATE_UNIT_FOR_FU")) {
-            sb.append(",    fu.UNIT_ID=:unitId ");
-            params.put("unitId", forecastingUnit.getUnit().getId());
-        }
-        sb.append("WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId");
+        params.put("forecastingUnitName", forecastingUnit.getLabel().getLabel_en().toLowerCase());
         params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
-
-        int rows = this.namedParameterJdbcTemplate.update(sb.toString(), params);
-        if (!forecastingUnit.isActive()) {
-            String sqlString = "SELECT p.`PLANNING_UNIT_ID` FROM rm_planning_unit p WHERE p.`FORECASTING_UNIT_ID`=?;";
-            List<Integer> list = this.jdbcTemplate.queryForList(sqlString, Integer.class, forecastingUnit.getForecastingUnitId());
-
-            MapSqlParameterSource[] batchParams;
-            int x;
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Forecasting unit with same name already exists");
+        } else {
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
             params.clear();
-            batchParams = new MapSqlParameterSource[list.size()];
-            x = 0;
-            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;";
-
-            for (int planningUnitId : list) {
-                params.put("planningUnitId", planningUnitId);
-                batchParams[x] = new MapSqlParameterSource(params);
-                x++;
+            StringBuilder sb = new StringBuilder("UPDATE rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
+                    + "SET  "
+                    + "    fu.PRODUCT_CATEGORY_ID=:productCategoryId, "
+                    + "    fu.TRACER_CATEGORY_ID=:tracerCategoryId, "
+                    + "    fu.ACTIVE=:active, "
+                    + "    fu.LAST_MODIFIED_BY=:curUser, "
+                    + "    fu.LAST_MODIFIED_DATE=:curDate, "
+                    + "    ful.LABEL_EN=:labelEn, "
+                    + "    ful.LAST_MODIFIED_BY=:curUser, "
+                    + "    ful.LAST_MODIFIED_DATE=:curDate, "
+                    + "    pgl.LABEL_EN=:genericLabelEn, "
+                    + "    pgl.LAST_MODIFIED_BY=:curUser, "
+                    + "    pgl.LAST_MODIFIED_DATE=:curDate ");
+            params.put("productCategoryId", forecastingUnit.getProductCategory().getId());
+            params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getId());
+            params.put("active", forecastingUnit.isActive());
+            params.put("labelEn", forecastingUnit.getLabel().getLabel_en());
+            params.put("genericLabelEn", forecastingUnit.getGenericLabel().getLabel_en());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            if (curUser.hasBusinessFunction("ROLE_BF_UPDATE_UNIT_FOR_FU")) {
+                sb.append(",    fu.UNIT_ID=:unitId ");
+                params.put("unitId", forecastingUnit.getUnit().getId());
             }
-            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
-            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;";
-            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
-            sqlString = "UPDATE rm_procurement_unit p "
-                    + "LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` "
-                    + "SET p.`ACTIVE`=0,pu.`ACTIVE`=0 "
-                    + "WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;;";
-            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
-            sqlString = "UPDATE rm_planning_unit p SET p.`ACTIVE`=0 WHERE p.`FORECASTING_UNIT_ID`=?;";
-            this.jdbcTemplate.update(sqlString, forecastingUnit.getForecastingUnitId());
+            sb.append("WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId");
+            params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+
+            int rows = this.namedParameterJdbcTemplate.update(sb.toString(), params);
+            if (!forecastingUnit.isActive()) {
+                sqlString = "UPDATE rm_planning_unit pu "
+                        + "LEFT JOIN rm_program_planning_unit ppu ON pu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                        + "LEFT JOIN rm_procurement_unit pcu ON pu.PLANNING_UNIT_ID=pcu.PLANNING_UNIT_ID "
+                        + "LEFT JOIN rm_procurement_agent_planning_unit papu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
+                        + "LEFT JOIN rm_procurement_agent_procurement_unit papcu ON pcu.PROCUREMENT_UNIT_ID=papcu.PROCUREMENT_UNIT_ID "
+                        + "LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppupa.PROGRAM_PLANNING_UNIT_ID "
+                        + "SET "
+                        + "    pu.LAST_MODIFIED_DATE=IF(pu.ACTIVE=1, :curDate, pu.LAST_MODIFIED_DATE), pu.LAST_MODIFIED_BY=IF(pu.ACTIVE=1, :curUser, pu.LAST_MODIFIED_BY), pu.ACTIVE=0, "
+                        + "    ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE=1, :curDate, ppu.LAST_MODIFIED_DATE), ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE=1, :curUser, ppu.LAST_MODIFIED_BY), ppu.ACTIVE=0, "
+                        + "    pcu.LAST_MODIFIED_DATE=IF(pcu.ACTIVE=1, :curDate, pcu.LAST_MODIFIED_DATE), pcu.LAST_MODIFIED_BY=IF(pcu.ACTIVE=1, :curUser, pcu.LAST_MODIFIED_BY), pcu.ACTIVE=0, "
+                        + "    papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE=1, :curDate, papu.LAST_MODIFIED_DATE), papu.LAST_MODIFIED_BY=IF(papu.ACTIVE=1, :curUser, papu.LAST_MODIFIED_BY), papu.ACTIVE=0, "
+                        + "    papcu.LAST_MODIFIED_DATE=IF(papcu.ACTIVE=1, :curDate, papcu.LAST_MODIFIED_DATE), papcu.LAST_MODIFIED_BY=IF(papcu.ACTIVE=1, :curUser, papcu.LAST_MODIFIED_BY), papcu.ACTIVE=0, "
+                        + "    ppupa.LAST_MODIFIED_DATE=IF(ppupa.ACTIVE=1, :curDate, ppupa.LAST_MODIFIED_DATE), ppupa.LAST_MODIFIED_BY=IF(ppupa.ACTIVE=1, :curUser, ppupa.LAST_MODIFIED_BY), ppupa.ACTIVE=0 "
+                        + "WHERE pu.FORECASTING_UNIT_ID=:fuId";
+                params.clear();
+                params.put("fuId", forecastingUnit.getForecastingUnitId());
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+            return rows;
         }
-        return rows;
     }
 
     @Override
@@ -336,6 +347,23 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
         stringBuilder.append(" ORDER BY fu.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder(sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        if (input.getProductCategorySortOrder() != null) {
+            stringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder,'%') ");
+            params.put("productCategorySortOrder", input.getProductCategorySortOrder());
+        }
+        if (input.getTracerCategoryId() != null) {
+            stringBuilder.append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+            params.put("tracerCategoryId", input.getTracerCategoryId());
+        }
+        this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        stringBuilder.append(" ORDER BY fu.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new ForecastingUnitRowMapper());
     }
 
 }
