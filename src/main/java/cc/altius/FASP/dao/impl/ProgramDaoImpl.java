@@ -732,7 +732,7 @@ public class ProgramDaoImpl implements ProgramDao {
         if (active) {
             sqlStringBuilder.append(" AND ppupa.ACTIVE");
         }
-        sqlStringBuilder.append(" ORDER BY p.LABEL_EN, pu.LABEL_EN, pa.LABEL_EN");
+        sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE, pu.LABEL_EN, pa.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitProcurementAgentPriceRowMapper());
     }
 
