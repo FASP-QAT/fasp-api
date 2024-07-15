@@ -55,10 +55,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePPUPA.noteText1','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note : If you want to update program specific specific details, go to');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note : If you want to update program specific details, go to');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Si vous souhaitez mettre à jour les détails spécifiques au programme, accédez à');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Si desea actualizar detalles específicos del programa, vaya a');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Se você deseja atualizar detalhes específicos do programa, vá para');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: si desea actualizar detalles específicos del programa, vaya a');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Se desejar atualizar detalhes específicos do programa, vá para');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePPUPA.noteText2','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 

@@ -774,6 +774,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params = new HashMap<>();
                 params.put("programPlanningUnitProcurementAgentId", ppupa.getProgramPlanningUnitProcurementAgentId());
                 params.put("planningUnitId", (ppupa.getPlanningUnit().getId() == -1 ? null : ppupa.getPlanningUnit().getId()));
+                params.put("procurementAgentId", ppupa.getProcurementAgent().getId());
                 params.put("price", ppupa.getPrice());
                 params.put("seaFreightPerc", ppupa.getSeaFreightPerc());
                 params.put("airFreightPerc", ppupa.getAirFreightPerc());
@@ -802,6 +803,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "rm_program_planning_unit_procurement_agent ppupa "
                     + "SET "
                     + "ppupa.PLANNING_UNIT_ID=:planningUnitId, "
+                    + "ppupa.PROCUREMENT_AGENT_ID=:procurementAgentId, "
                     + "ppupa.PRICE=:price, "
                     + "ppupa.SEA_FREIGHT_PERC=:seaFreightPerc, "
                     + "ppupa.AIR_FREIGHT_PERC=:airFreightPerc, "
