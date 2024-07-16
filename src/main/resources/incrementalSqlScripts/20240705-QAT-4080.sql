@@ -90,10 +90,10 @@ where l.LABEL_CODE='static.compareAndSelect.aboveHighestConsumption' and ll.LANG
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.selectForecast','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click to select forecast.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez pour sélectionner les prévisions.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique para selecionar a previsão.');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic para seleccionar el pronóstico.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click Planning Unit to display details');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez sur Unité de planification pour afficher les détails');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique em Unidade de planejamento para exibir detalhes');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic en Unidad de planificación para mostrar los detalles');-- sp
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.forecastSelected','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -103,18 +103,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision sélectionn
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão selecionada.');-- pr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico seleccionado.');-- sp
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.collapsePUPanel','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.forecastNotSelected','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click “-” to hide PU panel');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez sur « - » pour masquer le panneau PU');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique em “-” para ocultar o painel PU');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic en “-” para ocultar el panel PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast not selected');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision non sélectionnée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão não selecionada');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico no seleccionado');-- sp
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.expandPUPanel','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.showPUPanel','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Expand PU panel');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Développer le panneau PU');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Expandir painel PU');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ampliar panel de PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show PU panel');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher le panneau PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar painel PU');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar panel de PU');-- sp
