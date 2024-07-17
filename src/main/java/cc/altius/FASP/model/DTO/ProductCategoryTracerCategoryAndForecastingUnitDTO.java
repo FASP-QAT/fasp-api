@@ -10,13 +10,13 @@ package cc.altius.FASP.model.DTO;
  */
 public class ProductCategoryTracerCategoryAndForecastingUnitDTO extends ProductCategoryAndTracerCategoryDTO {
 
-    private String forecastingUnitId;
+    private Integer forecastingUnitId;
 
-    public String getForecastingUnitId() {
+    public Integer getForecastingUnitId() {
         return forecastingUnitId;
     }
 
-    public void setForecastingUnitId(String forecastingUnitId) {
+    public void setForecastingUnitId(Integer forecastingUnitId) {
         this.forecastingUnitId = forecastingUnitId;
     }
 
