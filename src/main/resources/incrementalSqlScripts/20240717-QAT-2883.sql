@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ShipmentList`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`shipmentGlobalDemand_ShipmentList`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ShipmentList`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
@@ -120,4 +129,8 @@ BEGIN
         
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
-END
+END$$
+
+DELIMITER ;
+;
+
