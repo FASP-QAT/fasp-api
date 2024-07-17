@@ -1,5 +1,4 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentTypeDateSplit`(
-    VAR_USER_ID INT(10), 
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_FundingSourceTypeCountrySplit`(VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
     VAR_STOP_DATE DATE, 
@@ -11,7 +10,7 @@ CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentTy
     VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    -- Report no 21 Part 2 for ProcurementAgentType
+    -- Report no 21 Part 3 for FundingSourceType
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     DECLARE curRealmCountryId INT;
@@ -24,7 +23,7 @@ BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
     DECLARE fspa_cursor CURSOR FOR 
-        SELECT pat.PROCUREMENT_AGENT_TYPE_ID, pat.PROCUREMENT_AGENT_TYPE_CODE
+        SELECT fst.FUNDING_SOURCE_TYPE_ID, fst.FUNDING_SOURCE_TYPE_CODE
         FROM 
             (
             SELECT pv.PROGRAM_ID, pv.VERSION_ID, s.SHIPMENT_ID, MAX(st.VERSION_ID) `MAX_VERSION_ID` 
@@ -53,8 +52,8 @@ BEGIN
         LEFT JOIN rm_shipment s ON s1.SHIPMENT_ID=s.SHIPMENT_ID 
         LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID 
         LEFT JOIN rm_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
+        LEFT JOIN rm_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID
         LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID
-        LEFT JOIN rm_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID
         WHERE 
             st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 
             AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate 
@@ -66,10 +65,10 @@ BEGIN
                 OR (@reportView=4 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)))
             )
             AND (@includePlannedShipments = 1 OR (@includePlannedShipments = 0 AND st.SHIPMENT_STATUS_ID != 1))
-        GROUP BY st.PROCUREMENT_AGENT_ID;
+        GROUP BY fs.FUNDING_SOURCE_TYPE_ID;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
-    
+
     SET @realmCountryIds = VAR_REALM_COUNTRY_IDS;
     SET @fundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
     SET @aclSqlString = CONCAT("       AND (FALSE ");
@@ -89,7 +88,7 @@ BEGIN
     END LOOP;
     CLOSE cursor_acl;
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
-        
+    
     SET @realmId = VAR_REALM_ID;
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
@@ -106,12 +105,12 @@ BEGIN
         IF done THEN 
             LEAVE getFSPA;
         END IF;
-        SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(pa.PROCUREMENT_AGENT_TYPE_ID=",fspaId,", ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `FSPA_",fspaCode,"` ");
+        SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(fs.FUNDING_SOURCE_TYPE_ID=",fspaId,", ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `FSPA_",fspaCode,"` ");
     END LOOP getFSPA;
     
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "       CONCAT(LEFT(COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE),7),'-01') `TRANS_DATE` ");
+    SET @sqlString = CONCAT(@sqlString, "       rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR` ");
     SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
     SET @sqlString = CONCAT(@sqlString, "FROM ");
     SET @sqlString = CONCAT(@sqlString, "       ( ");
@@ -148,10 +147,11 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID  ");
+    SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       WHERE ");
-    SET @sqlString = CONCAT(@sqlString, "           st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 ");
+    SET @sqlString = CONCAT(@sqlString, "           st.ACTIVE AND st.SHIPMENT_STATUS_ID != 8 ");
     SET @sqlString = CONCAT(@sqlString, "           AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
     IF @includePlannedShipments = 0 THEN
         SET @sqlString = CONCAT(@sqlString, "           AND st.SHIPMENT_STATUS_ID != 1 ");
@@ -165,8 +165,8 @@ BEGIN
     ELSEIF @reportView = 4 THEN 
         SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)) ");    
     END IF;
-    SET @sqlString = CONCAT(@sqlString, "GROUP BY LEFT(COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE),7)");
-    
+    SET @sqlString = CONCAT(@sqlString, "GROUP BY rc.REALM_COUNTRY_ID ");
+
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
     
