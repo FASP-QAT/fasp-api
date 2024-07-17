@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cc.altius.FASP.service.ForecastingStaticDataService;
+import cc.altius.FASP.service.MasterDataService;
 
 /**
  *
@@ -28,14 +28,46 @@ import cc.altius.FASP.service.ForecastingStaticDataService;
  */
 @RestController
 @RequestMapping("/api")
-public class ForecastingStaticDataRestController {
+public class MasterDataRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ForecastingStaticDataService forecastingStaticDataService;
+    private MasterDataService masterDataService;
     @Autowired
     private UserService userService;
+
+    @GetMapping("/versionType")
+    public ResponseEntity getVersionType(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.masterDataService.getVersionTypeList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Version Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/versionStatus")
+    public ResponseEntity getVersionStatus(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.masterDataService.getVersionStatusList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Version Status", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping(value = "/getShipmentStatusListActive")
+    public ResponseEntity getShipmentStatusListActive(Authentication auth) {
+        try {
+            return new ResponseEntity(this.masterDataService.getShipmentStatusList(true), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while listing Shipment status", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * API used to get the complete UsageType list. Will only return those
@@ -51,7 +83,7 @@ public class ForecastingStaticDataRestController {
     public ResponseEntity getUsageTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingStaticDataService.getUsageTypeList(true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.masterDataService.getUsageTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageType list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -72,7 +104,7 @@ public class ForecastingStaticDataRestController {
     public ResponseEntity getNodeTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingStaticDataService.getNodeTypeList(true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.masterDataService.getNodeTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  NodeType list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -93,7 +125,7 @@ public class ForecastingStaticDataRestController {
     public ResponseEntity getForecastMethodTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingStaticDataService.getForecastMethodTypeList(true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.masterDataService.getForecastMethodTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  ForecastMethodType list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

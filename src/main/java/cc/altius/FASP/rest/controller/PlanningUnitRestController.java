@@ -7,7 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ResponseCode;
@@ -39,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/planningUnit")
 public class PlanningUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -51,7 +50,7 @@ public class PlanningUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/planningUnit")
+    @PostMapping(path = "")
     public ResponseEntity postPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -69,7 +68,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PutMapping(path = "/planningUnit")
+    @PutMapping(path = "")
     public ResponseEntity putPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -87,7 +86,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit")
+    @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnit(Authentication auth) {
         try {
@@ -99,7 +98,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/byIds")
+    @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
         try {
@@ -111,7 +110,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/withPrices/byIds")
+    @PostMapping("/withPrices/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitWithPricesByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
         try {
@@ -123,19 +122,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @JsonView(Views.InternalView.class)
-    @GetMapping("/planningUnit/basic")
-    public ResponseEntity getPlanningUnitListBasic(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListBasic(curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/planningUnit/all")
+    @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitAll(Authentication auth) {
         try {
@@ -147,7 +134,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
@@ -165,7 +152,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/realmId/{realmId}/all")
+    @GetMapping("/realmId/{realmId}/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
@@ -183,7 +170,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/{planningUnitId}")
+    @GetMapping("/{planningUnitId}")
     public ResponseEntity getPlanningUnitById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -197,7 +184,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/forecastingUnit/{forecastingUnitId}")
+    @GetMapping("/forecastingUnit/{forecastingUnitId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitByForecastingUnitId(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
@@ -212,7 +199,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/realmId/{realmId}")
+    @GetMapping(value = "/capacity/realmId/{realmId}")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -229,7 +216,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/realmId/{realmId}/between/{startDate}/{stopDate}")
+    @GetMapping(value = "/capacity/realmId/{realmId}/between/{startDate}/{stopDate}")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -249,7 +236,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/{planningUnitId}")
+    @GetMapping(value = "/capacity/{planningUnitId}")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -266,7 +253,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/{planningUnitId}/between/{startDate}/{stopDate}")
+    @GetMapping(value = "/capacity/{planningUnitId}/between/{startDate}/{stopDate}")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -286,7 +273,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/all")
+    @GetMapping(value = "/capacity/all")
     public ResponseEntity getPlanningUnitCapacityList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -303,7 +290,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PutMapping(value = "/planningUnit/capacity")
+    @PutMapping(value = "/capacity")
     public ResponseEntity savePlanningUnitCapacity(@RequestBody PlanningUnitCapacity[] planningUnitCapacitys, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -324,7 +311,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}/all")
+    @GetMapping("/productCategory/{productCategoryId}/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryAll(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
@@ -342,7 +329,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}/active")
+    @GetMapping("/productCategory/{productCategoryId}/active")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
@@ -360,7 +347,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/productCategoryList/active/realmCountryId/{realmCountryId}")
+    @PostMapping("/productCategoryList/active/realmCountryId/{realmCountryId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, @PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -378,24 +365,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/getPlanningUnitByTracerCategory/planningUnitId/{planningUnitId}/{procurementAgentId}/{term}")
-    public ResponseEntity getPlanningUnitByTracerCategory(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("procurementAgentId") int procurementAgentId, @PathVariable("term") String term, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/planningUnit/realmCountry/{realmCountryId}")
+    @GetMapping("/realmCountry/{realmCountryId}")
     public ResponseEntity getPlanningUnitByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -411,73 +381,4 @@ public class PlanningUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/planningUnit/tracerCategory/{tracerCategoryId}")
-    public ResponseEntity getPlanningUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/planningUnit/tracerCategorys")
-    public ResponseEntity getPlanningUnitForTracerCategorys(@RequestBody String[] tracerCategoryIds, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, true, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/planningUnit/withPricing/productCategory/{productCategoryId}")
-    public ResponseEntity getPlanningUnitWithPricingForProductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/planningUnit/tracerCategory/productCategory/forecastingUnit")
-    public ResponseEntity getPlanningUnitForTracerCategorys(@RequestBody ProductCategoryTracerCategoryAndForecastingUnitDTO input, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(input, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }

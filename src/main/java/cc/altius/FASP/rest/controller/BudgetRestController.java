@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/budget")
 public class BudgetRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,7 +43,7 @@ public class BudgetRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/budget")
+    @PostMapping(path = "")
     public ResponseEntity postBudget(@RequestBody Budget budget, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -64,7 +64,7 @@ public class BudgetRestController {
         }
     }
 
-    @PutMapping(path = "/budget")
+    @PutMapping(path = "")
     public ResponseEntity putBudget(@RequestBody Budget budget, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -82,7 +82,7 @@ public class BudgetRestController {
         }
     }
 
-    @PostMapping("/budget/programIds")
+    @PostMapping("/programIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
         try {
@@ -94,7 +94,7 @@ public class BudgetRestController {
         }
     }
 
-    @GetMapping("/budget")
+    @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(Authentication auth) {
         try {
@@ -106,7 +106,7 @@ public class BudgetRestController {
         }
     }
 
-    @GetMapping("/budget/{budgetId}")
+    @GetMapping("/{budgetId}")
     public ResponseEntity getBudget(@PathVariable("budgetId") int budgetId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -123,7 +123,7 @@ public class BudgetRestController {
         }
     }
 
-    @GetMapping("/budget/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {

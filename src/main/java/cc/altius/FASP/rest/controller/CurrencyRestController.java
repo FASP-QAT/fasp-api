@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/currency")
 
 public class CurrencyRestController {
 
@@ -43,7 +43,7 @@ public class CurrencyRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/currency")
+    @PostMapping(value = "")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -58,7 +58,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency")
+    @GetMapping(value = "")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -69,7 +69,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency/{currencyId}")
+    @GetMapping(value = "/{currencyId}")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -83,7 +83,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency/all")
+    @GetMapping(value = "/all")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -94,7 +94,7 @@ public class CurrencyRestController {
         }
     }
 
-    @PutMapping(value = "/currency")
+    @PutMapping(value = "")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

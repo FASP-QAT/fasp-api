@@ -31,7 +31,7 @@ import cc.altius.FASP.service.UserService;
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dimension")
 public class DimensionRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class DimensionRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/dimension")
+    @PostMapping(path = "")
     public ResponseEntity postDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -56,7 +56,7 @@ public class DimensionRestController {
         }
     }
 
-    @PutMapping(path = "/dimension")
+    @PutMapping(path = "")
     public ResponseEntity putDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -74,7 +74,7 @@ public class DimensionRestController {
         }
     }
 
-    @GetMapping("/dimension")
+    @GetMapping("")
     public ResponseEntity getDimension(Authentication auth) {
         try {
             return new ResponseEntity(this.dimensionService.getDimensionList(false), HttpStatus.OK);
@@ -84,7 +84,7 @@ public class DimensionRestController {
         }
     }
 
-    @GetMapping("/dimension/all")
+    @GetMapping("/all")
     public ResponseEntity getDimensionAll(Authentication auth) {
         try {
             return new ResponseEntity(this.dimensionService.getDimensionList(true), HttpStatus.OK);
@@ -94,7 +94,7 @@ public class DimensionRestController {
         }
     }
 
-    @GetMapping("/dimension/{dimensionId}")
+    @GetMapping("/{dimensionId}")
     public ResponseEntity getDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
             return new ResponseEntity(this.dimensionService.getDimensionById(dimensionId), HttpStatus.OK);

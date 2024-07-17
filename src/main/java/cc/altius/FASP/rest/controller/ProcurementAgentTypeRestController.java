@@ -1,14 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Organisation;
+import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.service.OrganisationService;
+import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,93 +28,98 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author altius
+ * @author akil
  */
 @RestController
-@RequestMapping("/api/organisation")
-public class OrganisationRestController {
+@RequestMapping("/api/procurementAgentType")
+public class ProcurementAgentTypeRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private OrganisationService organisationService;
+    private ProcurementAgentService procurementAgentService;
     @Autowired
     private UserService userService;
 
     @PostMapping(path = "")
-    public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
+    public ResponseEntity postProcurementAgentType(@RequestBody ProcurementAgentType procurementAgentType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.organisationService.addOrganisation(organisation, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            int procurementAgentTypeId = this.procurementAgentService.addProcurementAgentType(procurementAgentType, curUser);
+            if (procurementAgentTypeId > 0) {
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Organisation", ae);
+            logger.error("Error while trying to add Procurement Agent Type", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException ae) {
-            logger.error("Error while trying to add Organisation", ae);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to add Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while trying to add Organisation", e);
+            logger.error("Error while trying to add Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @PutMapping(path = "")
-    public ResponseEntity putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
+    public ResponseEntity putProcurementAgentType(@RequestBody ProcurementAgentType procurementAgentType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.organisationService.updateOrganisation(organisation, curUser);
+            int rows = this.procurementAgentService.updateProcurementAgentType(procurementAgentType, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException ae) {
-            logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException ae) {
-            logger.error("Error while trying to update Organisation", ae);
+            logger.error("Error while trying to update Procurement Agent Type", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to update Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while trying to update Organisation", e);
+            logger.error("Error while trying to add Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("")
-    public ResponseEntity getOrganisation(Authentication auth) {
+    public ResponseEntity getProcurementAgentType(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationService.getOrganisationList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to get Organisation list", e);
+            logger.error("Error while trying to list Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/{organisationId}")
-    public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
+    @GetMapping("/realmId/{realmId}")
+    public ResponseEntity getProcurementAgentTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationService.getOrganisationById(organisationId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Organisation list", er);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeByRealm(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException er) {
-            logger.error("Error while trying to get Organisation list", er);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while trying to get Organisation list", e);
+            logger.error("Error while trying to list Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
-    public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
+    @GetMapping("/{procurementAgentTypeId}")
+    public ResponseEntity getProcurementAgentType(@PathVariable("procurementAgentTypeId") int procurementAgentTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeById(procurementAgentTypeId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Procurement Agent Type Id" + procurementAgentTypeId, er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error while trying to get Funding source suggested display name", e);
+            logger.error("Error while trying to list Procurement Agent Type", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

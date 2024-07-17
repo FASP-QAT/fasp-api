@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/realm")
 public class RealmRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class RealmRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/realm")
+    @PostMapping(path = "")
     public ResponseEntity postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -57,7 +57,7 @@ public class RealmRestController {
         }
     }
 
-    @PutMapping(path = "/realm")
+    @PutMapping(path = "")
     public ResponseEntity putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -75,7 +75,7 @@ public class RealmRestController {
         }
     }
 
-    @GetMapping("/realm")
+    @GetMapping("")
     public ResponseEntity getRealm(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -86,7 +86,7 @@ public class RealmRestController {
         }
     }
 
-    @GetMapping("/realm/{realmId}")
+    @GetMapping("/{realmId}")
     public ResponseEntity getRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

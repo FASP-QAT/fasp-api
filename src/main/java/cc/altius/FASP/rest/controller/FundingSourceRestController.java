@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/fundingSource")
 public class FundingSourceRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class FundingSourceRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/fundingSource")
+    @PostMapping(path = "")
     public ResponseEntity postFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -59,7 +59,7 @@ public class FundingSourceRestController {
         }
     }
 
-    @PutMapping(path = "/fundingSource")
+    @PutMapping(path = "")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -80,7 +80,7 @@ public class FundingSourceRestController {
         }
     }
 
-    @GetMapping("/fundingSource")
+    @GetMapping("")
     public ResponseEntity getFundingSource(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -91,7 +91,7 @@ public class FundingSourceRestController {
         }
     }
     
-    @GetMapping("/fundingSource/getDisplayName/realmId/{realmId}/name/{name}")
+    @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getFundingSourceDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -102,7 +102,7 @@ public class FundingSourceRestController {
         }
     }
 
-    @GetMapping("/fundingSource/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -119,7 +119,7 @@ public class FundingSourceRestController {
         }
     }
 
-    @GetMapping("/fundingSource/{fundingSourceId}")
+    @GetMapping("/{fundingSourceId}")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

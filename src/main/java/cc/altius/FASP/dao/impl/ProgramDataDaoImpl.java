@@ -1948,18 +1948,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<SimpleObject> getVersionTypeList() {
-        String sqlString = "SELECT vt.VERSION_TYPE_ID `ID`, vtl.LABEL_ID, vtl.LABEL_EN, vtl.LABEL_FR, vtl.LABEL_SP, vtl.LABEL_PR  FROM ap_version_type vt LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID";
-        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
-    }
-
-    @Override
-    public List<SimpleObject> getVersionStatusList() {
-        String sqlString = "SELECT vs.VERSION_STATUS_ID `ID`, vsl.LABEL_ID, vsl.LABEL_EN, vsl.LABEL_FR, vsl.LABEL_SP, vsl.LABEL_PR  FROM ap_version_status vs LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID";
-        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
-    }
-
-    @Override
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive) {
         String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi LEFT JOIN rm_program_planning_unit ppu ON bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId WHERE bi.PROGRAM_ID=:programId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
         Map<String, Object> params = new HashMap<>();

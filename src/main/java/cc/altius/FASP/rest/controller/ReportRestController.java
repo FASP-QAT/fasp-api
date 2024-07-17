@@ -824,38 +824,6 @@ public class ReportRestController {
      * -- regionIds list of region ids that the report should run for or blank for all
      * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
      * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
-     * </pre>
-     *
-     * @param sspi
-     * @param auth
-     * @return
-     */
-    @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastError")
-    public ResponseEntity getForecastError(@RequestBody ForecastErrorInput fei, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("/api/report/forecastError", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    // Report no 31 | Reports -> Consumption Reports -> Forecast Error Report
-    /**
-     * <pre>
-     * Sample JSON
-     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
-     * -- programId must be a valid single Supply Plan Program
-     * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-     * -- viewBy 1 for PU, 2 for FU
-     * -- unitId Either the PU or FU that you want the report for based on the viewBy
-     * -- startDate and stopDate that you want to run the report for
-     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
-     * -- regionIds list of region ids that the report should run for or blank for all
-     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
-     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
      * -- If the view is EquivalencyUnit then all PU or FU selected must be from the same EU
      * -- If the view is FU then the PU's selected must be from the same FU
      * -- If the view is PU then you cannot multi-select

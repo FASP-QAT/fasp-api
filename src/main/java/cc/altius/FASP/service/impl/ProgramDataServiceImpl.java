@@ -154,16 +154,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return datasetDataList;
     }
 
-    @Override
-    public List<SimpleObject> getVersionTypeList() {
-        return this.programDataDao.getVersionTypeList();
-    }
-
-    @Override
-    public List<SimpleObject> getVersionStatusList() {
-        return this.programDataDao.getVersionStatusList();
-    }
-
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
         return this.programDataDao.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser);
     }

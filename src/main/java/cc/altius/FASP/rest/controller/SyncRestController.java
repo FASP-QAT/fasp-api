@@ -17,7 +17,6 @@ import cc.altius.FASP.service.DataSourceTypeService;
 import cc.altius.FASP.service.DimensionService;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import cc.altius.FASP.service.ForecastMethodService;
-import cc.altius.FASP.service.ForecastingStaticDataService;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.HealthAreaService;
@@ -35,7 +34,6 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.RealmService;
 import cc.altius.FASP.service.RegionService;
-import cc.altius.FASP.service.ShipmentStatusService;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UnitService;
@@ -60,13 +58,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import cc.altius.FASP.service.MasterDataService;
 
 /**
  *
  * @author akil
  */
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/sync")
 public class SyncRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -79,8 +78,6 @@ public class SyncRestController {
     private DimensionService dimensionService;
     @Autowired
     private LanguageService languageService;
-    @Autowired
-    private ShipmentStatusService shipmentStatusService;
     @Autowired
     private UnitService unitService;
     @Autowired
@@ -124,7 +121,7 @@ public class SyncRestController {
     @Autowired
     private ProgramDataService programDataService;
     @Autowired
-    private ForecastingStaticDataService forecastingStaticDataService;
+    private MasterDataService masterDataService;
     @Autowired
     private UsagePeriodService usagePeriodService;
     @Autowired
@@ -151,28 +148,7 @@ public class SyncRestController {
         }
     }
 
-    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
-    public ResponseEntity TestSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            String programIdsString = getProgramIds(programIds);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            MastersSync masters = new MastersSync();
-//            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
-//            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
-            masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
-            return new ResponseEntity(masters, HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error in masters sync", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error in masters sync", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
+    @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -184,7 +160,7 @@ public class SyncRestController {
             masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
             masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
             masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
-            masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
+            masters.setShipmentStatusList(this.masterDataService.getShipmentStatusListForSync(lastSyncDate, curUser));
             masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
             masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
             masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
@@ -211,18 +187,18 @@ public class SyncRestController {
             masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
             masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
-            masters.setVersionTypeList(this.programDataService.getVersionTypeList());
-            masters.setVersionStatusList(this.programDataService.getVersionStatusList());
-            masters.setUsageTypeList(this.forecastingStaticDataService.getUsageTypeListForSync(lastSyncDate, curUser));
-            masters.setNodeTypeList(this.forecastingStaticDataService.getNodeTypeListForSync(lastSyncDate, curUser));
-            masters.setForecastMethodTypeList(this.forecastingStaticDataService.getForecastMethodTypeListForSync(lastSyncDate, curUser));
+            masters.setVersionTypeList(this.masterDataService.getVersionTypeList());
+            masters.setVersionStatusList(this.masterDataService.getVersionStatusList());
+            masters.setUsageTypeList(this.masterDataService.getUsageTypeListForSync(lastSyncDate, curUser));
+            masters.setNodeTypeList(this.masterDataService.getNodeTypeListForSync(lastSyncDate, curUser));
+            masters.setForecastMethodTypeList(this.masterDataService.getForecastMethodTypeListForSync(lastSyncDate, curUser));
             masters.setUsagePeriodList(this.usagePeriodService.getUsagePeriodListForSync(lastSyncDate, curUser));
             masters.setModelingTypeList(this.modelingTypeService.getModelingTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
             masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
             masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
             masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
-            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
+            masters.setExtrapolationMethodList(this.masterDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentyType(this.procurementAgentService.getProcurementAgentTypeListForSync(lastSyncDate, curUser));
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
@@ -239,7 +215,7 @@ public class SyncRestController {
         }
     }
 
-    @GetMapping(value = "/sync/language/{lastSyncDate}")
+    @GetMapping(value = "/language/{lastSyncDate}")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -254,7 +230,7 @@ public class SyncRestController {
         }
     }
     
-    @PostMapping(value = "/sync/treeAnchor")
+    @PostMapping(value = "/treeAnchor")
     public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

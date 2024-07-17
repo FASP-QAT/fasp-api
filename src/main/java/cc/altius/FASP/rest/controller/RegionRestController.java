@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/region")
 public class RegionRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class RegionRestController {
     @Autowired
     private UserService userService;
 
-    @PutMapping(path = "/region")
+    @PutMapping(path = "")
     public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -60,7 +60,7 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region")
+    @GetMapping("")
     public ResponseEntity getRegion(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -74,7 +74,7 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/{regionId}")
+    @GetMapping("/{regionId}")
     public ResponseEntity getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -91,7 +91,7 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/realmCountryId/{realmCountryId}")
+    @GetMapping("/realmCountryId/{realmCountryId}")
     public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

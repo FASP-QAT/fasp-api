@@ -50,7 +50,7 @@ public class PipelineDbRestController {
     private UserService userService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @PostMapping(path = "/pipelineJson/{fileName}")
+    @PostMapping(path = "/pipeline/json/{fileName}")
     public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline, @PathVariable("fileName") String fileName, Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {

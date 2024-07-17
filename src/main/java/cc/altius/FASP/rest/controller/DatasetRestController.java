@@ -73,34 +73,6 @@ public class DatasetRestController {
         }
     }
 
-    @GetMapping("/dataset/all")
-    public ResponseEntity getDatasetAll(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramList(GlobalConstants.PROGRAM_TYPE_DATASET, curUser, false), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Dataset", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/dataset/realmId/{realmId}")
-    public ResponseEntity getDatasetForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForRealmId(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Dataset", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Dataset", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to update Dataset", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/dataset/{programId}")
     public ResponseEntity getDataset(@PathVariable("programId") int programId, Authentication auth) {
         try {

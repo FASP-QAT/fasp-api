@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dataSourceType")
 public class DataSourceTypeRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class DataSourceTypeRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/dataSourceType")
+    @PostMapping(value = "")
     public ResponseEntity addDataSourceType(@RequestBody DataSourceType dataSourceType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -60,7 +60,7 @@ public class DataSourceTypeRestController {
         }
     }
 
-    @GetMapping(value = "/dataSourceType")
+    @GetMapping(value = "")
     public ResponseEntity getDataSourceTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -71,7 +71,7 @@ public class DataSourceTypeRestController {
         }
     }
 
-    @GetMapping(value = "/dataSourceType/all")
+    @GetMapping(value = "/all")
     public ResponseEntity getDataSourceTypeListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -82,7 +82,7 @@ public class DataSourceTypeRestController {
         }
     }
     
-    @GetMapping(value = "/dataSourceType/{dataSourceTypeId}")
+    @GetMapping(value = "/{dataSourceTypeId}")
     public ResponseEntity getDataSourceTypeById(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -99,7 +99,7 @@ public class DataSourceTypeRestController {
         }
     }
 
-    @GetMapping(value = "/dataSourceType/realmId/{realmId}")
+    @GetMapping(value = "/realmId/{realmId}")
     public ResponseEntity getDataSourceTypeListForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -116,7 +116,7 @@ public class DataSourceTypeRestController {
         }
     }
 
-    @PutMapping(value = "/dataSourceType")
+    @PutMapping(value = "")
     public ResponseEntity editDataSourceType(@RequestBody DataSourceType dataSourceType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

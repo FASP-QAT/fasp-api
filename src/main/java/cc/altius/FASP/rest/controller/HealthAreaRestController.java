@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/healthArea")
 public class HealthAreaRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class HealthAreaRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/healthArea")
+    @PostMapping(path = "")
     public ResponseEntity postHealthArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -60,7 +60,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @PutMapping(path = "/healthArea")
+    @PutMapping(path = "")
     public ResponseEntity putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -81,7 +81,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/healthArea")
+    @GetMapping("")
     public ResponseEntity getHealthArea(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -92,7 +92,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/healthArea/realmCountryId/{realmCountryId}")
+    @GetMapping("/realmCountryId/{realmCountryId}")
     public ResponseEntity getHealthAreaByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -106,7 +106,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/healthArea/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -123,7 +123,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/healthArea/{healthAreaId}")
+    @GetMapping("/{healthAreaId}")
     public ResponseEntity getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -140,45 +140,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/healthArea/program")
-    public ResponseEntity getHealthAreaByForProgram(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (curUser.getRealm().getRealmId() == -1) {
-                logger.error("A User with access to multiple Realms tried to access a HealthArea Program list without specifying a Realm");
-                return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-            }
-            return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(curUser.getRealm().getRealmId(), curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/healthArea/program/realmId/{realmId}")
-    public ResponseEntity getHealthAreaForProgramByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(realmId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/healthArea/getDisplayName/realmId/{realmId}/name/{name}")
+    @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getHealthAreaDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

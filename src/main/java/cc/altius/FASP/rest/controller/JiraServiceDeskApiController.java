@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/ticket")
 public class JiraServiceDeskApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -40,7 +40,7 @@ public class JiraServiceDeskApiController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/ticket/addIssue")
+    @PostMapping(value = "/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
         try {            
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -59,7 +59,7 @@ public class JiraServiceDeskApiController {
 
     }
 
-    @PostMapping(value = "/ticket/addIssueAttachment/{issueId}")
+    @PostMapping(value = "/addIssueAttachment/{issueId}")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
         try {            
@@ -80,7 +80,7 @@ public class JiraServiceDeskApiController {
         }
     }     
     
-    @GetMapping(value = "/ticket/openIssues")
+    @GetMapping(value = "/openIssues")
     public ResponseEntity getOpenIssue(Authentication auth) {
         try {            
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
