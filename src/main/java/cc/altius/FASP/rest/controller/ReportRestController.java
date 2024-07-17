@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
@@ -17,7 +17,6 @@ import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
-import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
@@ -44,7 +43,6 @@ import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,8 +69,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ekta
  */
 @RestController
-@RequestMapping("/api/report/")
-public class ReportController {
+@RequestMapping("/api/report")
+public class ReportRestController {
 
     @Autowired
     private ReportService reportService;
@@ -83,10 +81,9 @@ public class ReportController {
     @Autowired
     private IntegrationProgramService integrationProgramService;
 
-    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportRestController.class);
 
-    // Report no 1
-    // Reports -> Program Catalog
+    // Report no 1 | Reports -> Program Catalog
     /**
      * <pre>
      * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 2028 }
@@ -111,8 +108,7 @@ public class ReportController {
         }
     }
 
-    // Report no 2
-    // Reports -> Consumption Reports -> Consumption (Forecast vs Actual)
+    // Report no 2 | Reports -> Consumption Reports -> Consumption (Forecast vs Actual)
     /**
      * <pre>
      * Sample JSON
@@ -141,8 +137,7 @@ public class ReportController {
         }
     }
 
-    // Report no 3
-    // Reports -> Consumption Reports -> Consumption (Global)
+    // Report no 3 | Reports -> Consumption Reports -> Consumption (Global)
     // Global Report
     /**
      * <pre>
@@ -173,8 +168,7 @@ public class ReportController {
         }
     }
 
-    // Report no 4
-    // Reports -> Consumption Reports -> Forecast Error (Monthly)
+    // Report no 4 | Reports -> Consumption Reports -> Forecast Error (Monthly)
     /**
      * <pre>
      * Sample JSON
@@ -206,8 +200,7 @@ public class ReportController {
         }
     }
 
-    // Report no 5
-    // Global Report
+    // Report no 5 | Global Report
     // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
     /**
      * <pre>
@@ -242,8 +235,7 @@ public class ReportController {
 
     }
 
-    // Report no 7
-    // Reports -> Inventory Reports -> Warehouse Capacity (by Program)
+    // Report no 7 | Reports -> Inventory Reports -> Warehouse Capacity (by Program)
     /**
      * <pre>
      * Sample JSON
@@ -270,8 +262,7 @@ public class ReportController {
         }
     }
 
-    //Report no 
-    // Reports -> Inventory Reports -> Warehouse Capcity (By Country)
+    //Report no | Reports -> Inventory Reports -> Warehouse Capcity (By Country)
     /**
      *
      */
@@ -293,8 +284,7 @@ public class ReportController {
         }
     }
 
-    // Report no 8
-    // Reports -> Inventory Reports -> Cost of Inventory
+    // Report no 8 | Reports -> Inventory Reports -> Cost of Inventory
     /**
      * <pre>
      * Sample JSON
@@ -324,8 +314,7 @@ public class ReportController {
         }
     }
 
-    // Report no 9
-    // Reports -> Inventory Reports -> Inventory Turns
+    // Report no 9 | Reports -> Inventory Reports -> Inventory Turns
     /**
      * <pre>
      * Sample JSON
@@ -356,8 +345,7 @@ public class ReportController {
         }
     }
 
-    // Report no 11
-    // Reports -> Inventory Reports -> Expiries
+    // Report no 11 | Reports -> Inventory Reports -> Expiries
     /**
      * <pre>
      * Sample JSON
@@ -386,8 +374,7 @@ public class ReportController {
         }
     }
 
-    // Report no 12
-    // Reports -> Inventory Reports -> Stock Adjustment
+    // Report no 12 | Reports -> Inventory Reports -> Stock Adjustment
     /**
      * <pre>
      * Sample JSON
@@ -414,7 +401,7 @@ public class ReportController {
         }
     }
 
-    // Report no 13
+    // Report no 13 | Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
     /**
      * <pre>
      * Sample JSON
@@ -435,7 +422,6 @@ public class ReportController {
      * @param auth
      * @return
      */
-    // Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
@@ -448,8 +434,7 @@ public class ReportController {
         }
     }
 
-    // Report no 14
-    // Report -> Shipment Reports -> Procurement Agent Lead Times
+    // Report no 14 | Report -> Shipment Reports -> Procurement Agent Lead Times
     /**
      * <pre>
      * Sample JSON
@@ -477,8 +462,7 @@ public class ReportController {
         }
     }
 
-    // Report no 15
-    // Report -> Shipment Reports -> Shipment Cost Details (Funding Source view)
+    // Report no 15 | Report -> Shipment Reports -> Shipment Cost Details (Funding Source view)
     /**
      * <pre>
      * Sample JSON
@@ -510,8 +494,7 @@ public class ReportController {
         }
     }
 
-    // Report no 16
-    // Supply Planning -> Supply Plan Report
+    // Report no 16 | Supply Planning -> Supply Plan Report
     /**
      * <pre>
      * Sample JSON
@@ -542,8 +525,7 @@ public class ReportController {
         }
     }
 
-    // Report no 17
-    // Reports -> Stock Status -> Stock Status Over Time
+    // Report no 17 | Reports -> Stock Status -> Stock Status Over Time
     /**
      * <pre>
      * Sample JSON
@@ -573,8 +555,7 @@ public class ReportController {
         }
     }
 
-    // Report no 18
-    // Reports -> Stock Status -> Stock Status Matrix
+    // Report no 18 | Reports -> Stock Status -> Stock Status Matrix
     /**
      * <pre>
      * Sample JSON
@@ -606,7 +587,7 @@ public class ReportController {
 
     }
 
-    // Report no 19
+    // Report no 19 | Report -> Shipment Reports -> Shipment Details
     /**
      * <pre>
      * Sample JSON
@@ -623,7 +604,6 @@ public class ReportController {
      * @param auth
      * @return
      */
-    // Report -> Shipment Reports -> Shipment Details
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
@@ -636,8 +616,7 @@ public class ReportController {
         }
     }
 
-    // Report no 20
-    // Report -> Shipment Reports -> Shipments Overview
+    // Report no 20 | Report -> Shipment Reports -> Shipments Overview
     // Global Report
     /**
      * <pre>
@@ -661,8 +640,7 @@ public class ReportController {
         }
     }
 
-    // Report no 21
-    // Report -> Shipment Reports -> Shipments (Global)
+    // Report no 21 | Report -> Shipment Reports -> Shipments (Global)
     // Global Report
     /**
      * <pre>
@@ -686,8 +664,7 @@ public class ReportController {
         }
     }
 
-    // Report no 22
-    // Report -> Shipment Reports -> Shipment Cost Overview
+    // Report no 22 | Report -> Shipment Reports -> Shipment Cost Overview
     /**
      * <pre>
      * Sample JSON
@@ -715,7 +692,7 @@ public class ReportController {
         }
     }
 
-    // Report no 24
+    // Report no 24 | Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
     /**
      * <pre>
      * Sample JSON
@@ -734,7 +711,6 @@ public class ReportController {
      * @param auth
      * @return
      */
-    // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
@@ -747,8 +723,7 @@ public class ReportController {
         }
     }
 
-    // Report no 28
-    // Reports -> Stock Status -> Stock Status Snapshot
+    // Report no 28 | Reports -> Stock Status -> Stock Status Snapshot
     /**
      * <pre>
      * Sample JSON
@@ -781,8 +756,7 @@ public class ReportController {
         }
     }
 
-    // Report no 29
-    // Report -> Shipment Reports -> Budget reports
+    // Report no 29 | Report -> Shipment Reports -> Budget reports
     /**
      * Sample JSON {"programId":2028, "versionId":1, "startDate":"2019-01-01",
      * "stopDate":"2021-12-01", "fundingSourceIds":[], "shippingStatusIds":[]}
@@ -803,9 +777,7 @@ public class ReportController {
         }
     }
 
-    // Report no 30
-    // Reports -> Stock Status -> Stock Status Snapshot (Global)
-    // Global Report
+    // Report no 30 | Reports -> Stock Status -> Stock Status Snapshot (Global)
     /**
      * <pre>
      * Sample JSON
@@ -838,8 +810,7 @@ public class ReportController {
         }
     }
 
-    // Report no 31
-    // Reports -> Consumption Reports -> Forecast Error Report
+    // Report no 31 | Reports -> Consumption Reports -> Forecast Error Report
     /**
      * <pre>
      * Sample JSON
@@ -871,8 +842,7 @@ public class ReportController {
         }
     }
 
-    // Report no 31 new
-    // Reports -> Consumption Reports -> Forecast Error Report
+    // Report no 31 | Reports -> Consumption Reports -> Forecast Error Report
     /**
      * <pre>
      * Sample JSON
@@ -907,6 +877,7 @@ public class ReportController {
         }
     }
 
+    // Mod 2 Report no 1 - Monthly Forecast
     /**
      * Mod 2 Report 1
      * <pre>
@@ -931,6 +902,7 @@ public class ReportController {
         }
     }
 
+    // Mod 2 Report no 2 - Forecast Summary
     /**
      * Mod 2 Report 2
      * <pre>
@@ -951,6 +923,7 @@ public class ReportController {
         }
     }
 
+    // Report no 32 - Report for Manual JSON push
     /**
      * Mod 1 Report no 32 API used to get the report for Manual Json push
      * <pre>
@@ -985,6 +958,8 @@ public class ReportController {
         }
     }
 
+    
+    // Mod 1 or Mod 2 Report for list of Programs for the Update Program Info page
     /**
      * Mod 1 or Mod 2 Report UpdateProgramInfo
      * <pre>

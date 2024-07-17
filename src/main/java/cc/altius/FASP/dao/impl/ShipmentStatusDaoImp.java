@@ -145,32 +145,6 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
         return this.jdbcTemplate.update(sqlTwo, shipmentStatus.isActive(), 1, curDt, shipmentStatus.getShipmentStatusId());
     }
 
-//    @Override
-//    public List<PrgShipmentStatusDTO> getShipmentStatusListForSync(String lastSyncDate) {
-//        String sql = "SELECT  ss.`ACTIVE`,ss.`SHIPMENT_STATUS_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-//                + "FROM ap_shipment_status ss  "
-//                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ss.`LABEL_ID`";
-//        Map<String, Object> params = new HashMap<>();
-//        if (!lastSyncDate.equals("null")) {
-//            sql += " WHERE ss.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-//            params.put("lastSyncDate", lastSyncDate);
-//        }
-//        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-//        return nm.query(sql, params, new PrgShipmentStatusDTORowMapper());
-//    }
-//
-//    @Override
-//    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate) {
-//        String sql = "SELECT ssa.`NEXT_SHIPMENT_STATUS_ID`,ssa.`SHIPMENT_STATUS_ALLOWED_ID`,ssa.`SHIPMENT_STATUS_ID` "
-//                + "FROM ap_shipment_status_allowed ssa";
-//        Map<String, Object> params = new HashMap<>();
-//        if (!lastSyncDate.equals("null")) {
-//            sql += " WHERE ssa.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-//            params.put("lastSyncDate", lastSyncDate);
-//        }
-//        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-//        return nm.query(sql, params, new PrgShipmentStatusAllowedDTORowMapper());
-//    }
     @Override
     public List<ShipmentStatus> getShipmentStatusListForSync(String lastSyncDate, CustomUserDetails curUser) {
         String sqlString = "SELECT s.SHIPMENT_STATUS_ID, sl.LABEL_ID, sl.LABEL_EN, sl.LABEL_FR, sl.LABEL_SP, sl.LABEL_PR, ssa.NEXT_SHIPMENT_STATUS_ID, "

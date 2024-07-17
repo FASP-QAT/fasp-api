@@ -51,17 +51,17 @@ public class PipelineDbRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @PostMapping(path = "/pipelineJson/{fileName}")
-    public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline,@PathVariable("fileName") String fileName, Authentication auth) throws IOException {
+    public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline, @PathVariable("fileName") String fileName, Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            String msg="static.message.pipeline.programExists";
-            int duplicateCheckCount=this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName);
-            if(duplicateCheckCount==0){
+            String msg = "static.message.pipeline.programExists";
+            int duplicateCheckCount = this.pipelineDbService.savePipelineDbData(pipeline, curUser, fileName);
+            if (duplicateCheckCount == 0) {
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
-            }else{
-                return new ResponseEntity(this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(this.pipelineDbService.savePipelineDbData(pipeline, curUser, fileName), HttpStatus.OK);
             }
-            
+
         } catch (Exception e) {
             logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -200,7 +200,7 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping("/pipeline/consumption/{pipelineId}")
     public ResponseEntity saveConsumptionForProgram(@RequestBody QatTempConsumption[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
@@ -289,7 +289,7 @@ public class PipelineDbRestController {
         }
     }
 
- @PutMapping("/pipeline/datasource/{pipelineId}")
+    @PutMapping("/pipeline/datasource/{pipelineId}")
     public ResponseEntity saveDataSourceForProgram(@RequestBody QatTempDataSource[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -314,7 +314,8 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-@PutMapping("/pipeline/fundingsource/{pipelineId}")
+
+    @PutMapping("/pipeline/fundingsource/{pipelineId}")
     public ResponseEntity saveFundingSourceForProgram(@RequestBody QatTempFundingSource[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -340,7 +341,7 @@ public class PipelineDbRestController {
         }
     }
 
-@PutMapping("/pipeline/procurementagent/{pipelineId}")
+    @PutMapping("/pipeline/procurementagent/{pipelineId}")
     public ResponseEntity saveProcurementAgentForProgram(@RequestBody QatTempProcurementAgent[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -365,19 +366,17 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping(path = "/pipeline/realmCountryPlanningUnit/{pipelineId}/{realmCountryId}")
-    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId,@PathVariable("realmCountryId") int realmCountryId ,Authentication auth) throws IOException {
+    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId, @PathVariable("realmCountryId") int realmCountryId, Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser,realmCountryId);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
+            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser, realmCountryId);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 }

@@ -9,11 +9,8 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
-import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -126,37 +123,6 @@ public class IntegrationProgramRestController {
         }
     }
 
-//    /**
-//     * API used to add an Integration Program
-//     *
-//     * @param integrationProgram IntegrationProgram object that you want to add
-//     * @param auth
-//     * @return returns a Success code if the operation was successful
-//     */
-//    @PostMapping(value = "")
-//    @Operation(description = "API used to add an IntegrationProgram", summary = "Add IntegrationProgram", tags = ("integrationProgram"))
-//    @Parameters(
-//            @Parameter(name = "integrationProgram", description = "The Integration Program object that you want to add"))
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-//    public ResponseEntity addIntegration(@RequestBody IntegrationProgram integrationProgram, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            this.integrationProgramService.addIntegrationProgram(integrationProgram, curUser);
-//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-//        } catch (AccessDeniedException ae) {
-//            logger.error("Error while trying to add IntegrationProgram", ae);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-//        } catch (DuplicateKeyException d) {
-//            logger.error("Error while trying to add IntegrationProgram", d);
-//            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to add IntegrationProgram", e);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     /**
      * API used to update an IntegrationProgram
      *

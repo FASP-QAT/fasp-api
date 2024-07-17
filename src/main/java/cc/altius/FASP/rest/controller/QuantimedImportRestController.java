@@ -52,19 +52,4 @@ public class QuantimedImportRestController {
         }
     } 
     
-//    @PostMapping(value = "/quantimed/addQuantimedImport")
-//    public ResponseEntity addQuantimedImport(@RequestBody QuantimedImportDTO importDTO, Authentication auth) {
-//        String message = "";
-//        try {            
-//            ResponseEntity<String> response;
-//            
-//            System.out.println("ProgramId : ================== "+importDTO);
-//            
-//            return new ResponseEntity("", HttpStatus.OK);
-//        } catch (Exception e) {     
-//            logger.error("Error while upload the file", e);
-//            message = "";
-//            return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }    
 }

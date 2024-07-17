@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.StaticLabelDTO;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-public class LabelController {
+public class LabelRestController {
 
     @Autowired
     private LabelService labelService;
@@ -38,7 +39,7 @@ public class LabelController {
     private UserService userService;
 
     @JsonView(Views.InternalView.class)
-    @RequestMapping(value = "/getDatabaseLabelsListAll")
+    @GetMapping(value = "/getDatabaseLabelsListAll")
     public ResponseEntity getDatabaseLabelsList(Authentication auth) {
         try {
             CustomUserDetails curUser = userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -50,7 +51,7 @@ public class LabelController {
 
     }
 
-    @RequestMapping(value = "/getStaticLabelsListAll")
+    @GetMapping(value = "/getStaticLabelsListAll")
     public ResponseEntity getStaticLabelsList() {
         try {
             return new ResponseEntity(this.labelService.getStaticLabelsList(), HttpStatus.OK);

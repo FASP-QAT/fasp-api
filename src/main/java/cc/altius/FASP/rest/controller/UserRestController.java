@@ -193,7 +193,6 @@ public class UserRestController {
         }
     }
     
-
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {

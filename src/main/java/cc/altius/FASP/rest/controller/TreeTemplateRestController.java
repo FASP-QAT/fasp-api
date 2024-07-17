@@ -66,66 +66,6 @@ public class TreeTemplateRestController {
     }
 
     /**
-     * API used to get the active Tree template list. Will only return those
-     * Tree Templates that are marked Active.
-     *
-     * @param auth
-     * @return returns the list of active Tree Templates that have Branch is
-     * true
-     */
-//    @JsonView(Views.InternalView.class)
-//    @GetMapping("/branch")
-//    @Operation(description = "API used to get the complete TreeTemplate list where Branch is active. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
-//    public ResponseEntity getBranchTemplate(Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, true, curUser), HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list TreeTemplate", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//    /**
-//     * API used to get the complete TreeTemplate list.
-//     *
-//     * @param auth
-//     * @return returns the complete list of TreeTemplates
-//     */
-//    @GetMapping("/all")
-//    @Operation(description = "API used to get the complete TreeTemplate list.", summary = "Get complete TreeTemplate list", tags = ("treeTemplate"))
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
-//    public ResponseEntity getTreeTemplateAll(Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(false, false, curUser), HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list TreeTemplate", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-    /**
-     * API used to get the complete TreeTemplate list.
-     *
-     * @param auth
-     * @return returns the complete list of TreeTemplates
-     */
-//    @GetMapping("/branch/all")
-//    @Operation(description = "API used to get the complete TreeTemplate list where Branch is true.", summary = "Get complete TreeTemplate list where Branch is true", tags = ("treeTemplate"))
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list where Branch is true")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
-//    public ResponseEntity getBranchTemplateAll(Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(true, false, true, curUser), HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list TreeTemplate", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-    /**
      * API used to get the complete TreeTemplate list.
      *
      * @param auth

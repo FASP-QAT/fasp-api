@@ -168,13 +168,13 @@ public class IntegrationRestController {
     }
     
     /**
-     * API used to get the complete Integration View list.
+     * API used to get the List of Views that are allowed to be set for an Integration
      *
      * @param auth
      * @return returns the complete list of IntegrationViews
      */
     @GetMapping("/viewList")
-    @Operation(description = "API used to get the complete Integration View list.", summary = "Get Integration View list", tags = ("integration"))
+    @Operation(description = "API used to get the List of Views that are allowed to be set for an Integration", summary = "Get Integration View list", tags = ("integration"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration View list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration list")
     public ResponseEntity getIntegrationView(Authentication auth) {
