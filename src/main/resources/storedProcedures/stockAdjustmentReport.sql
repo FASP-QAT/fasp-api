@@ -9,7 +9,7 @@ BEGIN
 -- VAR_VERSION_ID must be a valid Version for the PROGRAM_ID or can be -1 in which case it will default to the latest Version of the Program, 
 -- VAR_START_DATE AND VAR_STOP_DATE are the Date range between which the Stock Adjustment will be run. Only the month and year are considered while running the report
 -- VAR_PLANNING_UNIT_IDS are the Quoted, Comma separated list of the Planning Unit Ids that you want to run the report for. If you want to run it for all Planning Units in the Program leave it empty
-
+ 
 SET @programId = VAR_PROGRAM_ID;
 SET @versionId = VAR_VERSION_ID;
 IF @versionID = -1 THEN
@@ -24,7 +24,7 @@ SET @sqlString = CONCAT(@sqlString, "SELECT ");
 SET @sqlString = CONCAT(@sqlString, "	p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`,");
 SET @sqlString = CONCAT(@sqlString, "   pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,");
 SET @sqlString = CONCAT(@sqlString, "   ds.DATA_SOURCE_ID, ds.LABEL_ID `DATA_SOURCE_LABEL_ID`, ds.LABEL_EN `DATA_SOURCE_LABEL_EN`, ds.LABEL_FR `DATA_SOURCE_LABEL_FR`, ds.LABEL_SP `DATA_SOURCE_LABEL_SP`, ds.LABEL_PR `DATA_SOURCE_LABEL_PR`, ");
-SET @sqlString = CONCAT(@sqlString, "	it.INVENTORY_DATE, it.ADJUSTMENT_QTY*rcpu.MULTIPLIER `STOCK_ADJUSTMENT_QTY`, lmb.USER_ID `LAST_MODIFIED_BY_USER_ID`, lmb.USERNAME `LAST_MODIFIED_BY_USERNAME`, it.LAST_MODIFIED_DATE, it.NOTES");
+SET @sqlString = CONCAT(@sqlString, "	it.INVENTORY_DATE, it.ADJUSTMENT_QTY*IF(rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2,1/rcpu.CONVERSION_NUMBER,0)) `STOCK_ADJUSTMENT_QTY`, lmb.USER_ID `LAST_MODIFIED_BY_USER_ID`, lmb.USERNAME `LAST_MODIFIED_BY_USERNAME`, it.LAST_MODIFIED_DATE, it.NOTES");
 SET @sqlString = CONCAT(@sqlString, " FROM ");
 SET @sqlString = CONCAT(@sqlString, "	( ");
 SET @sqlString = CONCAT(@sqlString, "    SELECT ");
