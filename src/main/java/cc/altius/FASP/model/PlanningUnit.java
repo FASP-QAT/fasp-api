@@ -15,15 +15,15 @@ import java.util.Date;
  */
 public class PlanningUnit extends BaseModel implements Serializable {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int planningUnitId;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private ForecastingUnit forecastingUnit;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label label;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject unit;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private double multiplier;
 
     public PlanningUnit() {
@@ -83,7 +83,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.multiplier = multiplier;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public boolean isActive() {
         return super.isActive();
     }
