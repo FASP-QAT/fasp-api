@@ -111,3 +111,16 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez le type 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o tipo de fonte de financiamento');-- pr
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el tipo de fuente de financiamiento');-- sp
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.shipment.groupBy','1');
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Group By');-- en
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Par groupe');-- fr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agrupar por');-- pr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agrupar por');-- sp
