@@ -19,9 +19,11 @@ import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
@@ -204,9 +206,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, int realmCountryId, boolean active, CustomUserDetails curUser) {
         if (productCategoryIds != null && productCategoryIds.length != 0) {
-            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds,realmCountryId, active, curUser);
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, realmCountryId, active, curUser);
         } else {
             return null;
         }
@@ -263,8 +265,18 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<PlanningUnit> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser) {
+    public List<PlanningUnitWithCount> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(input, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getListOfSpProgramsForPlanningUnitId(planningUnitId, active, curUser);
+    }
+    
+    @Override
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getListOfFcProgramsForPlanningUnitId(planningUnitId, active, curUser);
     }
 
 }
