@@ -98,10 +98,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic en Unidad de
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.forecastSelected','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast selected.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision sélectionnée.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão selecionada.');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico seleccionado.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast selected');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision sélectionnée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão selecionada');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico seleccionado');-- sp
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.forecastNotSelected','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -114,7 +114,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico no selecci
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.compareAndSelect.showPUPanel','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show PU panel');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher le panneau PU');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar painel PU');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar panel de PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Planning Unit panel');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher le panneau Unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar painel Unidade de planejamento');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar panel Unidad de planificación');-- sp
