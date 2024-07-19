@@ -65,7 +65,7 @@ public class CommitRequestRestController {
     private CommitRequestService commitRequestService;
     @Autowired
     private ProgramService programService;
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

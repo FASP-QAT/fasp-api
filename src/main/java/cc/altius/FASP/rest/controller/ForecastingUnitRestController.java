@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -27,7 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -50,6 +54,9 @@ public class ForecastingUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.forecastingUnitService.addForecastingUnit(forecastingUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (DuplicateNameException de) {
+            logger.error("Error while trying to add ForecastingUnit", de);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add ForecastingUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -65,6 +72,9 @@ public class ForecastingUnitRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.forecastingUnitService.updateForecastingUnit(forecastingUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (DuplicateNameException de) {
+            logger.error("Error while trying to add ForecastingUnit", de);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -88,7 +98,7 @@ public class ForecastingUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/forecastingUnit/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
@@ -151,6 +161,30 @@ public class ForecastingUnitRestController {
         }
     }
 
+    @GetMapping("/forecastingUnit/{forecastingUnitId}/withPrograms")
+    @JsonView(Views.InternalView.class)
+    public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            Map<String, Object> data = new HashMap<>();
+            data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
+            data.put("spProgramListActive", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("spProgramListDisabled", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
+            data.put("fcProgramListActive", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("fcProgramListDisabled", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
+            return new ResponseEntity(data, HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to list ForecastingUnit", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update ForecastingUnit", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/forecastingUnit/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
@@ -196,6 +230,21 @@ public class ForecastingUnitRestController {
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/forecastingUnit/tracerCategory/productCategory")
+    @JsonView(Views.ReportView.class)
+    public ResponseEntity getForecastingUnitByTracerCategoryAndProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update ForecastingUnit", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

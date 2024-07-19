@@ -1,0 +1,2 @@
+ALTER TABLE `fasp`.`us_user` 
+CHANGE COLUMN `USERNAME` `USERNAME` VARCHAR(50) CHARACTER SET 'utf8mb3' NOT NULL COMMENT 'Username used to login' ;

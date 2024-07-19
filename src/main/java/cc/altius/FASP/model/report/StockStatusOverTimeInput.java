@@ -20,8 +20,6 @@ public class StockStatusOverTimeInput implements Serializable {
 
     private int programId;
     private int versionId;
-    private int mosPast;
-    private int mosFuture;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -44,22 +42,6 @@ public class StockStatusOverTimeInput implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
-    }
-
-    public int getMosPast() {
-        return mosPast;
-    }
-
-    public void setMosPast(int mosPast) {
-        this.mosPast = mosPast;
-    }
-
-    public int getMosFuture() {
-        return mosFuture;
-    }
-
-    public void setMosFuture(int mosFuture) {
-        this.mosFuture = mosFuture;
     }
 
     public Date getStartDate() {
