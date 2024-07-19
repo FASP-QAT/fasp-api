@@ -33,15 +33,23 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Deslocar para baixo');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.levelChangeNote','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use numbers to indicate the desired node order from left to right.  Only nodes in this level are shown.'); -- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez des chiffres pour indiquer l’ordre des nœuds souhaité de gauche à droite.  Seuls les nœuds de ce niveau sont affichés.'); -- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice números para indicar el orden de nodos deseado de izquierda a derecha.  Sólo se muestran los nodos de este nivel.'); -- sp 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use números para indicar a ordem dos nós desejada, da esquerda para a direita.  Somente nós neste nível são mostrados.'); -- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use arrows to indicate the desired node order from left to right.  Only nodes in this level are shown.'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez les flèches pour indiquer l ordre des nœuds souhaité de gauche à droite.  Seuls les nœuds de ce niveau sont affichés.'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice flechas para indicar el orden de nodos deseado de izquierda a derecha.  Sólo se muestran los nodos de este nivel.'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use as setas para indicar a ordem dos nós desejada da esquerda para a direita.  Somente nós neste nível são mostrados.'); -- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.seeChildrenOf','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'See Children of'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'See children of'); -- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Voir Enfants de'); -- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver hijos de'); -- sp 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Veja Filhos de'); -- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.editLevelName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Edit Level Name'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modifier le nom du niveau'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Editar nombre de nivel'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Editar nome do nível'); -- pr
