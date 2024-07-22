@@ -77,7 +77,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     @Override
     @Transactional
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_funding_source").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_funding_source").usingColumns("FUNDING_SOURCE_CODE", "REALM_ID", "LABEL_ID", "ALLOWED_IN_BUDGET",  "FUNDING_SOURCE_TYPE_ID","ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("FUNDING_SOURCE_CODE", f.getFundingSourceCode());
