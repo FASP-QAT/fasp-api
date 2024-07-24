@@ -53,3 +53,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Edit Level Name'); -- 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modifier le nom du niveau'); -- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Editar nombre de nivel'); -- sp 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Editar nome do nível'); -- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.levelReorderNodeUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Displayed in the Y-axis in the Modeling Validation screen.'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Affiché sur l\'axe Y dans l\'écran Validation de la modélisation.'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se muestra en el eje Y en la pantalla Validación de modelado.'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibido no eixo Y na tela Validação de Modelagem.'); -- pr
