@@ -446,4 +446,16 @@ public class DropDownRestController {
         }
     }
 
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/program/versionStatus/{versionStatusId}/versionType/{versionTypeId}")
+    public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "versionTypeId", required = true) int versionTypeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramListByVersionStatusAndVersionType(versionStatusId, versionTypeId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

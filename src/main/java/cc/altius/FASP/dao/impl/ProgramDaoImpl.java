@@ -158,8 +158,6 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`,  "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
 
-    
-
     private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -2801,6 +2799,21 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(int versionStatusId, int versionTypeId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID and p.CURRENT_VERSION_ID=pv.VERSION_ID "
+                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "WHERE p.ACTIVE AND pv.VERSION_STATUS_ID=:versionStatusId AND pv.VERSION_TYPE_ID=:versionTypeId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("versionStatusId", versionStatusId);
+        params.put("versionTypeId", versionTypeId);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT t.TREE_ANCHOR_ID, t.TREE_ID FROM vw_forecast_tree t LEFT JOIN vw_dataset p ON t.PROGRAM_ID=p.PROGRAM_ID WHERE t.PROGRAM_ID=:programId AND FIND_IN_SET(t.TREE_ID, :treeIdList)");
         Map<String, Object> params = new HashMap<>();
@@ -2808,7 +2821,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("treeIdList", ArrayUtils.convertArrayToString(ta.getTreeIds()));
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
-        
+
     }
 
 }

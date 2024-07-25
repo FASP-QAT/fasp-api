@@ -16,6 +16,7 @@ public class UpdateProgramVersion implements Serializable {
 
     private List<ReviewedProblem> reviewedProblemList;
     private String notes;
+    private boolean resetProblem;
 
     public List<ReviewedProblem> getReviewedProblemList() {
         return reviewedProblemList;
@@ -31,6 +32,14 @@ public class UpdateProgramVersion implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isResetProblem() {
+        return resetProblem;
+    }
+
+    public void setResetProblem(boolean resetProblem) {
+        this.resetProblem = resetProblem;
     }
 
 }

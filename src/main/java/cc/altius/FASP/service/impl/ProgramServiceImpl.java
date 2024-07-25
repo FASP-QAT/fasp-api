@@ -87,6 +87,11 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(int versionStatusId, int versionTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusId, versionTypeId, curUser);
+    }
+
+    @Override
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser);
     }

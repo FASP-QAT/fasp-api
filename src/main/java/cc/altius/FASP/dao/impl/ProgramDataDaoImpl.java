@@ -69,6 +69,7 @@ import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.rowMapper.AnnualTargetCalculatorResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
@@ -94,6 +95,8 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1685,7 +1688,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 }*/
                             }
                         }
-                        
+
                         // Step 3J -- Add the Node Data Extrapolation and Data values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
@@ -2016,34 +2019,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
         String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, "
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";
-
-//        if (versionStatusId == 2) {
-//            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
-//        }
         programVersionUpdateSql += " WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId;";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("versionStatusId", versionStatusId);
-        params.put("notes", notes);
+        params.put("notes", updateProgramVersion.getNotes());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         this.namedParameterJdbcTemplate.update(programVersionUpdateSql, params);
         String programVersionTransSql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
-        this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
+        this.jdbcTemplate.update(programVersionTransSql, versionStatusId, updateProgramVersion.getNotes(), curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.`REVIEW_NOTES`=:reviewedNotes, pr.`REVIEWED_DATE`=IF(:reviewed,:curDate,pr.`REVIEWED_DATE`),pr.REVIEWED=:reviewed,pr.PROBLEM_STATUS_ID=:problemStatusId, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, :problemStatusId, :reviewed, :reviewedNotes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         SimpleJdbcInsert problemReportInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
         SimpleJdbcInsert problemReportTransInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report_trans");
         final List<SqlParameterSource> updateParamList = new ArrayList<>();
         final List<SqlParameterSource> insertParamList = new ArrayList<>();
-        for (ReviewedProblem rp : reviewedProblemList) {
+        for (ReviewedProblem rp : updateProgramVersion.getReviewedProblemList()) {
             if (rp.getProblemReportId() != 0) {
                 Map<String, Object> updateParams = new HashMap<>();
                 updateParams.put("reviewed", rp.isReviewed());
@@ -2085,7 +2084,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
         }
 
-        if (versionStatusId == 2) {
+        // If Version is approved then reset the Problem list
+        if (versionStatusId == 2 && updateProgramVersion.isResetProblem()) {
             updateParamList.clear();
             String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
             List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
@@ -2102,18 +2102,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
-
             }
         }
-        //        when version is rejcted
+        // when version is rejcted
         if (versionStatusId == 3) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
             List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "BCc");
-//            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
-//            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
@@ -2133,35 +2130,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
-//            if (sbToEmails.length() != 0) {
-//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-//            }
-//            if (sbCcEmails.length() != 0) {
-//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-//            }
-
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
             subjectParam = new String[]{sp.getCode()};
-            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), updateProgramVersion.getNotes()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-        }
-
-//        when version is approved
-        if (versionStatusId == 2) {
+        } else if (versionStatusId == 2) {
+            // when version is approved
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
             List<NotificationUser> bccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "BCc");
-//            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
-//            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
-
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             StringBuilder sbBccEmails = new StringBuilder();
@@ -2180,19 +2165,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbBccEmails.append(ns.getEmailId()).append(",");
                 }
             }
-//            if (sbToEmails.length() != 0) {
-//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-//            }
-//            if (sbCcEmails.length() != 0) {
-//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-//            }
-
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
             subjectParam = new String[]{sp.getCode()};
-            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), updateProgramVersion.getNotes()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2200,6 +2178,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         return this.getVersionInfo(programId, versionId);
+    }
+
+    @Override
+    @Transactional
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        StringBuilder stringBuilder = new StringBuilder("SELECT pr.PROBLEM_REPORT_ID FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND p.CURRENT_VERSION_ID=pr.VERSION_ID WHERE FIND_IN_SET(p.PROGRAM_ID, '" + ArrayUtils.convertArrayToString(programIds) + "') AND pr.PROBLEM_STATUS_ID=3");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ArrayUtils.convertArrayToString(programIds));
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        List<Integer> problemReportIds = this.namedParameterJdbcTemplate.queryForList(stringBuilder.toString(), params, Integer.class);
+        String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1,pr.REVIEWED , pr.REVIEW_NOTES, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        List<MapSqlParameterSource> updateParamList = new LinkedList<>();
+        for (Integer rp : problemReportIds) {
+            Map<String, Object> updateParams = new HashMap<>();
+            updateParams.put("curUser", curUser.getUserId());
+            updateParams.put("curDate", curDate);
+            updateParams.put("problemReportId", rp);
+            updateParamList.add(new MapSqlParameterSource(updateParams));
+        }
+        if (updateParamList.size() > 0) {
+            SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
+            int[] result = this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
+            this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+        }
     }
 
     /**
