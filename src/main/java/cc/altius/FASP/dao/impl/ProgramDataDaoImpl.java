@@ -2085,7 +2085,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         // If Version is approved then reset the Problem list
-        if (versionStatusId == 2 && updateProgramVersion.isResetProblem()) {
+        if (versionStatusId == 2) {
             updateParamList.clear();
             String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
             List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
@@ -2184,7 +2184,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Transactional
     public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        StringBuilder stringBuilder = new StringBuilder("SELECT pr.PROBLEM_REPORT_ID FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND p.CURRENT_VERSION_ID=pr.VERSION_ID WHERE FIND_IN_SET(p.PROGRAM_ID, '" + ArrayUtils.convertArrayToString(programIds) + "') AND pr.PROBLEM_STATUS_ID=3");
+        StringBuilder stringBuilder = new StringBuilder("SELECT pr.PROBLEM_REPORT_ID FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND pr.VERSION_ID<p.CURRENT_VERSION_ID WHERE FIND_IN_SET(p.PROGRAM_ID, '" + ArrayUtils.convertArrayToString(programIds) + "') AND pr.PROBLEM_STATUS_ID=3");
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", ArrayUtils.convertArrayToString(programIds));
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
