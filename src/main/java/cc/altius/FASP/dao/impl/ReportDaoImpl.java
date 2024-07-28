@@ -341,18 +341,22 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     // Report no 16
-    // ActualConsumption = 0 -- Forecasted Consumption
-    // ActualConsumption = 1 -- Actual Consumption
-    // ActualConsumption = null -- No consumption data
     @Override
     public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
-        params.put("programId", ssv.getProgramId());
-        params.put("versionId", ssv.getVersionId());
-        params.put("planningUnitId", ssv.getPlanningUnitId());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        params.put("viewBy", ssv.getViewBy());
+        params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
+        if (ssv.isSingleProgram()) {
+            params.put("programId", ssv.getProgramId());
+            params.put("versionId", ssv.getVersionId());
+            return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalSingleProgram(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        } else {
+            params.put("programIds", ssv.getProgramIdsString());
+            return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalMultipleProgram(:startDate, :stopDate, :programIds, :versionId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        }
     }
 
     // Report no 16a
@@ -361,10 +365,17 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
-        params.put("programId", ssv.getProgramId());
-        params.put("versionId", ssv.getVersionId());
-        params.put("planningUnitId", ssv.getPlanningUnitId());
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new ConsumptionInfoRowMapper());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        params.put("viewBy", ssv.getViewBy());
+        params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
+        if (ssv.isSingleProgram()) {
+            params.put("programId", ssv.getProgramId());
+            params.put("versionId", ssv.getVersionId());
+            return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReportSingleProgram(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new ConsumptionInfoRowMapper());
+        } else {
+            params.put("programIds", ssv.getProgramIdsString());
+            return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReportMultipleProgram(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new ConsumptionInfoRowMapper());
+        }
     }
 
     // Report no 16b
@@ -373,10 +384,17 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
-        params.put("programId", ssv.getProgramId());
-        params.put("versionId", ssv.getVersionId());
-        params.put("planningUnitId", ssv.getPlanningUnitId());
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new InventoryInfoRowMapper());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        params.put("viewBy", ssv.getViewBy());
+        params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
+        if (ssv.isSingleProgram()) {
+            params.put("programId", ssv.getProgramId());
+            params.put("versionId", ssv.getVersionId());
+            return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReportSingleProgram(:startDate, :stopDate, :programId, :versionId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new InventoryInfoRowMapper());
+        } else {
+            params.put("programIds", ssv.getProgramIdsString());
+            return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReportMultipleProgram(:startDate, :stopDate, :programIds, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new InventoryInfoRowMapper());
+        }
     }
 
     // Report no 17
@@ -667,7 +685,7 @@ public class ReportDaoImpl implements ReportDao {
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
-    
+
     // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {

@@ -30,7 +30,7 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date dt;
     @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
+    private SimpleObject reportingUnit; // PU, ARU or EU
     @JsonView(Views.ReportView.class)
     private Long openingBalance;
     @JsonView(Views.ReportView.class)
@@ -101,12 +101,12 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public SimpleObject getReportingUnit() {
+        return reportingUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setReportingUnit(SimpleObject reportingUnit) {
+        this.reportingUnit = reportingUnit;
     }
 
     public Long getOpeningBalance() {
@@ -310,7 +310,7 @@ public class StockStatusVerticalOutput implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 67 * hash + Objects.hashCode(this.dt);
-        hash = 67 * hash + Objects.hashCode(this.planningUnit);
+        hash = 67 * hash + Objects.hashCode(this.reportingUnit);
         return hash;
     }
 

@@ -515,6 +515,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
+     * {"programId":2164, "versionId":1, "startDate":"2019-10-01", "stopDate":"2020-07-01", "unitIds":["152"], viewBy:1}
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
@@ -528,14 +529,9 @@ public class ReportController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
-        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (int planningUnitId : ssv.getPlanningUnitIds()) {
-                ssv.setPlanningUnitId(planningUnitId);
-                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
-            }
-            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

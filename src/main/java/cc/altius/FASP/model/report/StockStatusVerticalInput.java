@@ -7,7 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cc.altius.FASP.utils.ArrayUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -19,17 +19,27 @@ import java.util.Date;
  */
 public class StockStatusVerticalInput implements Serializable {
 
-    private int programId;
-    private int versionId;
+    private boolean singleProgram;
+    private String[] programIds; // Will be used when singleProgram is false
+    private int programId; // Will be used only if singleProgram is true
+    private int versionId; // Will be used only if singleProgram is true
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private int[] planningUnitIds;
-    @JsonIgnore
-    private int planningUnitId;
+    private int viewBy; // 1 for PU, 2 for ARU
+    private int[] reportingUnitIds;
+    private int equivalencyUnitId; // actual equivalencyUnitId if the output should be in equivalencyUnit or 0 if it is PU or ARU
+
+    public boolean isSingleProgram() {
+        return singleProgram;
+    }
+
+    public void setSingleProgram(boolean singleProgram) {
+        this.singleProgram = singleProgram;
+    }
 
     public int getProgramId() {
         return programId;
@@ -37,6 +47,14 @@ public class StockStatusVerticalInput implements Serializable {
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public String[] getProgramIds() {
+        return programIds;
+    }
+
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public int getVersionId() {
@@ -63,20 +81,35 @@ public class StockStatusVerticalInput implements Serializable {
         this.stopDate = stopDate;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public int getViewBy() {
+        return viewBy;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setViewBy(int viewBy) {
+        this.viewBy = viewBy;
     }
 
-    public int[] getPlanningUnitIds() {
-        return planningUnitIds;
+    public int[] getReportingUnitIds() {
+        return reportingUnitIds;
     }
 
-    public void setPlanningUnitIds(int[] planningUnitIds) {
-        this.planningUnitIds = planningUnitIds;
+    public void setReportingUnitIds(int[] reportingUnitIds) {
+        this.reportingUnitIds = reportingUnitIds;
     }
 
+    public int getEquivalencyUnitId() {
+        return equivalencyUnitId;
+    }
+
+    public void setEquivalencyUnitId(int equivalencyUnitId) {
+        this.equivalencyUnitId = equivalencyUnitId;
+    }
+
+    public String getReportingUnitIdsString() {
+        return ArrayUtils.convertArrayToString(reportingUnitIds);
+    }
+    
+    public String getProgramIdsString() {
+        return ArrayUtils.convertArrayToString(programIds);
+    }
 }

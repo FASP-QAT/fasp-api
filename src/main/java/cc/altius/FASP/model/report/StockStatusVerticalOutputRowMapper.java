@@ -27,7 +27,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
         while (rs.next()) {
             StockStatusVerticalOutput ssv = new StockStatusVerticalOutput();
             ssv.setDt(rs.getDate("TRANS_DATE"));
-            ssv.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)));
+            ssv.setReportingUnit(new SimpleObject(rs.getInt("REPORTING_UNIT_ID"), new LabelRowMapper("REPORTING_UNIT_").mapRow(rs, 1)));
             int index = ssvList.indexOf(ssv);
             if (index == -1) {
                 ssv.setOpeningBalance(rs.getLong("FINAL_OPENING_BALANCE"));
@@ -107,7 +107,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
             if (!rs.wasNull()) {
                 ShipmentInfo si = new ShipmentInfo(
                         rs.getInt("SHIPMENT_ID"),
-                        rs.getLong("SHIPMENT_QTY"),
+                        rs.getLong("SHIPMENT_QTY"), // in terms of ReportingUnit
                         new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")),
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)),
