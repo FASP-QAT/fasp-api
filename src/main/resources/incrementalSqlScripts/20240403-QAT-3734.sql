@@ -14,7 +14,7 @@ CHANGE COLUMN `MULTIPLIER` `CONVERSION_NUMBER` DECIMAL(16,6) UNSIGNED NOT NULL ;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_realm_country_planning_unit` AS
     SELECT 
@@ -50,7 +50,7 @@ DROP procedure IF EXISTS `fasp`.`getConsumptionData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
@@ -106,7 +106,7 @@ DROP procedure IF EXISTS `fasp`.`getInventoryData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
