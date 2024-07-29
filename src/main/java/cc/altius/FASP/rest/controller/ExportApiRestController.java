@@ -98,7 +98,7 @@ public class ExportApiRestController {
     }
 
 //    @JsonView(Views.ExportApiView.class)
-//    @GetMapping("/forecast/programId/{programId}/versionId/{versionId}")
+//    @GetMapping("/dataset/programId/{programId}/versionId/{versionId}")
 //    public ResponseEntity getForecastForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
 //        try {
 //            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
