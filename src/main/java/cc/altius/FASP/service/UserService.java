@@ -12,6 +12,7 @@ import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
 import java.util.List;
 
@@ -20,12 +21,14 @@ import java.util.List;
  * @author altius
  */
 public interface UserService {
-    
+
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
 
     public CustomUserDetails getCustomUserByUserId(int userId);
+    
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String apiUrl);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
     public int resetFailedAttemptsByUsername(String emailId);
@@ -99,5 +102,7 @@ public interface UserService {
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
 
     public String getEmailByUserId(int userId);
+
+    public List<SecurityRequestMatcher> getSecurityList();
 
 }

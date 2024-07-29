@@ -13,6 +13,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByEmailId(String emailId);
 
     public CustomUserDetails getCustomUserByUserId(int userId);
+    
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String apiUrl);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
     public List<String> getBusinessFunctionsForUserId(int userId);
@@ -104,4 +107,6 @@ public interface UserDao {
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
 
     public String getEmailByUserId(int userId);
+    
+    public List<SecurityRequestMatcher> getSecurityList();
 }

@@ -19,7 +19,7 @@ public interface AclService {
 
     public boolean checkRealmAccessForUser(CustomUserDetails curUser, int realmId);
 
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
+//    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
 
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser);
 

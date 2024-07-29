@@ -57,7 +57,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     @Override
     public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
             programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
             programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveProgramData(programData, json, curUser);
@@ -69,7 +69,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     @Override
     public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
             int requestedVersionId = programData.getCurrentVersion().getVersionId();
 //            programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveDatasetData(programData, requestedVersionId, json, curUser);
@@ -89,7 +89,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
                     SimpleProgram p = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                    if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmId(), p.getId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+                    if (this.aclService.checkAccessForUser(curUser, p.getRealmId(), p.getRealmCountry().getId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getId())) {
                         Version version;
                         CustomUserDetails user = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
                         try {
@@ -150,7 +150,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
-                                    if (this.emailService.sendMail(emailer)==1) {
+                                    if (this.emailService.sendMail(emailer) == 1) {
                                         logger.info("Emails sent out");
                                     } else {
                                         logger.info("Email could not be sent out");
@@ -166,7 +166,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                     logger.info("Supply Plan batch commit completed");
                 } else if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_DATASET) {
                     SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-                    if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+                    if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
                         Version version;
                         CustomUserDetails user = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
                         try {

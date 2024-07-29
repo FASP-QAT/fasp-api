@@ -18,6 +18,7 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
@@ -272,6 +273,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getEmailByUserId(int userId) {
         return this.userDao.getEmailByUserId(userId);
+    }
+
+    @Override
+    public List<SecurityRequestMatcher> getSecurityList() {
+        return this.userDao.getSecurityList();
+    }
+
+    @Override
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String apiUrl) {
+        return this.userDao.getCustomUserByUserIdForApi(userId, apiUrl);
     }
 
 }

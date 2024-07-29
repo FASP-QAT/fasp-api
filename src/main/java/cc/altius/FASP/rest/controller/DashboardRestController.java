@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dashboard")
 public class DashboardRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,7 +33,7 @@ public class DashboardRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/applicationLevelDashboard")
+    @GetMapping(value = "/applicationLevel")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -44,7 +44,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboard")
+    @GetMapping(value = "/realmLevel")
     public ResponseEntity realmLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -55,7 +55,7 @@ public class DashboardRestController {
         }
     }
     
-    @GetMapping(value = "/supplyPlanReviewerLevelDashboard")
+    @GetMapping(value = "/supplyPlanReviewerLevel")
     public ResponseEntity supplyPlanReviewerLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -66,7 +66,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/applicationLevelDashboardUserList")
+    @GetMapping(value = "/applicationLevel/userList")
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -77,7 +77,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboardUserList")
+    @GetMapping(value = "/realmLevel/userList")
     public ResponseEntity realmLevelDashboardUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

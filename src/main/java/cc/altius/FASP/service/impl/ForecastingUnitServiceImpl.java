@@ -115,7 +115,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     @Override
     public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
             return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
         } else {
             throw new AccessDeniedException("You do not have access to this Program");
