@@ -34,6 +34,8 @@ public class ForecastMetricsComparisionOutput implements Serializable {
     private Double forecastError;
     @JsonView(Views.ReportView.class)
     private Boolean actual;
+    @JsonView(Views.ReportView.class)
+    private Double forecastErrorThreshold;
 
     public SimpleObject getProgram() {
         return program;
@@ -105,6 +107,14 @@ public class ForecastMetricsComparisionOutput implements Serializable {
 
     public void setActual(Boolean actual) {
         this.actual = actual;
+    }
+
+    public Double getForecastErrorThreshold() {
+        return forecastErrorThreshold;
+    }
+
+    public void setForecastErrorThreshold(Double forecastErrorThreshold) {
+        this.forecastErrorThreshold = forecastErrorThreshold;
     }
 
     @JsonView(Views.ReportView.class)
