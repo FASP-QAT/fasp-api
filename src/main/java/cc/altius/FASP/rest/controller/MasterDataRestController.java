@@ -59,7 +59,7 @@ public class MasterDataRestController {
         }
     }
     
-    @GetMapping(value = "/getShipmentStatusListActive")
+    @GetMapping(value = "/shipmentStatus")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {
             return new ResponseEntity(this.masterDataService.getShipmentStatusList(true), HttpStatus.OK);
