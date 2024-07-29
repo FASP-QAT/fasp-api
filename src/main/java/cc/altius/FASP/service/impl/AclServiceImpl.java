@@ -58,32 +58,34 @@ public class AclServiceImpl implements AclService {
         return true;
     }
 
-    @Override
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId) {
-        boolean hasAccess = false;
-        for (Integer ha : healthAreaIdList) {
-            logger.info("Going to check if userId:" + curUser.getUserId() + " has access to ProgramId:" + programId);
-//        Program p = this.programService.getProgramById(programId, curUser);
-            if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
-                // Is not an Application level user and also does not have access to this Realm
-                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
-                return false;
-            } else {
-                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
-                for (UserAcl ua : curUser.getAclList()) {
-                    if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == ha)
-                            && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == organisationId)
-                            && (ua.getProgramId() == -1 || ua.getProgramId() == programId)) {
-                        logger.info("Access allowed since he has access to " + ua);
-                        return true;
-                    } else {
-                        hasAccess = false;
-                    }
-                }
-            }
-        }
-        return hasAccess;
-    }
+//    @Override
+//    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int programId, List<Integer> healthAreaIdList, int organisationId) {
+//        boolean hasAccess = false;
+//        for (Integer ha : healthAreaIdList) {
+//            logger.info("Going to check if userId:" + curUser.getUserId() + " has access to ProgramId:" + programId);
+////        Program p = this.programService.getProgramById(programId, curUser);
+//            if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
+//                // Is not an Application level user and also does not have access to this Realm
+//                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
+//                return false;
+//            } else {
+//                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
+//                for (UserAcl ua : curUser.getAclList()) {
+//                    if (
+//                            (ua.getRealmCountryId() == -1 || ua.getRealmCountryId() == realmCountryId)
+//                            && (ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == ha)
+//                            && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == organisationId)
+//                            && (ua.getProgramId() == -1 || ua.getProgramId() == programId)) {
+//                        logger.info("Access allowed since he has access to " + ua);
+//                        return true;
+//                    } else {
+//                        hasAccess = false;
+//                    }
+//                }
+//            }
+//        }
+//        return hasAccess;
+//    }
 
     @Override
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {

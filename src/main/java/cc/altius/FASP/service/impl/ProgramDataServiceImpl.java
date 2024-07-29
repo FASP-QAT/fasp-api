@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -25,6 +26,7 @@ import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
@@ -39,6 +41,8 @@ import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -60,22 +64,28 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private ProblemService problemService;
     @Autowired
     private AclService aclService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
-        ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
-        pd.setRequestedProgramVersion(versionId);
-        pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
-        versionId = pd.getCurrentVersion().getVersionId();
-        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
-        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
-        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
-        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
-        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
-        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
-        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
-        pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
-        return pd;
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) throws IncorrectAccessControlException {
+        throw new RuntimeException("This is a test");
+//        Program p = this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//        if (p == null) {
+//            throw new IncorrectAccessControlException("You do not have the rights to the resource");
+//        }
+//        ProgramData pd = new ProgramData(p);
+//        pd.setRequestedProgramVersion(versionId);
+//        pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
+//        versionId = pd.getCurrentVersion().getVersionId();
+//        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
+//        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
+//        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
+//        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
+//        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
+//        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
+//        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
+//        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
+//        pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
+//        return pd;
     }
 
     @Override
@@ -138,7 +148,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser) {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
             return this.programDao.getDatasetPlanningUnitList(programId, versionId);
         } else {
             throw new AccessDeniedException("You do not have access to this Program");
@@ -253,7 +263,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+        if (sp != null && this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
             return this.programDataDao.getActualConsumptionDataInput(acd, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

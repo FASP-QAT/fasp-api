@@ -15,11 +15,13 @@ import org.springframework.jdbc.core.RowMapper;
  * @author akil
  */
 public class UserAclRowMapper implements RowMapper<UserAcl> {
-
+    
     @Override
     public UserAcl mapRow(ResultSet rs, int rowNum) throws SQLException {
         UserAcl userAcl = new UserAcl();
         userAcl.setUserId(rs.getInt("USER_ID"));
+        userAcl.setRoleId(rs.getString("ROLE_ID"));
+        userAcl.setRoleDesc(new LabelRowMapper("ROLE_").mapRow(rs, rowNum));
         userAcl.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
         userAcl.setCountryName(new LabelRowMapper("COUNTRY_").mapRow(rs, rowNum));
         userAcl.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
@@ -30,5 +32,5 @@ public class UserAclRowMapper implements RowMapper<UserAcl> {
         userAcl.setProgramName(new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum));
         return userAcl;
     }
-
+    
 }

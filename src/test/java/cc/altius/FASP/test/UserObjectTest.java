@@ -38,13 +38,13 @@ public class UserObjectTest {
         user.setUserId(1);
         user.setLastLoginDate(new Date());
         LinkedList<UserAcl> aclList = new LinkedList<>();
-        aclList.add(new UserAcl(1, 1, 1, 1, -1, ""));
-        aclList.add(new UserAcl(1, 2, -1, -1, -1, ""));
+        aclList.add(new UserAcl(1, "ROLE_SUPER", 1, 1, 1, -1, ""));
+        aclList.add(new UserAcl(1, "ROLE_ADMIN", 2, -1, -1, -1, ""));
         user.setUserAclList(aclList);
         Gson gson = new Gson();
         Type type = new TypeToken<User>() {}.getType();
         String json = gson.toJson(user, type);
-//        System.out.println(json);
+        System.out.println(json);
 
 
     }

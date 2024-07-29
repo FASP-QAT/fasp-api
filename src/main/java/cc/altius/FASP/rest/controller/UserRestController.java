@@ -64,17 +64,6 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
-    @GetMapping(value = "/userDetails")
-    public ResponseEntity getUserDetails(Authentication auth) {
-        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-        try {
-            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId(), curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to get User details", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
@@ -148,6 +137,17 @@ public class UserRestController {
         }
     }
 
+    @GetMapping(value = "/user/details")
+    public ResponseEntity getUserDetails(Authentication auth) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId(), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get User details", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/user")
     public ResponseEntity getUserList(Authentication auth) {
         try {
@@ -175,7 +175,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/user/programId/{programId}")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -284,7 +284,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping(value = "/updateExpiredPassword")
+    @PostMapping(value = "/user/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
             if (password.getOldPassword().equals(password.getNewPassword())) {
@@ -314,7 +314,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping(value = "/changePassword")
+    @PostMapping(value = "/user/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -339,7 +339,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping(value = "/forgotPassword")
+    @PostMapping(value = "/user/forgotPassword")
     public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
         auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
         try {
@@ -371,7 +371,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/confirmForgotPasswordToken")
+    @PostMapping(value = "/user/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
@@ -386,7 +386,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/updatePassword")
+    @PostMapping("/user/updatePassword")
     public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             auditLogger.info("Update password triggered for Email: " + user.getEmailId(), request.getRemoteAddr());
@@ -440,7 +440,7 @@ public class UserRestController {
         }
     }
 
-    @PutMapping(value = "/accessControls")
+    @PutMapping(value = "/user/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -464,7 +464,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/language")
+    @PostMapping(value = "/user/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -478,7 +478,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/module/{moduleId}")
+    @PostMapping(value = "/user/module/{moduleId}")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -492,7 +492,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/agreement")
+    @PostMapping(value = "/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
             auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
