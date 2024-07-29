@@ -1543,7 +1543,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("CREATED_DATE", dt.getCreatedDate());
                 nodeParams.put("LAST_MODIFIED_BY", dt.getCreatedBy().getUserId());
                 nodeParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
-                nodeParams.put("ACTIVE", 1);
+                nodeParams.put("ACTIVE", ts.isActive());
                 nodeParams.put("NOTES", ts.getNotes());
                 int scenarioId = si.executeAndReturnKey(nodeParams).intValue();
                 updateOldAndNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId(), scenarioId);
