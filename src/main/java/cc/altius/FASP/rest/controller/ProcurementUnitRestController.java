@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/procurementUnit")
 public class ProcurementUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,7 +60,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @PutMapping(path = "/procurementUnit")
+    @PutMapping(path = "")
     public ResponseEntity putProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -78,7 +78,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit")
+    @GetMapping("")
     public ResponseEntity getProcurementUnit(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -89,7 +89,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/all")
+    @GetMapping("/all")
     public ResponseEntity getProcurementUnitAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -100,7 +100,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getProcurementUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -114,7 +114,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}/all")
+    @GetMapping("/realmId/{realmId}/all")
     public ResponseEntity getProcurementUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -128,7 +128,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}")
+    @GetMapping("/planningUnitId/{planningUnitId}")
     public ResponseEntity getProcurementUnitForPlanningUnit(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -142,7 +142,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}/all")
+    @GetMapping("/planningUnitId/{planningUnitId}/all")
     public ResponseEntity getProcurementUnitForPlanningUnitAll(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -156,7 +156,7 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/{procurementUnitId}")
+    @GetMapping("/{procurementUnitId}")
     public ResponseEntity getProcurementUnitById(@PathVariable("procurementUnitId") int procurementUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -169,22 +169,5 @@ public class ProcurementUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    
-//    @GetMapping(value = "/sync/procurementUnit/{lastSyncDate}")
-//    public ResponseEntity getProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing procurementUnit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing procurementUnit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 }

@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/unit")
 public class UnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class UnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/unit")
+    @PostMapping(path = "")
     public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -56,7 +56,7 @@ public class UnitRestController {
         }
     }
 
-    @PutMapping(path = "/unit")
+    @PutMapping(path = "")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -71,7 +71,7 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit")
+    @GetMapping("")
     public ResponseEntity getUnit(Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
@@ -81,7 +81,7 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit/dimension/{dimensionId}")
+    @GetMapping("/dimension/{dimensionId}")
     public ResponseEntity getUnitByDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitListByDimensionId(dimensionId), HttpStatus.OK);
@@ -91,7 +91,7 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit/{unitId}")
+    @GetMapping("/{unitId}")
     public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
@@ -104,18 +104,4 @@ public class UnitRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/unit/{lastSyncDate}")
-//    public ResponseEntity getUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            return new ResponseEntity(this.unitService.getUnitListForSync(lastSyncDate), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing unit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing unit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/currency")
 
 public class CurrencyRestController {
 
@@ -43,7 +43,7 @@ public class CurrencyRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/currency")
+    @PostMapping(value = "")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -58,7 +58,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency")
+    @GetMapping(value = "")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -69,7 +69,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency/{currencyId}")
+    @GetMapping(value = "/{currencyId}")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -83,7 +83,7 @@ public class CurrencyRestController {
         }
     }
 
-    @GetMapping(value = "/currency/all")
+    @GetMapping(value = "/all")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -94,7 +94,7 @@ public class CurrencyRestController {
         }
     }
 
-    @PutMapping(value = "/currency")
+    @PutMapping(value = "")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -108,20 +108,5 @@ public class CurrencyRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-//    @GetMapping(value = "/sync/currency/{lastSyncDate}")
-//    public ResponseEntity getCurrencyListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            return new ResponseEntity(this.currencyService.getCurrencyListForSync(lastSyncDate), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing currency", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing currency", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 }

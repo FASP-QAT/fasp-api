@@ -10,8 +10,6 @@ import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.DataSourceService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dataSource")
 public class DataSourceRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -44,7 +42,7 @@ public class DataSourceRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/dataSource")
+    @PostMapping(value = "")
     public ResponseEntity addDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -62,7 +60,7 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource")
+    @GetMapping(value = "")
     public ResponseEntity getDataSourceList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -73,7 +71,7 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource/all")
+    @GetMapping(value = "/all")
     public ResponseEntity getDataSourceListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,7 +82,7 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource/{dataSourceId}")
+    @GetMapping(value = "/{dataSourceId}")
     public ResponseEntity getDataSourcebyId(@PathVariable("dataSourceId") int dataSourceId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -101,7 +99,7 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource/realmId/{realmId}/programId/{programId}")
+    @GetMapping(value = "/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getDataSourceListForRealmIdProgramId(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -118,7 +116,7 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource/dataSourceTypeId/{dataSourceTypeId}")
+    @GetMapping(value = "/dataSourceTypeId/{dataSourceTypeId}")
     public ResponseEntity getDataSourceListForDataSourceTypeId(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -135,7 +133,7 @@ public class DataSourceRestController {
         }
     }
 
-    @PutMapping(value = "/dataSource")
+    @PutMapping(value = "")
     public ResponseEntity editDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -152,21 +150,5 @@ public class DataSourceRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-//    @GetMapping(value = "/sync/dataSource/{lastSyncDate}")
-//    public ResponseEntity getDataSourceListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing dataSource", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing dataSource", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 }

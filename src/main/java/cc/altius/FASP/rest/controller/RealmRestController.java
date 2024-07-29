@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/realm")
 public class RealmRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,7 @@ public class RealmRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/realm")
+    @PostMapping(path = "")
     public ResponseEntity postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -57,7 +57,7 @@ public class RealmRestController {
         }
     }
 
-    @PutMapping(path = "/realm")
+    @PutMapping(path = "")
     public ResponseEntity putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -75,7 +75,7 @@ public class RealmRestController {
         }
     }
 
-    @GetMapping("/realm")
+    @GetMapping("")
     public ResponseEntity getRealm(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -86,7 +86,7 @@ public class RealmRestController {
         }
     }
 
-    @GetMapping("/realm/{realmId}")
+    @GetMapping("/{realmId}")
     public ResponseEntity getRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -103,19 +103,4 @@ public class RealmRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/realm/{lastSyncDate}")
-//    public ResponseEntity getRealmListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.realmService.getRealmListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing realm", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing realm", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

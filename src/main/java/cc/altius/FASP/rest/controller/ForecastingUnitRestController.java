@@ -38,7 +38,7 @@ import java.util.Map;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/forecastingUnit")
 public class ForecastingUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,7 +48,7 @@ public class ForecastingUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/forecastingUnit")
+    @PostMapping(path = "")
     public ResponseEntity postForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -66,7 +66,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PutMapping(path = "/forecastingUnit")
+    @PutMapping(path = "")
     public ResponseEntity putForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,7 +84,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit")
+    @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnit(Authentication auth) {
         try {
@@ -99,7 +99,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/byIds")
+    @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
         try {
@@ -111,7 +111,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/all")
+    @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitAll(Authentication auth) {
         try {
@@ -126,7 +126,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
@@ -144,7 +144,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/{forecastingUnitId}")
+    @GetMapping("/{forecastingUnitId}")
     public ResponseEntity getForecastingUnitById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -161,7 +161,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/{forecastingUnitId}/withPrograms")
+    @GetMapping("/{forecastingUnitId}/withPrograms")
     @JsonView(Views.InternalView.class)
     public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
@@ -185,7 +185,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/tracerCategory/{tracerCategoryId}")
+    @GetMapping("/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
@@ -203,7 +203,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/tracerCategorys")
+    @PostMapping("/tracerCategorys")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
@@ -221,7 +221,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping(value = "/forecastingUnit/programId/{programId}/versionId/{versionId}")
+    @GetMapping(value = "/programId/{programId}/versionId/{versionId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -236,7 +236,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/tracerCategory/productCategory")
+    @PostMapping("/tracerCategory/productCategory")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByTracerCategoryAndProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {

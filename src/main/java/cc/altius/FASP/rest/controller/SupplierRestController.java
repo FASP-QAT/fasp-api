@@ -31,7 +31,7 @@ import cc.altius.FASP.service.UserService;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/supplier")
 public class SupplierRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class SupplierRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/supplier")
+    @PostMapping(path = "")
     public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -56,7 +56,7 @@ public class SupplierRestController {
         }
     }
 
-    @PutMapping(path = "/supplier")
+    @PutMapping(path = "")
     public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -71,7 +71,7 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier")
+    @GetMapping("")
     public ResponseEntity getSupplier(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -82,7 +82,7 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/{supplierId}")
+    @GetMapping("/{supplierId}")
     public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -99,7 +99,7 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -116,19 +116,4 @@ public class SupplierRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/supplier/{lastSyncDate}")
-//    public ResponseEntity getSupplierListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.supplierService.getSupplierListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing supplier", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing supplier", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

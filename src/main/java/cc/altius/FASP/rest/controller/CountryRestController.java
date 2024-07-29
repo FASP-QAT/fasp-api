@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/country")
 public class CountryRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -40,7 +40,7 @@ public class CountryRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/country")
+    @GetMapping(value = "")
     public ResponseEntity getCountryList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -51,7 +51,7 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/country/all")
+    @GetMapping(value = "/all")
     public ResponseEntity getCountryListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -62,7 +62,7 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/country/{countryId}")
+    @GetMapping(value = "/{countryId}")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -76,7 +76,7 @@ public class CountryRestController {
         }
     }
 
-    @PostMapping(value = "/country")
+    @PostMapping(value = "")
     public ResponseEntity addCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -97,7 +97,7 @@ public class CountryRestController {
 
     }
 
-    @PutMapping(value = "/country")
+    @PutMapping(value = "")
     public ResponseEntity editCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

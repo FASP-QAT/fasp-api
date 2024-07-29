@@ -8,10 +8,8 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.OrganisationService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/organisation")
 public class OrganisationRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -44,7 +42,7 @@ public class OrganisationRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/organisation")
+    @PostMapping(path = "")
     public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -62,7 +60,7 @@ public class OrganisationRestController {
         }
     }
 
-    @PutMapping(path = "/organisation")
+    @PutMapping(path = "")
     public ResponseEntity putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -83,7 +81,7 @@ public class OrganisationRestController {
         }
     }
 
-    @GetMapping("/organisation")
+    @GetMapping("")
     public ResponseEntity getOrganisation(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -94,38 +92,7 @@ public class OrganisationRestController {
         }
     }
 
-//    @GetMapping("/organisation/realmCountryId/{realmCountryId}")
-//    public ResponseEntity getOrganisationByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.organisationService.getOrganisationListByRealmCountry(realmCountryId, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to get Organisation list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get Organisation list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-//    @GetMapping("/organisation/realmId/{realmId}")
-//    public ResponseEntity getOrganisationByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.organisationService.getOrganisationListByRealmId(realmId, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to get Organisation list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to get Organisation list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get Organisation list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    @GetMapping("/organisation/{organisationId}")
+    @GetMapping("/{organisationId}")
     public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -142,7 +109,7 @@ public class OrganisationRestController {
         }
     }
 
-    @GetMapping("/organisation/getDisplayName/realmId/{realmId}/name/{name}")
+    @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -153,19 +120,4 @@ public class OrganisationRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/organisation/{lastSyncDate}")
-//    public ResponseEntity getOrganisatiionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing organisation", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing organisation", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/productCategory")
 public class ProductCategoryRestController extends BaseModel implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,7 +43,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @Autowired
     private UserService userService;
 
-    @PutMapping(path = "/productCategory")
+    @PutMapping(path = "")
     public ResponseEntity putProductCategory(@RequestBody Node<ProductCategory>[] productCategories, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -58,7 +58,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/realmId/{realmId}")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -72,7 +72,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
+    @GetMapping("/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
     public ResponseEntity getProductCategoryByRealmId(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "includeCurrentLevel", required = false) Optional<Boolean> includeCurrentLevel, @PathVariable("includeAllChildren") Optional<Boolean> includeAllChildren, Authentication auth) {
         boolean bolIncludeCurrentLevel = true;
         boolean bolIncludeAllChildren = false;
@@ -91,23 +91,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-//    @GetMapping(value = "/sync/productCategory/{lastSyncDate}")
-//    public ResponseEntity getProductCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing productCategory", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing productCategory", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    @GetMapping("/productCategory/realmId/{realmId}/programId/{programId}")
+    @GetMapping("/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
