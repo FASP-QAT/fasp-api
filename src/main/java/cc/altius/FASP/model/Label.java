@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class Label extends BaseModel {
 
-    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private Integer labelId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private String label_en;

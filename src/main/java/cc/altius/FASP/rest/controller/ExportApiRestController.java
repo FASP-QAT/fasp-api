@@ -73,7 +73,6 @@ public class ExportApiRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @JsonView(Views.ExportApiView.class)
     @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getSupplyPlanForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {

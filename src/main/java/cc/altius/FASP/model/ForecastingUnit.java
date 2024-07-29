@@ -15,19 +15,19 @@ import java.util.Date;
  */
 public class ForecastingUnit extends BaseModel implements Serializable {
 
-    @JsonView({Views.ReportView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private int forecastingUnitId;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject realm;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label genericLabel;
-    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private Label label;
-    @JsonView({Views.ReportView.class, Views.ExportApiView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private SimpleObject productCategory;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject tracerCategory;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject unit;
 
     public ForecastingUnit() {
@@ -114,7 +114,7 @@ public class ForecastingUnit extends BaseModel implements Serializable {
         this.unit = unit;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public boolean isActive() {
         return super.isActive();
     }

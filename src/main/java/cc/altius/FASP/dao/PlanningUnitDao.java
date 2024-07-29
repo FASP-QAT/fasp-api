@@ -14,7 +14,9 @@ import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitD
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
@@ -58,7 +60,7 @@ public interface PlanningUnitDao {
 
     public List<PlanningUnit> getPlanningUnitListForProductCategory(String productCategorySortOrder, boolean active, CustomUserDetails curUser);
 
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser);
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, int realmCountryId, boolean active, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
 
@@ -80,10 +82,9 @@ public interface PlanningUnitDao {
 
     public List<SimpleObject> getPlanningUnitForDatasetByProgramAndVersion(ProgramAndVersionDTO input, CustomUserDetails curUser);
 
-    public List<PlanningUnit> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser);
+    public List<PlanningUnitWithCount> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser);
 
-    public List<PlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
-    public List<PlanningUnit> getPlanningUnitListForDatasetId(int programId, int versionId, CustomUserDetails curUser);
-
+    public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 }
