@@ -85,7 +85,6 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, authenticationPath).permitAll()
                         .requestMatchers(HttpMethod.GET, refreshPath).permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
-                        .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error", "/api/logout", "/actuator/**", "/favicon.ico**", "/actuator**", "/actuator/info", "/browser**", "/file**", "/file/**", "/api/locales/*/**", "/api/forgotPassword/**", "/api/getForgotPasswordToken/**", "/api/confirmForgotPasswordToken/**", "/api/updatePassword/**", "/api/updateExpiredPassword/**", "/exportSupplyPlan/**", "/exportManualJson", "/exportProgramData/**", "/exportOrderData/**", "/importShipmentData/**", "/importProductCatalog/**", "/api/sync/language/**", "/exportShipmentLinkingData/**", "/jira/syncJiraAccountIds/**", "/api/processCommitRequest/**", "/api/rebuildSupplyPlans").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/budget").hasAnyAuthority("ROLE_BF_ADD_BUDGET")
