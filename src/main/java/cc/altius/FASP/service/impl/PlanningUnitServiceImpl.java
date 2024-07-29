@@ -204,9 +204,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds,int realmCountryId, boolean active, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, int realmCountryId, boolean active, CustomUserDetails curUser) {
         if (productCategoryIds != null && productCategoryIds.length != 0) {
-            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds,realmCountryId, active, curUser);
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, realmCountryId, active, curUser);
         } else {
             return null;
         }
@@ -265,6 +265,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<PlanningUnit> getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(ProductCategoryTracerCategoryAndForecastingUnitDTO input, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(input, curUser);
+    }
+
+    @Override
     public List<PlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListForProgramId(programId, active, curUser);
     }
