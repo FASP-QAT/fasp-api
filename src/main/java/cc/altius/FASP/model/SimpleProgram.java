@@ -19,13 +19,13 @@ public class SimpleProgram extends SimpleCodeObject {
     private int realmId;
     @JsonView({Views.DropDown2View.class})
     private SimpleCodeObject realmCountry;
-    @JsonView({Views.DropDown2View.class})
+    @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
     private List<SimpleCodeObject> healthAreaList;
-    @JsonView({Views.DropDown2View.class})
+    @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
     private SimpleCodeObject organisation;
-    @JsonView({Views.DropDown2View.class})
+    @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
     private List<SimpleObject> regionList;
-    @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
+    @JsonView({Views.DropDownView.class, Views.DropDown2View.class, Views.ExportApiView.class})
     private int currentVersionId;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
     private int programTypeId;

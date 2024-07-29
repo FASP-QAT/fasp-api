@@ -352,6 +352,8 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/realmCountry/**").hasAnyAuthority("ROLE_BF_MAP_REGION", "ROLE_BF_PIPELINE_PROGRAM_IMPORT")
                         .requestMatchers(HttpMethod.POST, "/api/forecastStats/**").hasAnyAuthority("ROLE_BF_EXTRAPOLATION")
                         .requestMatchers("/api/dropdown/**").hasAnyAuthority("ROLE_BF_TICKETING")
+                        .requestMatchers("/api/export/supplyPlan/**").hasAnyAuthority("ROLE_BF_COUNTRY_INTEGRATION_SP")
+                        .requestMatchers("/api/export/dataset/**").hasAnyAuthority("ROLE_BF_COUNTRY_INTEGRATION_FC")
                 );
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
