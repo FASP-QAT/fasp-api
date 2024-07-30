@@ -46,6 +46,11 @@ public class ProgramPlanningUnitRowMapper implements RowMapper<ProgramPlanningUn
         if (rs.wasNull()) {
             ppu.setDistributionLeadTime(null);
         }
+        ppu.setForecastErrorThreshold(rs.getDouble("FORECAST_ERROR_THRESHOLD"));
+        if (rs.wasNull()) {
+            ppu.setForecastErrorThreshold(null);
+        }
+        ppu.setNotes(rs.getString("NOTES"));
         ppu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return ppu;
     }

@@ -11,6 +11,7 @@ import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -20,6 +21,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
@@ -56,10 +58,12 @@ public interface ProgramDao {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
+    
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
-    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser);
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser);
 
