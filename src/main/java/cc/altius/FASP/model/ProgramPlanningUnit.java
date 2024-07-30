@@ -31,6 +31,8 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private int planBasedOn; //1- MoS , 2- Qty 
     private Integer minQty; 
     private Double distributionLeadTime; 
+    private Double forecastErrorThreshold; 
+    private String notes; 
     private List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices;
 
     public ProgramPlanningUnit() {
@@ -187,6 +189,22 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setDistributionLeadTime(Double distributionLeadTime) {
         this.distributionLeadTime = distributionLeadTime;
+    }
+
+    public Double getForecastErrorThreshold() {
+        return forecastErrorThreshold;
+    }
+
+    public void setForecastErrorThreshold(Double forecastErrorThreshold) {
+        this.forecastErrorThreshold = forecastErrorThreshold;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override
