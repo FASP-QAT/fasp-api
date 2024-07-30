@@ -80,3 +80,23 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program, planning unit
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La cartographie des programmes, des unités de planification et des agents d’approvisionnement existe déjà');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ya existe un mapeo del programa, la unidad de planificación y los agentes de adquisiciones');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O mapeamento do programa, da unidade de planejamento e do agente de compras já existe');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Program/Procurement Agent Info'
+where l.LABEL_CODE='static.countrySpecificPrices.countrySpecificPrices' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Informations sur le programme/l`agent d`approvisionnement'
+where l.LABEL_CODE='static.countrySpecificPrices.countrySpecificPrices' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Información del programa/agente de adquisiciones'
+where l.LABEL_CODE='static.countrySpecificPrices.countrySpecificPrices' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Informações do programa/agente de compras'
+where l.LABEL_CODE='static.countrySpecificPrices.countrySpecificPrices' and ll.LANGUAGE_ID=4;

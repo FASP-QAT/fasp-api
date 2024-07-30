@@ -585,7 +585,7 @@ public class ProgramDaoImpl implements ProgramDao {
         sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
-    
+
     @Override
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `TYPE_ID`, pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL");
@@ -649,8 +649,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("LABEL_ID", rcpuLabelId);
                     params.put("SKU_CODE", skuCode);
                     params.put("UNIT_ID", pu.getUnit().getId());
-                    params.put("CONVERSION_METHOD", 1);
                     params.put("CONVERSION_NUMBER", 1);
+                    params.put("CONVERSION_METHOD", 1);
                     params.put("CREATED_DATE", curDate);
                     params.put("CREATED_BY", curUser.getUserId());
                     params.put("LAST_MODIFIED_DATE", curDate);
@@ -737,7 +737,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit_procurement_agent").usingColumns("PROGRAM_ID","PLANNING_UNIT_ID","PROCUREMENT_AGENT_ID","PRICE","SEA_FREIGHT_PERC","AIR_FREIGHT_PERC","ROAD_FREIGHT_PERC","PLANNED_TO_SUBMITTED_LEAD_TIME","SUBMITTED_TO_APPROVED_LEAD_TIME","APPROVED_TO_SHIPPED_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME","ARRIVED_TO_DELIVERED_LEAD_TIME","LOCAL_PROCUREMENT_LEAD_TIME","CREATED_DATE","CREATED_BY","LAST_MODIFIED_DATE","LAST_MODIFIED_BY","ACTIVE");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit_procurement_agent").usingColumns("PROGRAM_ID", "PLANNING_UNIT_ID", "PROCUREMENT_AGENT_ID", "PRICE", "SEA_FREIGHT_PERC", "AIR_FREIGHT_PERC", "ROAD_FREIGHT_PERC", "PLANNED_TO_SUBMITTED_LEAD_TIME", "SUBMITTED_TO_APPROVED_LEAD_TIME", "APPROVED_TO_SHIPPED_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME", "ARRIVED_TO_DELIVERED_LEAD_TIME", "LOCAL_PROCUREMENT_LEAD_TIME", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
         int rowsEffected = 0;

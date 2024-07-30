@@ -190,3 +190,50 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FU:PU Conversion Facto
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion FU:PU');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FU:Factor de conversión de PU');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FU: Fator de conversão PU');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.conversionFactorPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For more details, go to Realm Level Masters > Products > Planning Units. If data looks incorrect, please submit a ticket in the QAT helpdesk.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour plus de détails, accédez à Maîtres de niveau domaine > Produits > Unités de planification. Si les données semblent incorrectes, veuillez soumettre un ticket au service d`assistance QAT.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para obtener más detalles, vaya a Realm Level Masters > Productos > Unidades de planificación. Si los datos parecen incorrectos, envíe un ticket al servicio de asistencia técnica de QAT.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para obter mais detalhes, acesse Mestres de nível de reino > Produtos > Unidades de planejamento. Se os dados parecerem incorretos, envie um ticket no helpdesk do QAT.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Settings & Notes under Program Management > Update Planning Unit.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les paramètres et les notes de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar la configuración y las notas de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as configurações e notas da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.planningUnitNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Admins can update Planning Unit Notes under Program Management > Update Planning Unit.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs du programme peuvent mettre à jour les notes de l`unité de planification sous Gestion du programme > Mettre à jour l`unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden actualizar las notas de la unidad de planificación en Gestión del programa > Actualizar unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem atualizar as notas da unidade de planejamento em Gerenciamento de programas > Atualizar unidade de planejamento.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.planningUnitAboveThreshold','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated Forecast Error is above the Forecast Error Threshold');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'L`erreur de prévision calculée est supérieure au seuil d`erreur de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El error de pronóstico calculado está por encima del umbral de error de pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O erro de previsão calculado está acima do limite de erro de previsão');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.forecastErrorThreshold','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Error Threshold');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil d`erreur de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de error de pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de erro de previsão');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastErrorReport.planningUnitAboveThresholdNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: The Forecast Error Threshold values will not be highlighted red if viewing this report in Equivalency Units or multiple Forecasting Units/Planning Units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Les valeurs du seuil d`erreur de prévision ne seront pas surlignées en rouge si ce rapport est affiché en unités déquivalence ou en plusieurs unités de prévision/unités de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Los valores del Umbral de error de pronóstico no se resaltarán en rojo si se visualiza este informe en Unidades de equivalencia o en varias Unidades de pronóstico/Unidades de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Os valores do Limite de Erro de Previsão não serão destacados em vermelho se este relatório for visualizado em Unidades de Equivalência ou em múltiplas Unidades de Previsão/Unidades de Planejamento');-- pr

@@ -964,3 +964,14 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.dataentry.conversionFactorTooltip','1');
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User-created or auto-generated in the Alternate Reporting Unit screen. `*` will multiply and `/` will divide the Order Quantity (ARU) by the Conversion Factor');-- en
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créé par l`utilisateur ou généré automatiquement dans l`écran Unité de reporting alternative. `*` multipliera et `/` divisera la quantité commandée (ARU) par le facteur de conversion');-- fr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criado pelo usuário ou gerado automaticamente na tela Unidade de relatório alternativa. `*` irá multiplicar e `/` irá dividir a Quantidade do Pedido (ARU) pelo Fator de Conversão');-- pr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Creado por el usuario o generado automáticamente en la pantalla Unidad de informes alternativa. `*` multiplicará y `/` dividirá la Cantidad del pedido (ARU) por el Factor de conversión');-- sp
