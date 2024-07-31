@@ -20,6 +20,7 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
@@ -34,6 +35,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -87,8 +89,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(int versionStatusId, int versionTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusId, versionTypeId, curUser);
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeId, curUser);
     }
 
     @Override
@@ -239,7 +241,25 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             return new LinkedList<>();
         }
-
+    }
+    
+    @Override
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+        StringBuilder programList = new StringBuilder();
+        for (int programId : programIds) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+                programList.append("'").append(programId).append("',");
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        if (programList.length() > 0) {
+            programList.setLength(programList.length() - 1);
+            return this.programDao.getProgramAndPlanningUnitListForProgramIds(programList.toString(), curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
     @Override
@@ -254,8 +274,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser) {
-        return this.programDao.getProgramPlanningUnitProcurementAgentList(programPlanningUnitId, active, curUser);
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser) {
+        return this.programDao.getProgramPlanningUnitProcurementAgentList(ppupa, active, curUser);
     }
 
     @Override

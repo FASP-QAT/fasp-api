@@ -52,7 +52,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
-            s.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("RCPU_ID"), new LabelRowMapper("RCPU_").mapRow(rs, 1), rs.getDouble("RCPU_MULTIPLIER")));
+            s.setRealmCountryPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("RCPU_ID"), new LabelRowMapper("RCPU_").mapRow(rs, 1),rs.getDouble("RCPU_MULTIPLIER")));
             s.setParentLinkedShipmentId(rs.getInt("PARENT_LINKED_SHIPMENT_ID"));
             if(rs.wasNull()) {
                 s.setParentLinkedShipmentId(null);
