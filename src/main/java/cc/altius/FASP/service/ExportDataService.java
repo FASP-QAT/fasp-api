@@ -4,16 +4,19 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.InvalidDataException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.SupplyPlanExportDTO;
-import cc.altius.FASP.model.SimpleProgram;
+import java.text.ParseException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  *
  * @author akil
  */
 public interface ExportDataService {
-    
-    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, CustomUserDetails curUser);
-    
+
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(int programId, int versionId, String startDate, CustomUserDetails curUser) throws EmptyResultDataAccessException, ParseException, AccessDeniedException, InvalidDataException;
+
 }
