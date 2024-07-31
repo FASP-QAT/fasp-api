@@ -14,5 +14,5 @@ import cc.altius.FASP.model.SimpleProgram;
  */
 public interface ExportDataDao {
 
-    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, CustomUserDetails curUser);
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, String startDate, CustomUserDetails curUser);
 }

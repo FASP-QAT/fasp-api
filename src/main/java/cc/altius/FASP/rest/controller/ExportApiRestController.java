@@ -4,16 +4,15 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.exception.InvalidDataException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ExportDataService;
 import cc.altius.FASP.service.PlanningUnitService;
-import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.text.ParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,7 @@ public class ExportApiRestController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private ProgramService programService;
+
     @Autowired
     private PlanningUnitService planningUnitService;
     @Autowired
@@ -74,17 +72,17 @@ public class ExportApiRestController {
 //        }
 //    }
     @JsonView(Views.ExportApiView.class)
-    @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getSupplyPlanForProgram(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
+    @GetMapping(value = {"/supplyPlan/programId/{programId}/versionId/{versionId}", "/supplyPlan/programId/{programId}/versionId/{versionId}/", "/supplyPlan/programId/{programId}/versionId/{versionId}/startDate/{startDate}"})
+    public ResponseEntity getSupplyPlanForProgram(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "startDate", required = false) String startDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (p != null) {
-                return new ResponseEntity(this.exportDataService.getSupplyPlanForProgramId(p, versionId, curUser), HttpStatus.OK);
-            } else {
-                // ProgramId not found
-                throw new EmptyResultDataAccessException(1);
-            }
+            return new ResponseEntity(this.exportDataService.getSupplyPlanForProgramId(programId, versionId, startDate, curUser), HttpStatus.OK);
+        } catch (InvalidDataException ie) {
+            logger.error(ie.getMessage(), ie);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (ParseException pe) {
+            logger.error("Incorrect format for startDate provided", pe);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Export of Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
