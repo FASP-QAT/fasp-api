@@ -46,41 +46,41 @@ public class ForecastingStatisticsRestController {
     @Value("${forecastStats.server.url}")
     private String forecastStatsServerUrl;
     @Value("${forecastStats.arima.pMin}")
-    private double pMin;
+    private String pMin;
     @Value("${forecastStats.arima.pMax}")
-    private double pMax;
+    private String pMax;
     @Value("${forecastStats.arima.pStep}")
-    private double pStep;
+    private String pStep;
     @Value("${forecastStats.arima.dMin}")
-    private double dMin;
+    private String dMin;
     @Value("${forecastStats.arima.dMax}")
-    private double dMax;
+    private String dMax;
     @Value("${forecastStats.arima.dStep}")
-    private double dStep;
+    private String dStep;
     @Value("${forecastStats.arima.qMin}")
-    private double qMin;
+    private String qMin;
     @Value("${forecastStats.arima.qMax}")
-    private double qMax;
+    private String qMax;
     @Value("${forecastStats.arima.qStep}")
-    private double qStep;
+    private String qStep;
     @Value("${forecastStats.arima.alphaMin}")
-    private double alphaMin;
+    private String alphaMin;
     @Value("${forecastStats.arima.alphaMax}")
-    private double alphaMax;
+    private String alphaMax;
     @Value("${forecastStats.arima.alphaStep}")
-    private double alphaStep;
+    private String alphaStep;
     @Value("${forecastStats.arima.betaMin}")
-    private double betaMin;
+    private String betaMin;
     @Value("${forecastStats.arima.betaMax}")
-    private double betaMax;
+    private String betaMax;
     @Value("${forecastStats.arima.betaStep}")
-    private double betaStep;
+    private String betaStep;
     @Value("${forecastStats.arima.gammaMin}")
-    private double gammaMin;
+    private String gammaMin;
     @Value("${forecastStats.arima.gammaMax}")
-    private double gammaMax;
+    private String gammaMax;
     @Value("${forecastStats.arima.gammaStep}")
-    private double gammaStep;
+    private String gammaStep;
 
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(@RequestBody ArimaInputDTO input, HttpServletRequest request, Authentication auth) {
@@ -102,9 +102,9 @@ public class ForecastingStatisticsRestController {
             } else {
                 Map<ForecastMethodOptimizationDTO, ForecastMethodOutputDTO> outputMap = new HashMap<>();
                 List<ForecastMethodOptimizationDTO> outputList = new LinkedList<>();
-                for (double p = alphaMin; p <= alphaMax; p += alphaStep) {
-                    for (double d = dMin; d <= dMax; d += dStep) {
-                        for (double q = qMin; q <= qMax; q += qStep) {
+                for (double p = Double.parseDouble(alphaMin); p <= Double.parseDouble(alphaMax); p += Double.parseDouble(alphaStep)) {
+                    for (double d = Double.parseDouble(dMin); d <= Double.parseDouble(dMax); d += Double.parseDouble(dStep)) {
+                        for (double q = Double.parseDouble(qMin); q <= Double.parseDouble(qMax); q += Double.parseDouble(qStep)) {
                             input.setP(p);
                             input.setD(d);
                             input.setQ(q);
@@ -163,9 +163,9 @@ public class ForecastingStatisticsRestController {
             } else {
                 Map<ForecastMethodOptimizationDTO, ForecastMethodOutputDTO> outputMap = new HashMap<>();
                 List<ForecastMethodOptimizationDTO> outputList = new LinkedList<>();
-                for (double alpha = alphaMin; alpha <= alphaMax; alpha += alphaStep) {
-                    for (double beta = betaMin; beta <= betaMax; beta += betaStep) {
-                        for (double gamma = gammaMin; gamma <= gammaMax; gamma += gammaStep) {
+                for (double alpha = Double.parseDouble(alphaMin); alpha <= Double.parseDouble(alphaMax); alpha += Double.parseDouble(alphaStep)) {
+                    for (double beta = Double.parseDouble(betaMin); beta <= Double.parseDouble(betaMax); beta += Double.parseDouble(betaStep)) {
+                        for (double gamma = Double.parseDouble(gammaMin); gamma <= Double.parseDouble(gammaMax); gamma += Double.parseDouble(gammaStep)) {
                             input.setAlpha(alpha);
                             input.setBeta(beta);
                             input.setGamma(gamma);
