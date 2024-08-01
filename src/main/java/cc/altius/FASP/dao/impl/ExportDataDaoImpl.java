@@ -36,7 +36,7 @@ public class ExportDataDaoImpl implements ExportDataDao {
     }
 
     @Override
-    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, CustomUserDetails curUser) {
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(SimpleProgram program, int versionId, String startDate, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT "
                 + "    spa.TRANS_DATE, spa.REGION_COUNT, spa.REGION_COUNT_FOR_STOCK, spa.OPENING_BALANCE, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER, "
@@ -48,21 +48,27 @@ public class ExportDataDaoImpl implements ExportDataDao {
                 + "    spa.ERP_PLANNED_SHIPMENT_QTY, spa.ERP_SUBMITTED_SHIPMENT_QTY, spa.ERP_APPROVED_SHIPMENT_QTY, spa.ERP_ONHOLD_SHIPMENT_QTY, spa.ERP_SHIPPED_SHIPMENT_QTY, spa.ERP_RECEIVED_SHIPMENT_QTY, "
                 + "    spa.EXPIRED_STOCK, spa.CLOSING_BALANCE, spa.MOS, spa.AMC, spa.AMC_COUNT, spa.UNMET_DEMAND, "
                 + "    spa.MIN_STOCK_MOS, spa.MIN_STOCK_QTY, spa.MAX_STOCK_MOS, spa.MAX_STOCK_QTY "
-                + "FROM rm_supply_plan_amc spa "
-                + "LEFT JOIN vw_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_supply_plan_amc spa  ON spa.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
                 + "LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID "
                 + "WHERE "
-                + "    spa.PROGRAM_ID=:programId "
+                + "    p.PROGRAM_ID=:programId "
                 + "    AND spa.VERSION_ID=:versionId ");
 
         Map<String, Object> params = new HashMap<>();
+
         params.put("programId", program.getId());
+        if (startDate != null) {
+            params.put("startDate", startDate + "-01");
+            stringBuilder.append(" AND spa.TRANS_DATE>=:startDate");
+        }
         versionId = (versionId == -1 ? program.getCurrentVersionId() : versionId);
         params.put("versionId", versionId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+
         stringBuilder.append("ORDER BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE ");
         SupplyPlanExportDTO sp = new SupplyPlanExportDTO(program, versionId);
         sp.setPlanningUnitList(this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SupplyPlanExportPuDTOResultSetExtractor()));
