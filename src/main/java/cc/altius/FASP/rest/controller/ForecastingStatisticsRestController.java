@@ -46,41 +46,41 @@ public class ForecastingStatisticsRestController {
     @Value("${forecastStats.server.url}")
     private String forecastStatsServerUrl;
     @Value("${forecastStats.arima.pMin}")
-    private String pMin;
+    private double pMin;
     @Value("${forecastStats.arima.pMax}")
-    private String pMax;
+    private double pMax;
     @Value("${forecastStats.arima.pStep}")
-    private String pStep;
+    private double pStep;
     @Value("${forecastStats.arima.dMin}")
-    private String dMin;
+    private double dMin;
     @Value("${forecastStats.arima.dMax}")
-    private String dMax;
+    private double dMax;
     @Value("${forecastStats.arima.dStep}")
-    private String dStep;
+    private double dStep;
     @Value("${forecastStats.arima.qMin}")
-    private String qMin;
+    private double qMin;
     @Value("${forecastStats.arima.qMax}")
-    private String qMax;
+    private double qMax;
     @Value("${forecastStats.arima.qStep}")
-    private String qStep;
-    @Value("${forecastStats.arima.alphaMin}")
-    private String alphaMin;
-    @Value("${forecastStats.arima.alphaMax}")
-    private String alphaMax;
-    @Value("${forecastStats.arima.alphaStep}")
-    private String alphaStep;
-    @Value("${forecastStats.arima.betaMin}")
-    private String betaMin;
-    @Value("${forecastStats.arima.betaMax}")
-    private String betaMax;
-    @Value("${forecastStats.arima.betaStep}")
-    private String betaStep;
-    @Value("${forecastStats.arima.gammaMin}")
-    private String gammaMin;
-    @Value("${forecastStats.arima.gammaMax}")
-    private String gammaMax;
-    @Value("${forecastStats.arima.gammaStep}")
-    private String gammaStep;
+    private double qStep;
+    @Value("${forecastStats.tes.alphaMin}")
+    private double alphaMin;
+    @Value("${forecastStats.tes.alphaMax}")
+    private double alphaMax;
+    @Value("${forecastStats.tes.alphaStep}")
+    private double alphaStep;
+    @Value("${forecastStats.tes.betaMin}")
+    private double betaMin;
+    @Value("${forecastStats.tes.betaMax}")
+    private double betaMax;
+    @Value("${forecastStats.tes.betaStep}")
+    private double betaStep;
+    @Value("${forecastStats.tes.gammaMin}")
+    private double gammaMin;
+    @Value("${forecastStats.tes.gammaMax}")
+    private double gammaMax;
+    @Value("${forecastStats.tes.gammaStep}")
+    private double gammaStep;
 
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(@RequestBody ArimaInputDTO input, HttpServletRequest request, Authentication auth) {
@@ -102,9 +102,9 @@ public class ForecastingStatisticsRestController {
             } else {
                 Map<ForecastMethodOptimizationDTO, ForecastMethodOutputDTO> outputMap = new HashMap<>();
                 List<ForecastMethodOptimizationDTO> outputList = new LinkedList<>();
-                for (double p = Double.parseDouble(alphaMin); p <= Double.parseDouble(alphaMax); p += Double.parseDouble(alphaStep)) {
-                    for (double d = Double.parseDouble(dMin); d <= Double.parseDouble(dMax); d += Double.parseDouble(dStep)) {
-                        for (double q = Double.parseDouble(qMin); q <= Double.parseDouble(qMax); q += Double.parseDouble(qStep)) {
+                for (double p = pMin; p <= pMax; p += pStep) {
+                    for (double d = dMin; d <= dMax; d += dStep) {
+                        for (double q = qMin; q <= qMax; q += qStep) {
                             input.setP(p);
                             input.setD(d);
                             input.setQ(q);
@@ -119,7 +119,8 @@ public class ForecastingStatisticsRestController {
                                 opt.setVar1(input.getP());
                                 opt.setVar2(input.getD());
                                 opt.setVar3(input.getQ());
-                                ForecastMethodOptimizationDTO key = new ForecastMethodOptimizationDTO(input.getP(), input.getD(), input.getQ(), opt.getRMSE(input.getData()));
+                                double rmse = opt.getRMSE(input.getData());
+                                ForecastMethodOptimizationDTO key = new ForecastMethodOptimizationDTO(input.getP(), input.getD(), input.getQ(), rmse);
                                 if (key.getError() != null) {
                                     outputList.add(key);
                                     outputMap.put(key, opt);
@@ -145,7 +146,6 @@ public class ForecastingStatisticsRestController {
 
     @PostMapping(path = "/tes")
     public ResponseEntity postTes(@RequestBody TesInputDTO input, HttpServletRequest request, Authentication auth) {
-        System.out.println("Inside TES");
         try {
             Gson gson = new Gson();
             String json = gson.toJson(input);
@@ -159,13 +159,14 @@ public class ForecastingStatisticsRestController {
                 opt.setVar1(input.getAlpha());
                 opt.setVar2(input.getBeta());
                 opt.setVar3(input.getGamma());
+                double rmse = opt.getRMSE(input.getData());
                 return new ResponseEntity(output, HttpStatus.OK);
             } else {
                 Map<ForecastMethodOptimizationDTO, ForecastMethodOutputDTO> outputMap = new HashMap<>();
                 List<ForecastMethodOptimizationDTO> outputList = new LinkedList<>();
-                for (double alpha = Double.parseDouble(alphaMin); alpha <= Double.parseDouble(alphaMax); alpha += Double.parseDouble(alphaStep)) {
-                    for (double beta = Double.parseDouble(betaMin); beta <= Double.parseDouble(betaMax); beta += Double.parseDouble(betaStep)) {
-                        for (double gamma = Double.parseDouble(gammaMin); gamma <= Double.parseDouble(gammaMax); gamma += Double.parseDouble(gammaStep)) {
+                for (double alpha = alphaMin; alpha <= alphaMax; alpha += alphaStep) {
+                    for (double beta = betaMin; beta <= betaMax; beta += betaStep) {
+                        for (double gamma = gammaMin; gamma <= gammaMax; gamma += gammaStep) {
                             input.setAlpha(alpha);
                             input.setBeta(beta);
                             input.setGamma(gamma);
@@ -174,13 +175,13 @@ public class ForecastingStatisticsRestController {
                             headers.setContentType(MediaType.APPLICATION_JSON);
                             HttpEntity<String> entity = new HttpEntity<String>(gson.toJson(input), headers);
                             try {
-                                String output = apiCall.postForObject(this.forecastStatsServerUrl + "/tes", entity, String.class
-                                );
+                                String output = apiCall.postForObject(this.forecastStatsServerUrl + "/tes", entity, String.class);
                                 ForecastMethodOutputDTO opt = gson.fromJson(output, ForecastMethodOutputDTO.class);
                                 opt.setVar1(input.getAlpha());
                                 opt.setVar2(input.getBeta());
                                 opt.setVar3(input.getGamma());
-                                ForecastMethodOptimizationDTO key = new ForecastMethodOptimizationDTO(input.getAlpha(), input.getBeta(), input.getGamma(), opt.getRMSE(input.getData()));
+                                double rmse = opt.getRMSE(input.getData());
+                                ForecastMethodOptimizationDTO key = new ForecastMethodOptimizationDTO(input.getAlpha(), input.getBeta(), input.getGamma(), rmse);
                                 if (key.getError() != null) {
                                     outputList.add(key);
                                     outputMap.put(key, opt);
