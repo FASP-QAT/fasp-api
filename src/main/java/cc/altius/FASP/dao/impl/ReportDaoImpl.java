@@ -109,6 +109,7 @@ import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -586,7 +587,7 @@ public class ReportDaoImpl implements ReportDao {
         StringBuilder sb = new StringBuilder("SELECT "
                 + "	b.BUDGET_ID, b.BUDGET_CODE, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR, "
                 + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
-                + "    fst.FUNDING_SOURCE_TYPE_ID, fs.FUNDING_SOURCE_TYPE_CODE, fst.LABEL_ID `FST_LABEL_ID`, fst.LABEL_EN `FST_LABEL_EN`, fst.LABEL_FR `FST_LABEL_FR`, fst.LABEL_SP `FST_LABEL_SP`, fst.LABEL_PR `FST_LABEL_PR`, "
+                + "    fst.FUNDING_SOURCE_TYPE_ID, fst.FUNDING_SOURCE_TYPE_CODE, fst.LABEL_ID `FST_LABEL_ID`, fst.LABEL_EN `FST_LABEL_EN`, fst.LABEL_FR `FST_LABEL_FR`, fst.LABEL_SP `FST_LABEL_SP`, fst.LABEL_PR `FST_LABEL_PR`, "
                 + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
                 + "    c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`, "
                 + "    (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_AMT`, IFNULL(stc.PLANNED_BUDGET,0) `PLANNED_BUDGET_AMT`, IFNULL(stc.ORDERED_BUDGET,0) `ORDERED_BUDGET_AMT`, b.START_DATE, b.STOP_DATE "
