@@ -253,7 +253,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/programData/**").hasAnyAuthority("ROLE_BF_COMMIT_VERSION")
                         .requestMatchers(HttpMethod.POST, "/api/program/initialize/**").hasAnyAuthority("ROLE_BF_SET_UP_PROGRAM")
                         .requestMatchers(HttpMethod.GET, "/api/versionStatus/**").hasAnyAuthority("ROLE_BF_ADD_INTEGRATION_PROGRAM", "ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
-                        .requestMatchers(HttpMethod.PUT, "/api/programVersion/programId/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
+                        .requestMatchers(HttpMethod.PUT, "/api/programVersion/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.GET, "/api/versionType/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW", "ROLE_BF_COMMIT_VERSION", "ROLE_BF_ADD_INTEGRATION_PROGRAM", "ROLE_BF_VERSION_SETTINGS")
                         .requestMatchers(HttpMethod.GET, "/api/problemStatus/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.GET, "/api/programData/getLatestVersionForProgram/**").hasAnyAuthority("ROLE_BF_COMMIT_DATASET", "ROLE_BF_COMMIT_VERSION")
