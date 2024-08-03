@@ -89,8 +89,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(int versionStatusId, int versionTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusId, versionTypeId, curUser);
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser) {
+        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeId, curUser);
     }
 
     @Override
