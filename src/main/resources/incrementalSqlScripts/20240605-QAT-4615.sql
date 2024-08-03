@@ -113,7 +113,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@varProgramIds)=0 OR FIND_IN_SET(pv.PROGRAM_ID, @varProgramIds))");
     SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@varRealmCountryIds)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, @varRealmCountryIds))");
     SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@varPlanningUnitIds)=0 OR FIND_IN_SET(pu.PLANNING_UNIT_ID, @varPlanningUnitIds))");
-    SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@tracerCategoryIds)=0 OR FIND_IN_SET(fu.TRACER_CATEGORY_ID, @varTracerCategoryIds)) ");
+    SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@varTracerCategoryIds)=0 OR FIND_IN_SET(fu.TRACER_CATEGORY_ID, @varTracerCategoryIds)) ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
     SET @sqlString = CONCAT(@sqlString, "   GROUP BY pv.PROGRAM_ID");
     SET @sqlString = CONCAT(@sqlString, "   ) p1");

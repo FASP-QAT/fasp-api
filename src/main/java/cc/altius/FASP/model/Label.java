@@ -15,15 +15,15 @@ import java.util.Objects;
  */
 public class Label extends BaseModel {
 
-    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.InternalView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private Integer labelId;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private String label_en;
-    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private String label_sp;
-    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private String label_fr;
-    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class})
+    @JsonView({Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class, Views.DropDown2View.class, Views.DropDown3View.class, Views.ExportApiView.class})
     private String label_pr;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {

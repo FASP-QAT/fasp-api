@@ -11,7 +11,6 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -70,8 +69,7 @@ public class EmailDaoImpl implements EmailDao {
     @Override
     public int saveEmail(Emailer emailer) {
         int emailerId = 0;
-//        int curUser = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("em_emailer").usingGeneratedKeyColumns("EMAILER_ID");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("TO_SEND", emailer.getToSend());
@@ -90,7 +88,7 @@ public class EmailDaoImpl implements EmailDao {
 
     @Override
     public int updateEmail(int status, int attempts, String reason, int emailerId) {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String query = "UPDATE em_emailer e SET e.`STATUS`=?,e.`ATTEMPTS`=?,e.`REASON`=?, e.`LAST_MODIFIED_DATE`=?"
                 + " WHERE e.`EMAILER_ID`=?";
         return this.jdbcTemplate.update(query, status, attempts, reason, curDate, emailerId);
@@ -217,7 +215,7 @@ public class EmailDaoImpl implements EmailDao {
         } catch (Exception e) {
             curUser = 1;
         }
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(dataSource);
         MapSqlParameterSource params1 = new MapSqlParameterSource();
         KeyHolder keyHolder = new GeneratedKeyHolder();

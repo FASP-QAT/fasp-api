@@ -38,6 +38,7 @@ public class SimplePlanningUnitForSupplyPlanObjectResultSetExtractor implements 
                 pu.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
                 pu.setReorderFrequencyInMonths(rs.getInt("REORDER_FREQUENCY_IN_MONTHS"));
                 pu.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
+                pu.setNotes(rs.getString("NOTES"));
             } else {
                 pu = puList.get(puIdx);
             }

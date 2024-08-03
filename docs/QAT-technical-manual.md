@@ -81,7 +81,7 @@ Once a User has logged in the application stores his credentials and access righ
 
 To begin editing a Program the user will need to Load the Program from the Server. Once a program has been loaded the user can then begin editing the Supply Plan by making changes to the Consumption, Inventory and Shipments. All of the changes that the user has made are stored locally on the IndexedDb. Once the user is ready to commit his changes to the Server he then selects the Commit version option.
 
-Please refer to [this folder](https://chemonics.sharepoint.com/sites/FASP-FHI360_Suncontract/Shared%20Documents/Forms/AllItems.aspx?csf=1&web=1&e=3UfOu1&cid=d3ef8b5f%2Dd6ba%2D4200%2D80ac%2D27a8b8dd6011&FolderCTID=0x012000D2605F5B239D614EB181D7483530BBE1&id=%2Fsites%2FFASP%2DFHI360%5FSuncontract%2FShared%20Documents%2FGeneral%2FDocumentation%2FProcess%20Flows&viewid=5438e9ce%2D8d16%2D4183%2D8b68%2Daf909e3acd8e) for additional information on process flows.
+Please refer to [Process Flows](Process%20Flows) for additional information on process flows.
 
 ### Back End - Java Spring Boot Application
 
@@ -132,8 +132,7 @@ Files shared with ARTMIS are done via SFTP (xml formats); files imported from Pi
 
 Note there is no task 4 and task 5. Note that edits are made to the ERP-linking functionality, after which time this section will updated to include those edits, including detail on fields to be shared and which items are shared as deltas versus full files. Only if the scripts below fail will QAT send an automated notification of this failure.
 
-- Scripts files on Sharepoint [here](https://chemonics.sharepoint.com/sites/FASP-FHI360_Suncontract/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FFASP%2DFHI360%5FSuncontract%2FShared%20Documents%2FGeneral%2FDocumentation%2FBatch%20job%20scripts&viewid=5438e9ce%2D8d16%2D4183%2D8b68%2Daf909e3acd8e)
-- ARTMIS Sample file details [her](https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/ARTMIS%20Data%20Interface/Sample_ARTMIS_Feeds?csf=1&web=1&e=p4QUO6)e
+- [ARTMIS Sample files](Sample%20ARTMIS%20Feeds)
 
 | **Script name**              | **Description**                                                                          | **Script Path**                  | **Source folder**                                  | **Source folder after completing script**                    | **Destination folder**                                                           | **Log Path**                                      | **Schedule Time (EST)** |
 | ---------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
@@ -153,7 +152,7 @@ Table 1 QAT Server Scripts
 
 Script Location `/home/ubuntu/QAT/script/task1.sh` (QAT Server)
 
-**Task2.sh** [exportProgramAndOrder.sh](http://exportprogramandorder.sh/)
+**Task2.sh** exportProgramAndOrder.sh
 
 1.  Generate the Program and Order csv files in `/home/ubuntu/QAT/supplyPlan` folder
 2.  We have Local path in QAT server `/home/ubuntu/QAT/supplyPlan` in which we need to transfer the csv file on SFTP server in `/FASP/supplyPlan` directory.
@@ -183,13 +182,11 @@ Script Location `/home/ubuntu/QAT/script/`
 sh QAT/script/sftp.sh
 ```
 
-Prodcution Server SFTP: 192.255.50.133
+Prodcution Server SFTP: <YOUR_PROD_SFTP_SERVER_IP_ADDRESS>
 
-UAT Server SFTP: 192.255.49.158
+UAT Server SFTP: <YOUR_UAT_SFTP_SERVER_IP_ADDRESS>
 
-SHAREPOINT:
-
-<https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Supply%20Plans%20from%20QAT?csf=1&web=1&e=QaVWOE>
+SHAREPOINT: <YOUR_SHAREPOINT_URL>
 
 GFPVAN SFTP for UAT :bastion3.e2open.net
 
@@ -531,7 +528,7 @@ sudo systemctl restart QATAPI.service
 
 ### List of API's
 
-The [QAT API Master](https://www.google.com/url?q=https://app.swaggerhub.com/apis/Altius/QAT/1.09&sa=D&source=hangouts&ust=1613216661474000&usg=AFQjCNFxS6ivBEXC2SMQWoOxb5eYzRGwTA) is available for reference. Refer to the Index html file in the zip for a list of the APIs:
+The [QAT API Master](https://app.swaggerhub.com/apis/Altius/QAT/1.09&sa=D&source=hangouts&ust=1613216661474000&usg=AFQjCNFxS6ivBEXC2SMQWoOxb5eYzRGwTA) is available for reference. Refer to the Index html file in the zip for a list of the APIs:
 
 <https://app.swaggerhub.com/apis/Altius/QAT/1.12>
 
@@ -636,7 +633,15 @@ sudo npm install npm@latest -g
 
 ### Running QAT Application
 
-To run a QAT application on your local machine download it from git repository. Enter the project directory and execute npm install and npm run dev
+To run a QAT application on your local machine download it from git repository. 
+Download the file https://github.com/FASP-QAT/fasp-api/blob/master2/docs/QATFolders.7z and expand it into the QAT Home folder.
+The default Home folder is /home/ubuntu/QAT. If you want to change the Home folder please make a change in the application.properties file
+```bash
+qat.homeFolder=/home/ubuntu/QAT
+```
+In the properties folder inside the QAT directory you will need to follow instructions and fill in the parameters specific to your instance.
+
+Enter the project directory and execute npm install and npm run dev
 
 ```bash
 $ cd fasp-core-ui
@@ -755,7 +760,7 @@ Note: BR5 was removed during the development process.
 
 (_updated July 26th, 2022_)
 
-Please see the corresponding png files in the zipped folder for the ten [Entity-Relationship Diagrams](https://chemonics.sharepoint.com/:f:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Documentation/Database%20ER%20Diagrams?csf=1&web=1&e=F5sEWI).
+Please see the corresponding png files in the zipped folder for the ten [Entity-Relationship Diagrams](Database%20ER%20Diagrams).
 
 ![](images/image6.png)
 
@@ -765,7 +770,7 @@ Figure 3: Example of an Entity-Relationship Diagram
 
 (_updated on July 26th 2022_)
 
-Please see the corresponding excel file in the zipped folder for the [Data Dictionary v2.9](https://chemonics.sharepoint.com/:x:/r/sites/FASP-FHI360_Suncontract/Shared%20Documents/General/Documentation/Data%20Dictionaries/Data%20dictionary%20QAT%20SP%20v2.9.xlsx?d=w78350806743548d5b8b21bd5413c5790&csf=1&web=1&e=MGawm1).
+Please see the corresponding excel file in the zipped folder for the [Data Dictionary v2.9](Data%20dictionary%20QAT%20SP%20v2.9.xlsx).
 
 **Note:** while this data dictionary has been created for the supply plan output that's sent to the GFPVAN & ARTMIS - the fields cover all data fields in the broader database structure.
 
