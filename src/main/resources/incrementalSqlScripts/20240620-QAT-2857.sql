@@ -47,7 +47,7 @@ BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    -- INSERT INTO log VALUES (null, now(), "Starting SP");
+--     INSERT INTO log VALUES (null, now(), "Starting SP");
     SET @aclSqlString = CONCAT("       AND (FALSE ");
     OPEN cursor_acl;
 	read_loop: LOOP
@@ -64,7 +64,7 @@ BEGIN
         SET @aclSqlString = CONCAT(@aclSqlString,"       )");
     END LOOP;
     CLOSE cursor_acl;
-    -- INSERT INTO log VALUES (null, now(), "Completed loop");
+--     INSERT INTO log VALUES (null, now(), "Completed loop");
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
 
     SET @varRealmId = VAR_REALM_ID;
@@ -76,6 +76,13 @@ BEGIN
     SET @varTracerCategoryIds = VAR_TRACER_CATEGORY_IDS;
     SET @varPlanningUnitIds = VAR_PLANNING_UNIT_IDS;
     
+    
+    DROP TABLE IF EXISTS tmp_program_version_list;
+    CREATE TEMPORARY TABLE `tmp_program_version_list` (
+        `PROGRAM_ID` int unsigned NOT NULL,
+        `MAX_VERSION_ID` int unsigned NOT NULL,
+        PRIMARY KEY (`PROGRAM_ID`,`MAX_VERSION_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
     
     DROP TABLE IF EXISTS tmp_forecastMetrics1;
     CREATE TEMPORARY TABLE tmp_forecastMetrics1 (
@@ -100,13 +107,11 @@ BEGIN
         `FORECASTED_CONSUMPTION_QTY` int DEFAULT NULL,
         PRIMARY KEY (`PROGRAM_ID`,`VERSION_ID`,`PLANNING_UNIT_ID`,`TRANS_DATE`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-    -- INSERT INTO log VALUES (null, now(), "Temporary tables created");
+--     INSERT INTO log VALUES (null, now(), "Temporary tables created");
+
     SET @sqlString = "";
-    SET @sqlString = CONCAT(@sqlString, "INSERT INTO tmp_forecastMetrics1 ");
-    SET @sqlString = CONCAT(@sqlString, "SELECT p1.PROGRAM_ID, p1.MAX_VERSION, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, spa.ACTUAL, spa.ACTUAL_CONSUMPTION_QTY, spa.FORECASTED_CONSUMPTION_QTY");
-    SET @sqlString = CONCAT(@sqlString, "   FROM (");
-    SET @sqlString = CONCAT(@sqlString, "       SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "           pv.PROGRAM_ID, MAX(pv.VERSION_ID) MAX_VERSION ");
+    SET @sqlString = CONCAT(@sqlString, "INSERT INTO tmp_program_version_list       SELECT ");
+    SET @sqlString = CONCAT(@sqlString, "           pv.PROGRAM_ID, MAX(pv.VERSION_ID) MAX_VERSION_ID ");
     SET @sqlString = CONCAT(@sqlString, "       FROM rm_program_version pv ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID");
@@ -122,8 +127,15 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@varTracerCategoryIds)=0 OR FIND_IN_SET(fu.TRACER_CATEGORY_ID, @varTracerCategoryIds)) ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
     SET @sqlString = CONCAT(@sqlString, "   GROUP BY pv.PROGRAM_ID");
-    SET @sqlString = CONCAT(@sqlString, "   ) p1");
-    SET @sqlString = CONCAT(@sqlString, "   LEFT JOIN rm_supply_plan_amc spa ON p1.PROGRAM_ID=spa.PROGRAM_ID AND p1.MAX_VERSION=spa.VERSION_ID AND spa.TRANS_DATE BETWEEN @varStartDate AND @varStopDate");
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+--     INSERT INTO log VALUES (null, now(), "ProgramVersion list saved");
+
+    SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "INSERT INTO tmp_forecastMetrics1 ");
+    SET @sqlString = CONCAT(@sqlString, "SELECT p1.PROGRAM_ID, p1.MAX_VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, spa.ACTUAL, spa.ACTUAL_CONSUMPTION_QTY, spa.FORECASTED_CONSUMPTION_QTY");
+    SET @sqlString = CONCAT(@sqlString, "   FROM tmp_program_version_list p1");
+    SET @sqlString = CONCAT(@sqlString, "   LEFT JOIN rm_supply_plan_amc spa ON p1.PROGRAM_ID=spa.PROGRAM_ID AND p1.MAX_VERSION_ID=spa.VERSION_ID AND spa.TRANS_DATE BETWEEN @varStartDate AND @varStopDate");
     SET @sqlString = CONCAT(@sqlString, "   LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID");
     SET @sqlString = CONCAT(@sqlString, "   LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID");
     SET @sqlString = CONCAT(@sqlString, "   WHERE ");
@@ -133,9 +145,9 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       AND (LENGTH(@varTracerCategoryIds)=0 OR FIND_IN_SET(fu.TRACER_CATEGORY_ID, @varTracerCategoryIds))");
     PREPARE S2 FROM @sqlString;
     EXECUTE S2;
-    -- INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics1 completed");
-    INSERT INTO tmp_forecastMetrics2 SELECT * FROM tmp_forecastMetrics1;
-    -- INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics2 completed");
+--     INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics1 completed");
+--     INSERT INTO tmp_forecastMetrics2 SELECT * FROM tmp_forecastMetrics1;
+--     INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics2 completed");
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
     SET @sqlString = CONCAT(@sqlString, "   fm.TRANS_DATE, ");
@@ -156,7 +168,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "GROUP BY fm.PROGRAM_ID, fm.VERSION_ID, fm.PLANNING_UNIT_ID;");
     PREPARE S3 FROM @sqlString;
     EXECUTE S3;
-    -- INSERT INTO log VALUES (null, now(), "Main query completed");
+--     INSERT INTO log VALUES (null, now(), "Main query completed");
 END$$
 
 DELIMITER ;
