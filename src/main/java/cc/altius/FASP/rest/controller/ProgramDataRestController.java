@@ -132,7 +132,6 @@ public class ProgramDataRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
@@ -315,6 +314,24 @@ public class ProgramDataRestController {
         try {
             String programIdsString = getProgramIds(programIds);
             return new ResponseEntity(this.programService.getLatestVersionForPrograms(programIdsString), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})
+    public ResponseEntity getProgramVersionTrans(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = false) int versionId, Authentication auth) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            if (versionId == 0) {
+                versionId = -1;
+            }
+            return new ResponseEntity(this.programDataService.getProgramVersionTrans(programId, versionId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get latest version for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

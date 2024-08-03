@@ -20,6 +20,7 @@ import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -77,4 +78,6 @@ public interface ProgramDataService {
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
     
     public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
+    
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser);
 }

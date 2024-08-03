@@ -65,6 +65,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
@@ -84,6 +85,7 @@ import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramVersionTransRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
@@ -1685,7 +1687,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 }*/
                             }
                         }
-                        
+
                         // Step 3J -- Add the Node Data Extrapolation and Data values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
@@ -1886,7 +1888,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public Version getVersionInfo(int programId, int versionId) {
-        System.out.println("Going to ge the ProgramVersion for ProgramId:" + programId + ", and VersionId:" + versionId);
         if (versionId == -1) {
             String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
             Map<String, Object> params = new HashMap<>();
@@ -1909,6 +1910,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("versionId", versionId);
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+    }
+
+    @Override
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "    pv.VERSION_ID, "
+                + "    vs.VERSION_STATUS_ID `VS_ID`, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`,"
+                + "    pvt.NOTES, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pvt.LAST_MODIFIED_DATE "
+                + "FROM rm_program_version pv "
+                + "LEFT JOIN rm_program_version_trans pvt ON pv.PROGRAM_VERSION_ID=pvt.PROGRAM_VERSION_ID "
+                + "LEFT JOIN vw_version_status vs ON pvt.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN us_user lmb ON pvt.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "WHERE pv.PROGRAM_ID=:programId AND (:versionId=-1 OR pv.VERSION_ID=:versionId) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" ORDER BY pv.VERSION_ID, pvt.LAST_MODIFIED_DATE");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionTransRowMapper());
     }
 
     @Override
