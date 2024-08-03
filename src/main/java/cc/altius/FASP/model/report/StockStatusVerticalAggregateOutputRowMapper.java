@@ -19,13 +19,13 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author akil
  */
-public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<List<StockStatusVerticalOutput>> {
+public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExtractor<List<StockStatusVerticalAggregateOutput>> {
 
     @Override
-    public List<StockStatusVerticalOutput> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        List<StockStatusVerticalOutput> ssvList = new LinkedList<>();
+    public List<StockStatusVerticalAggregateOutput> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        List<StockStatusVerticalAggregateOutput> ssvList = new LinkedList<>();
         while (rs.next()) {
-            StockStatusVerticalOutput ssv = new StockStatusVerticalOutput();
+            StockStatusVerticalAggregateOutput ssv = new StockStatusVerticalAggregateOutput();
             ssv.setDt(rs.getDate("TRANS_DATE"));
             ssv.setReportingUnit(new SimpleObject(rs.getInt("RU_ID"), new LabelRowMapper("RU_").mapRow(rs, 1)));
             int index = ssvList.indexOf(ssv);
@@ -75,30 +75,12 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setMos(null);
                 }
-                ssv.setMinMos(rs.getDouble("MIN_MONTHS_OF_STOCK"));
-                if (rs.wasNull()) {
-                    ssv.setMinMos(null);
-                }
-                ssv.setMaxMos(rs.getDouble("MAX_MONTHS_OF_STOCK"));
-                if (rs.wasNull()) {
-                    ssv.setMinMos(null);
-                }
                 ssv.setUnmetDemand(rs.getLong("UNMET_DEMAND"));
                 if (rs.wasNull()) {
                     ssv.setUnmetDemand(null);
                 }
-                ssv.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
-                if (rs.wasNull()) {
-                    ssv.setMinStock(null);
-                }
-                ssv.setMaxStock(rs.getDouble("MAX_STOCK_QTY"));
-                if (rs.wasNull()) {
-                    ssv.setMaxStock(null);
-                }
-                ssv.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
                 ssv.setRegionCount(rs.getInt("REGION_COUNT"));
                 ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
-                ssv.setDistributionLeadTime(rs.getInt("DISTRIBUTION_LEAD_TIME"));
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);
