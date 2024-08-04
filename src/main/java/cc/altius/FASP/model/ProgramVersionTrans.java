@@ -6,6 +6,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,7 +29,7 @@ public class ProgramVersionTrans implements Serializable {
     private BasicUser lastModifiedBy;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastModifiedDate;
 
     public ProgramVersionTrans(int versionId, SimpleObject versionStatus, String notes, BasicUser lastModifiedBy, Date lastModifiedDate) {
