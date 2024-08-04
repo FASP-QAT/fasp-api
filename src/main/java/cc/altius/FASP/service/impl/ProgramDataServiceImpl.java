@@ -25,6 +25,7 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
@@ -64,11 +65,13 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private AclService aclService;
 
+    @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
         ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
+        pd.setCurrentVersionTrans(this.programDataDao.getProgramVersionTrans(programId, versionId, curUser));
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive, null));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive, null));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive, null));
@@ -89,6 +92,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setCutOffDate(lpInput.getCutOffDate());
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
+            pd.setCurrentVersionTrans(this.programDataDao.getProgramVersionTrans(pv.getProgramId(), pd.getCurrentVersion().getVersionId(), curUser));
             int versionId = pd.getCurrentVersion().getVersionId();
             pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false, lpInput.getCutOffDate()));
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false, lpInput.getCutOffDate()));
@@ -294,6 +298,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser) {
         return this.programDataDao.getDatasetVersionList(datasetVersionListInput, curUser);
+    }
+
+    @Override
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser) {
+        return this.programDataDao.getProgramVersionTrans(programId, versionId, curUser);
     }
 
 }
