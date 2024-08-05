@@ -28,6 +28,8 @@ public class BudgetReportOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
     @JsonView(Views.ReportView.class)
+    private SimpleCodeObject fundingSourceType;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
     @JsonView(Views.ReportView.class)
     private double budgetAmt;
@@ -66,6 +68,14 @@ public class BudgetReportOutput implements Serializable {
 
     public void setFundingSource(SimpleCodeObject fundingSource) {
         this.fundingSource = fundingSource;
+    }
+
+    public SimpleCodeObject getFundingSourceType() {
+        return fundingSourceType;
+    }
+
+    public void setFundingSourceType(SimpleCodeObject fundingSourceType) {
+        this.fundingSourceType = fundingSourceType;
     }
 
     public SimpleCodeObject getProgram() {

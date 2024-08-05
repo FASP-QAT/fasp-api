@@ -304,6 +304,8 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/planningUnit/**").hasAnyAuthority("ROLE_BF_EDIT_PLANNING_UNIT", "ROLE_BF_MAP_PLANNING_UNIT_CAPACITY")
                         .requestMatchers(HttpMethod.POST, "/api/planningUnit/programs/**", "/api/programAndPlanningUnit/programs").hasAnyAuthority("ROLE_BF_LIST_ALTERNATE_REPORTING_UNIT", "ROLE_BF_FORECAST_MATRIX_REPORT", "ROLE_BF_CONSUMPTION_GLOBAL_VIEW_REPORT", "ROLE_BF_SHIPMENT_OVERVIEW_REPORT")
                         .requestMatchers(HttpMethod.GET, "/api/planningUnit/productCategory/**").hasAnyAuthority("ROLE_BF_MANUAL_TAGGING", "ROLE_BF_SHIPMENT_OVERVIEW_REPORT", "ROLE_BF_GLOBAL_DEMAND_REPORT")
+                        .requestMatchers(HttpMethod.POST, "/api/planningUnit/programs/**").hasAnyAuthority("ROLE_BF_LIST_ALTERNATE_REPORTING_UNIT", "ROLE_BF_FORECAST_MATRIX_REPORT", "ROLE_BF_CONSUMPTION_GLOBAL_VIEW_REPORT", "ROLE_BF_SHIPMENT_OVERVIEW_REPORT")
+                        .requestMatchers(HttpMethod.GET, "/api/planningUnit/productCategory/**").hasAnyAuthority("ROLE_BF_MANUAL_TAGGING", "ROLE_BF_SHIPMENT_OVERVIEW_REPORT", "ROLE_BF_GLOBAL_DEMAND_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/planningUnit/productCategoryList/active/realmCountryId/**").hasAnyAuthority("ROLE_BF_MANUAL_TAGGING")
                         .requestMatchers(HttpMethod.GET, "/api/planningUnit/realmCountry/**").hasAnyAuthority("ROLE_BF_MANUAL_TAGGING")
                         .requestMatchers(HttpMethod.GET, "/api/planningUnit/forecastingUnit/**").hasAnyAuthority("ROLE_BF_EDIT_TREE_TEMPLATE", "ROLE_BF_ADD_TREE_TEMPLATE", "ROLE_BF_VIEW_TREE_TEMPLATES")

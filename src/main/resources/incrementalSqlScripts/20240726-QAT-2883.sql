@@ -57,7 +57,7 @@ BEGIN
     WHERE 
     	st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE  AND st.ACCOUNT_FLAG 
     	AND st.SHIPMENT_STATUS_ID != 8 
-    	AND ((@includePlannedShipments=0 && st.SHIPMENT_STATUS_ID in (3,4,5,6,7)) OR @includePlannedShipments=1) 
+    	AND ((@includePlannedShipments=0 AND st.SHIPMENT_STATUS_ID in (3,4,5,6,7)) OR @includePlannedShipments=1) 
     	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate 
        	AND (LENGTH(@fundingSourceIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID,@fundingSourceIds)) 
         AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID, @planningUnitIds)) 
