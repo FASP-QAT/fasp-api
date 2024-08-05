@@ -1,4 +1,4 @@
-git checkout uat2
+git checkout uat
 git pull
 mvn clean install
 sudo systemctl stop qatApi.service
