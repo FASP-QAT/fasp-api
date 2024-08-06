@@ -1,4 +1,4 @@
-git checkout demo2
+git checkout demo
 git pull
 mvn clean install
 sudo systemctl stop demoApi.service
