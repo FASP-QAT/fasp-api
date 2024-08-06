@@ -76,10 +76,10 @@ public class ProgramDataRestController {
 
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
-    public ResponseEntity getLoadProgramData(@RequestBody LoadProgramInput loadProgramInput, Authentication auth) {
+    public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInput, curUser);
+            List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInputList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
             if (isCompress(jsonString)) {
