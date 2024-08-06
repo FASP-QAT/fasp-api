@@ -69,7 +69,7 @@ public class EmailDaoImpl implements EmailDao {
     @Override
     public int saveEmail(Emailer emailer) {
         int emailerId = 0;
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("em_emailer").usingGeneratedKeyColumns("EMAILER_ID");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("TO_SEND", emailer.getToSend());
@@ -88,7 +88,7 @@ public class EmailDaoImpl implements EmailDao {
 
     @Override
     public int updateEmail(int status, int attempts, String reason, int emailerId) {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String query = "UPDATE em_emailer e SET e.`STATUS`=?,e.`ATTEMPTS`=?,e.`REASON`=?, e.`LAST_MODIFIED_DATE`=?"
                 + " WHERE e.`EMAILER_ID`=?";
         return this.jdbcTemplate.update(query, status, attempts, reason, curDate, emailerId);
@@ -215,7 +215,7 @@ public class EmailDaoImpl implements EmailDao {
         } catch (Exception e) {
             curUser = 1;
         }
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(dataSource);
         MapSqlParameterSource params1 = new MapSqlParameterSource();
         KeyHolder keyHolder = new GeneratedKeyHolder();
