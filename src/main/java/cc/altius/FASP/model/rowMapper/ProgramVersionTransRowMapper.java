@@ -20,6 +20,7 @@ public class ProgramVersionTransRowMapper implements RowMapper<ProgramVersionTra
         return new ProgramVersionTrans(
                 rs.getInt("VERSION_ID"),
                 new SimpleObjectRowMapper("VS_").mapRow(rs, 1),
+                new SimpleObjectRowMapper("VT_").mapRow(rs, 1),
                 rs.getString("NOTES"),
                 new BasicUserRowMapper("LMB_").mapRow(rs, 1),
                 rs.getTimestamp("LAST_MODIFIED_DATE")

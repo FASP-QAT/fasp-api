@@ -24,6 +24,8 @@ public class ProgramVersionTrans implements Serializable {
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleObject versionStatus;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private SimpleObject versionType;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String notes;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private BasicUser lastModifiedBy;
@@ -32,9 +34,10 @@ public class ProgramVersionTrans implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastModifiedDate;
 
-    public ProgramVersionTrans(int versionId, SimpleObject versionStatus, String notes, BasicUser lastModifiedBy, Date lastModifiedDate) {
+    public ProgramVersionTrans(int versionId, SimpleObject versionStatus, SimpleObject versionType, String notes, BasicUser lastModifiedBy, Date lastModifiedDate) {
         this.versionId = versionId;
         this.versionStatus = versionStatus;
+        this.versionType = versionType;
         this.notes = notes;
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedDate = lastModifiedDate;
@@ -57,6 +60,14 @@ public class ProgramVersionTrans implements Serializable {
 
     public void setVersionStatus(SimpleObject versionStatus) {
         this.versionStatus = versionStatus;
+    }
+
+    public SimpleObject getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(SimpleObject versionType) {
+        this.versionType = versionType;
     }
 
     public String getNotes() {
