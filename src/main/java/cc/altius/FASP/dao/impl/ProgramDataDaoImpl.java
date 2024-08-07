@@ -1920,10 +1920,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    pv.VERSION_ID, "
                 + "    vs.VERSION_STATUS_ID `VS_ID`, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`,"
+                + "    vt.VERSION_TYPE_ID `VT_ID`, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`,"
                 + "    pvt.NOTES, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pvt.LAST_MODIFIED_DATE "
                 + "FROM rm_program_version pv "
                 + "LEFT JOIN rm_program_version_trans pvt ON pv.PROGRAM_VERSION_ID=pvt.PROGRAM_VERSION_ID "
                 + "LEFT JOIN vw_version_status vs ON pvt.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN vw_version_type vt ON pvt.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
                 + "LEFT JOIN us_user lmb ON pvt.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
                 + "WHERE pv.PROGRAM_ID=:programId AND (:versionId=-1 OR pv.VERSION_ID=:versionId) ");
