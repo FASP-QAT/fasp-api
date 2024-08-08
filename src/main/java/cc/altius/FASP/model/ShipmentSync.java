@@ -20,6 +20,7 @@ public class ShipmentSync implements Serializable {
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
     private List<ProblemReport> problemReportList;
+    private String versionNotes;
 
     public int getUserId() {
         return userId;
@@ -67,6 +68,14 @@ public class ShipmentSync implements Serializable {
 
     public void setProblemReportList(List<ProblemReport> problemReportList) {
         this.problemReportList = problemReportList;
+    }
+
+    public String getVersionNotes() {
+        return versionNotes;
+    }
+
+    public void setVersionNotes(String versionNotes) {
+        this.versionNotes = versionNotes;
     }
 
 }
