@@ -291,7 +291,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentDataForSync`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentDataForSync`(PROGRAM_ID INT(10), VERSION_ID INT (10), LAST_SYNC_DATE DATETIME)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentDataForSync`(PROGRAM_ID INT(10), VERSION_ID INT (10), LAST_SYNC_DATE DATETIME)
 BEGIN
 	SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
