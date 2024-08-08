@@ -227,6 +227,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
 //        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
         ss.setProblemReportList(this.problemService.getProblemReportListForSync(programId, versionId, lastSyncDate));
+        ss.setVersionNotes(this.programDataDao.getVersionInfo(programId, versionId).getNotes());
         return ss;
     }
 
