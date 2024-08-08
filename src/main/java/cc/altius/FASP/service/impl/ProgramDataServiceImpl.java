@@ -29,6 +29,7 @@ import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,33 +67,34 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
-        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
-        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
-        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId));
-        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
+        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive, null));
+        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive, null));
+        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive, null));
+        pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId, null));
+        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive, null));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
-        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
+        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive, null));
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
         pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
         return pd;
     }
 
     @Override
-    public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
-        programVersionList.forEach(pv -> {
+        lpInputList.forEach(pv -> {
             ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+            pd.setCutOffDate(pv.getCutOffDate());
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
-            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
-            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
-            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
-            pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId));
-            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
+            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
+            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
+            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false, pv.getCutOffDate()));
+            pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId, pv.getCutOffDate()));
+            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
-            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
+            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             programDataList.add(pd);

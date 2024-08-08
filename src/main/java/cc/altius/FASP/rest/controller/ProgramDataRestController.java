@@ -12,6 +12,7 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
@@ -75,16 +76,17 @@ public class ProgramDataRestController {
 
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
-    public ResponseEntity getLoadProgramData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
+    public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<ProgramData> masters = this.programDataService.getProgramData(programVersionList, curUser);
+            List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInputList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
             if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(masters, HttpStatus.OK);
             }
-            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
