@@ -22,6 +22,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -40,9 +41,11 @@ import cc.altius.FASP.service.ProgramDataService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.dao.EmptyResultDataAccessException;
+import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -282,13 +285,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
-        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDataDao.getActualConsumptionDataInput(acd, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+        Map<String, List<ActualConsumptionDataOutput>> actualConsumptionMap = new HashMap<>();
+        for (ProgramAndVersionDTO pv : acd.getProgramVersionList()) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+                actualConsumptionMap.put(sp.getCode() + "~" + pv.getVersionId(), this.programDataDao.getActualConsumptionDataInput(pv.getProgramId(), pv.getVersionId(), acd, curUser));
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
         }
+        return actualConsumptionMap;
     }
 
     @Override

@@ -2949,10 +2949,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(int programId, int versionId, ActualConsumptionDataInput acd, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", acd.getProgramId());
-        params.put("versionId", acd.getVersionId());
+        params.put("programId", programId);
+        params.put("versionId", versionId);
         params.put("startDate", acd.getStartDate());
         params.put("stopDate", acd.getStopDate());
         params.put("planningUnitListString", acd.getPlanningUnitIdString());
