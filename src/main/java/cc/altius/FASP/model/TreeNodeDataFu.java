@@ -36,6 +36,8 @@ public class TreeNodeDataFu implements Serializable {
     private Double repeatCount;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private UsagePeriod repeatUsagePeriod;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Boolean oneTimeDispensing;
 
     public int getNodeDataFuId() {
         return nodeDataFuId;
@@ -123,6 +125,14 @@ public class TreeNodeDataFu implements Serializable {
 
     public void setRepeatUsagePeriod(UsagePeriod repeatUsagePeriod) {
         this.repeatUsagePeriod = repeatUsagePeriod;
+    }
+
+    public Boolean getOneTimeDispensing() {
+        return oneTimeDispensing;
+    }
+
+    public void setOneTimeDispensing(Boolean oneTimeDispensing) {
+        this.oneTimeDispensing = oneTimeDispensing;
     }
 
     @Override
