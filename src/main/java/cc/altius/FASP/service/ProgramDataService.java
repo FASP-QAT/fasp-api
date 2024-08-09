@@ -18,6 +18,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.Version;
@@ -25,6 +26,7 @@ import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -72,7 +74,7 @@ public interface ProgramDataService {
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
     

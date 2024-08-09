@@ -1685,7 +1685,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 }*/
                             }
                         }
-                        
+
                         // Step 3J -- Add the Node Data Extrapolation and Data values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
@@ -2863,10 +2863,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(int programId, int versionId, ActualConsumptionDataInput acd, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", acd.getProgramId());
-        params.put("versionId", acd.getVersionId());
+        params.put("programId", programId);
+        params.put("versionId", versionId);
         params.put("startDate", acd.getStartDate());
         params.put("stopDate", acd.getStopDate());
         params.put("planningUnitListString", acd.getPlanningUnitIdString());

@@ -105,7 +105,7 @@ public interface ProgramDataDao {
 
     public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(int programId, int versionId, ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 

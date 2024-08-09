@@ -7,6 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -18,8 +19,7 @@ import java.util.Date;
  */
 public class ActualConsumptionDataInput implements Serializable {
 
-    private int programId;
-    private int versionId;
+    private ProgramAndVersionDTO[] programVersionList;
     private String[] planningUnitIds;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -29,20 +29,12 @@ public class ActualConsumptionDataInput implements Serializable {
     private Date stopDate;
     private String[] regionIds;
 
-    public int getProgramId() {
-        return programId;
+    public ProgramAndVersionDTO[] getProgramVersionList() {
+        return programVersionList;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
+    public void setProgramVersionList(ProgramAndVersionDTO[] programVersionList) {
+        this.programVersionList = programVersionList;
     }
 
     public String[] getPlanningUnitIds() {
