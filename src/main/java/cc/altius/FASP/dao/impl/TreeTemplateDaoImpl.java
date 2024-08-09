@@ -223,6 +223,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
+                                nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                                 nodeParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
@@ -230,6 +231,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
+                            nodeParams.put("ONE_TIME_DISPENSING",true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -436,6 +438,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
+                                nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                                 nodeParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
@@ -443,6 +446,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
+                            nodeParams.put("ONE_TIME_DISPENSING",true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
