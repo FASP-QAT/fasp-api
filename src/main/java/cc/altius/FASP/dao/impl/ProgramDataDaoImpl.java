@@ -48,7 +48,7 @@ import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionData;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
@@ -2950,12 +2950,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(int programId, int versionId, ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionData acd, Date startDate, Date stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        params.put("versionId", versionId);
-        params.put("startDate", acd.getStartDate());
-        params.put("stopDate", acd.getStopDate());
+        params.put("programId", acd.getProgramId());
+        params.put("versionId", acd.getVersionId());
+        params.put("startDate", startDate);
+        params.put("stopDate", stopDate);
         params.put("planningUnitListString", acd.getPlanningUnitIdString());
         params.put("regionListString", acd.getRegionIdString());
         return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());
