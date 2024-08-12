@@ -537,6 +537,21 @@ public class ReportController {
         }
     }
 
+    // Dropdowns for Report no 16
+    // Supply Planning -> Supply Plan Report
+    // Based on a list of ProgramIds send back the list of PlannningUnits, ARU's and EU's for those ProgramIds
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/stockStatusVertical/dropdowns")
+    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/stockStatusVertical/dropdowns", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // Report no 17
     // Reports -> Stock Status -> Stock Status Over Time
     /**

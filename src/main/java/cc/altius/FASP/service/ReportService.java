@@ -14,6 +14,7 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -121,6 +122,10 @@ public interface ReportService {
     
     // Report no 16
     public Map<ProgramAndReportingUnit, List<StockStatusVerticalOutput>> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    
+    // Report no 16 Dropdown lists
+    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser);
+
 
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);

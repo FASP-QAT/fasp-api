@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,14 +14,21 @@ import java.io.Serializable;
  */
 public class RealmCountryPlanningUnit extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int realmCountryPlanningUnitId;
+    @JsonView(Views.ReportView.class)
     private SimpleObject realmCountry;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private String skuCode;
+    @JsonView(Views.ReportView.class)
     private Label label;
-    private double multiplier;
+    @JsonView(Views.ReportView.class)
+    private int conversionMethod; // 1 for Multiply and 2 for Divide
+    @JsonView(Views.ReportView.class)
+    private double conversionNumber;
     private Unit unit;
-//    private String gtin;
 
     public RealmCountryPlanningUnit() {
     }
@@ -71,12 +79,20 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.label = label;
     }
 
-    public double getMultiplier() {
-        return multiplier;
+    public int getConversionMethod() {
+        return conversionMethod;
     }
 
-    public void setMultiplier(double multiplier) {
-        this.multiplier = multiplier;
+    public void setConversionMethod(int conversionMethod) {
+        this.conversionMethod = conversionMethod;
+    }
+
+    public double getConversionNumber() {
+        return conversionNumber;
+    }
+
+    public void setConversionNumber(double conversionNumber) {
+        this.conversionNumber = conversionNumber;
     }
 
     public Unit getUnit() {
@@ -87,12 +103,18 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.unit = unit;
     }
 
-//    public String getGtin() {
-//        return gtin;
-//    }
-//    public void setGtin(String gtin) {
-//        this.gtin = gtin;
-//    }
+    public double getMultiplier() {
+        switch (this.conversionMethod) {
+            case 1:
+            case 0:
+                return this.conversionNumber;
+            case 2:
+                return 1.0 / this.conversionNumber;
+            default:
+                return 0;
+        }
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -120,7 +142,7 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
 
     @Override
     public String toString() {
-        return "RealmCountryPlanningUnit{" + "realmCountryPlanningUnitId=" + realmCountryPlanningUnitId + ", realmCountry=" + realmCountry + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", label=" + label + ", multiplier=" + multiplier + ", unit=" + unit + '}';
+        return "RealmCountryPlanningUnit{" + "realmCountryPlanningUnitId=" + realmCountryPlanningUnitId + ", realmCountry=" + realmCountry + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", label=" + label + ", conversionMethod=" + conversionMethod + ", conversionNumber=" + conversionNumber + ", unit=" + unit + '}';
     }
 
 }

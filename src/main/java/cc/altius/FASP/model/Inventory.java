@@ -36,7 +36,7 @@ public class Inventory implements Serializable {
     private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double multiplier;
-    @JsonView({Views.GfpVanView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double conversionFactor;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double actualQty;

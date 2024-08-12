@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class SimpleObjectWithType extends SimpleObject {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class, Views.DropDownView.class})
     private int typeId;
 
     public SimpleObjectWithType() {

@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
@@ -21,7 +22,6 @@ import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,13 +215,14 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/program/planningUnit/procurementAgent/{programPlanningUnitId}")
-    public ResponseEntity getProgramPlanningUnitProcurementAgent(@PathVariable("programPlanningUnitId") int programPlanningUnitId, Authentication auth) {
+    // List of Programs and List of PlanningUnitIds instead of single select
+    @PostMapping("/program/planningUnit/procurementAgent/")
+    public ResponseEntity getProgramPlanningUnitProcurementAgent(@RequestBody ProgramPlanningUnitProcurementAgentInput ppupa, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramPlanningUnitProcurementAgentList(programPlanningUnitId, false, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramPlanningUnitProcurementAgentList(ppupa, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get ProgramPrice list for Program Planning Unit Id" + programPlanningUnitId, er);
+            logger.error("Error while trying to get ProgramPrice list for Program Planning Unit Procurement Agent", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to get ProgramPrice list for Procurement Agent", e);
@@ -229,6 +230,7 @@ public class ProgramRestController {
         }
     }
 
+//    Allow for -1 in PlanningUnit
     @PutMapping("/program/planningingUnit/procurementAgent")
     public ResponseEntity saveProgramPlanningUnitProcurementAgentPrices(@RequestBody ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, Authentication auth) {
         try {
@@ -250,6 +252,23 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getPlanningUnitListForProgramIds(programIds, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            e.printStackTrace();
+            logger.error("Error while trying to get PlanningUnit list for Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error while trying to get PlanningUnit list for Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/programAndPlanningUnit/programs")
+    public ResponseEntity getProgramAndPlanningUnitForProgramList(@RequestBody Integer[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramAndPlanningUnitListForProgramIds(programIds, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             e.printStackTrace();
             logger.error("Error while trying to get PlanningUnit list for Programs", e);
@@ -401,7 +420,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("program/realmCountryList")
     public ResponseEntity getProgramListByRealmCountryIdList(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
@@ -415,7 +434,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("program/productCategoryList")
     public ResponseEntity getProgramListByProductCategoryIdList(@RequestBody String[] productCategoryIds, Authentication auth) {
         try {

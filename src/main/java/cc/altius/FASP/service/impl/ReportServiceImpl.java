@@ -5,7 +5,10 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.EquivalencyUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -18,6 +21,7 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.ConsumptionInfo;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -72,6 +76,7 @@ import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
+import cc.altius.FASP.utils.ArrayUtils;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,6 +95,12 @@ public class ReportServiceImpl implements ReportService {
     private ReportDao reportDao;
     @Autowired
     private ProgramCommonDao programCommonDao;
+    @Autowired
+    private ProgramDao programDao;
+    @Autowired
+    private RealmCountryDao realmCountryDao;
+    @Autowired
+    private EquivalencyUnitDao equivalencyUnitDao;
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
@@ -240,6 +251,15 @@ public class ReportServiceImpl implements ReportService {
             }
         });
         return ssvoList;
+    }
+
+    @Override
+    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser) {
+        DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
+        dd.setPlanningUnitList(this.programDao.getPlanningUnitListForProgramIds(ArrayUtils.convertArrayToString(programIds), curUser));
+        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getRealmCountryPlanningUnitListForProgramList(programIds, curUser));
+        dd.setEquivalencyUnitList(this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(ArrayUtils.convertArrayToString(programIds), curUser));
+        return dd;
     }
 
     @Override
