@@ -99,7 +99,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int addProgram(Program p, CustomUserDetails curUser) {
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) {
         p.setRealmCountry(this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser));
         if (this.aclService.checkAccessForUser(
                 curUser,
@@ -125,7 +125,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int updateProgram(Program p, CustomUserDetails curUser) {
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) {
         SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
         if (curProg == null) {
             throw new EmptyResultDataAccessException(1);
