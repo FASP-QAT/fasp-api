@@ -131,7 +131,7 @@ BEGIN
     PREPARE S2 FROM @sqlString;
     EXECUTE S2;
 --     INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics1 completed");
---     INSERT INTO tmp_forecastMetrics2 SELECT * FROM tmp_forecastMetrics1;
+     INSERT INTO tmp_forecastMetrics2 SELECT * FROM tmp_forecastMetrics1;
 --     INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics2 completed");
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
