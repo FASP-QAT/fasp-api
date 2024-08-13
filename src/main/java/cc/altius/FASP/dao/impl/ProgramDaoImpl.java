@@ -41,6 +41,7 @@ import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
@@ -60,6 +61,7 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleObjectWithFutRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectWithTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
@@ -2864,6 +2866,22 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
 
+    }
+
+    @Override
+    public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(String programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "    pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                + "    pu.FORECASTING_UNIT_ID "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", programIds);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithFutRowMapper());
     }
 
 }

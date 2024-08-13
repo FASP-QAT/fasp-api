@@ -21,6 +21,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.report.TreeAnchorInput;
@@ -126,4 +127,6 @@ public interface ProgramDao {
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
+    
+    public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(String programIds, CustomUserDetails curUser);
 }

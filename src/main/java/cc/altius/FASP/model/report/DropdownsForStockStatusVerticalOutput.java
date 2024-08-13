@@ -4,9 +4,8 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.model.EquivalencyUnitMapping;
-import cc.altius.FASP.model.RealmCountryPlanningUnit;
-import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleEquivalencyUnit;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
@@ -18,33 +17,33 @@ import java.util.List;
 public class DropdownsForStockStatusVerticalOutput {
 
     @JsonView(Views.ReportView.class)
-    List<SimpleObject> planningUnitList;
+    List<SimpleObjectWithFu> planningUnitList;
     @JsonView(Views.ReportView.class)
-    List<RealmCountryPlanningUnit> realmCountryPlanningUnitList;
+    List<SimpleObjectWithFu> realmCountryPlanningUnitList;
     @JsonView(Views.ReportView.class)
-    List<EquivalencyUnitMapping> equivalencyUnitList;
+    List<SimpleEquivalencyUnit> equivalencyUnitList;
 
-    public List<SimpleObject> getPlanningUnitList() {
+    public List<SimpleObjectWithFu> getPlanningUnitList() {
         return planningUnitList;
     }
 
-    public void setPlanningUnitList(List<SimpleObject> planningUnitList) {
+    public void setPlanningUnitList(List<SimpleObjectWithFu> planningUnitList) {
         this.planningUnitList = planningUnitList;
     }
 
-    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitList() {
+    public List<SimpleObjectWithFu> getRealmCountryPlanningUnitList() {
         return realmCountryPlanningUnitList;
     }
 
-    public void setRealmCountryPlanningUnitList(List<RealmCountryPlanningUnit> realmCountryPlanningUnitList) {
+    public void setRealmCountryPlanningUnitList(List<SimpleObjectWithFu> realmCountryPlanningUnitList) {
         this.realmCountryPlanningUnitList = realmCountryPlanningUnitList;
     }
 
-    public List<EquivalencyUnitMapping> getEquivalencyUnitList() {
+    public List<SimpleEquivalencyUnit> getEquivalencyUnitList() {
         return equivalencyUnitList;
     }
 
-    public void setEquivalencyUnitList(List<EquivalencyUnitMapping> equivalencyUnitList) {
+    public void setEquivalencyUnitList(List<SimpleEquivalencyUnit> equivalencyUnitList) {
         this.equivalencyUnitList = equivalencyUnitList;
     }
 

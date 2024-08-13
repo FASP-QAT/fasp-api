@@ -9,6 +9,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
+import cc.altius.FASP.model.SimpleEquivalencyUnit;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
 
@@ -33,4 +34,6 @@ public interface EquivalencyUnitDao {
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser);
 
     public EquivalencyUnit getEquivalencyUnitById(int equivalencyUnitId, CustomUserDetails curUser);
+    
+    public List<SimpleEquivalencyUnit> getSimpleEquivalencyUnits(String programIds, CustomUserDetails curUser);
 }

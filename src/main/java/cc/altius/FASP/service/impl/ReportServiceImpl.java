@@ -256,9 +256,9 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser) {
         DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
-        dd.setPlanningUnitList(this.programDao.getPlanningUnitListForProgramIds(ArrayUtils.convertArrayToString(programIds), curUser));
-        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getRealmCountryPlanningUnitListForProgramList(programIds, curUser));
-        dd.setEquivalencyUnitList(this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(ArrayUtils.convertArrayToString(programIds), curUser));
+        dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ArrayUtils.convertArrayToString(programIds), curUser));
+        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ArrayUtils.convertArrayToString(programIds), curUser));
+        dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), curUser));
         return dd;
     }
 
