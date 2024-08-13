@@ -34,6 +34,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
@@ -46,6 +47,8 @@ import java.util.List;
 public interface ProgramDataDao {
 
     public Version getVersionInfo(int programId, int versionId);
+    
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser);
 
     public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive);
 

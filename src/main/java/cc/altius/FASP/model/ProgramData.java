@@ -61,6 +61,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Region> regionList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Version currentVersion;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private List<ProgramVersionTrans> currentVersionTrans;
     private List<Version> versionList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<Consumption> consumptionList;
@@ -276,6 +278,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setCurrentVersion(Version currentVersion) {
         this.currentVersion = currentVersion;
+    }
+
+    public List<ProgramVersionTrans> getCurrentVersionTrans() {
+        return currentVersionTrans;
+    }
+
+    public void setCurrentVersionTrans(List<ProgramVersionTrans> currentVersionTrans) {
+        this.currentVersionTrans = currentVersionTrans;
     }
 
     public List<Version> getVersionList() {
