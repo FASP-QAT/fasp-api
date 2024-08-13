@@ -14,6 +14,8 @@ import java.io.Serializable;
 public class ProgramInitialize extends Program implements Serializable {
 
     private ProgramPlanningUnit[] programPlanningUnits;
+    private int[] fundingSources;
+    private int[] procurementAgents;
 
     public ProgramPlanningUnit[] getProgramPlanningUnits() {
         return programPlanningUnits;
@@ -22,4 +24,21 @@ public class ProgramInitialize extends Program implements Serializable {
     public void setProgramPlanningUnits(ProgramPlanningUnit[] programPlanningUnits) {
         this.programPlanningUnits = programPlanningUnits;
     }
+
+    public int[] getFundingSources() {
+        return fundingSources;
+    }
+
+    public void setFundingSources(int[] fundingSources) {
+        this.fundingSources = fundingSources;
+    }
+
+    public int[] getProcurementAgents() {
+        return procurementAgents;
+    }
+
+    public void setProcurementAgents(int[] procurementAgents) {
+        this.procurementAgents = procurementAgents;
+    }
+
 }

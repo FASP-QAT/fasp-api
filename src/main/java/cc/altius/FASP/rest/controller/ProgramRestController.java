@@ -9,7 +9,6 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.LoadProgram;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
@@ -60,7 +59,7 @@ public class ProgramRestController {
     private RealmCountryService realmCountryService;
 
     @PostMapping(path = "/program")
-    public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity postProgram(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
@@ -79,7 +78,7 @@ public class ProgramRestController {
     }
 
     @PutMapping(path = "/program")
-    public ResponseEntity putProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity putProgram(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program

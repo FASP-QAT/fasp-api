@@ -46,9 +46,9 @@ public interface ProgramService {
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
-    public int addProgram(Program p, CustomUserDetails curUser);
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser);
 
-    public int updateProgram(Program p, CustomUserDetails curUser);
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 

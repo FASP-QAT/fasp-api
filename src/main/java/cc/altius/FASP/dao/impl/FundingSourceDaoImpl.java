@@ -12,7 +12,9 @@ import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
-import cc.altius.FASP.model.rowMapper.FundingSourceRowMapper;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.FundingSourceListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.FundingSourceResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.FundingSourceTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleFundingSourceObjectRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -55,11 +58,14 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
             + "    fs.`LABEL_ID`, fs.`LABEL_EN`, fs.`LABEL_FR`, fs.`LABEL_PR`, fs.`LABEL_SP`,  "
             + "    r.REALM_ID, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN` , r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
             + "    fs.ALLOWED_IN_BUDGET, "
+            + "    p.PROGRAM_ID `P_ID`, p.PROGRAM_CODE `P_CODE`, p.LABEL_ID `P_LABEL_ID`, p.LABEL_EN `P_LABEL_EN`, p.LABEL_FR `P_LABEL_FR`, p.LABEL_SP `P_LABEL_SP`, p.LABEL_PR `P_LABEL_PR`, "
             + "    fst.`FUNDING_SOURCE_TYPE_ID` `FST_ID`, fst.`LABEL_ID` `FST_LABEL_ID`, fst.`LABEL_EN` `FST_LABEL_EN`, fst.`LABEL_FR` `FST_LABEL_FR`, fst.`LABEL_SP` `FST_LABEL_SP`, fst.`LABEL_PR` `FST_LABEL_PR`, fst.`FUNDING_SOURCE_TYPE_CODE` `FST_CODE`, "
             + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
             + "FROM vw_funding_source fs  "
             + "LEFT JOIN vw_realm r ON fs.`REALM_ID`=r.`REALM_ID`  "
             + "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID "
+            + "LEFT JOIN rm_program_funding_source pfs ON fs.FUNDING_SOURCE_ID=pfs.FUNDING_SOURCE_ID "
+            + "LEFT JOIN vw_program p ON pfs.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN us_user cb ON fs.CREATED_BY=cb.USER_ID  "
             + "LEFT JOIN us_user lmb ON fs.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE ";
@@ -77,7 +83,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     @Override
     @Transactional
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_funding_source").usingColumns("FUNDING_SOURCE_CODE", "REALM_ID", "LABEL_ID", "ALLOWED_IN_BUDGET",  "FUNDING_SOURCE_TYPE_ID","ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_funding_source").usingColumns("FUNDING_SOURCE_CODE", "REALM_ID", "LABEL_ID", "ALLOWED_IN_BUDGET", "FUNDING_SOURCE_TYPE_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("FUNDING_SOURCE_CODE", f.getFundingSourceCode());
@@ -91,7 +97,23 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+        int fundingSourceId = si.executeAndReturnKey(params).intValue();
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[f.getProgramList().size()];
+        si = null;
+        int x = 0;
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_funding_source");
+        for (SimpleObject program : f.getProgramList()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", program.getId());
+            params.put("FUNDING_SOURCE_ID", fundingSourceId);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        si.executeBatch(batchParams);
+        return fundingSourceId;
     }
 
     @Override
@@ -107,7 +129,23 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         params.put("fundingSourceTypeId", f.getFundingSourceType().getId());
         params.put("active", f.isActive());
         params.put("labelEn", f.getLabel().getLabel_en());
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`FUNDING_SOURCE_CODE`=:fundingSourceCode, fs.`ALLOWED_IN_BUDGET`=:allowedInBudget, fs.`FUNDING_SOURCE_TYPE_ID`=:fundingSourceTypeId, fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
+        int linesUpdated = this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`FUNDING_SOURCE_CODE`=:fundingSourceCode, fs.`ALLOWED_IN_BUDGET`=:allowedInBudget, fs.`FUNDING_SOURCE_TYPE_ID`=:fundingSourceTypeId, fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
+        this.namedParameterJdbcTemplate.update("DELETE pfs.* FROM rm_program_funding_source pfs WHERE pfs.FUNDING_SOURCE_ID=:fundingSourceId", params);
+        MapSqlParameterSource[] batchParams;
+        batchParams = new MapSqlParameterSource[f.getProgramList().size()];
+        int x = 0;
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_funding_source");
+        for (SimpleObject program : f.getProgramList()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", program.getId());
+            params.put("FUNDING_SOURCE_ID", f.getFundingSourceId());
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            batchParams[x] = new MapSqlParameterSource(params);
+            x++;
+        }
+        si.executeBatch(batchParams);
+        return linesUpdated;
     }
 
     @Override
@@ -115,7 +153,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceListResultSetExtractor());
     }
 
     @Override
@@ -125,7 +163,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", realmId, curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceListResultSetExtractor());
     }
 
     @Override
@@ -134,16 +172,16 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         Map<String, Object> params = new HashMap<>();
         params.put("fundingSourceId", fundingSourceId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new FundingSourceRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceResultSetExtractor());
     }
 
     @Override
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND fs.LAST_MODIFIED_DATE>:lastSyncDate");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND (fs.LAST_MODIFIED_DATE>:lastSyncDate OR EXISTS (SELECT 1 FROM rm_program_funding_source pfs WHERE fs.FUNDING_SOURCE_ID = pfs.FUNDING_SOURCE_ID AND pfs.LAST_MODIFIED_DATE > :lastSyncDate)) ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceListResultSetExtractor());
     }
 
     @Override

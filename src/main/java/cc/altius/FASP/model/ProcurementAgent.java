@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,14 +16,23 @@ import java.util.List;
  */
 public class ProcurementAgent extends BaseModel implements Serializable {
 
+    @JsonView({Views.ReportView.class})
     private int procurementAgentId;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject realm;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject procurementAgentType;
+    @JsonView({Views.ReportView.class})
     private Label label;
+    @JsonView({Views.ReportView.class})
     private String procurementAgentCode;
+    @JsonView({Views.ReportView.class})
     private double submittedToApprovedLeadTime;
+    @JsonView({Views.ReportView.class})
     private double approvedToShippedLeadTime;
+    @JsonView({Views.ReportView.class})
     private String colorHtmlCode;
+    @JsonView({Views.ReportView.class})
     List<SimpleObject> programList;
 
     public ProcurementAgent() {
