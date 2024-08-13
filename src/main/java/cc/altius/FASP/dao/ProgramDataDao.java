@@ -36,6 +36,7 @@ import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.ShipmentLinking;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -70,7 +71,9 @@ public interface ProgramDataDao {
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);
+    
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 

@@ -17,7 +17,6 @@ import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
-import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
@@ -26,7 +25,9 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.ProgramVersionTrans;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
@@ -40,6 +41,7 @@ import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -172,8 +174,20 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
-        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser, reviewedProblemList);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
+        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser);
+    }
+
+    @Override
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
+        for (int programId : programIds) {
+            try {
+                SimpleCodeObject p = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+            } catch (EmptyResultDataAccessException erda) {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        this.programDataDao.resetProblemListForPrograms(programIds, curUser);
     }
 
     @Override
