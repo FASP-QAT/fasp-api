@@ -11,8 +11,10 @@ import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +129,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgent(Authentication auth) {
         try {
@@ -138,6 +141,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType")
     public ResponseEntity getProcurementAgentType(Authentication auth) {
         try {
@@ -149,6 +153,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/realmId/{realmId}")
     public ResponseEntity getProcurementAgentForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -166,6 +171,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType/realmId/{realmId}")
     public ResponseEntity getProcurementAgentTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -183,6 +189,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/{procurementAgentId}")
     public ResponseEntity getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -197,6 +204,7 @@ public class ProcurementAgentRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType/{procurementAgentTypeId}")
     public ResponseEntity getProcurementAgentType(@PathVariable("procurementAgentTypeId") int procurementAgentTypeId, Authentication auth) {
         try {
