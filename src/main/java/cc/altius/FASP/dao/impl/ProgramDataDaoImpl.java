@@ -98,7 +98,6 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1937,40 +1936,43 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionTransRowMapper());
     }
 
-    @Override
-    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive) {
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
         params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId, :planningUnitActive)", params, new ConsumptionListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionDataNew(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new ConsumptionListResultSetExtractor());
     }
 
     @Override
-    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive) {
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
         params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId, :planningUnitActive)", params, new InventoryListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryDataNew(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new InventoryListResultSetExtractor());
     }
 
     @Override
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive) {
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("shipmentActive", shipmentActive);
         params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentDataNew(:programId, :versionId, :shipmentActive, :planningUnitActive, :cutOffDate)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
-    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId) {
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingData(:programId, :versionId)", params, new ShipmentLinkingRowMapper());
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingDataNew(:programId, :versionId, :cutOffDate)", params, new ShipmentLinkingRowMapper());
     }
 
     @Override
@@ -1986,7 +1988,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive) {
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi LEFT JOIN rm_program_planning_unit ppu ON bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId WHERE bi.PROGRAM_ID=:programId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -2380,13 +2382,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.MAX_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS) * amc.AMC "
                 + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId(), false);
+        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId(), false, null);
     }
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive) {
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        cutOffDate = (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate);
+        params.put("cutOffDate", cutOffDate);
+        boolean useCutOff = false;
+        if (cutOffDate != null) {
+            useCutOff = true;
+        }
+        params.put("useCutOff", useCutOff);
         params.put("planningUnitActive", planningUnitActive);
         String sqlString = "SELECT  "
                 + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
@@ -2408,7 +2417,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`OPENING_BALANCE`) `BATCH_OPENING_BALANCE`, SUM(spbq.`OPENING_BALANCE_WPS`) `BATCH_OPENING_BALANCE_WPS`, SUM(spbq.`CALCULATED_CONSUMPTION`) `BATCH_CALCULATED_CONSUMPTION_QTY`, SUM(spbq.`CALCULATED_CONSUMPTION_WPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, SUM(spbq.`ACTUAL_CONSUMPTION_QTY`) BATCH_CONSUMPTION_QTY, SUM(spbq.`STOCK_MULTIPLIED_QTY`) `BATCH_STOCK_MULTIPLIED_QTY`, SUM(spbq.`ADJUSTMENT_MULTIPLIED_QTY`) `BATCH_ADJUSTMENT_MULTIPLIED_QTY`, SUM(spbq.`SHIPMENT_QTY`) `BATCH_SHIPMENT_QTY`, SUM(spbq.`SHIPMENT_QTY_WPS`) `BATCH_SHIPMENT_QTY_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS` FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "LEFT JOIN rm_batch_info bi ON b2.BATCH_ID=bi.BATCH_ID "
-                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
+                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE) AND (:useCutOff = FALSE OR (:useCutOff = TRUE AND spa.TRANS_DATE>=:cutOffDate))";
         return this.namedParameterJdbcTemplate.query(sqlString, params, new SimplifiedSupplyPlanResultSetExtractor());
     }
 
@@ -2691,7 +2700,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
         if (returnSupplyPlan) {
             logger.info("Going to get the new supply plan batch");
-            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
+            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false, null);
             logger.info("Records retrieved");
             return sp;
         } else {

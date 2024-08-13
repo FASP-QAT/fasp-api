@@ -51,15 +51,15 @@ public interface ProgramDataDao {
     
     public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive);
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
-    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive, String cutOffDate);
 
-    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate);
 
-    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
     public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
 
@@ -89,7 +89,7 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive);
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 

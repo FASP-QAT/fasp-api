@@ -24,6 +24,7 @@ import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.report.LoadProgramInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public interface ProgramDataService {
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive);
 
-    public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser);
 
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
