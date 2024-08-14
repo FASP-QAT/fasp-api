@@ -35,5 +35,5 @@ public interface EquivalencyUnitDao {
 
     public EquivalencyUnit getEquivalencyUnitById(int equivalencyUnitId, CustomUserDetails curUser);
     
-    public List<SimpleEquivalencyUnit> getSimpleEquivalencyUnits(String programIds, CustomUserDetails curUser);
+    public List<SimpleEquivalencyUnit> getSimpleEquivalencyUnits(String programIds, boolean useRealmLevelEuOnly, CustomUserDetails curUser);
 }

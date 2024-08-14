@@ -258,7 +258,11 @@ public class ReportServiceImpl implements ReportService {
         DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
         dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ArrayUtils.convertArrayToString(programIds), curUser));
         dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ArrayUtils.convertArrayToString(programIds), curUser));
-        dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), curUser));
+        if (programIds != null && programIds.length == 1) {
+            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), false, curUser));
+        } else {
+            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), true, curUser));
+        }
         return dd;
     }
 
