@@ -42,7 +42,7 @@ ADD CONSTRAINT `fk_rm_funding_source_fundingSourceTypeId`
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_funding_source` AS
     SELECT 
@@ -68,7 +68,7 @@ VIEW `vw_funding_source` AS
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_funding_source_type` AS
     SELECT 
