@@ -99,12 +99,12 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
-        return this.getFundingSourceForProgramsDropdownList(programIds, curUser);
+        return this.fundingSourceDao.getFundingSourceForProgramsDropdownList(programIds, curUser);
     }
 
     @Override
     public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
-        return this.getFundingSourceTypeForProgramsDropdownList(programIds, curUser);
+        return this.fundingSourceDao.getFundingSourceTypeForProgramsDropdownList(programIds, curUser);
     }
 
     @Override
