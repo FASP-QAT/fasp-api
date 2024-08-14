@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
@@ -94,6 +95,16 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser) {
         return this.fundingSourceDao.getFundingSourceDropdownList(curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
+        return this.getFundingSourceForProgramsDropdownList(programIds, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
+        return this.getFundingSourceTypeForProgramsDropdownList(programIds, curUser);
     }
 
     @Override
