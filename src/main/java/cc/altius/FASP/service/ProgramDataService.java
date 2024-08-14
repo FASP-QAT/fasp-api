@@ -12,7 +12,6 @@ import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
-import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
@@ -53,7 +52,7 @@ public interface ProgramDataService {
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);
-    
+
     public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
@@ -81,8 +80,8 @@ public interface ProgramDataService {
     public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
-    
+
     public List<ProgramVersion> getDatasetVersionList(DatasetVersionListInput datasetVersionListInput, CustomUserDetails curUser);
-    
+
     public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser);
 }
