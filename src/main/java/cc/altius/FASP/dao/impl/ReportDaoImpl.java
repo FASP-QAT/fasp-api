@@ -445,7 +445,12 @@ public class ReportDaoImpl implements ReportDao {
         params.put("groupByProcurementAgentType", so.isGroupByProcurementAgentType());
         params.put("curUser", curUser.getUserId());
         ShipmentOverviewOutput soo = new ShipmentOverviewOutput();
-        String sql = "CALL shipmentOverview_FundingSourceSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        String sql = "";
+        if (!so.isGroupByFundingSourceType()) {
+            sql = "CALL shipmentOverview_FundingSourceSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        } else {
+            sql = "CALL shipmentOverview_FundingSourceTypeSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
+        }
         soo.setFundingSourceSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFundindSourceSplitRowMapper()));
         sql = "CALL shipmentOverview_PlanningUnitSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         soo.setPlanningUnitSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitSplitRowMapper()));
@@ -476,7 +481,7 @@ public class ReportDaoImpl implements ReportDao {
         return soo;
     }
 
-    // Report no 21
+// Report no 21
     @Override
     public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -503,6 +508,9 @@ public class ReportDaoImpl implements ReportDao {
             case 3: // Procurement Agent Type
                 sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
                 break;
+            case 4: // Funding Source Type
+                sql = "CALL shipmentGlobalDemand_FundingSourceTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+                break;
         }
         sgdo.setDateSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandDateSplitRowMapper()));
 
@@ -515,6 +523,9 @@ public class ReportDaoImpl implements ReportDao {
                 break;
             case 3: // Procurement Agent Type
                 sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+                break;
+            case 4: // Funding Source Type
+                sql = "CALL shipmentGlobalDemand_FundingSourceTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
                 break;
         }
         sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
@@ -576,6 +587,7 @@ public class ReportDaoImpl implements ReportDao {
         StringBuilder sb = new StringBuilder("SELECT "
                 + "	b.BUDGET_ID, b.BUDGET_CODE, b.LABEL_ID, b.LABEL_EN, b.LABEL_FR, b.LABEL_SP, b.LABEL_PR, "
                 + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+                + "    fst.FUNDING_SOURCE_TYPE_ID, fst.FUNDING_SOURCE_TYPE_CODE, fst.LABEL_ID `FST_LABEL_ID`, fst.LABEL_EN `FST_LABEL_EN`, fst.LABEL_FR `FST_LABEL_FR`, fst.LABEL_SP `FST_LABEL_SP`, fst.LABEL_PR `FST_LABEL_PR`, "
                 + "    p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_CODE, "
                 + "    c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, c.LABEL_ID `CURRENCY_LABEL_ID`, c.LABEL_EN `CURRENCY_LABEL_EN`, c.LABEL_FR `CURRENCY_LABEL_FR`, c.LABEL_SP `CURRENCY_LABEL_SP`, c.LABEL_PR `CURRENCY_LABEL_PR`, "
                 + "    (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_AMT`, IFNULL(stc.PLANNED_BUDGET,0) `PLANNED_BUDGET_AMT`, IFNULL(stc.ORDERED_BUDGET,0) `ORDERED_BUDGET_AMT`, b.START_DATE, b.STOP_DATE "
@@ -583,6 +595,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID=bp.BUDGET_ID "
                 + "LEFT JOIN vw_program p ON bp.PROGRAM_ID=p.PROGRAM_ID AND p.ACTIVE "
                 + "LEFT JOIN vw_funding_source fs ON b.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+                + "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID "
                 + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
                 + "LEFT JOIN ( "
                 + "	SELECT "
@@ -667,7 +680,7 @@ public class ReportDaoImpl implements ReportDao {
         List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
         return feList;
     }
-    
+
     // Report no 31
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {

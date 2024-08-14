@@ -65,10 +65,12 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.rowMapper.AnnualTargetCalculatorResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
@@ -84,6 +86,7 @@ import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramVersionTransRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
@@ -94,6 +97,7 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1886,7 +1890,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public Version getVersionInfo(int programId, int versionId) {
-        System.out.println("Going to ge the ProgramVersion for ProgramId:" + programId + ", and VersionId:" + versionId);
         if (versionId == -1) {
             String sqlString = "SELECT MAX(pv.VERSION_ID) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId";
             Map<String, Object> params = new HashMap<>();
@@ -1912,39 +1915,64 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive) {
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "    pv.VERSION_ID, "
+                + "    vs.VERSION_STATUS_ID `VS_ID`, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`,"
+                + "    vt.VERSION_TYPE_ID `VT_ID`, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`,"
+                + "    pvt.NOTES, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pvt.LAST_MODIFIED_DATE "
+                + "FROM rm_program_version pv "
+                + "LEFT JOIN rm_program_version_trans pvt ON pv.PROGRAM_VERSION_ID=pvt.PROGRAM_VERSION_ID "
+                + "LEFT JOIN vw_version_status vs ON pvt.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN vw_version_type vt ON pvt.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN us_user lmb ON pvt.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN vw_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "WHERE pv.PROGRAM_ID=:programId AND (:versionId=-1 OR pv.VERSION_ID=:versionId) ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId, :planningUnitActive)", params, new ConsumptionListResultSetExtractor());
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" ORDER BY pv.VERSION_ID, pvt.LAST_MODIFIED_DATE");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionTransRowMapper());
     }
 
-    @Override
-    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive) {
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
         params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId, :planningUnitActive)", params, new InventoryListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionDataNew(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new ConsumptionListResultSetExtractor());
     }
 
     @Override
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive) {
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryDataNew(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new InventoryListResultSetExtractor());
+    }
+
+    @Override
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("shipmentActive", shipmentActive);
         params.put("planningUnitActive", planningUnitActive);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentDataNew(:programId, :versionId, :shipmentActive, :planningUnitActive, :cutOffDate)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
-    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId) {
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingData(:programId, :versionId)", params, new ShipmentLinkingRowMapper());
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentLinkingDataNew(:programId, :versionId, :cutOffDate)", params, new ShipmentLinkingRowMapper());
     }
 
     @Override
@@ -1960,7 +1988,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive) {
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi LEFT JOIN rm_program_planning_unit ppu ON bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId WHERE bi.PROGRAM_ID=:programId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -2016,7 +2044,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
         String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, "
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";
@@ -2026,20 +2054,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("versionStatusId", versionStatusId);
-        params.put("notes", notes);
+        params.put("notes", updateProgramVersion.getNotes());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         this.namedParameterJdbcTemplate.update(programVersionUpdateSql, params);
         String programVersionTransSql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
-        this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
+        this.jdbcTemplate.update(programVersionTransSql, versionStatusId, updateProgramVersion.getNotes(), curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.`REVIEW_NOTES`=:reviewedNotes, pr.`REVIEWED_DATE`=IF(:reviewed,:curDate,pr.`REVIEWED_DATE`),pr.REVIEWED=:reviewed,pr.PROBLEM_STATUS_ID=:problemStatusId, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, :problemStatusId, :reviewed, :reviewedNotes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         SimpleJdbcInsert problemReportInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report").usingGeneratedKeyColumns("PROBLEM_REPORT_ID");
         SimpleJdbcInsert problemReportTransInsert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_problem_report_trans");
         final List<SqlParameterSource> updateParamList = new ArrayList<>();
         final List<SqlParameterSource> insertParamList = new ArrayList<>();
-        for (ReviewedProblem rp : reviewedProblemList) {
+        for (ReviewedProblem rp : updateProgramVersion.getReviewedProblemList()) {
             if (rp.getProblemReportId() != 0) {
                 Map<String, Object> updateParams = new HashMap<>();
                 updateParams.put("reviewed", rp.isReviewed());
@@ -2081,7 +2109,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
         }
 
-        if (versionStatusId == 2) { // Approved
+        // If Version is approved then reset the Problem list
+        if (versionStatusId == 2) {
             updateParamList.clear();
             String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
             List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
@@ -2098,10 +2127,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
                 this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
-
             }
-        } 
-        if (versionStatusId == 3) { // Needs Revision
+        }
+        // when version is rejcted
+        if (versionStatusId == 3) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -2129,12 +2158,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
             subjectParam = new String[]{sp.getCode()};
-            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), updateProgramVersion.getNotes()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-        } else if (versionStatusId == 2) { // Approved
+        } else if (versionStatusId == 2) {
+            // when version is approved
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
@@ -2162,7 +2192,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
             subjectParam = new String[]{sp.getCode()};
-            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), updateProgramVersion.getNotes()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2195,7 +2225,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
             subjectParam = new String[]{sp.getCode()};
-            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), notes};
+            bodyParam = new String[]{sp.getCode(), String.valueOf(versionId), updateProgramVersion.getNotes()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -2203,6 +2233,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         return this.getVersionInfo(programId, versionId);
+    }
+
+    @Override
+    @Transactional
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        StringBuilder stringBuilder = new StringBuilder("SELECT pr.PROBLEM_REPORT_ID FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND pr.VERSION_ID<p.CURRENT_VERSION_ID WHERE FIND_IN_SET(p.PROGRAM_ID, '" + ArrayUtils.convertArrayToString(programIds) + "') AND pr.PROBLEM_STATUS_ID=3");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ArrayUtils.convertArrayToString(programIds));
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        List<Integer> problemReportIds = this.namedParameterJdbcTemplate.queryForList(stringBuilder.toString(), params, Integer.class);
+        String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1,pr.REVIEWED , pr.REVIEW_NOTES, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        List<MapSqlParameterSource> updateParamList = new LinkedList<>();
+        for (Integer rp : problemReportIds) {
+            Map<String, Object> updateParams = new HashMap<>();
+            updateParams.put("curUser", curUser.getUserId());
+            updateParams.put("curDate", curDate);
+            updateParams.put("problemReportId", rp);
+            updateParamList.add(new MapSqlParameterSource(updateParams));
+        }
+        if (updateParamList.size() > 0) {
+            SqlParameterSource[] updateArray = new SqlParameterSource[updateParamList.size()];
+            int[] result = this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, updateParamList.toArray(updateArray));
+            this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+        }
     }
 
     /**
@@ -2326,13 +2382,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.MAX_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS) * amc.AMC "
                 + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId(), false);
+        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId(), false, null);
     }
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive) {
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        cutOffDate = (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate);
+        params.put("cutOffDate", cutOffDate);
+        boolean useCutOff = false;
+        if (cutOffDate != null) {
+            useCutOff = true;
+        }
+        params.put("useCutOff", useCutOff);
         params.put("planningUnitActive", planningUnitActive);
         String sqlString = "SELECT  "
                 + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
@@ -2354,7 +2417,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`OPENING_BALANCE`) `BATCH_OPENING_BALANCE`, SUM(spbq.`OPENING_BALANCE_WPS`) `BATCH_OPENING_BALANCE_WPS`, SUM(spbq.`CALCULATED_CONSUMPTION`) `BATCH_CALCULATED_CONSUMPTION_QTY`, SUM(spbq.`CALCULATED_CONSUMPTION_WPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, SUM(spbq.`ACTUAL_CONSUMPTION_QTY`) BATCH_CONSUMPTION_QTY, SUM(spbq.`STOCK_MULTIPLIED_QTY`) `BATCH_STOCK_MULTIPLIED_QTY`, SUM(spbq.`ADJUSTMENT_MULTIPLIED_QTY`) `BATCH_ADJUSTMENT_MULTIPLIED_QTY`, SUM(spbq.`SHIPMENT_QTY`) `BATCH_SHIPMENT_QTY`, SUM(spbq.`SHIPMENT_QTY_WPS`) `BATCH_SHIPMENT_QTY_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS` FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "LEFT JOIN rm_batch_info bi ON b2.BATCH_ID=bi.BATCH_ID "
-                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
+                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE) AND (:useCutOff = FALSE OR (:useCutOff = TRUE AND spa.TRANS_DATE>=:cutOffDate))";
         return this.namedParameterJdbcTemplate.query(sqlString, params, new SimplifiedSupplyPlanResultSetExtractor());
     }
 
@@ -2637,7 +2700,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
         if (returnSupplyPlan) {
             logger.info("Going to get the new supply plan batch");
-            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
+            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false, null);
             logger.info("Records retrieved");
             return sp;
         } else {
