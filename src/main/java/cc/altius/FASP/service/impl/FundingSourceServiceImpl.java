@@ -9,8 +9,9 @@ import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleFundingSourceObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
@@ -91,8 +92,56 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     }
 
     @Override
-    public List<SimpleCodeObject> getFundingSourceDropdownList(CustomUserDetails curUser) {
+    public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser) {
         return this.fundingSourceDao.getFundingSourceDropdownList(curUser);
+    }
+
+    @Override
+    public int addFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser) {
+        return this.fundingSourceDao.addFundingSourceType(fundingSourceType, curUser);
+    }
+
+    @Override
+    public int updateFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser) {
+        FundingSourceType pa = this.fundingSourceDao.getFundingSourceTypeById(fundingSourceType.getFundingSourceTypeId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            return this.fundingSourceDao.updateFundingSourceType(fundingSourceType, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<FundingSourceType> getFundingSourceTypeList(boolean active, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceTypeList(active, curUser);
+    }
+
+    @Override
+    public FundingSourceType getFundingSourceTypeById(int fundingSourceTypeId, CustomUserDetails curUser) {
+        FundingSourceType pa = this.fundingSourceDao.getFundingSourceTypeById(fundingSourceTypeId, curUser);
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            return pa;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<FundingSourceType> getFundingSourceTypeByRealm(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.fundingSourceDao.getFundingSourceTypeByRealm(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<FundingSourceType> getFundingSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceTypeListForSync(lastSyncDate, curUser);
     }
 
 }

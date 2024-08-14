@@ -1,4 +1,4 @@
- git checkout master2
+ git checkout master
  git pull
  mvn clean install
 cp target/*.jar ../../qatApi/

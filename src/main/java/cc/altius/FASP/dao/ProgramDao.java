@@ -34,6 +34,8 @@ import java.util.List;
 public interface ProgramDao {
 
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
 
@@ -49,8 +51,6 @@ public interface ProgramDao {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-//    public Program getProgramById(int programId, CustomUserDetails curUser);
-    // Moved to ProgramCommonDao
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
