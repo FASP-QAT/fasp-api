@@ -11,13 +11,16 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.FundingSourceListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.FundingSourceResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.FundingSourceTypeRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleFundingSourceObjectRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -203,6 +206,26 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         this.aclService.addUserAclForRealm(stringBuilder, params, "fs", curUser);
         stringBuilder.append(" ORDER BY fs.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleFundingSourceObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fs.FUNDING_SOURCE_ID `ID`, fs.LABEL_ID, fs.LABEL_EN, fs.LABEL_FR, fs.LABEL_SP, fs.LABEL_PR, fs.FUNDING_SOURCE_CODE `CODE` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID LEFT JOIN vw_funding_source fs ON pfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ArrayUtils.convertArrayToString(programIds));
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        stringBuilder.append(" GROUP BY fs.FUNDING_SOURCE_ID");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fst.FUNDING_SOURCE_TYPE_ID `ID`, fst.LABEL_ID, fst.LABEL_EN, fst.LABEL_FR, fst.LABEL_SP, fst.LABEL_PR, fst.FUNDING_SOURCE_TYPE_CODE `CODE` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID LEFT JOIN rm_funding_source fs ON pfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ArrayUtils.convertArrayToString(programIds));
+        this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        stringBuilder.append(" GROUP BY fst.FUNDING_SOURCE_TYPE_ID");
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
     @Override

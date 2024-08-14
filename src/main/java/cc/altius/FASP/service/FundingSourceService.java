@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
 import java.util.List;
 
@@ -32,6 +33,10 @@ public interface FundingSourceService {
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 
     public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
 
     public int addFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser);
 
