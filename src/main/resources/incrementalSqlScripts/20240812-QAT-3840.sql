@@ -13,3 +13,5 @@ CREATE TABLE `rm_program_funding_source` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO rm_program_funding_source SELECT p.PROGRAM_ID, fs.FUNDING_SOURCE_ID, 1, now() FROM vw_program p LEFT JOIN rm_funding_source fs ON fs.ACTIVE WHERE p.ACTIVE;
+
+update rm_funding_source fs SET fs.LAST_MODIFIED_DATE=now();
