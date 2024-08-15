@@ -44,6 +44,7 @@ public class ProgramInitialize extends Program implements Serializable {
         setRegionList(p.getRegionList());
         setCurrentVersion(p.getCurrentVersion());
         setVersionList(p.getVersionList());
+        setActive(p.isActive());
     }
 
     public ProgramPlanningUnit[] getProgramPlanningUnits() {
