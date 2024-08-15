@@ -9,6 +9,7 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.LoadProgram;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
@@ -300,10 +301,11 @@ public class ProgramRestController {
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            ProgramInitialize p = (ProgramInitialize) this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            p.setFundingSources(this.programService.getFundingSourceIdsForProgramId(programId, curUser));
-            p.setProcurementAgents(this.programService.getProcurementAgentIdsForProgramId(programId, curUser));
-            return new ResponseEntity(p, HttpStatus.OK);
+            Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            ProgramInitialize pi = new ProgramInitialize(p);
+            pi.setFundingSources(this.programService.getFundingSourceIdsForProgramId(programId, curUser));
+            pi.setProcurementAgents(this.programService.getProcurementAgentIdsForProgramId(programId, curUser));
+            return new ResponseEntity(pi, HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
