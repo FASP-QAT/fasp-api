@@ -2978,7 +2978,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT ppa.`PROCUREMENT_AGENT_ID` FROM rm_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        StringBuilder sb = new StringBuilder("SELECT ppa.`PROCUREMENT_AGENT_ID` FROM vw_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
@@ -2987,7 +2987,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT pfs.`FUNDING_SOURCE_ID` FROM rm_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        StringBuilder sb = new StringBuilder("SELECT pfs.`FUNDING_SOURCE_ID` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
