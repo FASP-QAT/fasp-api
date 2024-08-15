@@ -18,6 +18,34 @@ public class ProgramInitialize extends Program implements Serializable {
     private List<Integer> fundingSources;
     private List<Integer> procurementAgents;
 
+    public ProgramInitialize() {
+    }
+
+    public ProgramInitialize(Program p) {
+        setProgramId(p.getProgramId());
+        setProgramCode(p.getProgramCode());
+        setRealmCountry(p.getRealmCountry());
+        setOrganisation(p.getOrganisation());
+        setHealthAreaList(p.getHealthAreaList());
+        setLabel(p.getLabel());
+        setProgramManager(p.getProgramManager());
+        setProgramNotes(p.getProgramNotes());
+        setAirFreightPerc(p.getAirFreightPerc());
+        setSeaFreightPerc(p.getSeaFreightPerc());
+        setRoadFreightPerc(p.getRoadFreightPerc());
+        setPlannedToSubmittedLeadTime(p.getPlannedToSubmittedLeadTime());
+        setSubmittedToApprovedLeadTime(p.getSubmittedToApprovedLeadTime());
+        setApprovedToShippedLeadTime(p.getApprovedToShippedLeadTime());
+        setShippedToArrivedByAirLeadTime(p.getShippedToArrivedByAirLeadTime());
+        setShippedToArrivedBySeaLeadTime(p.getShippedToArrivedBySeaLeadTime());
+        setShippedToArrivedByRoadLeadTime(p.getShippedToArrivedByRoadLeadTime());
+        setArrivedToDeliveredLeadTime(p.getArrivedToDeliveredLeadTime());
+        setProgramTypeId(p.getProgramTypeId());
+        setRegionList(p.getRegionList());
+        setCurrentVersion(p.getCurrentVersion());
+        setVersionList(p.getVersionList());
+    }
+
     public ProgramPlanningUnit[] getProgramPlanningUnits() {
         return programPlanningUnits;
     }
