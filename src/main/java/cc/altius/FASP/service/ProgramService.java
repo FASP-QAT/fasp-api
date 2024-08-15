@@ -69,7 +69,7 @@ public interface ProgramService {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
@@ -139,5 +139,9 @@ public interface ProgramService {
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
 
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
+    
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
+
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 
 }

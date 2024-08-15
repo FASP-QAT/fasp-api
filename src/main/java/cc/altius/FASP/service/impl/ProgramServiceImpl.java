@@ -510,4 +510,14 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getTreeAnchorForSync(ta, curUser);
     }
 
+    @Override
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
+        return this.programDao.getProcurementAgentIdsForProgramId(programId, curUser);
+    }
+
+    @Override
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
+        return this.programDao.getFundingSourceIdsForProgramId(programId, curUser);
+    }
+
 }

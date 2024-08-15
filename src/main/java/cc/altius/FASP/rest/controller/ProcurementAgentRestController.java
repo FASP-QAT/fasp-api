@@ -11,8 +11,10 @@ import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +129,7 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgent(Authentication auth) {
         try {
@@ -139,7 +141,6 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType")
     public ResponseEntity getProcurementAgentType(Authentication auth) {
         try {
@@ -151,7 +152,7 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/realmId/{realmId}")
     public ResponseEntity getProcurementAgentForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -169,7 +170,6 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType/realmId/{realmId}")
     public ResponseEntity getProcurementAgentTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -187,7 +187,7 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
+    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/{procurementAgentId}")
     public ResponseEntity getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -202,7 +202,6 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgentType/{procurementAgentTypeId}")
     public ResponseEntity getProcurementAgentType(@PathVariable("procurementAgentTypeId") int procurementAgentTypeId, Authentication auth) {
         try {
@@ -217,63 +216,63 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @PutMapping("/procurementAgent/planningUnit")
-    public ResponseEntity savePlanningUnitForProcurementAgent(@RequestBody ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.procurementAgentService.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to update PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Error while trying to update PlanningUnit for Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
-    public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, true, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Procurement Agent", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/procurementAgent/planningUnits")
-    public ResponseEntity getProcurementAgentPlanningUnitListByPlanningUnitList(@RequestBody int[] planningUnitIds, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Procurement Agent Planning Unit List", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Procurement Agent Planning Unit List", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
-    public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, false, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Procurement Agent", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PutMapping("/procurementAgent/planningUnit")
+//    public ResponseEntity savePlanningUnitForProcurementAgent(@RequestBody ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            this.procurementAgentService.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
+//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to update PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            logger.error("Error while trying to update PlanningUnit for Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
+//    public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, true, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Procurement Agent", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @PostMapping("/procurementAgent/planningUnits")
+//    public ResponseEntity getProcurementAgentPlanningUnitListByPlanningUnitList(@RequestBody int[] planningUnitIds, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get Procurement Agent Planning Unit List", er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get Procurement Agent Planning Unit List", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
+//    public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, false, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Procurement Agent", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @PutMapping("/procurementAgent/procurementUnit")
     public ResponseEntity saveProcurementUnitForProcurementAgent(@RequestBody ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, Authentication auth) {
