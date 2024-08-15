@@ -67,7 +67,7 @@ public interface ProgramService {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
@@ -125,7 +125,7 @@ public interface ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
-    
+
     public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser);
 
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
@@ -135,7 +135,11 @@ public interface ProgramService {
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
-    
+
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
+
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
+
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 
 }

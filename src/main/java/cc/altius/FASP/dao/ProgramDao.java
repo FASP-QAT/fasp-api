@@ -127,4 +127,8 @@ public interface ProgramDao {
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
+    
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
+    
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -14,8 +15,8 @@ import java.io.Serializable;
 public class ProgramInitialize extends Program implements Serializable {
 
     private ProgramPlanningUnit[] programPlanningUnits;
-    private int[] fundingSources;
-    private int[] procurementAgents;
+    private List<Integer> fundingSources;
+    private List<Integer> procurementAgents;
 
     public ProgramPlanningUnit[] getProgramPlanningUnits() {
         return programPlanningUnits;
@@ -25,19 +26,19 @@ public class ProgramInitialize extends Program implements Serializable {
         this.programPlanningUnits = programPlanningUnits;
     }
 
-    public int[] getFundingSources() {
+    public List<Integer> getFundingSources() {
         return fundingSources;
     }
 
-    public void setFundingSources(int[] fundingSources) {
+    public void setFundingSources(List<Integer> fundingSources) {
         this.fundingSources = fundingSources;
     }
 
-    public int[] getProcurementAgents() {
+    public List<Integer> getProcurementAgents() {
         return procurementAgents;
     }
 
-    public void setProcurementAgents(int[] procurementAgents) {
+    public void setProcurementAgents(List<Integer> procurementAgents) {
         this.procurementAgents = procurementAgents;
     }
 

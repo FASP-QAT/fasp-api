@@ -67,12 +67,12 @@ import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.PassPhrase;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -343,7 +343,7 @@ public class ProgramDaoImpl implements ProgramDao {
             paramList = null;
             si = null;
             si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_procurement_agent");
-            paramList = new SqlParameterSource[p.getProcurementAgents().length];
+            paramList = new SqlParameterSource[p.getProcurementAgents().size()];
             i = 0;
             for (int pa : p.getProcurementAgents()) {
                 params = new HashMap<>();
@@ -362,7 +362,7 @@ public class ProgramDaoImpl implements ProgramDao {
             paramList = null;
             si = null;
             si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_funding_source");
-            paramList = new SqlParameterSource[p.getFundingSources().length];
+            paramList = new SqlParameterSource[p.getFundingSources().size()];
             i = 0;
             for (int fs : p.getFundingSources()) {
                 params = new HashMap<>();
@@ -482,7 +482,7 @@ public class ProgramDaoImpl implements ProgramDao {
         si.executeBatch(paramList);
         if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             // Add and Update Procurement Agents
-            String paList = ArrayUtils.convertArrayToString(p.getProcurementAgents());
+            String paList = ArrayUtils.convertIntegerListToString(p.getProcurementAgents());
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("paList", paList);
@@ -500,7 +500,7 @@ public class ProgramDaoImpl implements ProgramDao {
             }
 
             // Add and Update FundingSources
-            String fsList = ArrayUtils.convertArrayToString(p.getFundingSources());
+            String fsList = ArrayUtils.convertIntegerListToString(p.getFundingSources());
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("fsList", fsList);
@@ -2958,6 +2958,24 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new TreeAnchorOutputRowMapper());
 
+    }
+
+    @Override
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT ppa.`PROCUREMENT_AGENT_ID` FROM rm program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
+    }
+
+    @Override
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT pfs.`FUNDING_SOURCE_ID` FROM rm program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
     }
 
 }
