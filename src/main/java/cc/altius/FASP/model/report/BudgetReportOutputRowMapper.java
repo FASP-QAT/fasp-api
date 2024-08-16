@@ -23,6 +23,7 @@ public class BudgetReportOutputRowMapper implements RowMapper<BudgetReportOutput
         br.setBudget(new SimpleCodeObject(rs.getInt("BUDGET_ID"), new LabelRowMapper().mapRow(rs, i), rs.getString("BUDGET_CODE")));
         br.setCurrency(new SimpleCodeObject(rs.getInt("CURRENCY_ID"), new LabelRowMapper("CURRENCY_").mapRow(rs, i), rs.getString("CURRENCY_CODE")));
         br.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
+        br.setFundingSourceType(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_TYPE_ID"), new LabelRowMapper("FST_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_TYPE_CODE")));
         br.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         br.setBudgetAmt(rs.getDouble("BUDGET_AMT"));
         br.setPlannedBudgetAmt(rs.getDouble("PLANNED_BUDGET_AMT"));

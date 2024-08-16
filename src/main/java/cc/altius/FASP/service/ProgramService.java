@@ -40,6 +40,8 @@ public interface ProgramService {
 
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
 
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser);
+
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
@@ -125,7 +127,7 @@ public interface ProgramService {
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);
-    
+
     public SimpleCodeObject getSimpleSupplyPlanProgramByProgramId(int programId, CustomUserDetails curUser);
 
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
@@ -135,7 +137,7 @@ public interface ProgramService {
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
-    
+
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
 
 }

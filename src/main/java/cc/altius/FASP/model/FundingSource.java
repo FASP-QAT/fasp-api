@@ -23,6 +23,7 @@ public class FundingSource extends BaseModel implements Serializable {
     private SimpleCodeObject realm;
     @JsonView({Views.ReportView.class})
     private boolean allowedInBudget;
+    private SimpleCodeObject fundingSourceType;
 
     public FundingSource() {
     }
@@ -78,6 +79,14 @@ public class FundingSource extends BaseModel implements Serializable {
 
     public void setAllowedInBudget(boolean allowedInBudget) {
         this.allowedInBudget = allowedInBudget;
+    }
+
+    public SimpleCodeObject getFundingSourceType() {
+        return fundingSourceType;
+    }
+
+    public void setFundingSourceType(SimpleCodeObject fundingSourceType) {
+        this.fundingSourceType = fundingSourceType;
     }
 
     @Override
