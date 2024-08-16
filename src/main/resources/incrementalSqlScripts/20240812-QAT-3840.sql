@@ -12,6 +12,6 @@ CREATE TABLE `rm_program_funding_source` (
   CONSTRAINT `fk_rm_program_funding_source_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
-INSERT INTO rm_program_funding_source SELECT p.PROGRAM_ID, fs.FUNDING_SOURCE_ID, 1, now() FROM vw_program p LEFT JOIN rm_funding_source fs ON fs.ACTIVE WHERE p.ACTIVE;
+INSERT INTO rm_program_funding_source SELECT p.PROGRAM_ID, fs.FUNDING_SOURCE_ID, 1, now() FROM vw_program p LEFT JOIN rm_funding_source fs ON fs.ACTIVE;
 
 update rm_funding_source fs SET fs.LAST_MODIFIED_DATE=now();
