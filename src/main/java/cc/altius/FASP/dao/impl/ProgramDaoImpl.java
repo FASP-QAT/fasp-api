@@ -486,7 +486,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("paList", paList);
-            this.namedParameterJdbcTemplate.update("DELETE ppa FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId AND NOT FIND_IN_SET(ppa.PROCUREMENT_AGENT_ID, :paList)", params);
+            this.namedParameterJdbcTemplate.update("DELETE ppa FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
             for (int pa : p.getProcurementAgents()) {
                 params = new HashMap<>();
                 params.put("PROGRAM_ID", p.getProgramId());
@@ -504,7 +504,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("fsList", fsList);
-            this.namedParameterJdbcTemplate.update("DELETE pfs FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId AND NOT FIND_IN_SET(pfs.FUNDING_SOURCE_ID, :fsList)", params);
+            this.namedParameterJdbcTemplate.update("DELETE pfs FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId", params);
             for (int fs : p.getFundingSources()) {
                 params = new HashMap<>();
                 params.put("PROGRAM_ID", p.getProgramId());
