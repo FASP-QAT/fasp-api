@@ -121,7 +121,7 @@ public interface ReportService {
     public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser);
     
     // Report no 16
-    public Map<ProgramAndReportingUnit, List<StockStatusVerticalOutput>> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public Map<String, List<StockStatusVerticalOutput>> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
     
     // Report no 16 Dropdown lists
     public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser);

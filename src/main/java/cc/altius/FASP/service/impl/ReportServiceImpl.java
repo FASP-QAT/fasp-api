@@ -203,8 +203,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Map<ProgramAndReportingUnit, List<StockStatusVerticalOutput>> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
-        Map<ProgramAndReportingUnit, List<StockStatusVerticalOutput>> map = new HashMap<>();
+    public Map<String, List<StockStatusVerticalOutput>> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        Map<String, List<StockStatusVerticalOutput>> map = new HashMap<>();
         for (int programId : ssv.getProgramIds()) {
             for (int reportingUnitId : ssv.getReportingUnitIds()) {
                 SimpleCodeObject program = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
@@ -226,7 +226,7 @@ public class ReportServiceImpl implements ReportService {
                         ssvoList.get(idx).getInventoryInfo().add(i);
                     }
                 });
-                map.put(new ProgramAndReportingUnit(program, ssvoList.get(0).getReportingUnit()), ssvoList);
+                map.put(program.getId() + "~" + ssvoList.get(0).getReportingUnit(), ssvoList);
             }
         }
         return map;

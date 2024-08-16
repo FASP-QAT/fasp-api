@@ -529,6 +529,7 @@ public class ReportController {
             if (ssv.isAggregate()) {
                 return new ResponseEntity(this.reportService.getStockStatusVerticalAggregate(ssv, curUser), HttpStatus.OK);
             } else {
+                // Map where Key is ProgramId~ReportingUnitId
                 return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
             }
         } catch (Exception e) {

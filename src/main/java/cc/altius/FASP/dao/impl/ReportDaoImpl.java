@@ -351,7 +351,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programIds", ssv.getProgramIdsString());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :versionId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalAggregateOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalAggregateOutputRowMapper());
     }
 
     // Report no 16
@@ -374,15 +374,9 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        if (ssv.isAggregate()) {
-            params.put("programId", ssv.getProgramId());
-            params.put("reportingUnitId", ssv.getReportingUnitId());
-            return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
-        } else {
-            params.put("programIds", ssv.getProgramIdsString());
-            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-            return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
-        }
+        params.put("programIds", ssv.getProgramIdsString());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
     }
 
     // Report no 16b
@@ -392,15 +386,9 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        if (ssv.isAggregate()) {
-            params.put("programId", ssv.getProgramId());
-            params.put("reportingUnitId", ssv.getReportingUnitId());
-            return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
-        } else {
-            params.put("programIds", ssv.getProgramIdsString());
-            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-            return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
-        }
+        params.put("programIds", ssv.getProgramId());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
     }
 
     // Report no 17

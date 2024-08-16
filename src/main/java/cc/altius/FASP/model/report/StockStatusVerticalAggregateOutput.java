@@ -265,7 +265,7 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
             return false;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
+        final StockStatusVerticalAggregateOutput other = (StockStatusVerticalAggregateOutput) obj;
         if (!Objects.equals(sdf.format(this.dt), sdf.format(other.getDt()))) {
             return false;
         }
