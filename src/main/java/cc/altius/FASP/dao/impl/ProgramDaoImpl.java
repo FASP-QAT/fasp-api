@@ -486,6 +486,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("paList", paList);
+            params.put("curDate", curDate);
             this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :paList) OR pa.PROCUREMENT_AGENT_ID IN (SELECT ppa.PROCUREMENT_AGENT_ID FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
             this.namedParameterJdbcTemplate.update("DELETE ppa FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
             for (int pa : p.getProcurementAgents()) {
@@ -505,6 +506,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.clear();
             params.put("programId", p.getProgramId());
             params.put("fsList", fsList);
+            params.put("curDate", curDate);
             this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs SET fs.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(fs.FUNDING_SOURCE_ID, :fsList) OR fs.FUNDING_SOURCE_ID IN (SELECT pfs.FUNDING_SOURCE_ID FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId)", params);
             this.namedParameterJdbcTemplate.update("DELETE pfs FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId", params);
             for (int fs : p.getFundingSources()) {
