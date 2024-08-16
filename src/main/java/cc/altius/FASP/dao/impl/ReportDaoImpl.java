@@ -364,7 +364,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programId", ssv.getProgramId());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
     }
 
     // Report no 16a
