@@ -209,13 +209,13 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT fs.FUNDING_SOURCE_ID `ID`, fs.LABEL_ID, fs.LABEL_EN, fs.LABEL_FR, fs.LABEL_SP, fs.LABEL_PR, fs.FUNDING_SOURCE_CODE `CODE` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID LEFT JOIN vw_funding_source fs ON pfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+    public List<SimpleFundingSourceObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT fs.FUNDING_SOURCE_ID `ID`, fs.LABEL_ID, fs.LABEL_EN, fs.LABEL_FR, fs.LABEL_SP, fs.LABEL_PR, fs.FUNDING_SOURCE_CODE `CODE`, fst.`FUNDING_SOURCE_TYPE_ID` `FST_ID`, fst.`LABEL_ID` `FST_LABEL_ID`, fst.`LABEL_EN` `FST_LABEL_EN`, fst.`LABEL_FR` `FST_LABEL_FR`, fst.`LABEL_SP` `FST_LABEL_SP`, fst.`LABEL_PR` `FST_LABEL_PR`, fst.`FUNDING_SOURCE_TYPE_CODE` `FST_CODE` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID LEFT JOIN vw_funding_source fs ON pfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", ArrayUtils.convertArrayToString(programIds));
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
         stringBuilder.append(" GROUP BY fs.FUNDING_SOURCE_ID");
-        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleFundingSourceObjectRowMapper());
     }
 
     @Override

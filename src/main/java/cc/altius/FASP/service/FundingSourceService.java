@@ -34,7 +34,7 @@ public interface FundingSourceService {
 
     public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
+    public List<SimpleFundingSourceObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
     
     public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
 
