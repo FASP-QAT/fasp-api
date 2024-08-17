@@ -2857,17 +2857,18 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser) {
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID and p.CURRENT_VERSION_ID=pv.VERSION_ID "
                 + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "WHERE p.ACTIVE AND FIND_IN_SET(pv.VERSION_STATUS_ID,:versionStatusIds) AND pv.VERSION_TYPE_ID=:versionTypeId");
+                + "WHERE p.ACTIVE AND FIND_IN_SET(pv.VERSION_STATUS_ID,:versionStatusIds) AND FIND_IN_SET(pv.VERSION_TYPE_ID,:versionTypeIds)");
         Map<String, Object> params = new HashMap<>();
-        List<String> versionIds = Arrays.asList(versionStatusIdList.split(","));
-        params.put("versionStatusIds", ArrayUtils.convertListToString(versionIds));
-        params.put("versionTypeId", versionTypeId);
+        List<String> versionStatusIds = Arrays.asList(versionStatusIdList.split(","));
+        params.put("versionStatusIds", ArrayUtils.convertListToString(versionStatusIds));
+        List<String> versionTypeIds = Arrays.asList(versionTypeIdList.split(","));
+        params.put("versionTypeIds", ArrayUtils.convertListToString(versionTypeIds));
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
