@@ -53,3 +53,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: The entire branc
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : La branche entière (y compris tous les nœuds enfants) sera déplacée/copiée');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Se moverá/copiará toda la rama (incluidos todos los nodos secundarios)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: toda a ramificação (incluindo todos os nós filhos) será movida/copiada');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.copyModeling','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use same modeling information');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utiliser les mêmes informations de modélisation');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice la misma información de modelado.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use as mesmas informações de modelagem');-- pr
