@@ -1,3 +1,8 @@
+APP Version: 2.80.4803
+Front End Version: 12281
+Date: 2024-08-17
+QAT-5185
+
 APP Version: 2.80.4801
 Front End Version: 12281
 Date: 2024-08-06
