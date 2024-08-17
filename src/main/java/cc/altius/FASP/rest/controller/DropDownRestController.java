@@ -472,10 +472,10 @@ public class DropDownRestController {
 
     @JsonView(Views.DropDownView.class)
     @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeId}")
-    public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusIdList", required = true) String versionStatusIdList, @PathVariable(value = "versionTypeId", required = true) int versionTypeId, Authentication auth) {
+    public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusIdList", required = true) String versionStatusIdList, @PathVariable(value = "versionTypeIdList", required = true) String versionTypeIdList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeIdList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
