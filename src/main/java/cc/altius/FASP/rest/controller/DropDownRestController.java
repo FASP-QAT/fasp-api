@@ -471,7 +471,7 @@ public class DropDownRestController {
     }
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeId}")
+    @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeIdList}")
     public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusIdList", required = true) String versionStatusIdList, @PathVariable(value = "versionTypeIdList", required = true) String versionTypeIdList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
