@@ -524,9 +524,9 @@ public class NewSupplyPlan implements Serializable {
             } else {
                 this.adjustmentQty += adjustment;
             }
-            if (!this.isAllRegionsReportedStock()) {
+//            if (!this.isAllRegionsReportedStock()) {
                 addFinalAdjustmentQty(adjustment);
-            }
+//            }
         }
     }
 
