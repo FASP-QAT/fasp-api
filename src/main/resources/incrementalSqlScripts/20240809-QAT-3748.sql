@@ -61,3 +61,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use same modeling info
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utiliser les mêmes informations de modélisation');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice la misma información de modelado.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use as mesmas informações de modelagem');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.invalidNodeError','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Your node <nodeName> has node type <nodeType> and the new parent has node type <parentNodeType> which is not allowed. Please edit node type');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Votre nœud <nodeName> a un type de nœud <nodeType> et le nouveau parent a un type de nœud <parentNodeType> qui n\'est pas autorisé. Veuillez modifier le type de nœud');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Su nodo <nodeName> tiene el tipo de nodo <nodeType> y el nuevo padre tiene el tipo de nodo <parentNodeType> que no está permitido. Por favor edite el tipo de nodo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Seu nó <nodeName> possui o tipo de nó <nodeType> e o novo pai possui o tipo de nó <parentNodeType> que não é permitido. Edite o tipo de nó');-- pr
