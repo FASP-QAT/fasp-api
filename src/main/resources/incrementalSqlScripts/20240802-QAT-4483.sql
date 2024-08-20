@@ -131,24 +131,29 @@ BEGIN
         FROM (
             SELECT 
                 mn.`MONTH` `TRANS_DATE`, 
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`FINAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`FINAL_CONSUMPTION_QTY`)) `FINAL_CONSUMPTION_QTY`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`FINAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FINAL_CONSUMPTION_QTY`)) `FINAL_CONSUMPTION_QTY`,
                 BIT_AND(sma.`ACTUAL`) `ACTUAL`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`SHIPMENT_QTY`)) `SQTY`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`ADJUSTMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`ADJUSTMENT_QTY`)) `ADJUSTMENT`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`NATIONAL_ADJUSTMENT`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`NATIONAL_ADJUSTMENT`)) `NATIONAL_ADJUSTMENT`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`EXPIRED_STOCK`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`EXPIRED_STOCK`)) `EXPIRED_STOCK`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`CLOSING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`CLOSING_BALANCE`)) `FINAL_CLOSING_BALANCE`,
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`AMC`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`AMC`)) `AMC`, 
-                SUM(IF(@varEquivalencyUnitId != 0, sma.`UNMET_DEMAND`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`), sma.`UNMET_DEMAND`)) `UNMET_DEMAND`, 
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`SHIPMENT_QTY`)) `SQTY`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`ADJUSTMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ADJUSTMENT_QTY`)) `ADJUSTMENT`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`NATIONAL_ADJUSTMENT`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`NATIONAL_ADJUSTMENT`)) `NATIONAL_ADJUSTMENT`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`EXPIRED_STOCK`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`EXPIRED_STOCK`)) `EXPIRED_STOCK`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`CLOSING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`CLOSING_BALANCE`)) `FINAL_CLOSING_BALANCE`,
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`AMC`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`AMC`)) `AMC`, 
+                SUM(IF(@varEquivalencyUnitId != 0, sma.`UNMET_DEMAND`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`UNMET_DEMAND`)) `UNMET_DEMAND`, 
                 SUM(sma.`REGION_COUNT`) `REGION_COUNT`, SUM(sma.`REGION_COUNT_FOR_STOCK`) `REGION_COUNT_FOR_STOCK`
             FROM mn 
             LEFT JOIN tmp_supply_plan_amc sma ON mn.`MONTH`=sma.`TRANS_DATE` 
             LEFT JOIN rm_planning_unit pu ON sma.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
-            LEFT JOIN rm_equivalency_unit_mapping eum1 ON pu.FORECASTING_UNIT_ID=eum1.FORECASTING_UNIT_ID AND eum1.PROGRAM_ID=sma.PROGRAM_ID AND eum1.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId
-            LEFT JOIN rm_equivalency_unit_mapping eum2 ON pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.PROGRAM_ID IS NULL AND eum2.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId
+            LEFT JOIN rm_equivalency_unit eu1 ON eu1.PROGRAM_ID=sma.PROGRAM_ID AND eu1.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId 
+            LEFT JOIN rm_equivalency_unit_mapping eum1 ON eu1.EQUIVALENCY_UNIT_ID=eum1.EQUIVALENCY_UNIT_ID AND pu.FORECASTING_UNIT_ID=eum1.FORECASTING_UNIT_ID AND eu1.PROGRAM_ID=eum1.PROGRAM_ID
+            LEFT JOIN rm_equivalency_unit eu2 ON eu2.PROGRAM_ID is null AND eu2.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId
+            LEFT JOIN rm_equivalency_unit_mapping eum2 ON eu2.EQUIVALENCY_UNIT_ID=eum2.EQUIVALENCY_UNIT_ID AND pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.PROGRAM_ID=sma.PROGRAM_ID
+            LEFT JOIN rm_equivalency_unit eu3 ON eu3.PROGRAM_ID is null AND eu3.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId
+            LEFT JOIN rm_equivalency_unit_mapping eum3 ON eu3.EQUIVALENCY_UNIT_ID=eum3.EQUIVALENCY_UNIT_ID AND pu.FORECASTING_UNIT_ID=eum3.FORECASTING_UNIT_ID AND eum3.PROGRAM_ID is null
+
             WHERE mn.`MONTH` BETWEEN @varStartDate AND @varStopDate 
             GROUP BY mn.`MONTH`
         ) AS s2
