@@ -46,9 +46,9 @@ public interface ProgramService {
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
-    public int addProgram(Program p, CustomUserDetails curUser);
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser);
 
-    public int updateProgram(Program p, CustomUserDetails curUser);
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
@@ -69,7 +69,7 @@ public interface ProgramService {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
@@ -139,5 +139,9 @@ public interface ProgramService {
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
+
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
+
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 
 }

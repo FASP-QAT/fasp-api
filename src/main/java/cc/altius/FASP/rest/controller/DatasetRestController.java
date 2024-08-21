@@ -12,6 +12,7 @@ import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
@@ -193,7 +194,7 @@ public class DatasetRestController {
     }
 
     @PostMapping(path = "/dataset")
-    public ResponseEntity postDataset(@RequestBody Program dataset, Authentication auth) {
+    public ResponseEntity postDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             dataset.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_DATASET); // Dataset Program
@@ -212,7 +213,7 @@ public class DatasetRestController {
     }
 
     @PutMapping(path = "/dataset")
-    public ResponseEntity putDataset(@RequestBody Program dataset, Authentication auth) {
+    public ResponseEntity putDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             dataset.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_DATASET); // Dataset Program
