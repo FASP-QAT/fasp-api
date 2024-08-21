@@ -36,7 +36,7 @@ public interface ProgramDao {
 
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
 
