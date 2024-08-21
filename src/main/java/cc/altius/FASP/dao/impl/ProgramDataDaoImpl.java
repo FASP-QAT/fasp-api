@@ -1821,7 +1821,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             batchParamsTl.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
                             batchParamsTl.put("REGION_ID", regionId);
                             batchParamsTl.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(ts.getTreeId())));
-                            batchParamsTl.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", Integer.toString(ts.getScenarioId())));
+                            batchParamsTl.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", Integer.toString(ts.getTreeId()) + "-" + Integer.toString(ts.getScenarioId())));
                             batchListTl.add(new MapSqlParameterSource(batchParamsTl));
                         }
                     }
@@ -1835,7 +1835,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchArray = new SqlParameterSource[batchList.size()];
                 siData.executeBatch(batchList.toArray(batchArray));
                 batchArray = new SqlParameterSource[batchListTl.size()];
-                siDataTl.executeBatch(batchArray);
+                siDataTl.executeBatch(batchListTl.toArray(batchArray));
             }
         }
 
