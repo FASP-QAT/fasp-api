@@ -1,9 +1,13 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
     SET @planningUnitActive = PLANNING_UNIT_ACTIVE;
-
+    SET @cutOffDate = CUT_OFF_DATE;
+    SET @useCutOff = false;
+    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
+        SET @useCutOff = true;
+    END IF;
     IF @versionId = -1 THEN
 	SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
     END IF;
@@ -12,7 +16,7 @@ BEGIN
     SET @oldAdjustment = 0;
     SET @bal = 0;
     
-    SELECT a.*, itbi.INVENTORY_TRANS_BATCH_INFO_ID, itbi.BATCH_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.BATCH_NO, bi.AUTO_GENERATED, bi.EXPIRY_DATE, itbi.ACTUAL_QTY `BATCH_ACTUAL_QTY`, bi.CREATED_DATE `BATCH_CREATED_DATE`, itbi.ADJUSTMENT_QTY `BATCH_ADJUSTMENT_QTY` 
+    SELECT @useCutOff, a.*, itbi.INVENTORY_TRANS_BATCH_INFO_ID, itbi.BATCH_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.BATCH_NO, bi.AUTO_GENERATED, bi.EXPIRY_DATE, itbi.ACTUAL_QTY `BATCH_ACTUAL_QTY`, bi.CREATED_DATE `BATCH_CREATED_DATE`, itbi.ADJUSTMENT_QTY `BATCH_ADJUSTMENT_QTY` 
     FROM (
         SELECT 
             der.*, 
@@ -59,6 +63,6 @@ BEGIN
     LEFT JOIN rm_inventory_trans_batch_info itbi ON a.INVENTORY_TRANS_ID=itbi.INVENTORY_TRANS_ID
     LEFT JOIN rm_batch_info bi ON itbi.BATCH_ID=bi.BATCH_ID
     LEFT JOIN rm_program_planning_unit ppu ON a.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
-    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE)
+    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND a.INVENTORY_DATE>=@cutOffDate))
     ORDER BY a.PLANNING_UNIT_ID, a.REALM_COUNTRY_PLANNING_UNIT_ID, a.REGION_ID, a.INVENTORY_DATE, bi.EXPIRY_DATE, bi.BATCH_ID;
 END

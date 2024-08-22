@@ -6,6 +6,7 @@
 package cc.altius.FASP.utils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -35,7 +36,7 @@ public class ArrayUtils {
             return strIds.toString();
         }
     }
-    
+
     public static String convertArrayToString(Integer[] ids) {
         if (ids == null || ids.length == 0) {
             return "";
@@ -56,6 +57,16 @@ public class ArrayUtils {
             return "";
         } else {
             return String.join(",", lst);
+        }
+    }
+
+    public static String convertIntegerListToString(List<Integer> lst) {
+        if (lst == null || lst.isEmpty()) {
+            return "";
+        } else {
+            return lst.stream()
+                    .map(l -> Integer.toString(l))
+                    .collect(Collectors.joining(","));
         }
     }
 }

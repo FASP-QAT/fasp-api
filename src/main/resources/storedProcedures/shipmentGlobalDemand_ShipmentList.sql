@@ -55,13 +55,13 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
     SET @sqlString = CONCAT(@sqlString, "       COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `TRANS_DATE`, rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
     SET @sqlString = CONCAT(@sqlString, "	((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD) `AMOUNT`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.FUNDING_SOURCE_ID WHEN @reportView=2 THEN pa.PROCUREMENT_AGENT_ID WHEN @reportView=3 THEN pat.PROCUREMENT_AGENT_TYPE_ID END `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.FUNDING_SOURCE_CODE WHEN @reportView=2 THEN pa.PROCUREMENT_AGENT_CODE WHEN @reportView=3 THEN pat.PROCUREMENT_AGENT_TYPE_CODE END `FUNDING_SOURCE_PROCUREMENT_AGENT_CODE`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_ID WHEN @reportView=2 THEN pa.LABEL_ID WHEN @reportView=3 THEN pat.LABEL_ID END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_ID`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_EN WHEN @reportView=2 THEN pa.LABEL_EN WHEN @reportView=3 THEN pat.LABEL_EN END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_EN`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_FR WHEN @reportView=2 THEN pa.LABEL_FR WHEN @reportView=3 THEN pat.LABEL_FR END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_FR`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_SP WHEN @reportView=2 THEN pa.LABEL_SP WHEN @reportView=3 THEN pat.LABEL_SP END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_SP`, ");
-    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_PR WHEN @reportView=2 THEN pa.LABEL_PR WHEN @reportView=3 THEN pat.LABEL_PR END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_PR`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.FUNDING_SOURCE_ID WHEN @reportView=2 THEN pa.PROCUREMENT_AGENT_ID WHEN @reportView=3 THEN pat.PROCUREMENT_AGENT_TYPE_ID WHEN @reportView=4 THEN fst.FUNDING_SOURCE_TYPE_ID END `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.FUNDING_SOURCE_CODE WHEN @reportView=2 THEN pa.PROCUREMENT_AGENT_CODE WHEN @reportView=3 THEN pat.PROCUREMENT_AGENT_TYPE_CODE WHEN @reportVeiw=4 THEN fst.FUNDING_SOURCE_TYPE_CODE END `FUNDING_SOURCE_PROCUREMENT_AGENT_CODE`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_ID WHEN @reportView=2 THEN pa.LABEL_ID WHEN @reportView=3 THEN pat.LABEL_ID WHEN @reportView=4 THEN fst.LABEL_ID END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_ID`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_EN WHEN @reportView=2 THEN pa.LABEL_EN WHEN @reportView=3 THEN pat.LABEL_EN WHEN @reportView=4 THEN fst.LABEL_EN  END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_EN`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_FR WHEN @reportView=2 THEN pa.LABEL_FR WHEN @reportView=3 THEN pat.LABEL_FR WHEN @reportView=4 THEN fst.LABEL_FR  END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_FR`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_SP WHEN @reportView=2 THEN pa.LABEL_SP WHEN @reportView=3 THEN pat.LABEL_SP WHEN @reportView=4 THEN fst.LABEL_SP  END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_SP`, ");
+    SET @sqlString = CONCAT(@sqlString, "	CASE WHEN @reportView=1 THEN fs.LABEL_PR WHEN @reportView=2 THEN pa.LABEL_PR WHEN @reportView=3 THEN pat.LABEL_PR WHEN @reportView=4 THEN fst.LABEL_PR  END `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_PR`, ");
     SET @sqlString = CONCAT(@sqlString, "       ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, ss.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, ss.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, ss.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, ss.LABEL_PR `SHIPMENT_STATUS_LABEL_PR` ");
     SET @sqlString = CONCAT(@sqlString, "FROM ");
     SET @sqlString = CONCAT(@sqlString, "       ( ");
@@ -98,6 +98,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID  ");
+    SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID  ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN vw_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID  ");
     SET @sqlString = CONCAT(@sqlString, "       LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID  ");
@@ -113,6 +114,8 @@ BEGIN
         SET @sqlString = CONCAT(@sqlString, "		AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds)) ");
     ELSEIF @reportView = 3 THEN 
         SET @sqlString = CONCAT(@sqlString, "		AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_TYPE_ID, @fundingSourceProcurementAgentIds)) ");
+    ELSEIF @reportView = 4 THEN 
+        SET @sqlString = CONCAT(@sqlString, "		AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)) ");
     END IF;
         
     PREPARE S1 FROM @sqlString;

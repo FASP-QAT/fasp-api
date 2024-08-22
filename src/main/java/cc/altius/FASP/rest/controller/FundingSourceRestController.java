@@ -7,9 +7,12 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +83,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSource(Authentication auth) {
         try {
@@ -90,7 +94,7 @@ public class FundingSourceRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/fundingSource/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getFundingSourceDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
@@ -102,6 +106,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -119,6 +124,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/{fundingSourceId}")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
         try {
@@ -136,19 +142,86 @@ public class FundingSourceRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/fundingSource/{lastSyncDate}")
-//    public ResponseEntity getFundingSourceListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing fundingSource", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing fundingSource", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostMapping(path = "/fundingSourceType")
+    public ResponseEntity postFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            int fundingSourceTypeId = this.fundingSourceService.addFundingSourceType(fundingSourceType, curUser);
+            if (fundingSourceTypeId > 0) {
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Funding Source Type", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to add Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PutMapping(path = "/fundingSourceType")
+    public ResponseEntity putFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            int rows = this.fundingSourceService.updateFundingSourceType(fundingSourceType, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update Funding Source Type", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to update Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fundingSourceType")
+    public ResponseEntity getFundingSourceType(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeList(true, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fundingSourceType/realmId/{realmId}")
+    public ResponseEntity getFundingSourceTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeByRealm(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fundingSourceType/{fundingSourceTypeId}")
+    public ResponseEntity getFundingSourceType(@PathVariable("fundingSourceTypeId") int fundingSourceTypeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeById(fundingSourceTypeId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Funding Source Type Id" + fundingSourceTypeId, er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Funding Source Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -68,5 +68,6 @@ public class LabelConstants implements Serializable {
     public static final int RM_FORECAST_TREE_LEVEL = 53;
     public static final int RM_TREE_TEMPLATE_LEVEL = 54;
     public static final int RM_PROCUREMENT_AGENT_TYPE = 55;
+    public static final int RM_FUNDING_SOURCE_TYPE = 56;
 
 }

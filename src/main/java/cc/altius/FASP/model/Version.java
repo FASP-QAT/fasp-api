@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -57,7 +58,7 @@ public class Version implements Serializable {
     private Double forecastThresholdHighPerc;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Double forecastThresholdLowPerc;
-
+    
     public Version() {
     }
 
