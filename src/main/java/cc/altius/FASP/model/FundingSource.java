@@ -7,6 +7,9 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -20,12 +23,17 @@ public class FundingSource extends BaseModel implements Serializable {
     private String fundingSourceCode;
     @JsonView({Views.ReportView.class})
     private Label label;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject realm;
     @JsonView({Views.ReportView.class})
     private boolean allowedInBudget;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject fundingSourceType;
+    @JsonView({Views.ReportView.class})
+    List<SimpleObject> programList;
 
     public FundingSource() {
+        this.programList = new LinkedList<>();
     }
 
     public FundingSource(int fundingSourceId, String fundingSourceCode, Label label, SimpleCodeObject realm) {
@@ -33,12 +41,14 @@ public class FundingSource extends BaseModel implements Serializable {
         this.fundingSourceCode = fundingSourceCode;
         this.label = label;
         this.realm = realm;
+        this.programList = new LinkedList<>();
     }
 
     public FundingSource(int fundingSourceId, String fundingSourceCode, Label label) {
         this.fundingSourceId = fundingSourceId;
         this.fundingSourceCode = fundingSourceCode;
         this.label = label;
+        this.programList = new LinkedList<>();
     }
 
     public int getFundingSourceId() {
@@ -89,9 +99,54 @@ public class FundingSource extends BaseModel implements Serializable {
         this.fundingSourceType = fundingSourceType;
     }
 
+    public List<SimpleObject> getProgramList() {
+        return programList;
+    }
+
+    public void setProgramList(List<SimpleObject> programList) {
+        this.programList = programList;
+    }
+
+    @JsonView({Views.ReportView.class})
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
+    }
+
+    @JsonView({Views.ReportView.class})
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @JsonView({Views.ReportView.class})
+    public boolean isActive() {
+        return super.isActive();
+    }
+
     @Override
     public String toString() {
         return "FundingSource{" + "fundingSourceId=" + fundingSourceId + ", label=" + label + ", realm=" + realm + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + this.fundingSourceId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final FundingSource other = (FundingSource) obj;
+        return this.fundingSourceId == other.fundingSourceId;
     }
 
 }
