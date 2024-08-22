@@ -16,6 +16,7 @@ import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -35,15 +36,15 @@ public interface ProgramDao {
 
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
-    public int addProgram(Program p, int realmId, CustomUserDetails curUser);
+    public int addProgram(ProgramInitialize p, int realmId, CustomUserDetails curUser);
 
-    public int updateProgram(Program p, CustomUserDetails curUser);
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
@@ -126,4 +127,8 @@ public interface ProgramDao {
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
+    
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
+    
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 }
