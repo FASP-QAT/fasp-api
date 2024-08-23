@@ -195,18 +195,18 @@ DELIMITER ;
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.selectMultipleTree','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Multiple Tree');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Multiple Trees');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionner plusieurs arbres');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar varios árboles');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione várias árvores');-- pr
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.orMore','1'); 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.selectOneOrMore','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'or more');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ou plus');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'o más');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'ou mais');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select one or more forecasts for');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez une ou plusieurs prévisions pour');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione uno o más pronósticos para');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione uma ou mais previsões para');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastSummary.eitherTreeOrConsumptionValidation','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -215,3 +215,19 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Multi-select is only a
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La sélection multiple n`est disponible que pour les prévisions d`arbres');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La selección múltiple solo está disponible para pronósticos de árboles');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A seleção múltipla está disponível apenas para previsões de árvores');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.selectMultipleTree','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, user can multi-select tree forecasts (not consumption forecasts) as their final forecast, which will aggregate the monthly forecast quantities.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette case est cochée, l`utilisateur peut sélectionner plusieurs prévisions d`arbres (pas les prévisions de consommation) comme prévision finale, ce qui regroupera les quantités prévues mensuellement.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se marca, el usuario puede seleccionar múltiples pronósticos de árboles (no pronósticos de consumo) como su pronóstico final, lo que agregará las cantidades de pronóstico mensuales.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcada, o usuário pode selecionar várias previsões de árvores (não previsões de consumo) como sua previsão final, o que agregará as quantidades previstas mensais.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.totalAggregated','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Aggregated Tree Quantity');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale d`arbres agrégés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total agregada de árboles');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total agregada de árvores');-- pr
