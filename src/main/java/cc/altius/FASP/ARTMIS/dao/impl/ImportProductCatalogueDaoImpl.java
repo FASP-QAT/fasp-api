@@ -883,6 +883,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         pafuParams.put("PROCUREMENT_AGENT_ID", 1);
         pafuParams.put("FORECASTING_UNIT_ID", 0);
         pafuParams.put("SKU_CODE", "");
+        pafuParams.put("ACTIVE", true);
+        pafuParams.put("CREATED_BY", curUserId);
+        pafuParams.put("CREATED_DATE", curDate);
 
         for (ForecastingUnitArtmisPull fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitArtmisPullRowMapper())) {
             try {
@@ -1549,9 +1552,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         Arrays.sort(files, new FileNameComparator());
         logger.info("Going to start product catalogue import");
         sb.append("Going to start product catalogue import").append(br);
-        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_fu`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `temp_product_catalog_fu`";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "CREATE TABLE `temp_product_catalog_fu` ( "
+        sqlString = "CREATE TEMPORARY TABLE `temp_product_catalog_fu` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
                 + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
@@ -1569,9 +1572,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "  PRIMARY KEY (`ID`) "
                 + ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_pu`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `temp_product_catalog_pu`";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "CREATE TABLE `temp_product_catalog_pu` ( "
+        sqlString = "CREATE TEMPORARY TABLE `temp_product_catalog_pu` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
                 + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
@@ -1940,21 +1943,30 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
         sqlString = "drop table if exists `rm_procurement_agent_forecasting_unit`;";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "CREATE TABLE IF NOT EXISTS `rm_procurement_agent_forecasting_unit` ( "
-                + "  `FORECASTING_UNIT_PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
-                + "  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
-                + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL, "
-                + "  `SKU_CODE` VARCHAR(9) NOT NULL, "
-                + "  PRIMARY KEY (`FORECASTING_UNIT_PROCUREMENT_AGENT_ID`), "
+        sqlString = "CREATE TABLE `rm_procurement_agent_forecasting_unit` ( "
+                + "  `FORECASTING_UNIT_ID` int(10) unsigned NOT NULL, "
+                + "  `PROCUREMENT_AGENT_ID` int(10) unsigned NOT NULL, "
+                + "  `SKU_CODE` varchar(9) NOT NULL, "
+                + "  `ACTIVE` tinyint(1) unsigned NOT NULL, "
+                + "  `CREATED_BY` int(10) unsigned NOT NULL, "
+                + "  `CREATED_DATE` datetime NOT NULL, "
+                + "  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` datetime NOT NULL, "
+                + "  PRIMARY KEY (`PROCUREMENT_AGENT_FORECASTING_UNIT_ID`), "
                 + "  KEY `FK_rm_procurement_agent_forecasting_unit_fu` (`FORECASTING_UNIT_ID`), "
                 + "  KEY `FK_rm_procurement_agent_forecasting_unit_pa` (`PROCUREMENT_AGENT_ID`), "
+                + "  KEY `fk_rm_procurement_agent_forecasting_unit_cb_idx` (`CREATED_BY`), "
+                + "  KEY `fk_rm_procurement_agent_forecasting_unit_lmb_idx` (`LAST_MODIFIED_BY`), "
                 + "  CONSTRAINT `FK_rm_procurement_agent_forecasting_unit_fu` FOREIGN KEY (`FORECASTING_UNIT_ID`) REFERENCES `rm_forecasting_unit` (`FORECASTING_UNIT_ID`), "
-                + "  CONSTRAINT `FK_rm_procurement_agent_forecasting_unit_pa` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`) "
-                + ") ENGINE=INNODB DEFAULT CHARSET=utf8";
+                + "  CONSTRAINT `FK_rm_procurement_agent_forecasting_unit_pa` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`), "
+                + "  CONSTRAINT `fk_rm_procurement_agent_forecasting_unit_cb` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, "
+                + "  CONSTRAINT `fk_rm_procurement_agent_forecasting_unit_lmb` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION "
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
         this.jdbcTemplate.update(sqlString);
+        Date curDate = DateUtils.getCurrentDateObject("EST");
         //Insert entries in pafu
-        sqlString = "INSERT INTO rm_procurement_agent_forecasting_unit SELECT NULL,t.FORECASTING_UNIT_ID,1,t.PRODUCT_ID_NO_NAME FROM temp_product_catalog_fu t";
-        this.jdbcTemplate.update(sqlString);
+        sqlString = "INSERT INTO rm_procurement_agent_forecasting_unit SELECT NULL,t.FORECASTING_UNIT_ID,1,t.PRODUCT_ID_NO_NAME,1,1,?,1,? FROM temp_product_catalog_fu t";
+        this.jdbcTemplate.update(sqlString,curDate,curDate);
 
         // Delete duplicate PU entries
         sqlString = "DELETE p.* "
@@ -1984,8 +1996,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "where tpu.FORECASTING_UNIT_ID!=pu.FORECASTING_UNIT_ID;";
         List<Integer> pus = this.jdbcTemplate.queryForList(sqlString, Integer.class);
         logger.info("Mis matched Pu---" + pus);
-        sb.append("Mis matched PU---").append(pus).append(br);
-        Date curDate = DateUtils.getCurrentDateObject("EST");
+        sb.append("Mis matched PU---").append(pus).append(br);        
         sqlString = "update  "
                 + "rm_planning_unit pu left join temp_product_catalog_pu tpu on tpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "set pu.FORECASTING_UNIT_ID=tpu.FORECASTING_UNIT_ID,pu.LAST_MODIFIED_BY=1,pu.LAST_MODIFIED_DATE=? "
