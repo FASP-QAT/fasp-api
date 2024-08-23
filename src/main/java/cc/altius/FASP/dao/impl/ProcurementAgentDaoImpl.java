@@ -10,12 +10,14 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementAgent;
+import cc.altius.FASP.model.ProcurementAgentForecastingUnit;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.PlanningUnitTracerCategoryRowMapper;
+import cc.altius.FASP.model.rowMapper.ProcurementAgentForecastingUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
@@ -322,6 +324,28 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pafu.PROCUREMENT_AGENT_FORECASTING_UNIT_ID, "
+                + " pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
+                + " fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+                + " pafu.SKU_CODE, "
+                + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pafu.ACTIVE, pafu.CREATED_DATE, pafu.LAST_MODIFIED_DATE  "
+                + " FROM rm_procurement_agent_forecasting_unit pafu  "
+                + " LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=pafu.PROCUREMENT_AGENT_ID "
+                + " LEFT JOIN vw_forecasting_unit fu on pafu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + " LEFT JOIN us_user cb ON pafu.CREATED_BY=cb.USER_ID  "
+                + " LEFT JOIN us_user lmb ON pafu.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE pafu.PROCUREMENT_AGENT_ID=:procurementAgentId ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND pafu.ACTIVE");
+        }
+        params.put("procurementAgentId", procurementAgentId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentForecastingUnitRowMapper());
+    }
+
+    @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(" SELECT pu.PLANNING_UNIT_ID, pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_PR, pul.LABEL_SP,papu.SKU_CODE "
                 + " FROM rm_procurement_agent_planning_unit papu  "
@@ -409,6 +433,59 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                     + "papu.LAST_MODIFIED_DATE=:curDate, "
                     + "papu.LAST_MODIFIED_BY=:curUser "
                     + "WHERE papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID=:procurementAgentPlanningUnitId";
+            rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
+        }
+        return rowsEffected;
+    }
+
+    @Override
+    public int saveProcurementAgentForecastingUnit(ProcurementAgentForecastingUnit[] procurementAgentForecastingUnits, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_forecasting_unit");
+        List<SqlParameterSource> insertList = new ArrayList<>();
+        List<SqlParameterSource> updateList = new ArrayList<>();
+        int rowsEffected = 0;
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params;
+        for (ProcurementAgentForecastingUnit pafu : procurementAgentForecastingUnits) {
+            if (pafu.getProcurementAgentForecastingUnitId() == 0) {
+                // Insert
+                params = new HashMap<>();
+                params.put("FORECASTING_UNIT_ID", pafu.getForecastingUnit().getId());
+                params.put("PROCUREMENT_AGENT_ID", pafu.getProcurementAgent().getId());
+                params.put("SKU_CODE", pafu.getSkuCode());
+                params.put("CREATED_DATE", curDate);
+                params.put("CREATED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("ACTIVE", true);
+                insertList.add(new MapSqlParameterSource(params));
+            } else {
+                // Update
+                params = new HashMap<>();
+                params.put("procurementAgentForecastingUnitId", pafu.getProcurementAgentForecastingUnitId());
+                params.put("forecastingUnitId", pafu.getForecastingUnit().getId());
+                params.put("skuCode", pafu.getSkuCode());
+                params.put("curDate", curDate);
+                params.put("curUser", curUser.getUserId());
+                params.put("active", pafu.isActive());
+                updateList.add(new MapSqlParameterSource(params));
+            }
+        }
+        if (insertList.size() > 0) {
+            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+        }
+        if (updateList.size() > 0) {
+            SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
+            String sqlString = "UPDATE "
+                    + "rm_procurement_agent_forecasting_unit pafu "
+                    + "SET "
+                    + "pafu.FORECASTING_UNIT_ID=:forecastingUnitId, "
+                    + "pafu.SKU_CODE=:skuCode, "
+                    + "pafu.ACTIVE=:active, "
+                    + "pafu.LAST_MODIFIED_DATE=:curDate, "
+                    + "pafu.LAST_MODIFIED_BY=:curUser "
+                    + "WHERE pafu.PROCUREMENT_AGENT_FORECASTING_UNIT_ID=:procurementAgentForecastingUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
         return rowsEffected;
@@ -571,6 +648,25 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pafu.PROCUREMENT_AGENT_FORECASTING_UNIT_ID, "
+                + " pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
+                + " fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+                + " pafu.SKU_CODE, "
+                + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pafu.ACTIVE, pafu.CREATED_DATE, pafu.LAST_MODIFIED_DATE  "
+                + " FROM rm_procurement_agent_forecasting_unit pafu  "
+                + " LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=pafu.PROCUREMENT_AGENT_ID "
+                + " LEFT JOIN vw_forecasting_unit pu on pafu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID "
+                + " LEFT JOIN us_user cb ON pafu.CREATED_BY=cb.USER_ID  "
+                + " LEFT JOIN us_user lmb ON pafu.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE pafu.LAST_MODIFIED_DATE>:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentForecastingUnitRowMapper());
+    }
+
+    @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID,  "
                 + "     pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,  "
@@ -613,6 +709,29 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append("GROUP BY papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pafu.PROCUREMENT_AGENT_FORECASTING_UNIT_ID,   "
+                + "        pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,   "
+                + "        fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`,   "
+                + "        pafu.SKU_CODE,   "
+                + "        cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pafu.ACTIVE, pafu.CREATED_DATE, pafu.LAST_MODIFIED_DATE "
+                + "FROM vw_program p  "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID  "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+                + "LEFT JOIN rm_procurement_agent_forecasting_unit pafu ON fu.FORECASTING_UNIT_ID = pafu.FORECASTING_UNIT_ID  "
+                + "LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=pafu.PROCUREMENT_AGENT_ID   "
+                + "LEFT JOIN us_user cb ON pafu.CREATED_BY=cb.USER_ID    "
+                + "LEFT JOIN us_user lmb ON pafu.LAST_MODIFIED_BY=lmb.USER_ID  "
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND pafu.`PROCUREMENT_AGENT_FORECASTING_UNIT_ID` IS NOT NULL ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append("GROUP BY pafu.PROCUREMENT_AGENT_FORECASTING_UNIT_ID");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentForecastingUnitRowMapper());
     }
 
     @Override
