@@ -23,6 +23,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private String colorHtmlCode;
+    private String colorHtmlDarkCode;
     List<SimpleObject> programList;
 
     public ProcurementAgent() {
@@ -109,6 +110,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setColorHtmlCode(String colorHtmlCode) {
         this.colorHtmlCode = colorHtmlCode;
+    }
+
+    public String getColorHtmlDarkCode() {
+        return colorHtmlDarkCode;
+    }
+
+    public void setColorHtmlDarkCode(String colorHtmlDarkCode) {
+        this.colorHtmlDarkCode = colorHtmlDarkCode;
     }
 
     public List<SimpleObject> getProgramList() {
