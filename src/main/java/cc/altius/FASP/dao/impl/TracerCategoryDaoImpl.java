@@ -121,13 +121,14 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
 
     @Override
     public List<SimpleObject> getTracerCategoryDropdownListForFilterMultiplerPrograms(String programIds, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT tc.TRACER_CATEGORY_ID `ID`, tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR FROM rm_program p LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID LEFT JOIN rm_health_area ha ON pha.HEALTH_AREA_ID=ha.HEALTH_AREA_ID LEFT JOIN vw_tracer_category tc ON tc.HEALTH_AREA_ID=ha.HEALTH_AREA_ID WHERE tc.ACTIVE AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT tc.TRACER_CATEGORY_ID `ID`, tc.LABEL_ID, tc.LABEL_EN, tc.LABEL_FR, tc.LABEL_SP, tc.LABEL_PR FROM rm_program_planning_unit ppu LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID WHERE ppu.ACTIVE AND tc.ACTIVE AND pu.ACTIVE AND fu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         if (programIds.length() > 0) {
-            sqlStringBuilder.append(" AND FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+            sqlStringBuilder.append(" AND FIND_IN_SET(ppu.PROGRAM_ID, :programIds) ");
             params.put("programIds", programIds);
         }
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "tc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY tc.TRACER_CATEGORY_ID ORDER BY tc.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }

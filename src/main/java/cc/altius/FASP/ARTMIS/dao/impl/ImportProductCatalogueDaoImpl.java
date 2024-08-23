@@ -80,11 +80,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Autowired
     private EmailService emailService;
 
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
-    @Value("${catalogFilePath}")
+    @Value("${qat.catalogFilePath}")
     private String CATALOG_FILE_PATH;
-    @Value("${catalogBkpFilePath}")
+    @Value("${qat.catalogBkpFilePath}")
     private String BKP_CATALOG_FILE_PATH;
     @Value("${email.catalogToList}")
     private String toList;
@@ -218,7 +218,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                 + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                                //                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -231,16 +230,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                 + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                                //                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                                //                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                                //                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Euro1` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -285,7 +281,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                 map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
                                 map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
                                 map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
-//                                System.out.println("product name ---"+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
                                 map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
                                 map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
                                 map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
@@ -339,12 +334,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
-//                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
-//                                    bodyParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
-//                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                                    int emailerId = this.emailService.saveEmail(emailer);
-//                                    emailer.setEmailerId(emailerId);
-//                                    this.emailService.sendMail(emailer);
                                     logger.error("Error while pulling tracer category---" + e.getMessage());
                                 }
 
@@ -358,16 +347,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                 map.put("itemWeight", dataRecordElement.getElementsByTagName("item_weight").item(0).getTextContent());
                                 map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("item_sizemeasure").item(0).getTextContent());
                                 map.put("itemHeight", dataRecordElement.getElementsByTagName("item_height").item(0).getTextContent());
-//                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
                                 map.put("itemLength", dataRecordElement.getElementsByTagName("item_length").item(0).getTextContent());
-//                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
                                 map.put("itemWidth", dataRecordElement.getElementsByTagName("item_width").item(0).getTextContent());
                                 map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("item_manufacturer_gtin_upc").item(0).getTextContent());
                                 map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("item_label_languages").item(0).getTextContent());
                                 map.put("itemBuyable", dataRecordElement.getElementsByTagName("item_buyable").item(0).getTextContent());
                                 map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("item_units_per_case").item(0).getTextContent());
                                 map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("item_num_of_units_pallet").item(0).getTextContent());
-//                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
                                 map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("units_per_container").item(0).getTextContent());
                                 map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("wcs_catalog_price").item(0).getTextContent());
                                 batchParams[x] = new MapSqlParameterSource(map);
@@ -393,9 +379,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
                         logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
                         sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
-//                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-//        String[] subjectParam = new String[]{};
-//        String[] bodyParam = null;
                         try {
                             pullUnit(sb);
                         } catch (Exception e) {
@@ -530,7 +513,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.execute(sqlString);
         logger.info("Successfully created tmp_unit");
         sb.append("Successfully created tmp_unit").append(br);
-//        try {
         sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
         int cnt = this.jdbcTemplate.update(sqlString);
         logger.info(sqlString + " -> " + cnt);
@@ -605,9 +587,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
         logger.info("Total rows available in ap_unit---" + cnt);
         sb.append("Total rows available in ap_unit---").append(cnt).append(br);
-//        } catch (Exception e) {
-//            logger.info("Error occured for unit---" + e.getMessage());
-//        }
     }
 
     @Transactional
@@ -632,7 +611,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "  PRIMARY KEY (`ID`) "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
-//        try {
         // Step 3 insert into the tmp_tracer all the data that you can get from 
         //        product_catalog that you just imported
         sqlString = "INSERT INTO tmp_tracer_category SELECT NULL, TracerCategory, NULL, NULL, 0 FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
@@ -689,9 +667,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
         logger.info("Total rows available in rm_tracer_category ---" + cnt);
         sb.append("Total rows available in rm_tracer_category ---").append(cnt).append(br);
-//        } catch (Exception e) {
-//            logger.info("Error occured for tracer_category ---" + e.getMessage());
-//        }
     }
 
     @Transactional
@@ -699,7 +674,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         //------------Product Category-------------------------
         logger.info("------------------------------- Product Category ------------------------------------");
         sb.append("------------------------------- Product Category ------------------------------------").append(br);
-//        try {
         // Step 1: See if there are any new Commodity Councils
         String sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
         logger.info("Checking if there are any new Commodity Councils");
@@ -759,9 +733,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 sb.append("Added ").append(sc.get("Subcategory")).append(" under ").append(sc.get("LABEL_EN")).append(" to the ProductCategory table").append(br);
             }
         }
-//        } catch (Exception e) {
-//            logger.info("Error occured for product category ---" + e.getMessage());
-//        }
     }
 
     @Transactional
@@ -904,7 +875,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
                 sb.append("----------fu 3--------------").append(br);
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
-//                System.out.println("tracer category---" + fu.getTracerCategory().getLabel().getLabel_en());
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
                 sb.append("----------fu 4--------------").append(br);

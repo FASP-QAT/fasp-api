@@ -60,6 +60,7 @@ public class MastersSync implements Serializable {
     private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
     private List<ExtrapolationMethod> extrapolationMethodList;
     private List<ProcurementAgentType> procurementAgentyType;
+    private List<FundingSourceType> fundingSourceType;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -419,6 +420,14 @@ public class MastersSync implements Serializable {
 
     public List<ProcurementAgentType> getProcurementAgentyType() {
         return procurementAgentyType;
+    }
+
+    public List<FundingSourceType> getFundingSourceType() {
+        return fundingSourceType;
+    }
+
+    public void setFundingSourceType(List<FundingSourceType> fundingSourceType) {
+        this.fundingSourceType = fundingSourceType;
     }
 
 }

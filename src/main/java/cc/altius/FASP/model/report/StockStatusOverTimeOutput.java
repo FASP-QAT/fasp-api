@@ -35,6 +35,10 @@ public class StockStatusOverTimeOutput implements Serializable {
     private int amcMonthCount;
     @JsonView(Views.ReportView.class)
     private Double mos;
+    @JsonView(Views.ReportView.class)
+    private int mosPast;
+    @JsonView(Views.ReportView.class)
+    private int mosFuture;
 
     public String getDt() {
         return dt;
@@ -92,7 +96,6 @@ public class StockStatusOverTimeOutput implements Serializable {
         this.mos = mos;
     }
 
-
     public int getAmcMonthCount() {
         return amcMonthCount;
     }
@@ -111,5 +114,21 @@ public class StockStatusOverTimeOutput implements Serializable {
     public void setActualConsumption(Boolean actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
-    
+
+    public int getMosPast() {
+        return mosPast;
+    }
+
+    public void setMosPast(int mosPast) {
+        this.mosPast = mosPast;
+    }
+
+    public int getMosFuture() {
+        return mosFuture;
+    }
+
+    public void setMosFuture(int mosFuture) {
+        this.mosFuture = mosFuture;
+    }
+
 }

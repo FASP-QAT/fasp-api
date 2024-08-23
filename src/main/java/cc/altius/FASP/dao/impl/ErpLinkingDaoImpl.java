@@ -30,9 +30,11 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
+import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.RoAndRoPrimeLineNo;
 import cc.altius.FASP.model.Shipment;
@@ -41,13 +43,16 @@ import cc.altius.FASP.model.ShipmentLinkedToOtherProgramOutput;
 import cc.altius.FASP.model.ShipmentSyncInput;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.LinkedShipmentBatchDetailsListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkedToOtherProgramOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentLinkingOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
+import cc.altius.utils.TreeUtils.Node;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1865,7 +1870,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_delinked_list_copy` (`RO_NO` VARCHAR(45) NOT NULL, `RO_PRIME_LINE_NO` VARCHAR(45) NOT NULL, PRIMARY KEY (`RO_NO`, `RO_PRIME_LINE_NO`))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        
+
         List<SqlParameterSource> paramList = new LinkedList<>();
         for (RoAndRoPrimeLineNo roAndRoPrimeLineNo : erpAutoCompleteDTO.getDelinkedList()) {
             MapSqlParameterSource param = new MapSqlParameterSource();
@@ -2146,7 +2151,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "                    sl.KN_SHIPMENT_NO, null as BATCH_NO, NULL as EXPIRY_DATE, TRUE `SHIPMENT_ACTIVE`, "
                 + "                    pu.PLANNING_UNIT_ID `ERP_PLANNING_UNIT_ID`, pu.LABEL_ID `ERP_PU_LABEL_ID`, pu.LABEL_EN `ERP_PU_LABEL_EN`, pu.LABEL_FR `ERP_PU_LABEL_FR`, pu.LABEL_SP `ERP_PU_LABEL_SP`, pu.LABEL_PR `ERP_PU_LABEL_PR`, "
                 + "                    pu2.PLANNING_UNIT_ID `QAT_PLANNING_UNIT_ID`, pu2.LABEL_ID `QAT_PU_LABEL_ID`, pu2.LABEL_EN `QAT_PU_LABEL_EN`, pu2.LABEL_FR `QAT_PU_LABEL_FR`, pu2.LABEL_SP `QAT_PU_LABEL_SP`, pu2.LABEL_PR `QAT_PU_LABEL_PR`, "
-                + "                    rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `QAT_RCPU_ID`, rcpu.LABEL_ID `QAT_RCPU_LABEL_ID`, rcpu.LABEL_EN `QAT_RCPU_LABEL_EN`, rcpu.LABEL_FR `QAT_RCPU_LABEL_FR`, rcpu.LABEL_SP `QAT_RCPU_LABEL_SP`, rcpu.LABEL_PR `QAT_RCPU_LABEL_PR`, rcpu.MULTIPLIER `QAT_RCPU_MULTIPLIER`, "
+                + "                    rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `QAT_RCPU_ID`, rcpu.LABEL_ID `QAT_RCPU_LABEL_ID`, rcpu.LABEL_EN `QAT_RCPU_LABEL_EN`, rcpu.LABEL_FR `QAT_RCPU_LABEL_FR`, rcpu.LABEL_SP `QAT_RCPU_LABEL_SP`, rcpu.LABEL_PR `QAT_RCPU_LABEL_PR`, IF(rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2,1/rcpu.CONVERSION_NUMBER,0)) `QAT_RCPU_MULTIPLIER`, "
                 + "                    e.PRICE, e.SHIPPING_COST, "
                 + "                    ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SS_LABEL_ID`, ss.LABEL_EN `SS_LABEL_EN`, ss.LABEL_FR `SS_LABEL_FR`, ss.LABEL_SP `SS_LABEL_SP`, ss.LABEL_PR  `SS_LABEL_PR`, "
                 + "                    sl.PARENT_SHIPMENT_ID, group_concat(DISTINCT(s2t.SHIPMENT_ID)) as PARENT_LINKED_SHIPMENT_ID, sl.CHILD_SHIPMENT_ID, s2t.NOTES, e.SHIP_BY, slt.`CONVERSION_FACTOR` CONVERSION_FACTOR,null `TRACER_CATEGORY_ID`                      "
@@ -2251,7 +2256,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         sqlString = "SELECT "
                 + "    p.PROGRAM_ID, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, p.PROGRAM_CODE, "
                 + "    sl.RO_NO, sl.RO_PRIME_LINE_NO, sl.PARENT_SHIPMENT_ID,  group_concat(DISTINCT(st.SHIPMENT_ID)) as PARENT_LINKED_SHIPMENT_ID, slt.CONVERSION_FACTOR, "
-                + "    pm.USER_ID, pm.USERNAME ,st2.PLANNING_UNIT_ID,st2.REALM_COUNTRY_PLANNING_UNIT_ID,pu.LABEL_ID `PU_LABEL_ID`,pu.LABEL_EN `PU_LABEL_EN`,pu.LABEL_FR `PU_LABEL_FR`,pu.LABEL_SP `PU_LABEL_SP`,pu.LABEL_PR `PU_LABEL_PR`,rcpu.LABEL_ID `RCPU_LABEL_ID`,rcpu.LABEL_EN `RCPU_LABEL_EN`,rcpu.LABEL_FR `RCPU_LABEL_FR`,rcpu.LABEL_SP `RCPU_LABEL_SP`,rcpu.LABEL_PR `RCPU_LABEL_PR`,rcpu.MULTIPLIER `RCPU_MULTIPLIER`,"
+                + "    pm.USER_ID, pm.USERNAME ,st2.PLANNING_UNIT_ID,st2.REALM_COUNTRY_PLANNING_UNIT_ID,pu.LABEL_ID `PU_LABEL_ID`,pu.LABEL_EN `PU_LABEL_EN`,pu.LABEL_FR `PU_LABEL_FR`,pu.LABEL_SP `PU_LABEL_SP`,pu.LABEL_PR `PU_LABEL_PR`,rcpu.LABEL_ID `RCPU_LABEL_ID`,rcpu.LABEL_EN `RCPU_LABEL_EN`,rcpu.LABEL_FR `RCPU_LABEL_FR`,rcpu.LABEL_SP `RCPU_LABEL_SP`,rcpu.LABEL_PR `RCPU_LABEL_PR`,IF(rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2,1/rcpu.CONVERSION_NUMBER,0)) `RCPU_MULTIPLIER`,"
                 + "    lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sl.LAST_MODIFIED_DATE, st.SHIPMENT_QTY "
                 + "FROM tmp_shipment_linked_to_other_programs ts "
                 + "LEFT JOIN rm_shipment_linking sl ON ts.PROGRAM_ID!=sl.PROGRAM_ID AND ts.RO_NO=sl.RO_NO AND ts.RO_PRIME_LINE_NO=sl.RO_PRIME_LINE_NO "
@@ -2327,6 +2332,50 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_erp_order_consolidated e ON r.RO_NO=e.RO_NO AND r.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO "
                 + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new LinkedShipmentBatchDetailsListResultSetExtractor());
+    }
+
+    @Override
+    public List<ProductCategory> getProductCategoryListForRealmCountryForErpLinking(CustomUserDetails curUser, int realmCountryId) {
+
+        StringBuilder sqlStringBuilder;
+        String setDateQuery = "SET @dt = CURDATE() - INTERVAL 6 MONTH;";
+        String setCountryIdQuery = "SET @realmCountryId = ?;";
+        this.jdbcTemplate.update(setDateQuery);
+        this.jdbcTemplate.update(setCountryIdQuery, realmCountryId);
+        String getCountryNameQuery = "SELECT c.LABEL_EN INTO @countryName FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.REALM_COUNTRY_ID=@realmCountryId";
+        this.jdbcTemplate.execute(getCountryNameQuery);
+        sqlStringBuilder = new StringBuilder("SELECT pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP,r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE  "
+                + "FROM rm_erp_order_consolidated e  "
+                + "LEFT JOIN rm_erp_shipment_consolidated s ON e.ORDER_NO=s.ORDER_NO AND e.PRIME_LINE_NO=s.PRIME_LINE_NO AND s.ACTIVE   "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON (FIND_IN_SET(papu.PLANNING_UNIT_ID,'') OR ''='') AND LEFT(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE   "
+                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.EXTERNAL_STATUS_STAGE=COALESCE(s.STATUS, e.STATUS)   "
+                + "LEFT JOIN rm_shipment_linking sl ON sl.RO_NO=e.RO_NO and sl.RO_PRIME_LINE_NO=e.RO_PRIME_LINE_NO  AND sl.ACTIVE  "
+                + "LEFT JOIN rm_shipment_linking_trans slt ON slt.SHIPMENT_LINKING_ID=sl.SHIPMENT_LINKING_ID AND slt.VERSION_ID=sl.MAX_VERSION_ID AND slt.ACTIVE   "
+                + "LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID   "
+                + "LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID  "
+                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID  "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID  "
+                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID  "
+                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID  "
+                + "WHERE e.RECPIENT_COUNTRY=@countryName AND e.ACTIVE "
+                + "AND ( "
+                + "            ( "
+                + "                COALESCE(s.ACTUAL_DELIVERY_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE,e.AGREED_DELIVERY_DATE,e.REQ_DELIVERY_DATE) < @dt "
+                + "                AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15)  "
+                + "            ) "
+                + "        OR  "
+                + "            ( "
+                + "            COALESCE(s.ACTUAL_DELIVERY_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE,e.AGREED_DELIVERY_DATE,e.REQ_DELIVERY_DATE) >= @dt "
+                + "            AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) "
+                + "            ) "
+                + "        ) "
+                + "    AND slt.SHIPMENT_LINKING_TRANS_ID IS NULL  "
+                + "    and pu.ACTIVE AND fu.ACTIVE  and pc.ACTIVE "
+                + "    GROUP BY pc.PRODUCT_CATEGORY_ID  ORDER BY pc.SORT_ORDER;");
+        Map<String, Object> params = new HashMap<>();
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProductCategoryRowMapper());
     }
 
 }

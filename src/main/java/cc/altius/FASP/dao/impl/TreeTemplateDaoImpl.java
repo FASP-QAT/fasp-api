@@ -60,24 +60,28 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
     private static final String treeTemplateSql = "SELECT  "
             + "    tt.TREE_TEMPLATE_ID, tt.LABEL_ID, tt.LABEL_EN, tt.LABEL_FR, tt.LABEL_SP, tt.LABEL_PR, tt.ACTIVE, tt.CREATED_DATE, tt.LAST_MODIFIED_DATE, tt.MONTHS_IN_PAST, tt.MONTHS_IN_FUTURE, tt.`NOTES`, "
+            + "    nt.NODE_TYPE_ID,nt.LABEL_ID AS NODE_TYPE_LABEL_ID,nt.LABEL_EN AS `NODE_TYPE_LABEL_EN`,nt.LABEL_FR AS `NODE_TYPE_LABEL_FR`,nt.LABEL_SP AS `NODE_TYPE_LABEL_SP`,nt.LABEL_PR AS `NODE_TYPE_LABEL_PR`, "
             + "    tl.TREE_TEMPLATE_LEVEL_ID `LEVEL_ID`, tl.LEVEL_NO, tl.LABEL_ID `TL_LABEL_ID`, tl.LABEL_EN `TL_LABEL_EN`, tl.LABEL_FR `TL_LABEL_FR`, tl.LABEL_SP `TL_LABEL_SP`, tl.LABEL_PR `TL_LABEL_PR`, "
             + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.`UNIT_CODE`, "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `R_LABEL_ID`,  r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
             + "    fm.FORECAST_METHOD_ID, fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, fm.FORECAST_METHOD_TYPE_ID, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
             + "FROM vw_tree_template tt  "
+            + "LEFT JOIN rm_tree_template_node ttn on ttn.TREE_TEMPLATE_ID=tt.TREE_TEMPLATE_ID "
+            + "LEFT JOIN vw_node_type nt on nt.NODE_TYPE_ID=ttn.NODE_TYPE_ID "
             + "LEFT JOIN vw_tree_template_level tl ON tt.TREE_TEMPLATE_ID=tl.TREE_TEMPLATE_ID "
             + "LEFT JOIN vw_unit u ON tl.UNIT_ID=u.UNIT_ID "
             + "LEFT JOIN vw_realm r ON tt.REALM_ID=r.REALM_ID "
             + "LEFT JOIN vw_forecast_method fm ON tt.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
             + "LEFT JOIN us_user cb ON tt.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
+            + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "where ttn.SORT_ORDER=0 ";
 
     @Override
     public List<TreeTemplate> getTreeTemplateList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlBuilder = new StringBuilder(treeTemplateSql);
         if (active) {
-            sqlBuilder.append(" WHERE tt.ACTIVE ");
+            sqlBuilder.append(" AND tt.ACTIVE ");
         }
         sqlBuilder.append(" ORDER BY tt.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), new TreeTemplateListResultSetExtractor());
@@ -98,7 +102,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "          tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
                 + "          pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "
                 + "          ut.USAGE_TYPE_ID, ut.LABEL_ID `UT_LABEL_ID`, ut.LABEL_EN `UT_LABEL_EN`, ut.LABEL_FR `UT_LABEL_FR`, ut.LABEL_SP `UT_LABEL_SP`, ut.LABEL_PR `UT_LABEL_PR`, "
-                + "          ttndf.ONE_TIME_USAGE, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
+                + "          ttndf.ONE_TIME_USAGE, ttndf.ONE_TIME_DISPENSING, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
                 + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
                 + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
@@ -132,7 +136,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
     @Override
     public TreeTemplate getTreeTemplateById(int treeTemplateId, CustomUserDetails curUser) {
-        String sql = treeTemplateSql + "WHERE tt.TREE_TEMPLATE_ID=:treeTemplateId ORDER BY tt.LABEL_EN";
+        String sql = treeTemplateSql + "AND tt.TREE_TEMPLATE_ID=:treeTemplateId ORDER BY tt.LABEL_EN";
         Map<String, Object> params = new HashMap<>();
         params.put("treeTemplateId", treeTemplateId);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateResultSetExtractor());
@@ -218,6 +222,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
+                            nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -226,6 +231,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
+                            nodeParams.put("ONE_TIME_DISPENSING",true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -431,6 +437,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
+                            nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -439,6 +446,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
+                            nodeParams.put("ONE_TIME_DISPENSING",true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -537,7 +545,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
     @Override
     public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sql = treeTemplateSql + " WHERE tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
+        String sql = treeTemplateSql + " AND tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());

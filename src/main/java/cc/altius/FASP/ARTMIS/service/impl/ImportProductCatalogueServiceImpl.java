@@ -39,9 +39,9 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
-    @Value("${catalogFilePath}")
+    @Value("${qat.catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${email.catalogToList}")
     private String toList;

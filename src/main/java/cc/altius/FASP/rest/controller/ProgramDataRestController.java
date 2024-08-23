@@ -6,13 +6,13 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
@@ -55,16 +55,6 @@ public class ProgramDataRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private EmailService emailService;
-//    @Value("${qat.filePath}")
-//    private String QAT_FILE_PATH;
-//    @Value("${exportSupplyPlanFilePath}")
-//    private String EXPORT_SUPPLY_PLAN_FILE_PATH;
-//    @Value("${email.toList}")
-//    private String toList;
-//    @Value("${email.ccList}")
-//    private String ccList;
 
     @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
@@ -86,16 +76,17 @@ public class ProgramDataRestController {
 
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
-    public ResponseEntity getLoadProgramData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
+    public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<ProgramData> masters = this.programDataService.getProgramData(programVersionList, curUser);
+            List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInputList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
-            if(isCompress(jsonString)){
+            if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(masters, HttpStatus.OK);
             }
-            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -108,42 +99,41 @@ public class ProgramDataRestController {
         }
     }
 
-    @JsonView(Views.ArtmisView.class)
-    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, true), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @JsonView(Views.GfpVanView.class)
-    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, true), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+//    @JsonView(Views.ArtmisView.class)
+//    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @JsonView(Views.GfpVanView.class)
+//    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
@@ -195,76 +185,9 @@ public class ProgramDataRestController {
 
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
     public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
-//        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
-//        String[] subjectParam = new String[]{};
-//        String[] bodyParam = null;
-//        Emailer emailer = new Emailer();
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
-//        String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            //Generate supply plan files
-//            if (versionStatusId == 2) {
-//                File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
-//                if (directory.isDirectory()) {
-//                    try {
-//                        ProgramData programData = this.programDataService.getProgramData(programId, versionId, curUser);
-//                        ObjectMapper mapper = new ObjectMapper();
-//                        String json = mapper
-//                                .writerWithView(Views.ArtmisView.class)
-//                                .writeValueAsString(programData);
-//                        System.out.println("json---" + json);
-//                        String path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_SupplyPlan_" + StringUtils.leftPad(Integer.toString(programData.getProgramId()), 8, "0") + ".json";
-//                        FileWriter fileWriter = new FileWriter(path);
-//                        fileWriter.write(json);
-//                        fileWriter.flush();
-//                        fileWriter.close();
-//                        logger.info("Export supply plan successful");
-//                    } catch (FileNotFoundException e) {
-//                        subjectParam = new String[]{"supply plan", "File not found"};
-//                        bodyParam = new String[]{"supply plan", date, "File not found", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("File not found exception occured", e);
-//                    } catch (IOException e) {
-//                        subjectParam = new String[]{"supply plan", "Input/Output error"};
-//                        bodyParam = new String[]{"supply plan", date, "Input/Output error", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("IO exception occured", e);
-//                    } catch (BadSqlGrammarException e) {
-//                        subjectParam = new String[]{"supply plan", "SQL Exception"};
-//                        bodyParam = new String[]{"supply plan", date, "SQL Exception", e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("SQL exception occured", e);
-//                    } catch (Exception e) {
-//                        subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
-//                        bodyParam = new String[]{"supply plan", date, e.getClass().getName().toString(), e.getMessage()};
-//                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                        int emailerId = this.emailService.saveEmail(emailer);
-//                        emailer.setEmailerId(emailerId);
-//                        this.emailService.sendMail(emailer);
-//                        logger.error("Export supply plan exception occured", e);
-//                    }
-//                } else {
-//                    subjectParam = new String[]{"supply plan", "Directory does not exists"};
-//                    bodyParam = new String[]{"supply plan", date, "Directory does not exists", "Directory does not exists"};
-//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//                    int emailerId = this.emailService.saveEmail(emailer);
-//                    emailer.setEmailerId(emailerId);
-//                    this.emailService.sendMail(emailer);
-//                    logger.error("Directory does not exists");
-//                }
-//
-//            }
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion.getNotes(), curUser, updateProgramVersion.getReviewedProblemList()), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -277,6 +200,24 @@ public class ProgramDataRestController {
         }
     }
 
+    @PutMapping("/programVersion/resetProblem")
+    public ResponseEntity resetProblemForProgramIds(@RequestBody int[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.programDataService.resetProblemListForPrograms(programIds, curUser);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
     public ResponseEntity checkErpOrder(
             @PathVariable(value = "orderNo", required = true) String orderNo,
@@ -393,6 +334,24 @@ public class ProgramDataRestController {
         try {
             String programIdsString = getProgramIds(programIds);
             return new ResponseEntity(this.programService.getLatestVersionForPrograms(programIdsString), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})
+    public ResponseEntity getProgramVersionTrans(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = false) int versionId, Authentication auth) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            if (versionId == 0) {
+                versionId = -1;
+            }
+            return new ResponseEntity(this.programDataService.getProgramVersionTrans(programId, versionId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get latest version for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

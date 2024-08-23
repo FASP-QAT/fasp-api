@@ -48,7 +48,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.commitRequestPath}")
     private String QAT_COMMIT_REQUEST_PATH;

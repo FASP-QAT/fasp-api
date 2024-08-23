@@ -39,9 +39,9 @@ public class ExportOrderIdsCsv {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private EmailService emailService;
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
-    @Value("${exportSupplyPlanFilePath}")
+    @Value("${qat.exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
     @Value("${email.exportToList}")
     private String toList;
@@ -107,7 +107,7 @@ public class ExportOrderIdsCsv {
                     fileWriter.append(',');
                     fileWriter.append(e.getProcurementAgentCode());
                     fileWriter.append(',');
-                    fileWriter.append(Integer.toString(e.getShipmentQty()));
+                    fileWriter.append(Long.toString(e.getShipmentQty()));
                     fileWriter.append(',');
                     fileWriter.append(DateUtils.formatDate(e.getExpectedDeliveryDate(), DateUtils.YMD));
                     fileWriter.append(',');

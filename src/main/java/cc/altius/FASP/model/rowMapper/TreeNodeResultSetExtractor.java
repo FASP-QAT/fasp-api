@@ -148,6 +148,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
                 tndf.setNoOfForecastingUnitsPerPerson(rs.getDouble("FORECASTING_UNITS_PER_PERSON"));
                 tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
+                tndf.setOneTimeDispensing(rs.getBoolean("ONE_TIME_DISPENSING"));
+                if (rs.wasNull()) {
+                    tndf.setOneTimeDispensing(null);
+                }
                 if (tndf.isOneTimeUsage() != true) {
                     tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
                     tndf.setUsagePeriod(new UsagePeriod(rs.getInt("UPF_USAGE_PERIOD_ID"), new LabelRowMapper("UPF_").mapRow(rs, count), rs.getDouble("UPF_CONVERT_TO_MONTH")));
