@@ -37,6 +37,7 @@ public class MastersSync implements Serializable {
     private List<ProcurementUnit> procurementUnitList;
     private List<RealmCountryPlanningUnit> realmCountryPlanningUnitList;
     private List<ProcurementAgentPlanningUnit> procurementAgentPlanningUnitList;
+    private List<ProcurementAgentForecastingUnit> procurementAgentForecastingUnitList;
     private List<ProcurementAgentProcurementUnit> procurementAgentProcurementUnitList;
     private List<Program> programList;
     private List<Region> regionList;
@@ -234,6 +235,14 @@ public class MastersSync implements Serializable {
 
     public void setProcurementAgentPlanningUnitList(List<ProcurementAgentPlanningUnit> procurementAgentPlanningUnitList) {
         this.procurementAgentPlanningUnitList = procurementAgentPlanningUnitList;
+    }
+
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitList() {
+        return procurementAgentForecastingUnitList;
+    }
+
+    public void setProcurementAgentForecastingUnitList(List<ProcurementAgentForecastingUnit> procurementAgentForecastingUnitList) {
+        this.procurementAgentForecastingUnitList = procurementAgentForecastingUnitList;
     }
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList() {
