@@ -64,7 +64,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Autowired
     private AclService aclService;
 
-    private String procurementAgentSqlString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
+    private String procurementAgentSqlString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE,pa.COLOR_HTML_DARK_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
             + " r.REALM_ID, r.REALM_CODE, r.`LABEL_ID` `REALM_LABEL_ID` ,r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`,"
             + " pa.`LABEL_ID` ,pa.`LABEL_EN`, pa.`LABEL_FR`, pa.`LABEL_PR`, pa.`LABEL_SP`,"
             + " pat.PROCUREMENT_AGENT_TYPE_ID, pat.PROCUREMENT_AGENT_TYPE_CODE, pat.`LABEL_ID` `PAT_LABEL_ID`, pat.`LABEL_EN` `PAT_LABEL_EN`, pat.`LABEL_FR` `PAT_LABEL_FR`, pat.`LABEL_PR` `PAT_LABEL_PR`, pat.`LABEL_SP` `PAT_LABEL_SP`, "
