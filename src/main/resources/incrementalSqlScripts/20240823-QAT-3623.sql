@@ -4,7 +4,7 @@ ADD COLUMN `COLOR_HTML_DARK_CODE` VARCHAR(7) NOT NULL AFTER `COLOR_HTML_CODE`;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_procurement_agent` AS
     SELECT 
