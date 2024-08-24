@@ -825,7 +825,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
-        SimpleJdbcInsert siPafu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_forecasting_unit");
+        SimpleJdbcInsert siPafu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_forecasting_unit").usingGeneratedKeyColumns("PROCURMENT_AGENT_FORECASTING_UNIT");
         Map<String, Object> labelParams = new HashMap<>();
         Map<String, Object> forecastingUnitParams = new HashMap<>();
         Map<String, Object> pafuParams = new HashMap<>();
@@ -857,6 +857,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         pafuParams.put("ACTIVE", true);
         pafuParams.put("CREATED_BY", curUserId);
         pafuParams.put("CREATED_DATE", curDate);
+        pafuParams.put("LAST_MODIFIED_BY", curUserId);
+        pafuParams.put("LAST_MODIFIED_DATE", curDate);
 
         for (ForecastingUnitArtmisPull fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitArtmisPullRowMapper())) {
             try {
@@ -1522,9 +1524,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         Arrays.sort(files, new FileNameComparator());
         logger.info("Going to start product catalogue import");
         sb.append("Going to start product catalogue import").append(br);
-        sqlString = "DROP TEMPORARY TABLE IF EXISTS `temp_product_catalog_fu`";
+        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_fu`";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "CREATE TEMPORARY TABLE `temp_product_catalog_fu` ( "
+        sqlString = "CREATE TABLE `temp_product_catalog_fu` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
                 + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
@@ -1542,9 +1544,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "  PRIMARY KEY (`ID`) "
                 + ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "DROP TEMPORARY TABLE IF EXISTS `temp_product_catalog_pu`";
+        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_pu`";
         this.jdbcTemplate.update(sqlString);
-        sqlString = "CREATE TEMPORARY TABLE `temp_product_catalog_pu` ( "
+        sqlString = "CREATE TABLE `temp_product_catalog_pu` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
                 + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
@@ -1914,6 +1916,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "drop table if exists `rm_procurement_agent_forecasting_unit`;";
         this.jdbcTemplate.update(sqlString);
         sqlString = "CREATE TABLE `rm_procurement_agent_forecasting_unit` ( "
+                + "  `PROCUREMENT_AGENT_FORECASTING_UNIT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,"
                 + "  `FORECASTING_UNIT_ID` int(10) unsigned NOT NULL, "
                 + "  `PROCUREMENT_AGENT_ID` int(10) unsigned NOT NULL, "
                 + "  `SKU_CODE` varchar(9) NOT NULL, "

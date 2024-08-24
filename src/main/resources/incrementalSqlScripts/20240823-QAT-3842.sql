@@ -33,3 +33,31 @@ ADD CONSTRAINT `fk_rm_procurement_agent_forecasting_unit_lmb`
   REFERENCES `fasp`.`us_user` (`USER_ID`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
+
+insert into ap_label values(null,"Map Forecasting Unit","","","",1,now(),1,now(),24);
+select max(l.LABEL_ID) into @max1 from ap_label l ;
+insert into us_business_function values ('ROLE_BF_MAP_FORECASTING_UNIT',@max1,1,now(),1,now());
+insert into us_role_business_function values (null,'ROLE_INTERNAL_USER','ROLE_BF_MAP_FORECASTING_UNIT',1,now(),1,now());
+insert into us_role_business_function values (null,'ROLE_REALM_ADMIN','ROLE_BF_MAP_FORECASTING_UNIT',1,now(),1,now());
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.mapForecastingUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Map Forecasting Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de prévision cartographique');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de pronóstico de mapas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Map Forecasting Unit');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.procurementAgentForecastingUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurement Agent Forecasting Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de prévision de l`agent d`approvisionnement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de pronóstico del agente de adquisiciones');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Previsão do Agente de Compras');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.planningUnit.duplicateForecastingUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate Forecasting Unit Details Found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Détails de l`unité de prévision en double trouvés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se encontraron detalles duplicados de la unidad de pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Detalhes da Unidade de Previsão Duplicados Encontrados');-- pr
