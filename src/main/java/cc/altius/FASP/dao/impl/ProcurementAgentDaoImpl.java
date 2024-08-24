@@ -100,13 +100,14 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 //        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_agent").usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
         SimpleJdbcInsert si;
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent")
-                .usingColumns("PROCUREMENT_AGENT_CODE", "COLOR_HTML_CODE", "REALM_ID", "LABEL_ID", "PROCUREMENT_AGENT_TYPE_ID", "SUBMITTED_TO_APPROVED_LEAD_TIME",
+                .usingColumns("PROCUREMENT_AGENT_CODE", "COLOR_HTML_CODE","COLOR_HTML_DARK_CODE", "REALM_ID", "LABEL_ID", "PROCUREMENT_AGENT_TYPE_ID", "SUBMITTED_TO_APPROVED_LEAD_TIME",
                         "APPROVED_TO_SHIPPED_LEAD_TIME", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE")
                 .usingGeneratedKeyColumns("PROCUREMENT_AGENT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
         params.put("COLOR_HTML_CODE", p.getColorHtmlCode());
+        params.put("COLOR_HTML_DARK_CODE", p.getColorHtmlDarkCode());
         params.put("REALM_ID", curUser.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
@@ -165,6 +166,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("procurementAgentCode", p.getProcurementAgentCode());
         params.put("procurementAgentTypeId", p.getProcurementAgentType().getId());
         params.put("colorHtmlCode", p.getColorHtmlCode());
+        params.put("colorHtmlDarkCode", p.getColorHtmlDarkCode());
         params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
         params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
         params.put("active", p.isActive());
@@ -174,6 +176,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " pa.PROCUREMENT_AGENT_CODE=:procurementAgentCode, "
                 + " pa.PROCUREMENT_AGENT_TYPE_ID=:procurementAgentTypeId, "
                 + " pa.COLOR_HTML_CODE=:colorHtmlCode, "
+                + " pa.COLOR_HTML_DARK_CODE=:colorHtmlDarkCode, "
                 + " pa.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + " pa.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                 + " pa.ACTIVE=:active, "
