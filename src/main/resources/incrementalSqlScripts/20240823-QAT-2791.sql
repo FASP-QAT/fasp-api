@@ -66,7 +66,16 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extrapolar ARIMA y TES
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.extrapolation','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Extraploations');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extraploations');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extraploações');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extraploaciones');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Extrapolations');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extrapolations');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extrapolações');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extrapolaciones');-- sp
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.bulkExtrapolationNotPossible','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Extrapolation not possible as selected program planning units does not have enough data');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extrapolation impossible car les unités de planification du programme sélectionnées ne disposent pas de suffisamment de données');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A extrapolação não é possível porque as unidades de planejamento do programa selecionadas não possuem dados suficientes');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La extrapolación no es posible porque las unidades de planificación de programas seleccionadas no tienen datos suficientes');-- sp
