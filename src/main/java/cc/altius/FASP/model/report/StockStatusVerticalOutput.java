@@ -78,7 +78,7 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private int planBasedOn; //1- MoS , 2- Qty
     @JsonView(Views.ReportView.class)
-    private int distributionLeadTime;
+    private Integer distributionLeadTime;
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -293,11 +293,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.planBasedOn = planBasedOn;
     }
 
-    public int getDistributionLeadTime() {
+    public Integer getDistributionLeadTime() {
         return distributionLeadTime;
     }
 
-    public void setDistributionLeadTime(int distributionLeadTime) {
+    public void setDistributionLeadTime(Integer distributionLeadTime) {
         this.distributionLeadTime = distributionLeadTime;
     }
 

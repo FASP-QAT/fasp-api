@@ -360,11 +360,11 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
-        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        params.put("reportingUnitId", ssv.getReportingUnitId());
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programId", ssv.getProgramId());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
     }
 
     // Report no 16a

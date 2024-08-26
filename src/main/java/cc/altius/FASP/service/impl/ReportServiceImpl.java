@@ -226,7 +226,7 @@ public class ReportServiceImpl implements ReportService {
                         ssvoList.get(idx).getInventoryInfo().add(i);
                     }
                 });
-                map.put(program.getId() + "~" + ssvoList.get(0).getReportingUnit(), ssvoList);
+                map.put(program.getId() + "~" + ssvoList.get(0).getReportingUnit().getId(), ssvoList);
             }
         }
         return map;

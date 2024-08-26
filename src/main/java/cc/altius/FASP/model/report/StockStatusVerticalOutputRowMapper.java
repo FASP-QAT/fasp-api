@@ -75,11 +75,11 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setMos(null);
                 }
-                ssv.setMinMos(rs.getDouble("MIN_MONTHS_OF_STOCK"));
+                ssv.setMinMos(rs.getDouble("MIN_STOCK_MOS"));
                 if (rs.wasNull()) {
                     ssv.setMinMos(null);
                 }
-                ssv.setMaxMos(rs.getDouble("MAX_MONTHS_OF_STOCK"));
+                ssv.setMaxMos(rs.getDouble("MAX_STOCK_MOS"));
                 if (rs.wasNull()) {
                     ssv.setMinMos(null);
                 }
@@ -99,6 +99,9 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 ssv.setRegionCount(rs.getInt("REGION_COUNT"));
                 ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 ssv.setDistributionLeadTime(rs.getInt("DISTRIBUTION_LEAD_TIME"));
+                if (rs.wasNull()) {
+                    ssv.setDistributionLeadTime(null);
+                }
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);
@@ -110,6 +113,8 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                         rs.getLong("SHIPMENT_QTY"), // in terms of ReportingUnit
                         new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")),
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
+                        new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")),
+                        new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, 1)),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)),
                         rs.getString("NOTES"),
                         rs.getString("ORDER_NO"),
