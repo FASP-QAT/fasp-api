@@ -67,6 +67,8 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     private int regionCountForStock;
     @JsonView(Views.ReportView.class)
     private Long nationalAdjustment;
+    @JsonView(Views.ReportView.class)
+    private int planBasedOn;
 
     public StockStatusVerticalAggregateOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -239,6 +241,14 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
 
     public void setInventoryInfo(List<InventoryInfo> inventoryInfo) {
         this.inventoryInfo = inventoryInfo;
+    }
+
+    public int getPlanBasedOn() {
+        return planBasedOn;
+    }
+
+    public void setPlanBasedOn(int planBasedOn) {
+        this.planBasedOn = planBasedOn;
     }
 
     @Override

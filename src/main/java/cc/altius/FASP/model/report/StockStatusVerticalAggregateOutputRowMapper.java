@@ -79,6 +79,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
                 if (rs.wasNull()) {
                     ssv.setUnmetDemand(null);
                 }
+                ssv.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
                 ssv.setRegionCount(rs.getInt("REGION_COUNT"));
                 ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 ssvList.add(ssv);
