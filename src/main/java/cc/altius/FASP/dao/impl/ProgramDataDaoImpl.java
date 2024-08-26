@@ -2484,10 +2484,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         if (rebuild == true) {
             logger.info("Going to start rebuild process");
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
+            // SP to get the SupplyPlan grouped on PlanningUnit and Region
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
             logger.info("Got the Supply Plan Region list from SP");
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
+            // Add the Batch information to the SupplyPlan
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
             logger.info("Got the Supply Plan Batch list from SP");
             // Build the Supply Plan over here
@@ -2583,7 +2585,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("ADJUSTMENT_MULTIPLIED_QTY", bd.getAdjustment());
                     b1.addValue("STOCK_MULTIPLIED_QTY", bd.getStock());
                     b1.addValue("ALL_REGIONS_REPORTED_STOCK", bd.isAllRegionsReportedStock());
-                    b1.addValue("USE_ADJUSTMENT", bd.isUseAdjustment());
                     b1.addValue("OPENING_BALANCE", bd.getOpeningBalance());
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
