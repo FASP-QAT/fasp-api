@@ -25,7 +25,6 @@ public class BatchData implements Serializable {
     private Long stock;
 
     private boolean allRegionsReportedStock;
-    private boolean useAdjustment;
     private boolean useActualConsumption;
 
     private long openingBalance;
@@ -126,14 +125,6 @@ public class BatchData implements Serializable {
 
     public void setAllRegionsReportedStock(boolean allRegionsReportedStock) {
         this.allRegionsReportedStock = allRegionsReportedStock;
-    }
-
-    public boolean isUseAdjustment() {
-        return useAdjustment;
-    }
-
-    public void setUseAdjustment(boolean useAdjustment) {
-        this.useAdjustment = useAdjustment;
     }
 
     public boolean isUseActualConsumption() {

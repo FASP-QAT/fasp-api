@@ -58,7 +58,6 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             }
             bd.setAllRegionsReportedStock(nsp.isAllRegionsReportedStock());
             bd.setUseActualConsumption(nsp.isActualConsumptionFlag());
-            bd.setUseAdjustment(nsp.isUseAdjustment());
             nsp.getBatchDataList().add(bd);
         }
         return this.nspList;
