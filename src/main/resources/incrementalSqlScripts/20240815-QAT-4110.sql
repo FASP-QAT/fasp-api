@@ -235,10 +235,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão total seleci
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.note','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Graph and data table only update after submitting');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : le graphique et le tableau de données ne sont mis à jour qu`après la soumission');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: El gráfico y la tabla de datos solo se actualizan después del envío');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: O gráfico e a tabela de dados só são atualizados após o envio');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Calculated values in the graph and data table only update after submitting');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : les valeurs calculées dans le graphique et le tableau de données ne sont mises à jour qu`après la soumission');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Los valores calculados en el gráfico y la tabla de datos solo se actualizan después del envío');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Os valores calculados no gráfico e na tabela de dados são atualizados somente após o envio');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastSummaryTooltip.selectForecast','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
