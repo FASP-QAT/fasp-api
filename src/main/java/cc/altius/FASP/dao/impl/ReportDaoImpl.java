@@ -98,9 +98,9 @@ import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
-import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputRowMapper;
-import cc.altius.FASP.model.report.StockStatusVerticalOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
+import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutputResultSetExtractor;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutputRowMapper;
@@ -356,7 +356,7 @@ public class ReportDaoImpl implements ReportDao {
 
     // Report no 16
     @Override
-    public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+    public StockStatusVerticalIndividualOutput getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
@@ -364,7 +364,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programId", ssv.getProgramId());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalIndividualOutputResultSetExtractor());
     }
 
     // Report no 16a

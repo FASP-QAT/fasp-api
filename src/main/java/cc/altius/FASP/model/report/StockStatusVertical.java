@@ -7,7 +7,6 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -23,14 +22,13 @@ import java.util.Objects;
  *
  * @author akil
  */
-public class StockStatusVerticalOutput implements Serializable {
+public class StockStatusVertical implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date dt;
-    @JsonView(Views.ReportView.class)
-    private SimpleObject reportingUnit; // PU, ARU or EU
+
     @JsonView(Views.ReportView.class)
     private Long openingBalance;
     @JsonView(Views.ReportView.class)
@@ -43,12 +41,6 @@ public class StockStatusVerticalOutput implements Serializable {
     private Long finalConsumptionQty;
     @JsonView(Views.ReportView.class)
     private Long shipmentQty;
-    @JsonView(Views.ReportView.class)
-    private List<ShipmentInfo> shipmentInfo;
-    @JsonView(Views.ReportView.class)
-    private List<ConsumptionInfo> consumptionInfo;
-    @JsonView(Views.ReportView.class)
-    private List<InventoryInfo> inventoryInfo;
     @JsonView(Views.ReportView.class)
     private Long adjustment;
     @JsonView(Views.ReportView.class)
@@ -76,21 +68,15 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double maxStock;
     @JsonView(Views.ReportView.class)
-    private int planBasedOn; //1- MoS , 2- Qty
-    @JsonView(Views.ReportView.class)
-    private Integer distributionLeadTime;
+    private List<ShipmentInfo> shipmentInfo;
 
-    public StockStatusVerticalOutput() {
+    public StockStatusVertical() {
         this.shipmentInfo = new LinkedList<>();
-        this.consumptionInfo = new LinkedList<>();
-        this.inventoryInfo = new LinkedList<>();
     }
 
-    public StockStatusVerticalOutput(Date dt) {
+    public StockStatusVertical(Date dt) {
         this.dt = dt;
         this.shipmentInfo = new LinkedList<>();
-        this.consumptionInfo = new LinkedList<>();
-        this.inventoryInfo = new LinkedList<>();
     }
 
     public Date getDt() {
@@ -99,14 +85,6 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setDt(Date dt) {
         this.dt = dt;
-    }
-
-    public SimpleObject getReportingUnit() {
-        return reportingUnit;
-    }
-
-    public void setReportingUnit(SimpleObject reportingUnit) {
-        this.reportingUnit = reportingUnit;
     }
 
     public Long getOpeningBalance() {
@@ -245,30 +223,6 @@ public class StockStatusVerticalOutput implements Serializable {
         this.nationalAdjustment = nationalAdjustment;
     }
 
-    public List<ShipmentInfo> getShipmentInfo() {
-        return shipmentInfo;
-    }
-
-    public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
-        this.shipmentInfo = shipmentInfo;
-    }
-
-    public List<ConsumptionInfo> getConsumptionInfo() {
-        return consumptionInfo;
-    }
-
-    public void setConsumptionInfo(List<ConsumptionInfo> consumptionInfo) {
-        this.consumptionInfo = consumptionInfo;
-    }
-
-    public List<InventoryInfo> getInventoryInfo() {
-        return inventoryInfo;
-    }
-
-    public void setInventoryInfo(List<InventoryInfo> inventoryInfo) {
-        this.inventoryInfo = inventoryInfo;
-    }
-
     public Double getMinStock() {
         return minStock;
     }
@@ -284,21 +238,13 @@ public class StockStatusVerticalOutput implements Serializable {
     public void setMaxStock(Double maxStock) {
         this.maxStock = maxStock;
     }
-
-    public int getPlanBasedOn() {
-        return planBasedOn;
+    
+    public List<ShipmentInfo> getShipmentInfo() {
+        return shipmentInfo;
     }
 
-    public void setPlanBasedOn(int planBasedOn) {
-        this.planBasedOn = planBasedOn;
-    }
-
-    public Integer getDistributionLeadTime() {
-        return distributionLeadTime;
-    }
-
-    public void setDistributionLeadTime(Integer distributionLeadTime) {
-        this.distributionLeadTime = distributionLeadTime;
+    public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
+        this.shipmentInfo = shipmentInfo;
     }
 
     @Override
@@ -310,7 +256,6 @@ public class StockStatusVerticalOutput implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 91 * hash + Objects.hashCode(this.dt);
-        hash = 91 * hash + Objects.hashCode(this.reportingUnit);
         return hash;
     }
 
@@ -326,7 +271,7 @@ public class StockStatusVerticalOutput implements Serializable {
             return false;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
+        final StockStatusVertical other = (StockStatusVertical) obj;
         if (!Objects.equals(sdf.format(this.dt), sdf.format(other.dt))) {
             return false;
         }
