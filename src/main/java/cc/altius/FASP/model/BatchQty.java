@@ -14,15 +14,34 @@ import java.io.Serializable;
 public class BatchQty implements Serializable {
 
     @JsonView({Views.InternalView.class})
-    private SimpleCodeObject batch;
+    private int batchInventoryTransId;
+    @JsonView({Views.InternalView.class})
+    private Batch batch;
     @JsonView({Views.InternalView.class})
     private Integer qty;
 
-    public SimpleCodeObject getBatch() {
+    public BatchQty() {
+    }
+
+    public BatchQty(int batchInventoryTransId, Batch batch, Integer qty) {
+        this.batchInventoryTransId = batchInventoryTransId;
+        this.batch = batch;
+        this.qty = qty;
+    }
+
+    public int getBatchInventoryTransId() {
+        return batchInventoryTransId;
+    }
+
+    public void setBatchInventoryTransId(int batchInventoryTransId) {
+        this.batchInventoryTransId = batchInventoryTransId;
+    }
+
+    public Batch getBatch() {
         return batch;
     }
 
-    public void setBatch(SimpleCodeObject batch) {
+    public void setBatch(Batch batch) {
         this.batch = batch;
     }
 

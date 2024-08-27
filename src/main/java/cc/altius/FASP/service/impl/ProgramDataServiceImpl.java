@@ -75,6 +75,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive, null));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive, null));
         pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(programId, versionId, null));
+        pd.setBatchInventoryList(this.programDataDao.getBatchInventoryList(programId, versionId, planningUnitActive, null));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive, null));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive, null));
@@ -97,6 +98,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false, pv.getCutOffDate()));
             pd.setShipmentLinkingList(this.programDataDao.getShipmentLinkingList(pv.getProgramId(), versionId, pv.getCutOffDate()));
+            pd.setBatchInventoryList(this.programDataDao.getBatchInventoryList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
