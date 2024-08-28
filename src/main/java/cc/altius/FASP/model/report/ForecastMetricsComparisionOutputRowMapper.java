@@ -48,6 +48,10 @@ public class ForecastMetricsComparisionOutputRowMapper implements RowMapper<Fore
         if (rs.wasNull()) {
             fmo.setActual(null);
         }
+        fmo.setForecastErrorThreshold(rs.getDouble("FORECAST_ERROR_THRESHOLD"));
+        if (rs.wasNull()) {
+            fmo.setForecastErrorThreshold(null);
+        }
         return fmo;
     }
 

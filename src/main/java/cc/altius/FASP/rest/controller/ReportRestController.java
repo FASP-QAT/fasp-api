@@ -645,7 +645,7 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * {"curUser": 20,"realmId": 1,"realmCountryIds": [5,51],"programIds": [2028,2029,2535],"planningUnitId": 2692,"startDate": 2019-01-01","stopDate": "2019-12-01","fundingSourceProcurementAgentIds": [],"reportView": 1,"useApprovedSupplyPlanOnly": 0,"includePlannedShipments": 1}
+     * {"curUser": 9,"realmId": 1,"realmCountryIds": [5,51],"programIds": [2028,2029,2535],"planningUnitId": 2613,"startDate": "2024-01-01","stopDate": "2024-12-01","fundingSourceProcurementAgentIds": [],"reportView": 4,"useApprovedSupplyPlanOnly": 0,"includePlannedShipments": 0}
      * </pre>
      *
      * @param sgd

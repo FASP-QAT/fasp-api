@@ -195,6 +195,9 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 // Program planning unit
                 sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
+                // Program Planning Unit Procurement Agent
+                sqlString = "UPDATE rm_program_planning_unit_procurement_agent p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
                 // Procurement agent planning unit
                 sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -230,8 +233,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PlanningUnitWithPrices> getPlanningUnitListWithPricesByIds(List<String> planningUnitIdList, CustomUserDetails curUser
-    ) {
+    public List<PlanningUnitWithPrices> getPlanningUnitListWithPricesByIds(List<String> planningUnitIdList, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForPuWithPrices);
         Map<String, Object> params = new HashMap<>();
         sqlStringBuilder.append(" AND FIND_IN_SET(pu.PLANNING_UNIT_ID, :puList) ");
@@ -689,5 +691,52 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
+
+//    @Override
+//    public List<PlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
+//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringSelect)
+//                .append(" FROM vw_program p ")
+//                .append(" LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID ")
+//                .append(" LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
+//                .append(" LEFT JOIN vw_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ")
+//                .append(" LEFT JOIN ap_label fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID  ")
+//                .append(" LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID  ")
+//                .append(" LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  ")
+//                .append(" LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  ")
+//                .append(" LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID ")
+//                .append(" LEFT JOIN us_user cb ON pu.CREATED_BY=cb.USER_ID  ")
+//                .append(" LEFT JOIN us_user lmb ON pu.LAST_MODIFIED_BY=lmb.USER_ID ")
+//                .append(" LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID ")
+//                .append(" WHERE ppu.PROGRAM_ID=:programId AND (:active=FALSE OR (ppu.ACTIVE=:active AND pu.ACTIVE=:active))");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("programId", programId);
+//        params.put("active", active);
+//        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
+//    }
+//
+//    @Override
+//    public List<PlanningUnit> getPlanningUnitListForDatasetId(int programId, int versionId, CustomUserDetails curUser) {
+//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringSelect)
+//                .append(" FROM vw_dataset p ")
+//                .append(" LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.VERSION_ID=:versionId ")
+//                .append(" LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ")
+//                .append(" LEFT JOIN vw_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ")
+//                .append(" LEFT JOIN ap_label fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID  ")
+//                .append(" LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID  ")
+//                .append(" LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  ")
+//                .append(" LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  ")
+//                .append(" LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID ")
+//                .append(" LEFT JOIN us_user cb ON pu.CREATED_BY=cb.USER_ID  ")
+//                .append(" LEFT JOIN us_user lmb ON pu.LAST_MODIFIED_BY=lmb.USER_ID ")
+//                .append(" LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID ")
+//                .append(" WHERE ppu.PROGRAM_ID=:programId AND (:active=FALSE OR (ppu.ACTIVE=:active AND pu.ACTIVE=:active))");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("programId", programId);
+//        params.put("active", true);
+//        params.put("versionId", versionId);
+//        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
+//    }
 
 }

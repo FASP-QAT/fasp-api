@@ -34,7 +34,9 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.ShipmentLinking;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -46,16 +48,18 @@ import java.util.List;
 public interface ProgramDataDao {
 
     public Version getVersionInfo(int programId, int versionId);
+    
+    public List<ProgramVersionTrans> getProgramVersionTrans(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive);
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
-    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive, String cutOffDate);
 
-    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
+    public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate);
 
-    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
     public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
 
@@ -63,7 +67,9 @@ public interface ProgramDataDao {
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);
+    
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
@@ -79,7 +85,7 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive);
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
