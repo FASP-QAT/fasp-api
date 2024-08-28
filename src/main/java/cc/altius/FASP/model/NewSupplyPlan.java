@@ -572,159 +572,181 @@ public class NewSupplyPlan implements Serializable {
     }
 
     public int updateBatchData(int newBatchCounter) {
-        long unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
-        long unallocatedLEFO = 0L - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
-        long unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
-        long unallocatedLEFOWps = 0L - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
+        Long inventoryQty=0L;
         for (int x = 0; x < getSizeOfBatchDataList(); x++) {
             BatchData bd = getBatchData(x);
-            long tempOB = bd.getOpeningBalance()
-                    - bd.getExpiredStock()
-                    + Optional.ofNullable(bd.getShipment()).orElse(0L);
-            long consumption = (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0);
-            long adjustment = Optional.ofNullable(bd.getAdjustment()).orElse(0L);
-            if (adjustment + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
-                if ((tempOB + adjustment) >= 0) {
-                    unallocatedLEFO += adjustment;
+            inventoryQty+=Optional.ofNullable(bd.getInventoryQty()).orElse(0L);
+        }
+        System.out.println("closing balance "+this.closingBalance+" Inventory qty"+inventoryQty);
+        if (this.closingBalance==inventoryQty) {
+            for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+                BatchData bd = getBatchData(x);
+                bd.setClosingBalance(Optional.ofNullable(bd.getInventoryQty()).orElse(0L));
+                bd.setClosingBalanceWps(bd.getClosingBalance());
+                bd.setUnallocatedFEFO(0);
+                bd.setUnallocatedFEFOWps(0);
+                bd.setUnallocatedLEFO(0);
+                bd.setUnallocatedLEFOWps(0);
+                bd.setCalculatedFEFO(0);
+                bd.setCalculatedFEFOWps(0);
+                bd.setCalculatedLEFO(0);
+                bd.setCalculatedLEFOWps(0);
+            }
+        } else {
+            long unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
+            long unallocatedLEFO = 0L - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
+            long unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
+            long unallocatedLEFOWps = 0L - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
+            for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+                BatchData bd = getBatchData(x);
+                long tempOB = bd.getOpeningBalance()
+                        - bd.getExpiredStock()
+                        + Optional.ofNullable(bd.getShipment()).orElse(0L);
+                long consumption = (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0);
+                long adjustment = Optional.ofNullable(bd.getAdjustment()).orElse(0L);
+                if (adjustment + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
+                    if ((tempOB + adjustment) >= 0) {
+                        unallocatedLEFO += adjustment;
+                    } else {
+                        unallocatedLEFO -= tempOB;
+                    }
                 } else {
-                    unallocatedLEFO -= tempOB;
+                    if ((tempOB + adjustment) >= 0) {
+                        unallocatedFEFO += adjustment;
+                    } else {
+                        unallocatedFEFO -= tempOB;
+                    }
                 }
-            } else {
-                if ((tempOB + adjustment) >= 0) {
-                    unallocatedFEFO += adjustment;
+
+                if ((tempOB - consumption + adjustment) >= 0) {
+                    unallocatedFEFO -= consumption;
                 } else {
-                    unallocatedFEFO -= tempOB;
+                    unallocatedFEFO -= tempOB + adjustment > 0 ? tempOB + adjustment : 0;
                 }
-            }
 
-            if ((tempOB - consumption + adjustment) >= 0) {
-                unallocatedFEFO -= consumption;
-            } else {
-                unallocatedFEFO -= tempOB + adjustment > 0 ? tempOB + adjustment : 0;
-            }
-
-            if (tempOB - consumption + adjustment > 0) {
-                bd.setClosingBalance(tempOB - consumption + adjustment);
-            } else {
-                bd.setClosingBalance(0);
-            }
+                if (tempOB - consumption + adjustment > 0) {
+                    bd.setClosingBalance(tempOB - consumption + adjustment);
+                } else {
+                    bd.setClosingBalance(0);
+                }
 
 //            WPS Calculations
-            long tempOBWps = bd.getOpeningBalanceWps()
-                    - bd.getExpiredStockWps()
-                    + Optional.ofNullable(bd.getShipmentWps()).orElse(0L);
-            if (adjustment + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
-                if ((tempOBWps + adjustment) >= 0) {
-                    unallocatedLEFOWps += adjustment;
-                } else {
-                    unallocatedLEFOWps -= tempOBWps;
-                }
-            } else {
-                if ((tempOBWps + adjustment) >= 0) {
-                    unallocatedFEFOWps += adjustment;
-                } else {
-                    unallocatedFEFOWps -= tempOBWps;
-                }
-            }
-
-            if ((tempOBWps - consumption + adjustment) >= 0) {
-                unallocatedFEFOWps -= consumption;
-            } else {
-                unallocatedFEFOWps -= tempOBWps + adjustment > 0 ? tempOBWps + adjustment : 0;
-            }
-
-            if (tempOBWps - consumption + adjustment > 0) {
-                bd.setClosingBalanceWps(tempOBWps - consumption + adjustment);
-            } else {
-                bd.setClosingBalanceWps(0);
-            }
-
-        }
-
-        if (unallocatedLEFO != 0) {
-            for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
-                if (unallocatedLEFO != 0) {
-                    BatchData bd = getBatchData(x);
-                    long tempCB = bd.getClosingBalance();
-                    bd.setUnallocatedLEFO(unallocatedLEFO);
-                    if (tempCB >= unallocatedLEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
-                        bd.setClosingBalance(tempCB - unallocatedLEFO);
-                        bd.setCalculatedLEFO(unallocatedLEFO);
-                        unallocatedLEFO = 0;
+                long tempOBWps = bd.getOpeningBalanceWps()
+                        - bd.getExpiredStockWps()
+                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0L);
+                if (adjustment + Optional.ofNullable(this.nationalAdjustment).orElse(0L) > 0) {
+                    if ((tempOBWps + adjustment) >= 0) {
+                        unallocatedLEFOWps += adjustment;
                     } else {
-                        bd.setClosingBalance(0);
-                        bd.setCalculatedLEFO(tempCB);
-                        unallocatedLEFO -= tempCB;
+                        unallocatedLEFOWps -= tempOBWps;
+                    }
+                } else {
+                    if ((tempOBWps + adjustment) >= 0) {
+                        unallocatedFEFOWps += adjustment;
+                    } else {
+                        unallocatedFEFOWps -= tempOBWps;
+                    }
+                }
+
+                if ((tempOBWps - consumption + adjustment) >= 0) {
+                    unallocatedFEFOWps -= consumption;
+                } else {
+                    unallocatedFEFOWps -= tempOBWps + adjustment > 0 ? tempOBWps + adjustment : 0;
+                }
+
+                if (tempOBWps - consumption + adjustment > 0) {
+                    bd.setClosingBalanceWps(tempOBWps - consumption + adjustment);
+                } else {
+                    bd.setClosingBalanceWps(0);
+                }
+
+            }
+
+            if (unallocatedLEFO != 0) {
+                for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
+                    if (unallocatedLEFO != 0) {
+                        BatchData bd = getBatchData(x);
+                        long tempCB = bd.getClosingBalance();
+                        bd.setUnallocatedLEFO(unallocatedLEFO);
+                        if (tempCB >= unallocatedLEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
+                            bd.setClosingBalance(tempCB - unallocatedLEFO);
+                            bd.setCalculatedLEFO(unallocatedLEFO);
+                            unallocatedLEFO = 0;
+                        } else {
+                            bd.setClosingBalance(0);
+                            bd.setCalculatedLEFO(tempCB);
+                            unallocatedLEFO -= tempCB;
+                        }
                     }
                 }
             }
-        }
 
-        if (unallocatedLEFOWps != 0) {
-            for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
-                if (unallocatedLEFOWps != 0) {
-                    BatchData bd = getBatchData(x);
-                    long tempCB = bd.getClosingBalanceWps();
-                    bd.setUnallocatedLEFOWps(unallocatedLEFOWps);
-                    if (tempCB >= unallocatedLEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
-                        bd.setClosingBalanceWps(tempCB - unallocatedLEFOWps);
-                        bd.setCalculatedLEFOWps(unallocatedLEFOWps);
-                        unallocatedLEFOWps = 0;
-                    } else {
-                        bd.setClosingBalanceWps(0);
-                        bd.setCalculatedLEFOWps(tempCB);
-                        unallocatedLEFOWps -= tempCB;
+            if (unallocatedLEFOWps != 0) {
+                for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
+                    if (unallocatedLEFOWps != 0) {
+                        BatchData bd = getBatchData(x);
+                        long tempCB = bd.getClosingBalanceWps();
+                        bd.setUnallocatedLEFOWps(unallocatedLEFOWps);
+                        if (tempCB >= unallocatedLEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
+                            bd.setClosingBalanceWps(tempCB - unallocatedLEFOWps);
+                            bd.setCalculatedLEFOWps(unallocatedLEFOWps);
+                            unallocatedLEFOWps = 0;
+                        } else {
+                            bd.setClosingBalanceWps(0);
+                            bd.setCalculatedLEFOWps(tempCB);
+                            unallocatedLEFOWps -= tempCB;
+                        }
                     }
                 }
             }
-        }
 
-        if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0) {
-            System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
-            BatchData bdNew = new BatchData();
-            bdNew.setBatchId(newBatchCounter);
-            bdNew.setShelfLife(this.shelfLife);
-            bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
-            bdNew.setOpeningBalance(0);
-            bdNew.setOpeningBalanceWps(0);
-            bdNew.setUnallocatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
-            bdNew.setCalculatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
-            bdNew.setUnallocatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
-            bdNew.setCalculatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
-            bdNew.setClosingBalance(unallocatedLEFO < 0 ? 0 - unallocatedLEFO : 0);
-            bdNew.setClosingBalanceWps(unallocatedLEFOWps < 0 ? 0 - unallocatedLEFOWps : 0);
-            bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
-            this.batchDataList.add(bdNew);
-            newBatchCounter--;
-        }
-
-        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
-            BatchData bd = getBatchData(x);
-            long tempCB = bd.getClosingBalance();
-            bd.setUnallocatedFEFO(unallocatedFEFO);
-            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
-                bd.setClosingBalance(tempCB - unallocatedFEFO);
-                bd.setCalculatedFEFO(unallocatedFEFO);
-                unallocatedFEFO = 0;
-            } else {
-                bd.setClosingBalance(0);
-                bd.setCalculatedFEFO(tempCB);
-                unallocatedFEFO -= tempCB;
+            if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0) {
+                System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
+                BatchData bdNew = new BatchData();
+                bdNew.setBatchId(newBatchCounter);
+                bdNew.setShelfLife(this.shelfLife);
+                bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
+                bdNew.setOpeningBalance(0);
+                bdNew.setOpeningBalanceWps(0);
+                bdNew.setUnallocatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
+                bdNew.setCalculatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
+                bdNew.setUnallocatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+                bdNew.setCalculatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+                bdNew.setClosingBalance(unallocatedLEFO < 0 ? 0 - unallocatedLEFO : 0);
+                bdNew.setClosingBalanceWps(unallocatedLEFOWps < 0 ? 0 - unallocatedLEFOWps : 0);
+                bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
+                this.batchDataList.add(bdNew);
+                newBatchCounter--;
             }
-        }
 
-        for (int x = 0; x < getSizeOfBatchDataList(); x++) {
-            BatchData bd = getBatchData(x);
-            long tempCB = bd.getClosingBalanceWps();
-            bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
-            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
-                bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
-                bd.setCalculatedFEFOWps(unallocatedFEFOWps);
-                unallocatedFEFOWps = 0;
-            } else {
-                bd.setClosingBalanceWps(0);
-                bd.setCalculatedFEFOWps(tempCB);
-                unallocatedFEFOWps -= tempCB;
+            for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+                BatchData bd = getBatchData(x);
+                long tempCB = bd.getClosingBalance();
+                bd.setUnallocatedFEFO(unallocatedFEFO);
+                if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
+                    bd.setClosingBalance(tempCB - unallocatedFEFO);
+                    bd.setCalculatedFEFO(unallocatedFEFO);
+                    unallocatedFEFO = 0;
+                } else {
+                    bd.setClosingBalance(0);
+                    bd.setCalculatedFEFO(tempCB);
+                    unallocatedFEFO -= tempCB;
+                }
+            }
+
+            for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+                BatchData bd = getBatchData(x);
+                long tempCB = bd.getClosingBalanceWps();
+                bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
+                if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
+                    bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
+                    bd.setCalculatedFEFOWps(unallocatedFEFOWps);
+                    unallocatedFEFOWps = 0;
+                } else {
+                    bd.setClosingBalanceWps(0);
+                    bd.setCalculatedFEFOWps(tempCB);
+                    unallocatedFEFOWps -= tempCB;
+                }
             }
         }
         return newBatchCounter;
