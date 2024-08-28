@@ -1259,7 +1259,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `BATCH_INVENTORY_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_ID` INT(10) NOT NULL, "
-                + "  `BATCH_QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_batch_inventory_trans_1_idx` (`BATCH_INVENTORY_ID` ASC), "
@@ -1275,7 +1275,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         for (BatchInventory bi : pd.getBatchInventoryList()) {
             Map<String, Object> tp = new HashMap<>();
             tp.put("ID", id);
-            tp.put("BATCH_INVENTORY_ID", (bi.getBatchInventoryId() == 0 ? null : bi.getBatchInventoryId()));
+            tp.put("BATCH_INVENTORY_ID", (bi.getBatchInventoryId() == 0 ? 0 : bi.getBatchInventoryId()));
             tp.put("PLANNING_UNIT_ID", bi.getPlanningUnit().getId());
             tp.put("INVENTORY_DATE", bi.getInventoryDate());
             tp.put("CREATED_BY", bi.getCreatedBy().getUserId());
@@ -1290,7 +1290,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_INVENTORY_TRANS_ID", (b.getBatchInventoryTransId() == 0 ? null : b.getBatchInventoryTransId()));
                 tb.put("PARENT_ID", id);
                 tb.put("BATCH_ID", b.getBatch().getBatchId());
-                tb.put("BATCH_QTY", b.getQty());
+                tb.put("QTY", b.getQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
             id++;
@@ -1308,7 +1308,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        }
         if (insertBatchList.size() > 0) {
             SqlParameterSource[] insertBatchInventoryTrans = new SqlParameterSource[insertBatchList.size()];
-            sqlString = "INSERT INTO tmp_batch_inventory_trans (PARENT_ID, BATCH_INVENTORY_ID, BATCH_INVENTORY_TRANS_ID, BATCH_ID, BATCH_QTY) VALUES (:PARENT_ID, :BATCH_INVENTORY_ID, :BATCH_INVENTORY_TRANS_ID, :BATCH_ID, :BATCH_QTY)";
+            sqlString = "INSERT INTO tmp_batch_inventory_trans (PARENT_ID, BATCH_INVENTORY_ID, BATCH_INVENTORY_TRANS_ID, BATCH_ID, QTY) VALUES (:PARENT_ID, :BATCH_INVENTORY_ID, :BATCH_INVENTORY_TRANS_ID, :BATCH_ID, :QTY)";
 //            try {
             logger.info(insertBatchList.size() + " batch inventory trans records going to be inserted into the tmp table");
             biCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertBatchInventoryTrans)).length;
@@ -1326,7 +1326,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(biCnt + " records updated the batchInventoryId for records that were matching in bi");
         params.clear();
 
-        sqlString = "UPDATE tmp_batch_inventory_trans tbit LEFT JOIN tmp_batch_inventory tbi ON tbit.PARENT_ID=tbi.ID SET tbit.BATCH_INVENTORY_ID=tbi.BATCH_INVENTORY_ID";
+        sqlString = "UPDATE tmp_batch_inventory_trans tbit LEFT JOIN tmp_batch_inventory tbi ON tbit.PARENT_ID=tbi.ID SET tbit.BATCH_INVENTORY_ID=tbi.BATCH_INVENTORY_ID WHERE tbi.BATCH_INVENTORY_ID IS NOT NULL";
         biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(biCnt + " records updated the batchInventoryId for records that were matching in biTrans");
         params.clear();
@@ -1383,7 +1383,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         biRows += biCnt;
         logger.info(biCnt + " records inserted into rm_batch_inventory_trans because of Case 1");
 
-        params.clear();
         // Case 2 - Flag the rows for changed records
         sqlString = "UPDATE tmp_batch_inventory tbi "
                 + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID "
@@ -1391,7 +1390,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID AND bi.MAX_VERSION_ID=bt.VERSION_ID AND tbit.BATCH_ID=bt.BATCH_ID AND bt.ACTIVE "
                 + "SET tbit.CHANGED=2 "
                 + "WHERE tbi.CHANGED=0 AND tbit.CHANGED=0 AND bt.BATCH_ID IS NULL";
-        params.put("programId", pd.getProgramId());
         biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(biCnt + " records flagged as Case 2 in rm_batch_inventory_trans");
 
@@ -1435,7 +1433,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         biRows += biCnt;
         logger.info(biCnt + " records inserted into rm_batch_inventory_trans becuase of Case 4");
         logger.info(biRows + " records inserted into rm_batch_inventory and rm_batch_inventory_trans");
-
+        params.clear();
         // #########################  Batch Inventory ########################################
         // #########################  Problem Report #########################################
         insertList.clear();

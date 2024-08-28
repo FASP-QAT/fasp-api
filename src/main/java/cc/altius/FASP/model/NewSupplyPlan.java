@@ -577,7 +577,7 @@ public class NewSupplyPlan implements Serializable {
             BatchData bd = getBatchData(x);
             inventoryQty+=Optional.ofNullable(bd.getInventoryQty()).orElse(0L);
         }
-        System.out.println("closing balance "+this.closingBalance+" Inventory qty"+inventoryQty);
+//        System.out.println("closing balance "+this.closingBalance+" Inventory qty"+inventoryQty);
         if (this.closingBalance==inventoryQty) {
             for (int x = 0; x < getSizeOfBatchDataList(); x++) {
                 BatchData bd = getBatchData(x);
