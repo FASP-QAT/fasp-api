@@ -13,6 +13,8 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AnnualTargetCalculator;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
+import cc.altius.FASP.model.BatchInventory;
+import cc.altius.FASP.model.BatchQty;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -73,6 +75,7 @@ import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.rowMapper.AnnualTargetCalculatorResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.BatchInventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
@@ -109,6 +112,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1220,6 +1224,219 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
         }
         // ###########################  Shipment Linking  ####################################
+        // #########################  Batch Inventory ########################################
+        int biRows = 0;
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_batch_inventory`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_batch_inventory`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_batch_inventory temporary table dropped");
+        sqlString = "CREATE TEMPORARY TABLE `tmp_batch_inventory` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `BATCH_INVENTORY_ID` INT UNSIGNED NULL, "
+                + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `INVENTORY_DATE` DATE NOT NULL, "
+                + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
+                + "  `CREATED_DATE` DATETIME NOT NULL, "
+                + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
+                + "  `VERSION_ID` INT(10) NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_batch_inventory_1_idx` (`BATCH_INVENTORY_ID` ASC), "
+                + "  INDEX `fk_tmp_batch_inventory_2_idx` (`PLANNING_UNIT_ID` ASC), "
+                + "  INDEX `fk_tmp_batch_inventory_3_idx` (`INVENTORY_DATE` ASC),"
+                + "  INDEX `fk_tmp_batch_inventory_4_idx` (`VERSION_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_batch_inventory temporary table created");
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_batch_inventory_trans`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_batch_inventory_trans`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_batch_inventory_trans temporary table dropped");
+        sqlString = "CREATE TEMPORARY TABLE `tmp_batch_inventory_trans` ( "
+                //        sqlString = "CREATE TABLE `tmp_batch_inventory_trans` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_INVENTORY_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_ID` INT(10) NOT NULL, "
+                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_batch_inventory_trans_1_idx` (`BATCH_INVENTORY_ID` ASC), "
+                + "  INDEX `fk_tmp_batch_inventory_trans_2_idx` (`BATCH_INVENTORY_TRANS_ID` ASC), "
+                + "  INDEX `fk_tmp_batch_inventory_trans_3_idx` (`BATCH_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_batch_inventory_trans temporary table created");
+        logger.info("Going to load all the BatchInventory into temp table");
+        insertList.clear();
+        insertBatchList.clear();
+        id = 1;
+        for (BatchInventory bi : pd.getBatchInventoryList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("ID", id);
+            tp.put("BATCH_INVENTORY_ID", (bi.getBatchInventoryId() == 0 ? 0 : bi.getBatchInventoryId()));
+            tp.put("PLANNING_UNIT_ID", bi.getPlanningUnit().getId());
+            tp.put("INVENTORY_DATE", bi.getInventoryDate());
+            tp.put("CREATED_BY", bi.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", bi.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", bi.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", bi.getLastModifiedDate());
+            tp.put("VERSION_ID", bi.getVersionId());
+            insertList.add(new MapSqlParameterSource(tp));
+            for (BatchQty b : bi.getBatchList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("BATCH_INVENTORY_ID", null);
+                tb.put("BATCH_INVENTORY_TRANS_ID", (b.getBatchInventoryTransId() == 0 ? null : b.getBatchInventoryTransId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_ID", b.getBatch().getBatchId());
+                tb.put("QTY", b.getQty());
+                insertBatchList.add(new MapSqlParameterSource(tb));
+            }
+            id++;
+        }
+        logger.info(id + " batch inventory records going to be inserted into the tmp table");
+
+        SqlParameterSource[] insertBatchInventory = new SqlParameterSource[insertList.size()];
+        sqlString = " INSERT INTO tmp_batch_inventory (ID, BATCH_INVENTORY_ID, PLANNING_UNIT_ID, INVENTORY_DATE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) VALUES (:ID, :BATCH_INVENTORY_ID, :PLANNING_UNIT_ID, :INVENTORY_DATE, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :VERSION_ID)";
+//        try {
+        int biCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertBatchInventory)).length;
+        logger.info(biCnt + " records imported into the tmp bi table");
+//        } catch (Exception e) {
+//            logger.info("Could not load the tmp consumption records going to throw a CouldNotSaveException");
+//            throw new CouldNotSaveException("Could not save Consumption data - " + e.getMessage());
+//        }
+        if (insertBatchList.size() > 0) {
+            SqlParameterSource[] insertBatchInventoryTrans = new SqlParameterSource[insertBatchList.size()];
+            sqlString = "INSERT INTO tmp_batch_inventory_trans (PARENT_ID, BATCH_INVENTORY_ID, BATCH_INVENTORY_TRANS_ID, BATCH_ID, QTY) VALUES (:PARENT_ID, :BATCH_INVENTORY_ID, :BATCH_INVENTORY_TRANS_ID, :BATCH_ID, :QTY)";
+//            try {
+            logger.info(insertBatchList.size() + " batch inventory trans records going to be inserted into the tmp table");
+            biCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertBatchInventoryTrans)).length;
+            logger.info(biCnt + " records imported into the tmp bi trans table");
+//            } catch (Exception e) {
+//                logger.info("Could not load the tmp consumption batch records going to throw a CouldNotSaveException");
+//                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+//            }
+        }
+        params.clear();
+
+        // Check for Condition where the record is showing as a new Record but actually it is not a new Record
+        sqlString = "UPDATE tmp_batch_inventory tbi LEFT JOIN rm_batch_inventory bi ON bi.PLANNING_UNIT_ID=tbi.PLANNING_UNIT_ID AND bi.INVENTORY_DATE=tbi.INVENTORY_DATE SET tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID WHERE tbi.BATCH_INVENTORY_ID=0 AND bi.BATCH_INVENTORY_ID IS NOT NULL";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(biCnt + " records updated the batchInventoryId for records that were matching in bi");
+        params.clear();
+
+        sqlString = "UPDATE tmp_batch_inventory_trans tbit LEFT JOIN tmp_batch_inventory tbi ON tbit.PARENT_ID=tbi.ID SET tbit.BATCH_INVENTORY_ID=tbi.BATCH_INVENTORY_ID WHERE tbi.BATCH_INVENTORY_ID IS NOT NULL";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(biCnt + " records updated the batchInventoryId for records that were matching in biTrans");
+        params.clear();
+
+        /**
+         * Case 1 - The batch_inventory is new Insert the batch inventory and
+         * the batch_inventory_trans
+         *
+         * Case 2 - The batch inventory is existing but the batch inventory
+         * trans is new so Insert those batches with the new values
+         *
+         * Case 3 - The batch inventory is existing and the batch inventory
+         * trans is present but the value is different Insert those batches with
+         * the new values
+         *
+         * Case 4 - The batch inventory is existing and the batch inventory
+         * trans is missing existing batches Insert those batches and mark them
+         * as Active = 0
+         */
+        if (version == null) {
+            params.put("programId", pd.getProgramId());
+            params.put("curUser", commitUser.getUserId());
+            params.put("curDate", curDate);
+            params.put("versionTypeId", pd.getVersionType().getId());
+            params.put("versionStatusId", pd.getVersionStatus().getId());
+            params.put("notes", pd.getNotes());
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, null, null, null, :curUser, :curDate, 0)";
+//                try {
+            version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+            logger.info(version + " is the new version no");
+//                } catch (Exception e) {
+//                    logger.info("Failed to get a new version no for this program");
+//                    throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+//                }
+        }
+
+        // Case 1 - Insert all the records that are new 
+        sqlString = "INSERT INTO rm_batch_inventory (PROGRAM_ID, PLANNING_UNIT_ID, INVENTORY_DATE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, tbi.PLANNING_UNIT_ID, tbi.INVENTORY_DATE, tbi.CREATED_BY, tbi.CREATED_DATE, tbi.LAST_MODIFIED_BY, tbi.LAST_MODIFIED_DATE, :versionId FROM tmp_batch_inventory tbi WHERE tbi.BATCH_INVENTORY_ID=0";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        params.put("versionId", version.getVersionId());
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        biRows += biCnt;
+        logger.info(biCnt + " records inserted into rm_batch_inventory because of Case 1");
+
+        // Now update the tmp table with the BATCH_INVENTORY_ID
+        sqlString = "UPDATE tmp_batch_inventory tbi LEFT JOIN rm_batch_inventory bi ON bi.PLANNING_UNIT_ID=tbi.PLANNING_UNIT_ID AND bi.INVENTORY_DATE=tbi.INVENTORY_DATE SET tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID, tbi.CHANGED=1 WHERE tbi.BATCH_INVENTORY_ID=0";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(biCnt + " records updated the correct batchInventoryId since the inserts for missing records is now done");
+
+        // Insert into batch_inventory_trans table all the batch details for the new records that were just inserted
+        sqlString = "INSERT INTO rm_batch_inventory_trans (BATCH_INVENTORY_ID, BATCH_ID, QTY, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) SELECT tbi.BATCH_INVENTORY_ID, tbit.BATCH_ID, tbit.QTY, tbi.LAST_MODIFIED_BY, tbi.LAST_MODIFIED_DATE, 1, :versionId FROM tmp_batch_inventory tbi LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID WHERE tbi.CHANGED=1";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        biRows += biCnt;
+        logger.info(biCnt + " records inserted into rm_batch_inventory_trans because of Case 1");
+
+        // Case 2 - Flag the rows for changed records
+        sqlString = "UPDATE tmp_batch_inventory tbi "
+                + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID "
+                + "LEFT JOIN rm_batch_inventory bi ON tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID "
+                + "LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID AND bi.MAX_VERSION_ID=bt.VERSION_ID AND tbit.BATCH_ID=bt.BATCH_ID AND bt.ACTIVE "
+                + "SET tbit.CHANGED=2 "
+                + "WHERE tbi.CHANGED=0 AND tbit.CHANGED=0 AND bt.BATCH_ID IS NULL";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(biCnt + " records flagged as Case 2 in rm_batch_inventory_trans");
+
+        sqlString = "INSERT INTO rm_batch_inventory_trans (BATCH_INVENTORY_ID, BATCH_ID, QTY, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) SELECT tbi.BATCH_INVENTORY_ID, tbit.BATCH_ID, tbit.QTY, tbi.LAST_MODIFIED_BY, tbi.LAST_MODIFIED_DATE, 1, :versionId "
+                + "FROM tmp_batch_inventory tbi "
+                + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID "
+                + "WHERE tbi.CHANGED=0 AND tbit.CHANGED=2";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        biRows += biCnt;
+        logger.info(biCnt + " records inserted into rm_batch_inventory_trans becuase of Case 2");
+
+        // Case 3 - Flag the rows for changed records
+        sqlString = "UPDATE tmp_batch_inventory tbi "
+                + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID "
+                + "LEFT JOIN rm_batch_inventory bi ON tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID "
+                + "LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID AND bi.MAX_VERSION_ID=bt.VERSION_ID AND tbit.BATCH_ID=bt.BATCH_ID AND bt.ACTIVE "
+                + "SET tbit.CHANGED=3 "
+                + "WHERE tbit.CHANGED=0 AND tbi.CHANGED=0 "
+                + "AND tbit.BATCH_ID IS NOT NULL "
+                + "AND bt.BATCH_ID IS NOT NULL "
+                + "AND tbit.QTY!=bt.QTY";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info(biCnt + " records flagged as Case 3 in rm_batch_inventory_trans");
+
+        sqlString = "INSERT INTO rm_batch_inventory_trans (BATCH_INVENTORY_ID, BATCH_ID, QTY, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) SELECT tbi.BATCH_INVENTORY_ID, tbit.BATCH_ID, tbit.QTY, tbi.LAST_MODIFIED_BY, tbi.LAST_MODIFIED_DATE, 1, :versionId  "
+                + "FROM tmp_batch_inventory tbi "
+                + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID "
+                + "WHERE tbi.CHANGED=0 AND tbit.CHANGED=3";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        biRows += biCnt;
+        logger.info(biCnt + " records inserted into rm_batch_inventory_trans becuase of Case 3");
+
+        // Case 4 - Flag the rows for changed records
+        sqlString = "INSERT INTO rm_batch_inventory_trans (BATCH_INVENTORY_ID, BATCH_ID, QTY, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) SELECT bi.BATCH_INVENTORY_ID, bt.BATCH_ID, bt.QTY, tbi.LAST_MODIFIED_BY, tbi.LAST_MODIFIED_DATE, 0, :versionId "
+                + "FROM tmp_batch_inventory tbi "
+                + "LEFT JOIN rm_batch_inventory bi ON tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID "
+                + "LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID AND bi.MAX_VERSION_ID=bt.VERSION_ID "
+                + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID AND tbit.BATCH_ID=bt.BATCH_ID "
+                + "WHERE tbi.CHANGED=0 AND tbit.BATCH_ID IS NULL AND bt.BATCH_ID IS NOT NULL";
+        biCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+        biRows += biCnt;
+        logger.info(biCnt + " records inserted into rm_batch_inventory_trans becuase of Case 4");
+        logger.info(biRows + " records inserted into rm_batch_inventory and rm_batch_inventory_trans");
+        params.clear();
+        // #########################  Batch Inventory ########################################
         // #########################  Problem Report #########################################
         insertList.clear();
         insertBatchList.clear();
@@ -2027,6 +2244,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
+    public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("planningUnitActive", planningUnitActive);
+        params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
+        return this.namedParameterJdbcTemplate.query("CALL getBatchInventoryData(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new BatchInventoryListResultSetExtractor());
+    }
+
+    @Override
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -2601,6 +2828,36 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         bd.setBatchId(batchId);
                         bd.setExpiryDate(this.jdbcTemplate.queryForObject("SELECT EXPIRY_DATE FROM rm_batch_info WHERE BATCH_ID=?", String.class, bd.getBatchId()));
                     }
+                }
+                List<BatchData> cleanedBatchDataList = new LinkedList<>();
+                nsp.getBatchDataList().stream().forEachOrdered(bd -> {
+                    int idx = cleanedBatchDataList.indexOf(bd);
+                    if (idx == -1) {
+                        cleanedBatchDataList.add(bd);
+                    } else {
+                        BatchData tmpBd = cleanedBatchDataList.get(idx);
+                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0L)+Optional.ofNullable(bd.getActualConsumption()).orElse(0L));
+                        tmpBd.setUseActualConsumption(tmpBd.isUseActualConsumption() || bd.isUseActualConsumption());
+                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0L)+Optional.ofNullable(bd.getShipment()).orElse(0L));
+                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0L)+Optional.ofNullable(bd.getShipmentWps()).orElse(0L));
+                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0L)+Optional.ofNullable(bd.getAdjustment()).orElse(0L));
+                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0L)+Optional.ofNullable(bd.getStock()).orElse(0L));
+                        tmpBd.setAllRegionsReportedStock(tmpBd.isAllRegionsReportedStock() || bd.isAllRegionsReportedStock());
+                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0L));
+                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0L));
+                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0L)+Optional.ofNullable(bd.getExpiredStock()).orElse(0L));
+                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0L)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0L));
+                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0L));
+                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0L));
+                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0L));
+                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0L));
+                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0L)+Optional.ofNullable(bd.getClosingBalance()).orElse(0L));
+                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0L));
+                        cleanedBatchDataList.set(idx, tmpBd);
+                    }
+                });
+                nsp.setBatchDataList(cleanedBatchDataList);
+                nsp.getBatchDataList().stream().forEach(bd -> {
                     MapSqlParameterSource b1 = new MapSqlParameterSource();
                     b1.addValue("PROGRAM_ID", msp.getProgramId());
                     b1.addValue("VERSION_ID", msp.getVersionId());
@@ -2624,7 +2881,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
-                }
+                });
+                
                 i++;
             }
             sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc1";

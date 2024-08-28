@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class BatchInventory implements Serializable {
     @JsonView({Views.InternalView.class})
     private String inventoryDate;
     @JsonView({Views.InternalView.class})
-    private List<BatchQty> batchList;
+    private List<BatchQty> batchList = new LinkedList<>();
     @JsonView({Views.InternalView.class})
     private int versionId;
     @JsonView(Views.InternalView.class)
