@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api/fundingSource")
+@RequestMapping("/api")
 public class FundingSourceRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -44,7 +44,7 @@ public class FundingSourceRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "")
+    @PostMapping(path = "/fundingSource")
     public ResponseEntity postFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -62,7 +62,7 @@ public class FundingSourceRestController {
         }
     }
 
-    @PutMapping(path = "")
+    @PutMapping(path = "/fundingSource")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

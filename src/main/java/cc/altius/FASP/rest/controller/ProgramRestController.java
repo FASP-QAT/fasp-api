@@ -59,25 +59,6 @@ public class ProgramRestController {
     @Autowired
     private RealmCountryService realmCountryService;
 
-    @PostMapping(path = "/program")
-    public ResponseEntity postProgram(@RequestBody ProgramInitialize program, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
-            this.programService.addProgram(program, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (DuplicateKeyException d) {
-            logger.error("Error while trying to add Program", d);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Program", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to add Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PutMapping(path = "/program")
     public ResponseEntity putProgram(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
