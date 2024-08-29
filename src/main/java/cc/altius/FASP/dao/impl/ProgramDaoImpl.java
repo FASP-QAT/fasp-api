@@ -42,6 +42,7 @@ import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimpleObjectWithFu;
+import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
@@ -83,6 +84,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -271,7 +273,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     @Transactional
-    public int addProgram(Program p, int realmId, CustomUserDetails curUser) {
+    public int addProgram(ProgramInitialize p, int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
@@ -337,6 +339,47 @@ public class ProgramDaoImpl implements ProgramDao {
             i++;
         }
         si.executeBatch(paramList);
+
+        // Add Procurement Agent list
+        if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            paramList = null;
+            si = null;
+            si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_procurement_agent");
+            paramList = new SqlParameterSource[p.getProcurementAgents().size()];
+            i = 0;
+            for (int pa : p.getProcurementAgents()) {
+                params = new HashMap<>();
+                params.put("PROGRAM_ID", programId);
+                params.put("PROCUREMENT_AGENT_ID", pa);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            if (paramList != null && paramList.length > 0) {
+                si.executeBatch(paramList);
+            }
+
+            // Add Funding Source list
+            paramList = null;
+            si = null;
+            si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_funding_source");
+            paramList = new SqlParameterSource[p.getFundingSources().size()];
+            i = 0;
+            for (int fs : p.getFundingSources()) {
+                params = new HashMap<>();
+                params.put("PROGRAM_ID", programId);
+                params.put("FUNDING_SOURCE_ID", fs);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            if (paramList != null && paramList.length > 0) {
+                si.executeBatch(paramList);
+            }
+        }
+
         params.clear();
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
@@ -351,7 +394,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public int updateProgram(Program p, CustomUserDetails curUser) {
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", p.getProgramId());
@@ -439,6 +482,47 @@ public class ProgramDaoImpl implements ProgramDao {
             i++;
         }
         si.executeBatch(paramList);
+        if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
+            // Add and Update Procurement Agents
+            String paList = ArrayUtils.convertIntegerListToString(p.getProcurementAgents());
+            params.clear();
+            params.put("programId", p.getProgramId());
+            params.put("paList", paList);
+            params.put("curDate", curDate);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :paList) OR pa.PROCUREMENT_AGENT_ID IN (SELECT ppa.PROCUREMENT_AGENT_ID FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
+            this.namedParameterJdbcTemplate.update("DELETE ppa FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
+            for (int pa : p.getProcurementAgents()) {
+                params = new HashMap<>();
+                params.put("PROGRAM_ID", p.getProgramId());
+                params.put("PROCUREMENT_AGENT_ID", pa);
+                params.put("LAST_MODIFIED_DATE", curDate);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                try {
+                    this.namedParameterJdbcTemplate.update("INSERT IGNORE INTO rm_program_procurement_agent (PROGRAM_ID, PROCUREMENT_AGENT_ID, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:PROGRAM_ID, :PROCUREMENT_AGENT_ID, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)", params);
+                } catch (DuplicateKeyException d) {
+                }
+            }
+
+            // Add and Update FundingSources
+            String fsList = ArrayUtils.convertIntegerListToString(p.getFundingSources());
+            params.clear();
+            params.put("programId", p.getProgramId());
+            params.put("fsList", fsList);
+            params.put("curDate", curDate);
+            this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs SET fs.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(fs.FUNDING_SOURCE_ID, :fsList) OR fs.FUNDING_SOURCE_ID IN (SELECT pfs.FUNDING_SOURCE_ID FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId)", params);
+            this.namedParameterJdbcTemplate.update("DELETE pfs FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId", params);
+            for (int fs : p.getFundingSources()) {
+                params = new HashMap<>();
+                params.put("PROGRAM_ID", p.getProgramId());
+                params.put("FUNDING_SOURCE_ID", fs);
+                params.put("LAST_MODIFIED_DATE", curDate);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                try {
+                    this.namedParameterJdbcTemplate.update("INSERT IGNORE INTO rm_program_funding_source (PROGRAM_ID, FUNDING_SOURCE_ID, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:PROGRAM_ID, :FUNDING_SOURCE_ID, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)", params);
+                } catch (DuplicateKeyException d) {
+                }
+            }
+        }
         return rows;
     }
 
@@ -641,7 +725,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("realmCountryId", p.getRealmCountry().getId());
                 params.put("planningUnitId", ppu.getPlanningUnit().getId());
                 params.put("multiplier", 1);
-                int activeCount = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+
+                int activeCount = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
+                );
                 if (activeCount == 0) {
                     PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(ppu.getPlanningUnit().getId(), curUser);
                     String skuCode = new StringBuilder(ppu.getProgram().getIdString()).append("-").append(SuggestedDisplayName.getAlphaNumericString(pu.getLabel().getLabel_en(), SuggestedDisplayName.REALM_COUNTRY_PLANNING_UNIT_LENGTH)).append("_").append(PassPhrase.getPassword(4).toUpperCase()).toString();
@@ -1085,8 +1171,9 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : Going to check manual tagging order no ---" + orderNo);
         logger.info("ERP Linking : Going to check manual tagging prime line no ---" + primeLineNo);
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
-                orderNo, primeLineNo);
+        count
+                = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                        orderNo, primeLineNo);
 
         logger.info("ERP Linking : manual tagging count---" + count);
         return count;
@@ -1120,6 +1207,7 @@ public class ProgramDaoImpl implements ProgramDao {
 //        double rate = Double.parseDouble(map.get("RATE").toString());
         sql = "SELECT e.`PRICE` FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
                 + " ORDER BY e.`ERP_ORDER_ID` DESC LIMIT 1;";
+
         double rate = this.jdbcTemplate.queryForObject(sql, Double.class,
                 manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         logger.info("ERP Linking : calculated rate---" + rate);
@@ -1257,6 +1345,7 @@ public class ProgramDaoImpl implements ProgramDao {
                                 + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ERP_FLAG=1 AND st.ACTIVE";
                         try {
                             logger.info("ERP Linking : Trying to see if the ShipmentTrans exists with the same orderNo, primeLineNo and parentShipmentId");
+
                             int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
                             );
                             logger.info("ERP Linking : ShipmentTransId " + shipmentTransId + " found so going to update that with latest information");
@@ -2031,8 +2120,9 @@ public class ProgramDaoImpl implements ProgramDao {
         int parentShipmentId = 0;
         Map<String, Object> params = new HashMap<>();
         sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class,
-                manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        count
+                = this.jdbcTemplate.queryForObject(sql, Integer.class,
+                        manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
 
         logger.info("ERP Linking : manual tagging order no---" + manualTaggingOrderDTO.getOrderNo());
         logger.info("ERP Linking : manual tagging prime line no.---" + manualTaggingOrderDTO.getPrimeLineNo());
@@ -2395,6 +2485,7 @@ public class ProgramDaoImpl implements ProgramDao {
         if (shipmentIdList.size() == 1) {
             logger.info("ERP Linking : one shipment id found to delink---");
 //            for (int shipmentId1 : shipmentIdList) {
+
             if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
                     erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
                 logger.info(
@@ -2440,6 +2531,7 @@ public class ProgramDaoImpl implements ProgramDao {
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
+
             if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class,
                     erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
@@ -2547,6 +2639,7 @@ public class ProgramDaoImpl implements ProgramDao {
         program.setCurrentPage(page);
         params.clear();
         params.put("programId", programId);
+
         int versionCount = this.namedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM rm_program_version pv WHERE pv.PROGRAM_ID=:programId", params, Integer.class
         );
         params.put("versionCount", versionCount);
@@ -2569,6 +2662,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("realmId", realmId);
         params.put("programId", programId);
         params.put("programCode", programCode);
+
         return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class
         ) == 0);
     }
@@ -2728,6 +2822,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LIMIT 2) t "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=t.PLANNING_UNIT_SKU_CODE "
                 + "ORDER BY t.ERP_ORDER_ID ASC LIMIT 1;";
+
         return this.jdbcTemplate.queryForObject(sql, Integer.class,
                 orderNo, primeLineNo);
     }
@@ -2752,6 +2847,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     public String getMaxERPOrderIdFromERPShipment(String orderNo, int primeLineNo) {
         String sql = "SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=? AND s.`PRIME_LINE_NO`=?;";
+
         return this.jdbcTemplate.queryForObject(sql, String.class,
                 orderNo, primeLineNo);
     }
@@ -2843,7 +2939,8 @@ public class ProgramDaoImpl implements ProgramDao {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc.PRODUCT_CATEGORY_ID) FROM rm_product_category pc LEFT JOIN (SELECT CONCAT(pc1.SORT_ORDER,'%') `SO` FROM rm_product_category pc1 WHERE FIND_IN_SET(pc1.PRODUCT_CATEGORY_ID, :productCategoryIds)) pc2 ON pc.SORT_ORDER LIKE pc2.SO WHERE pc2.SO IS NOT NULL");
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryIds", ArrayUtils.convertArrayToString(productCategoryIds));
-        String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
+        String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class
+        );
         sqlStringBuilder = null;
         sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
                 + "FROM rm_program_planning_unit ppu "
@@ -2859,17 +2956,18 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, int versionTypeId, CustomUserDetails curUser) {
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID and p.CURRENT_VERSION_ID=pv.VERSION_ID "
                 + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "WHERE p.ACTIVE AND FIND_IN_SET(pv.VERSION_STATUS_ID,:versionStatusIds) AND pv.VERSION_TYPE_ID=:versionTypeId");
+                + "WHERE p.ACTIVE AND FIND_IN_SET(pv.VERSION_STATUS_ID,:versionStatusIds) AND FIND_IN_SET(pv.VERSION_TYPE_ID,:versionTypeIds)");
         Map<String, Object> params = new HashMap<>();
-        List<String> versionIds = Arrays.asList(versionStatusIdList.split(","));
-        params.put("versionStatusIds", ArrayUtils.convertListToString(versionIds));
-        params.put("versionTypeId", versionTypeId);
+        List<String> versionStatusIds = Arrays.asList(versionStatusIdList.split(","));
+        params.put("versionStatusIds", ArrayUtils.convertListToString(versionStatusIds));
+        List<String> versionTypeIds = Arrays.asList(versionTypeIdList.split(","));
+        params.put("versionTypeIds", ArrayUtils.convertListToString(versionTypeIds));
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
@@ -2899,6 +2997,23 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithFutRowMapper());
+    }
+    
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT ppa.`PROCUREMENT_AGENT_ID` FROM vw_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
+    }
+
+    @Override
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT pfs.`FUNDING_SOURCE_ID` FROM vw_program p LEFT JOIN rm_program_funding_source pfs ON p.PROGRAM_ID=pfs.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
     }
 
 }

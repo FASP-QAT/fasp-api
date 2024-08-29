@@ -9,8 +9,10 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +83,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSource(Authentication auth) {
         try {
@@ -103,6 +106,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -120,6 +124,7 @@ public class FundingSourceRestController {
         }
     }
 
+    @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/{fundingSourceId}")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
         try {
