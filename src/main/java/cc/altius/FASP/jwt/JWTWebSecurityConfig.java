@@ -285,6 +285,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/procurementAgentType").hasAnyAuthority("ROLE_BF_TICKETING", "ROLE_BF_ADD_PROCUREMENT_AGENT", "ROLE_BF_EDIT_PROCUREMENT_AGENT", "ROLE_BF_LIST_PROCUREMENT_AGENT", "ROLE_BF_GLOBAL_DEMAND_REPORT")
                         .requestMatchers(HttpMethod.GET, "/api/procurementAgentType/**").hasAnyAuthority("ROLE_BF_EDIT_PROCUREMENT_AGENT")
                         .requestMatchers(HttpMethod.PUT, "/api/procurementAgentType").hasAnyAuthority("ROLE_BF_EDIT_PROCUREMENT_AGENT")
+                        .requestMatchers(HttpMethod.GET, "/api/fundingSourceType/realmId/**").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.POST, "/api/fundingSourceType/**").hasAnyAuthority("ROLE_BF_ADD_FUNDING_SOURCE")
                         .requestMatchers(HttpMethod.GET, "/api/fundingSourceType").hasAnyAuthority("ROLE_BF_TICKETING", "ROLE_BF_ADD_FUNDING_SOURCE", "ROLE_BF_EDIT_FUNDING_SOURCE", "ROLE_BF_LIST_FUNDING_SOURCE")
                         .requestMatchers(HttpMethod.GET, "/api/fundingSourceType/**").hasAnyAuthority("ROLE_BF_EDIT_FUNDING_SOURCE")

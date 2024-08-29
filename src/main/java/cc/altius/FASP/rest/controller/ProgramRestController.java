@@ -60,7 +60,7 @@ public class ProgramRestController {
     private RealmCountryService realmCountryService;
 
     @PostMapping(path = "/program")
-    public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity postProgram(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
@@ -79,7 +79,7 @@ public class ProgramRestController {
     }
 
     @PutMapping(path = "/program")
-    public ResponseEntity putProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity putProgram(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
@@ -301,7 +301,11 @@ public class ProgramRestController {
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+            Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            ProgramInitialize pi = new ProgramInitialize(p);
+            pi.setFundingSources(this.programService.getFundingSourceIdsForProgramId(programId, curUser));
+            pi.setProcurementAgents(this.programService.getProcurementAgentIdsForProgramId(programId, curUser));
+            return new ResponseEntity(pi, HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -462,42 +466,42 @@ public class ProgramRestController {
         }
     }
 
-    @PostMapping("/program/{programId}/updateProcurementAgents")
-    public ResponseEntity updateProcurementAgentsForProgram(@PathVariable("programId") int programId, @RequestBody Integer[] procurementAgentIds, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to update Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.FORBIDDEN);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to updated Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to update Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/program/{programId}/updateProcurementAgents")
-    @JsonView(Views.InternalView.class)
-    public ResponseEntity getDataForUpdateProcurementAgentsForProgram(@PathVariable("programId") int programId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            Map<String, Object> outputData = new HashMap<>();
-            outputData.put("program", this.programService.getSimpleSupplyPlanProgramByProgramId(programId, curUser));
-            outputData.put("selectedProcurementAgentList", this.procurementAgentService.getProcurementAgentDropdownListForFilterMultiplePrograms(Integer.toString(programId), curUser));
-            outputData.put("procurementAgentList", this.procurementAgentService.getProcurementAgentDropdownList(curUser));
-            return new ResponseEntity(outputData, HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping("/program/{programId}/updateProcurementAgents")
+//    public ResponseEntity updateProcurementAgentsForProgram(@PathVariable("programId") int programId, @RequestBody Integer[] procurementAgentIds, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser), HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to update Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.FORBIDDEN);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to updated Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to update Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping("/program/{programId}/updateProcurementAgents")
+//    @JsonView(Views.InternalView.class)
+//    public ResponseEntity getDataForUpdateProcurementAgentsForProgram(@PathVariable("programId") int programId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            Map<String, Object> outputData = new HashMap<>();
+//            outputData.put("program", this.programService.getSimpleSupplyPlanProgramByProgramId(programId, curUser));
+//            outputData.put("selectedProcurementAgentList", this.procurementAgentService.getProcurementAgentDropdownListForFilterMultiplePrograms(Integer.toString(programId), curUser));
+//            outputData.put("procurementAgentList", this.procurementAgentService.getProcurementAgentDropdownList(curUser));
+//            return new ResponseEntity(outputData, HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to list Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to list Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }
