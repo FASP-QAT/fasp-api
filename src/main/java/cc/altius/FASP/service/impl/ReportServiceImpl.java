@@ -207,26 +207,28 @@ public class ReportServiceImpl implements ReportService {
         Map<String, StockStatusVerticalIndividualOutput> map = new HashMap<>();
         for (int programId : ssv.getProgramIds()) {
             for (int reportingUnitId : ssv.getReportingUnitIds()) {
-                SimpleCodeObject program = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
-                ssv.setProgramId(programId);
-                ssv.setReportingUnitId(reportingUnitId);
-                StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVertical(ssv, curUser);
-                List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
-                cList.forEach(c -> {
-                    int idx = ssvo.getConsumptionInfo().indexOf(c);
-                    if (idx == -1) {
-                        ssvo.getConsumptionInfo().add(c);
-                    }
-                });
+                if (this.reportDao.checkIfExistsRuForProgram(programId, reportingUnitId, ssv.getViewBy())) {
+                    SimpleCodeObject program = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
+                    ssv.setProgramId(programId);
+                    ssv.setReportingUnitId(reportingUnitId);
+                    StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVertical(ssv, curUser);
+                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
+                    cList.forEach(c -> {
+                        int idx = ssvo.getConsumptionInfo().indexOf(c);
+                        if (idx == -1) {
+                            ssvo.getConsumptionInfo().add(c);
+                        }
+                    });
 
-                List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
-                iList.forEach(i -> {
-                    int idx = ssvo.getInventoryInfo().indexOf(i);
-                    if (idx == -1) {
-                        ssvo.getInventoryInfo().add(i);
-                    }
-                });
-                map.put(program.getId() + "~" + ssvo.getReportingUnit().getId(), ssvo);
+                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
+                    iList.forEach(i -> {
+                        int idx = ssvo.getInventoryInfo().indexOf(i);
+                        if (idx == -1) {
+                            ssvo.getInventoryInfo().add(i);
+                        }
+                    });
+                    map.put(program.getId() + "~" + reportingUnitId, ssvo);
+                }
             }
         }
         return map;
@@ -237,7 +239,7 @@ public class ReportServiceImpl implements ReportService {
         List<StockStatusVerticalAggregateOutput> ssvoList = this.reportDao.getStockStatusVerticalAggregate(ssv, curUser);
         List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
         cList.forEach(c -> {
-            int idx = ssvoList.indexOf(new StockStatusVertical(c.getConsumptionDate()));
+            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
             if (idx != -1) {
                 ssvoList.get(idx).getConsumptionInfo().add(c);
             }
@@ -245,7 +247,7 @@ public class ReportServiceImpl implements ReportService {
 
         List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
         iList.forEach(i -> {
-            int idx = ssvoList.indexOf(new StockStatusVertical(i.getInventoryDate()));
+            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
             if (idx != -1) {
                 ssvoList.get(idx).getInventoryInfo().add(i);
             }

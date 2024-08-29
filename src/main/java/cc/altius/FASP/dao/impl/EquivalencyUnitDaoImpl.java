@@ -353,12 +353,11 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
     public List<SimpleEquivalencyUnit> getSimpleEquivalencyUnits(String programIds, boolean useRealmLevelEuOnly, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
                 + "    eu.EQUIVALENCY_UNIT_ID `EU_ID`, eu.LABEL_ID `EU_LABEL_ID`, eu.LABEL_EN `EU_LABEL_EN`, eu.LABEL_FR `EU_LABEL_FR`, eu.LABEL_SP `EU_LABEL_SP`, eu.LABEL_PR `EU_LABEL_PR`, "
-                + "    GROUP_CONCAT(fu.FORECASTING_UNIT_ID) `FORECASTING_UNIT_IDS` "
+                + "    GROUP_CONCAT(DISTINCT pu.FORECASTING_UNIT_ID) `FORECASTING_UNIT_IDS` "
                 + "FROM vw_program p "
-                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN rm_equivalency_unit_mapping eum ON eum.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN rm_equivalency_unit_mapping eum ON eum.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID AND (FIND_IN_SET(eum.PROGRAM_ID,:programIds) OR eum.PROGRAM_ID IS NULL) "
                 + "LEFT JOIN vw_equivalency_unit eu ON eum.EQUIVALENCY_UNIT_ID=eu.EQUIVALENCY_UNIT_ID "
                 + "WHERE FIND_IN_SET(ppu.PROGRAM_ID, :programIds) AND eu.EQUIVALENCY_UNIT_ID is not null ");
         if (useRealmLevelEuOnly) {

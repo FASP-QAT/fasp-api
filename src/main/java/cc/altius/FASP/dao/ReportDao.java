@@ -129,6 +129,9 @@ public interface ReportDao {
 
     // Report no 16b
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    
+    // Report no 16c
+    public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy);
 
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);

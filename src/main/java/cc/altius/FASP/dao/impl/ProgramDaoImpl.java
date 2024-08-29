@@ -2891,7 +2891,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
                 + "    pu.FORECASTING_UNIT_ID "
                 + "FROM vw_program p "
-                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
         Map<String, Object> params = new HashMap<>();

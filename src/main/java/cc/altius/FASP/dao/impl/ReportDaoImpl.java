@@ -386,9 +386,29 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        params.put("programIds", ssv.getProgramId());
+        params.put("programIds", ssv.getProgramIdsString());
         params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
         return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
+    }
+
+    @Override
+    public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy) {
+        String sqlString = "";
+        sqlString = "SELECT IF(COUNT(ppu.PROGRAM_PLANNING_UNIT_ID)>0,true,false) `check` "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID AND rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                + "WHERE "
+                + "    ppu.PROGRAM_ID=:programId "
+                + "    AND ("
+                + "        (:viewBy=1 AND ppu.PLANNING_UNIT_ID=:reportingUnitId) OR "
+                + "        (:viewBy=2 AND rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=:reportingUnitId) "
+                + "    ) AND ppu.ACTIVE";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("reportingUnitId", reportingUnitId);
+        params.put("viewBy", viewBy);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Boolean.class);
     }
 
     // Report no 17
