@@ -16,11 +16,13 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleObjectWithFutRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -293,7 +295,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     @Override
     @Transactional
     public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("PLANNING_UNIT_ID","REALM_COUNTRY_ID","SKU_CODE","LABEL_ID","CONVERSION_NUMBER","CONVERSION_METHOD","UNIT_ID","CREATED_DATE","CREATED_BY","LAST_MODIFIED_DATE","LAST_MODIFIED_BY","ACTIVE");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("PLANNING_UNIT_ID", "REALM_COUNTRY_ID", "SKU_CODE", "LABEL_ID", "CONVERSION_NUMBER", "CONVERSION_METHOD", "UNIT_ID", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
         int rowsEffected = 0;
@@ -479,6 +481,23 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(")");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<SimpleObjectWithFu> getSimpleRealmCountryPlanningUnits(String programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID `ID`,   "
+                + "      rcpu.LABEL_ID, rcpu.LABEL_EN, rcpu.LABEL_FR, rcpu.LABEL_SP, rcpu.LABEL_PR, "
+                + "      pu.FORECASTING_UNIT_ID "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN vw_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "WHERE TRUE AND ppu.ACTIVE AND rcpu.ACTIVE AND FIND_IN_SET(p.PROGRAM_ID, :programIds)");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", programIds);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY rcpu.REALM_COUNTRY_PLANNING_UNIT_ID");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithFutRowMapper());
     }
 
 }
