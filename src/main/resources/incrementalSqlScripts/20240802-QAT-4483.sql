@@ -60,7 +60,7 @@ BEGIN
      ELSEIF @varViewBy = 1 THEN
          SELECT pu.`PLANNING_UNIT_ID`, pu.`LABEL_EN`, pu.`LABEL_FR`, pu.`LABEL_SP`, pu.`LABEL_PR`, 1 INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_planning_unit pu WHERE pu.PLANNING_UNIT_ID=@varReportingUnitIds;
      ELSEIF @varViewBy = 2 THEN
-         SELECT rcpu.`REALM_COUNTRY_PLANNING_UNIT_ID`, rcpu.`LABEL_EN`, rcpu.`LABEL_FR`, rcpu.`LABEL_SP`, rcpu.`LABEL_PR`, rcpu.`MULTIPLIER` INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=@varReportingUnitIds;
+         SELECT rcpu.`REALM_COUNTRY_PLANNING_UNIT_ID`, rcpu.`LABEL_EN`, rcpu.`LABEL_FR`, rcpu.`LABEL_SP`, rcpu.`LABEL_PR`, IF (rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2, 1/rcpu.CONVERSION_NUMBER, 0)) INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=@varReportingUnitIds;
      END IF;
 
     INSERT INTO tmp_supply_plan_amc 
@@ -348,7 +348,7 @@ BEGIN
      ELSEIF @varViewBy = 1 THEN
          SELECT pu.`PLANNING_UNIT_ID`, pu.`LABEL_EN`, pu.`LABEL_FR`, pu.`LABEL_SP`, pu.`LABEL_PR`, 1 INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_planning_unit pu WHERE pu.PLANNING_UNIT_ID=@varReportingUnitId;
      ELSEIF @varViewBy = 2 THEN
-         SELECT rcpu.`REALM_COUNTRY_PLANNING_UNIT_ID`, rcpu.`LABEL_EN`, rcpu.`LABEL_FR`, rcpu.`LABEL_SP`, rcpu.`LABEL_PR`, rcpu.`MULTIPLIER` INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=@varReportingUnitId;
+         SELECT rcpu.`REALM_COUNTRY_PLANNING_UNIT_ID`, rcpu.`LABEL_EN`, rcpu.`LABEL_FR`, rcpu.`LABEL_SP`, rcpu.`LABEL_PR`, IF (rcpu.CONVERSION_METHOD IS NULL OR rcpu.CONVERSION_METHOD=1, rcpu.CONVERSION_NUMBER, IF(rcpu.CONVERSION_METHOD=2, 1/rcpu.CONVERSION_NUMBER, 0)) INTO @ruId, @ruLabelEn, @ruLabelFr, @ruLabelSp, @ruLabelPr, @varRcpuMultiplier FROM vw_realm_country_planning_unit rcpu WHERE rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=@varReportingUnitId;
      END IF;
 
     INSERT INTO tmp_supply_plan_amc 
