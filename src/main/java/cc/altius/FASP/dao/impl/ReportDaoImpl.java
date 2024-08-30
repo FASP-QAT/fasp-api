@@ -374,8 +374,13 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        params.put("programIds", ssv.getProgramIdsString());
-        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        if (ssv.isAggregate()) {
+            params.put("programIds", ssv.getProgramIdsString());
+            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        } else {
+            params.put("programIds", ssv.getProgramId());
+            params.put("reportingUnitIds", ssv.getReportingUnitId());
+        }
         return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
     }
 
@@ -386,8 +391,13 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        params.put("programIds", ssv.getProgramIdsString());
-        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        if (ssv.isAggregate()) {
+            params.put("programIds", ssv.getProgramIdsString());
+            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
+        } else {
+            params.put("programIds", ssv.getProgramId());
+            params.put("reportingUnitIds", ssv.getReportingUnitId());
+        }
         return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
     }
 
