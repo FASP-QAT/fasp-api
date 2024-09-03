@@ -19,6 +19,10 @@ BEGIN
       `TRANS_DATE` date NOT NULL,
       `AMC` decimal(24,8) DEFAULT NULL,
       `AMC_COUNT` int DEFAULT NULL,
+      `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+      `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
+      `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+      `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,
       `OPENING_BALANCE` bigint DEFAULT NULL,
       `SHIPMENT_QTY` bigint DEFAULT NULL,
       `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
@@ -60,6 +64,10 @@ BEGIN
         sma.`TRANS_DATE`,
         sma.`AMC`,
         sma.`AMC_COUNT`, 
+        sma.`MIN_STOCK_QTY`,
+        sma.`MIN_STOCK_MOS`,
+        sma.`MAX_STOCK_QTY`,
+        sma.`MAX_STOCK_MOS`,
         sma.`OPENING_BALANCE`,
         sma.`SHIPMENT_QTY`,
         sma.`FORECASTED_CONSUMPTION_QTY`,
@@ -95,7 +103,7 @@ BEGIN
         s3.`EXPIRED_STOCK`,
         s3.`FINAL_CLOSING_BALANCE`,
         s3.`AMC`, s3.`UNMET_DEMAND`, s3.`REGION_COUNT`, s3.`REGION_COUNT_FOR_STOCK`,
-        s3.`FINAL_CLOSING_BALANCE`/s3.`AMC` `MOS`, s3.`PLAN_BASED_ON`, 
+        s3.`FINAL_CLOSING_BALANCE`/s3.`AMC` `MOS`, s3.`PLAN_BASED_ON`, s3.`MIN_STOCK_QTY`, s3.`MIN_STOCK_MOS`, s3.`MAX_STOCK_QTY`, s3.`MAX_STOCK_MOS`,
         sh.`SHIPMENT_ID`, sh.`SHIPMENT_QTY`, sh.`EDD`, sh.`NOTES`, sh.`ORDER_NO`, sh.`PRIME_LINE_NO`, sl.`RO_NO`, sl.`RO_PRIME_LINE_NO`,
         p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, 
         pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, 
@@ -118,7 +126,8 @@ BEGIN
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_CLOSING_BALANCE`, s2.`FINAL_CLOSING_BALANCE`*@varRcpuMultiplier) `FINAL_CLOSING_BALANCE`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`AMC`, s2.`AMC`*@varRcpuMultiplier) `AMC`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`UNMET_DEMAND`, s2.`UNMET_DEMAND`*@varRcpuMultiplier) `UNMET_DEMAND`,
-            s2.`REGION_COUNT`, s2.`REGION_COUNT_FOR_STOCK`, s2.`PLAN_BASED_ON`
+            s2.`REGION_COUNT`, s2.`REGION_COUNT_FOR_STOCK`, s2.`PLAN_BASED_ON`, 
+            s2.`MIN_STOCK_QTY`, s2.`MIN_STOCK_MOS`, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_MOS`
         FROM (
             SELECT 
                 mn.`MONTH` `TRANS_DATE`, 
@@ -134,7 +143,8 @@ BEGIN
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`CLOSING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`CLOSING_BALANCE`)) `FINAL_CLOSING_BALANCE`,
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`AMC`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`AMC`)) `AMC`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`UNMET_DEMAND`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`UNMET_DEMAND`)) `UNMET_DEMAND`, 
-                SUM(sma.`REGION_COUNT`) `REGION_COUNT`, SUM(sma.`REGION_COUNT_FOR_STOCK`) `REGION_COUNT_FOR_STOCK`, IF(BIT_AND(IF(ppu.PLAN_BASED_ON=2,true,false)),2,1) `PLAN_BASED_ON`
+                SUM(sma.`REGION_COUNT`) `REGION_COUNT`, SUM(sma.`REGION_COUNT_FOR_STOCK`) `REGION_COUNT_FOR_STOCK`, IF(BIT_AND(IF(ppu.PLAN_BASED_ON=2,true,false)),2,1) `PLAN_BASED_ON`, 
+                AVG(sma.`MIN_STOCK_QTY`) `MIN_STOCK_QTY`, AVG(sma.`MIN_STOCK_MOS`) `MIN_STOCK_MOS`, AVG(sma.`MAX_STOCK_QTY`) `MAX_STOCK_QTY`, AVG(sma.`MAX_STOCK_MOS`) `MAX_STOCK_MOS`
             FROM mn 
             LEFT JOIN tmp_supply_plan_amc sma ON mn.`MONTH`=sma.`TRANS_DATE` 
             LEFT JOIN rm_planning_unit pu ON sma.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID

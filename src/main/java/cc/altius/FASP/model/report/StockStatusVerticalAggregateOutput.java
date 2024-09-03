@@ -60,6 +60,14 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
+    private Double minStockMos;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockMos;
+    @JsonView(Views.ReportView.class)
+    private Double minStockQty;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockQty;
+    @JsonView(Views.ReportView.class)
     private Long unmetDemand;
     @JsonView(Views.ReportView.class)
     private int regionCount;
@@ -185,6 +193,38 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
 
     public void setMos(Double mos) {
         this.mos = mos;
+    }
+
+    public Double getMinStockMos() {
+        return minStockMos;
+    }
+
+    public void setMinStockMos(Double minStockMos) {
+        this.minStockMos = minStockMos;
+    }
+
+    public Double getMaxStockMos() {
+        return maxStockMos;
+    }
+
+    public void setMaxStockMos(Double maxStockMos) {
+        this.maxStockMos = maxStockMos;
+    }
+
+    public Double getMinStockQty() {
+        return minStockQty;
+    }
+
+    public void setMinStockQty(Double minStockQty) {
+        this.minStockQty = minStockQty;
+    }
+
+    public Double getMaxStockQty() {
+        return maxStockQty;
+    }
+
+    public void setMaxStockQty(Double maxStockQty) {
+        this.maxStockQty = maxStockQty;
     }
 
     public Long getUnmetDemand() {
