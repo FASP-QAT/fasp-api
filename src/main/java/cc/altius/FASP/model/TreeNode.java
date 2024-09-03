@@ -32,6 +32,8 @@ public class TreeNode implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean collapsed;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private boolean downwardAggregationAllowed;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<DownwardAggregation> downwardAggregationList;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
@@ -42,13 +44,14 @@ public class TreeNode implements Serializable {
         downwardAggregationList = new LinkedList<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label, boolean collapsed) {
+    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label, boolean collapsed, boolean downwardAggregationAllowed) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
         this.nodeType = nodeType;
         this.nodeUnit = nodeUnit;
         this.label = label;
         this.collapsed = collapsed;
+        this.downwardAggregationAllowed = downwardAggregationAllowed;
         this.nodeDataMap = new HashMap<>();
         downwardAggregationList = new LinkedList<>();
     }
@@ -99,6 +102,14 @@ public class TreeNode implements Serializable {
 
     public void setCollapsed(boolean collapsed) {
         this.collapsed = collapsed;
+    }
+
+    public boolean isDownwardAggregationAllowed() {
+        return downwardAggregationAllowed;
+    }
+
+    public void setDownwardAggregationAllowed(boolean downwardAggregationAllowed) {
+        this.downwardAggregationAllowed = downwardAggregationAllowed;
     }
 
     public List<DownwardAggregation> getDownwardAggregationList() {
