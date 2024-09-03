@@ -45,6 +45,7 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.DownwardAggregation;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -1586,7 +1587,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                             nodeDataParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
                             nodeDataParams.put("ONE_TIME_USAGE", tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_CONTINUOUS ? false : tnd.getFuNode().isOneTimeUsage());
-                            nodeDataParams.put("ONE_TIME_DISPENSING", tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_CONTINUOUS ? true : tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
+                            nodeDataParams.put("ONE_TIME_DISPENSING", tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_CONTINUOUS ? true : tnd.getFuNode().getOneTimeDispensing() == null ? true : tnd.getFuNode().getOneTimeDispensing());
                             nodeDataParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
                             nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
@@ -1789,6 +1790,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
             }
 
+        }
+
+        // Step 3 part 2
+        // The reason I am handling it here is because the SourceNode could be from another Tree that would not have been added as yet
+        // So first add all Trees, Scenarios and Nodes and then come back to handle Downward Aggregation if there are any
+        batchList.clear();
+        SimpleJdbcInsert dai = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_downward_aggregation");
+        for (DatasetTree dt : dd.getTreeList()) {
+            for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                    for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
+                        Map<String, Object> batchParams = new HashMap<>();
+                        batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
+                        batchParams.put("SOURCE_TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
+                        batchParams.put("SOURCE_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", da.getTreeId() + "-" + da.getScenarioId()));
+                        batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", da.getTreeId() + "-" + da.getNodeId()));
+                        batchList.add(new MapSqlParameterSource(batchParams));
+                    }
+                }
+            }
+        }
+        if (batchList.size() > 0) {
+            batchArray = new SqlParameterSource[batchList.size()];
+            dai.executeBatch(batchList.toArray(batchArray));
         }
 
         //Step 4 -- Insert the Planning Units and the Selected Forecasts

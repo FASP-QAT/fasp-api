@@ -5,9 +5,11 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +32,14 @@ public class TreeNode implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean collapsed;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private List<DownwardAggregation> downwardAggregationList;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
-    private Map<Integer, List<TreeNodeData>> nodeDataMap; 
+    private Map<Integer, List<TreeNodeData>> nodeDataMap;
 
     public TreeNode() {
         this.nodeDataMap = new HashMap<>();
+        downwardAggregationList = new LinkedList<>();
     }
 
     public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label, boolean collapsed) {
@@ -45,6 +50,7 @@ public class TreeNode implements Serializable {
         this.label = label;
         this.collapsed = collapsed;
         this.nodeDataMap = new HashMap<>();
+        downwardAggregationList = new LinkedList<>();
     }
 
     public int getNodeId() {
@@ -93,6 +99,14 @@ public class TreeNode implements Serializable {
 
     public void setCollapsed(boolean collapsed) {
         this.collapsed = collapsed;
+    }
+
+    public List<DownwardAggregation> getDownwardAggregationList() {
+        return downwardAggregationList;
+    }
+
+    public void setDownwardAggregationList(List<DownwardAggregation> downwardAggregationList) {
+        this.downwardAggregationList = downwardAggregationList;
     }
 
     public Map<Integer, List<TreeNodeData>> getNodeDataMap() {

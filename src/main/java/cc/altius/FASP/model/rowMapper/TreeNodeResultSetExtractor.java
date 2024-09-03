@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.DownwardAggregation;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeType;
@@ -58,6 +59,27 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 }
                 int nodeId = rs.getInt("NODE_ID");
                 TreeNode tn = getNode(nodeId, parentNodeId, rs, 1);
+                if (tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                    Integer targetNodeId = rs.getInt("TARGET_NODE_ID");
+                    if (rs.wasNull()) {
+                        targetNodeId = null;
+                    }
+                    Integer targetTreeId = rs.getInt("TARGET_TREE_ID");
+                    if (rs.wasNull()) {
+                        targetTreeId = null;
+                    }
+                    Integer targetScenarioId = rs.getInt("TARGET_SCENARIO_ID");
+                    if (rs.wasNull()) {
+                        targetScenarioId = null;
+                    }
+                    if (targetTreeId != null && targetScenarioId != null && targetNodeId != null) {
+                        DownwardAggregation da = new DownwardAggregation(targetTreeId, targetScenarioId, targetNodeId);
+                        int idx = tn.getDownwardAggregationList().indexOf(da);
+                        if (idx == -1) {
+                            tn.getDownwardAggregationList().add(da);
+                        }
+                    }
+                }
                 ForecastNode<TreeNode> n = null;
                 if (tree == null) {
                     // Tree is empty so Initialize the Tree
