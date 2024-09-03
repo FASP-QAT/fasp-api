@@ -79,7 +79,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
                 if (rs.wasNull()) {
                     ssv.setMinStockMos(null);
                 }
-                ssv.setMaxStockMos(rs.getDouble("MAX__STOCK_MOS"));
+                ssv.setMaxStockMos(rs.getDouble("MAX_STOCK_MOS"));
                 if (rs.wasNull()) {
                     ssv.setMaxStockMos(null);
                 }
@@ -87,7 +87,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
                 if (rs.wasNull()) {
                     ssv.setMinStockQty(null);
                 }
-                ssv.setMaxStockQty(rs.getDouble("MAX__STOCK_QTY"));
+                ssv.setMaxStockQty(rs.getDouble("MAX_STOCK_QTY"));
                 if (rs.wasNull()) {
                     ssv.setMaxStockQty(null);
                 }
