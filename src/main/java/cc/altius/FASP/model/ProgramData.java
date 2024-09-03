@@ -7,7 +7,9 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -82,7 +84,9 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<SimplePlanningUnitForSupplyPlanObject> planningUnitList;
     @JsonView(Views.InternalView.class)
     private List<SimpleCodeObject> procurementAgentList;
-    
+    @JsonView(Views.InternalView.class)
+    private List<ShipmentBudgetAmt> shipmentBudgetList;
+
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
     }
@@ -380,6 +384,27 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setProcurementAgentList(List<SimpleCodeObject> procurementAgentList) {
         this.procurementAgentList = procurementAgentList;
+    }
+
+    public List<ShipmentBudgetAmt> getShipmentBudgetList() {
+        return shipmentBudgetList;
+    }
+
+    public void setShipmentBudgetList(List<ShipmentBudgetAmt> shipmentBudgetList) {
+        this.shipmentBudgetList = shipmentBudgetList;
+    }
+
+    @JsonView(Views.InternalView.class)
+    public Map<Integer, Double> getShipmentBudgetSummary() {
+        Map<Integer, Double> budgetSummary = new HashMap<>();
+        this.shipmentBudgetList.forEach(sba -> {
+            if (budgetSummary.containsKey(sba.getBudgetId())) {
+                budgetSummary.put(sba.getBudgetId(), budgetSummary.get(sba.getBudgetId()) + sba.getShipmentAmt() * sba.getConversionRateToUsd());
+            } else {
+                budgetSummary.put(sba.getBudgetId(), sba.getShipmentAmt() * sba.getConversionRateToUsd());
+            }
+        });
+        return budgetSummary;
     }
 
     @Override

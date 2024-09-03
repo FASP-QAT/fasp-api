@@ -34,6 +34,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ShipmentBudgetAmt;
 import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
@@ -56,6 +57,8 @@ public interface ProgramDataDao {
     public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId);
 
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
+    
+    public List<ShipmentBudgetAmt> getShipmentBudgetList(int programId, int versionId, CustomUserDetails curUser);
 
     public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
 
@@ -122,5 +125,5 @@ public interface ProgramDataDao {
     public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId);
 
     public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId);
-
+    
 }
