@@ -4,7 +4,7 @@ SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'% of Supply Plan');-- en
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'% du plan d\'approvisionnement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'% du plan d\`approvisionnement');-- fr
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'% do Plano de Fornecimento');-- pr
 
@@ -30,7 +30,7 @@ SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Program (Region)');-- en
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme du plan d\'approvisionnement (région)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme du plan d\`approvisionnement (région)');-- fr
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa Plano de Fornecimento (Região)');-- pr
 
@@ -56,7 +56,7 @@ SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Percentage of monthly actual consumption quantity from the Supply Plan program that will be imported into the Forecast program');-- en
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de la quantité de consommation réelle mensuelle du programme Plan d\'approvisionnement qui sera importée dans le programme Prévisions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de la quantité de consommation réelle mensuelle du programme Plan d\`approvisionnement qui sera importée dans le programme Prévisions');-- fr
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem da quantidade de consumo real mensal do programa Plano de Fornecimento que será importada para o programa Previsão');-- pr
 

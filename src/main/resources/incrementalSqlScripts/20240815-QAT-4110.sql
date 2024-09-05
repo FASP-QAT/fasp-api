@@ -195,18 +195,18 @@ DELIMITER ;
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.selectMultipleTree','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Multiple Tree');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Multiple Trees');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionner plusieurs arbres');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar varios árboles');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione várias árvores');-- pr
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.orMore','1'); 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.selectOneOrMore','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'or more');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ou plus');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'o más');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'ou mais');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select one or more forecasts for');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez une ou plusieurs prévisions pour');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione uno o más pronósticos para');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione uma ou mais previsões para');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastSummary.eitherTreeOrConsumptionValidation','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -215,3 +215,64 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Multi-select is only a
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La sélection multiple n`est disponible que pour les prévisions d`arbres');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La selección múltiple solo está disponible para pronósticos de árboles');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A seleção múltipla está disponível apenas para previsões de árvores');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.selectMultipleTree','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, user can select multiple tree forecasts (not consumption) as their final forecast, which will aggregate the monthly forecast quantities.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette case est cochée, l`utilisateur peut sélectionner plusieurs prévisions d`arbres (pas de consommation) comme prévision finale, ce qui regroupera les quantités prévues mensuellement.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se marca esta opción, el usuario puede seleccionar múltiples pronósticos de árboles (no de consumo) como su pronóstico final, lo que agregará las cantidades de pronóstico mensual.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se marcada, o usuário pode selecionar várias previsões de árvores (não consumo) como sua previsão final, que agregará as quantidades previstas mensais.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.totalAggregated','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Selected Forecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Total des prévisions sélectionnées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico total seleccionado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão total selecionada');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.note','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Calculated values in the graph and data table only update after submitting');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : les valeurs calculées dans le graphique et le tableau de données ne sont mises à jour qu`après la soumission');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Los valores calculados en el gráfico y la tabla de datos solo se actualizan después del envío');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Os valores calculados no gráfico e na tabela de dados são atualizados somente após o envio');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastSummaryTooltip.selectForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User can select multiple tree forecasts (not consumption) as their final forecast, which will aggregate the total forecast quantities.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'L`utilisateur peut sélectionner plusieurs prévisions d`arbres (pas de consommation) comme prévision finale, ce qui regroupera les quantités totales prévues.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El usuario puede seleccionar múltiples pronósticos de árboles (no de consumo) como su pronóstico final, lo que agregará las cantidades totales de pronóstico.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O usuário pode selecionar várias previsões de árvores (não de consumo) como sua previsão final, o que agregará as quantidades totais previstas.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareAndSelect.topNote','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Users can select multiple tree forecasts as their final forecast, which will aggregate the monthly forecast quantities. Users cannot select multiple consumption forecasts or a combination of tree and consumption forecasts as their final forecast.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les utilisateurs peuvent sélectionner plusieurs prévisions d`arbres comme prévision finale, ce qui regroupera les quantités prévues mensuellement. Les utilisateurs ne peuvent pas sélectionner plusieurs prévisions de consommation ou une combinaison de prévisions d`arbres et de consommation comme prévision finale.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los usuarios pueden seleccionar múltiples pronósticos de árboles como pronóstico final, lo que agregará las cantidades pronosticadas mensuales. Los usuarios no pueden seleccionar múltiples pronósticos de consumo o una combinación de pronósticos de árboles y consumo como pronóstico final.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os usuários podem selecionar várias previsões de árvore como sua previsão final, o que agregará as quantidades de previsão mensal. Os usuários não podem selecionar várias previsões de consumo ou uma combinação de previsões de árvore e consumo como sua previsão final.');-- pr
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Select one or more forecasts as the final forecast for each Planning Unit and Region'
+where l.LABEL_CODE='static.tooltip.SelectAsForecast' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sélectionnez une ou plusieurs prévisions comme prévision finale pour chaque unité de planification et région'
+where l.LABEL_CODE='static.tooltip.SelectAsForecast' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Seleccione uno o más pronósticos como pronóstico final para cada unidad de planificación y región'
+where l.LABEL_CODE='static.tooltip.SelectAsForecast' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Selecione uma ou mais previsões como previsão final para cada Unidade de Planejamento e Região'
+where l.LABEL_CODE='static.tooltip.SelectAsForecast' and ll.LANGUAGE_ID=4;
