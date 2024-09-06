@@ -39,6 +39,12 @@ public class ProblemRestController implements Serializable {
     @Autowired
     private UserService userService;
     
+    /**Used to create a Manual Problem for a Supply Plan Program
+     * 
+     * @param manualProblem
+     * @param auth
+     * @return 
+     */
     @PostMapping("/problemReport/createManualProblem")
     public ResponseEntity createManualProblem(@RequestBody ManualProblem manualProblem, Authentication auth) {
         try {
@@ -56,6 +62,11 @@ public class ProblemRestController implements Serializable {
         }
     }
     
+    /**List of Problem Stauses
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/problemStatus")
     public ResponseEntity getProblemStatusList(Authentication auth) {
         try {

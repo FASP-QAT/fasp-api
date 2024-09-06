@@ -88,7 +88,7 @@ public class UsageTemplateRestController {
     }
 
     /**
-     * API used to add and update UsageTemplate
+     * API used to add or update UsageTemplate
      *
      * @param usageTemplateList List<UsageTemplate> object that you want to add
      * or update
@@ -121,7 +121,7 @@ public class UsageTemplateRestController {
     }
 
     /**
-     * API used to get the active UsageTemplate list based on filters provided.
+     * API used to get the list of UsageTemplats filtered by TracerCategory.
      * Will only return those UsageTemplates that are marked Active and match
      * with Filter criteria.
      *

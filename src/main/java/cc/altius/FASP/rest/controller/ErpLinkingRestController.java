@@ -52,6 +52,8 @@ public class ErpLinkingRestController {
     private UserService userService;
 
     /**
+     * Tab 1 option 
+     * 
      * This function is called when the user clicks on Tab1 option in the
      * Linking screen. Current data is taken from the local but this API serves
      * historical data.
@@ -81,6 +83,8 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Used to autocomplete the Ro/Po order
+     * 
      * The autocomplete runs only if the roPo provided is 4 or more characters
      *
      * @param roPo -- PO Number or RO Number that you want to search for. 0 if
@@ -116,6 +120,8 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Used to autocomplete the PlanningUnit
+     * 
      * The autocomplete runs only if the search term provided is more than 4
      * characters
      *
@@ -147,6 +153,7 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Not linked ERP shipments
      *
      * @param input programId -- Program Id of the Shipment that you clicked on
      * to open the popup | shipmentPlanningUnitId -- Planning Unit Id of the
@@ -174,7 +181,8 @@ public class ErpLinkingRestController {
     }
 
     /**
-     *
+     *Not linked ERP shipments for Tab 3
+     * 
      * @param input realmCountryId -- that you want to see the ERP shipments for
      * productCategorySortOrder -- Sort order of the Product Category that you
      * want to filter on planningUnitIds -- Array of PlanningUnitIds that you
@@ -200,7 +208,8 @@ public class ErpLinkingRestController {
     }
 
     /**
-     *
+     *List of already linked QAT shipments for Program and Version
+     * 
      * @param programId -- Program Id that you want to see the linked Shipments
      * for
      * @param versionId -- Version Id that you want to see the linked Shipments
@@ -227,6 +236,12 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Used to sync Shipments for ERP Linking
+     * 
+     * @param shipmentSyncInputList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/shipmentSync")
     public ResponseEntity shipmentSync(@RequestBody List<ShipmentSyncInput> shipmentSyncInputList, Authentication auth) {
         try {
@@ -241,6 +256,12 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Used to check if a Shipment is linked to another program
+     * 
+     * @param shipmentInput
+     * @param auth
+     * @return 
+     */
     @PostMapping("/otherProgramCheck")
     public ResponseEntity shipmentLinkedToOtherProgramCheck(@RequestBody ShipmentLinkedToOtherProgramInput shipmentInput, Authentication auth) {
         try {
@@ -252,6 +273,13 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Artmist history for the RO/PO
+     * 
+     * @param roNo
+     * @param roPrimeLineNo
+     * @param auth
+     * @return 
+     */
     @GetMapping("/artmisHistory/{roNo}/{roPrimeLineNo}")
     public ResponseEntity artmisHistory(@PathVariable("roNo") String roNo, @PathVariable("roPrimeLineNo") int roPrimeLineNo, Authentication auth) {
         try {
@@ -269,6 +297,12 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Batch details for the RO/PO and Prime line no
+     * 
+     * @param roAndRoPrimeLineNoList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/batchDetails")
     public ResponseEntity getBatchDetails(@RequestBody List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, Authentication auth) {
         try {
@@ -280,6 +314,13 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Shipment lniking notification for Program and Version
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/shipmentLinkingNotification/programId/{programId}/versionId/{versionId}")
     public ResponseEntity shipmentLinkingNotification(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -298,6 +339,12 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Update notification as processed
+     * 
+     * @param eRPNotificationDTO
+     * @param auth
+     * @return 
+     */
     @PutMapping("/updateNotification")
     public ResponseEntity updateNotification(@RequestBody List<ERPNotificationDTO> eRPNotificationDTO, Authentication auth) {
         try {
@@ -320,6 +367,11 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Notification count 
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/getNotificationCount")
     public ResponseEntity getNotificationCount(Authentication auth) {
         try {
@@ -331,6 +383,11 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Notification summary
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/getNotificationSummary")
     public ResponseEntity getNotificationSummary(Authentication auth) {
         try {
@@ -342,6 +399,12 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**Product category list for RealmCountry for ERP Linking
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/productCategory/realmCountryId/{realmCountryId}")
     public ResponseEntity getProductCategoryListForRealmCountryForErpLinking(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
         try {

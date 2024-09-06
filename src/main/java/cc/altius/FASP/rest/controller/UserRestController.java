@@ -64,6 +64,11 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
+    /**Get list of Roles
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
@@ -75,6 +80,11 @@ public class UserRestController {
         }
     }
 
+    /**Get Role by Id
+     * 
+     * @param roleId
+     * @return 
+     */
     @GetMapping(value = "/role/{roleId}")
     public ResponseEntity getRoleById(@PathVariable("roleId") String roleId) {
         try {
@@ -85,6 +95,12 @@ public class UserRestController {
         }
     }
 
+    /**Add Role
+     * 
+     * @param role
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -106,6 +122,12 @@ public class UserRestController {
         }
     }
 
+    /**Update Role
+     * 
+     * @param role
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -127,6 +149,10 @@ public class UserRestController {
         }
     }
 
+    /**Get list of Business functions
+     * 
+     * @return 
+     */
     @GetMapping(value = "/businessFunction")
     public ResponseEntity getBusinessFunctionList() {
         try {
@@ -137,6 +163,11 @@ public class UserRestController {
         }
     }
 
+    /**Get user by UserId
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/details")
     public ResponseEntity getUserDetails(Authentication auth) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -148,6 +179,11 @@ public class UserRestController {
         }
     }
 
+    /**Get User list
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user")
     public ResponseEntity getUserList(Authentication auth) {
         try {
@@ -159,6 +195,12 @@ public class UserRestController {
         }
     }
 
+    /**Get User list for Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -176,6 +218,12 @@ public class UserRestController {
         }
     }
 
+    /**Get list of Users that have access to a Program
+     * 
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/programId/{programId}")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -193,6 +241,12 @@ public class UserRestController {
         }
     }
     
+    /**Get User by Id
+     * 
+     * @param userId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
@@ -214,6 +268,13 @@ public class UserRestController {
         }
     }
 
+    /**Add User
+     * 
+     * @param user
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user")
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -256,6 +317,13 @@ public class UserRestController {
         }
     }
 
+    /**Update User
+     * 
+     * @param user
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @PutMapping(value = "/user")
     public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -284,6 +352,11 @@ public class UserRestController {
         }
     }
 
+    /**Update a new passwords when a password has expired for a user
+     * 
+     * @param password
+     * @return 
+     */
     @PostMapping(value = "/user/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -314,6 +387,12 @@ public class UserRestController {
         }
     }
 
+    /**Update a new password for the user
+     * 
+     * @param password
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
@@ -339,6 +418,12 @@ public class UserRestController {
         }
     }
 
+    /**Sends out the Forgot password email to the registered emailId
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user/forgotPassword")
     public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
         auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
@@ -371,6 +456,12 @@ public class UserRestController {
         }
     }
 
+    /**Used to validate the token when the link in the forgot password email is clicked
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -386,6 +477,12 @@ public class UserRestController {
         }
     }
 
+    /**Update a new password from forgot password
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping("/user/updatePassword")
     public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -418,6 +515,12 @@ public class UserRestController {
         }
     }
 
+    /**Log a user out
+     * 
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @GetMapping(value = "/logout")
     public ResponseEntity logout(Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -440,6 +543,12 @@ public class UserRestController {
         }
     }
 
+    /**Updates the list of Access controls for a User
+     * 
+     * @param user
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/user/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
@@ -464,6 +573,12 @@ public class UserRestController {
         }
     }
 
+    /**Sets the default language used by a User
+     * 
+     * @param languageUser
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
@@ -478,6 +593,12 @@ public class UserRestController {
         }
     }
 
+    /**Sets the default module used by a User
+     * 
+     * @param moduleId
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/module/{moduleId}")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
         try {
@@ -492,6 +613,11 @@ public class UserRestController {
         }
     }
 
+    /**Updates the I agree field for a User
+     * 
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {

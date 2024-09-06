@@ -41,11 +41,21 @@ public class LanguageRestController {
     @Autowired
     private UserService userService;
 
+    /**Get the entire list of Static labels for the Language
+     * 
+     * @param languageCode
+     * @return 
+     */
     @GetMapping("/locales/{languageCode}")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
         return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
     }
 
+    /**Get list of active Languages
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/language")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
@@ -57,6 +67,11 @@ public class LanguageRestController {
         }
     }
 
+    /**Get list of all Languages
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/language/all")
     public ResponseEntity getLanguageListAll(Authentication auth) {
         try {
@@ -68,6 +83,12 @@ public class LanguageRestController {
         }
     }
 
+    /**Get Language by Id
+     * 
+     * @param languageId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/language/{languageId}")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
@@ -82,6 +103,12 @@ public class LanguageRestController {
         }
     }
 
+    /**Add a Language
+     * 
+     * @param language
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/language")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
@@ -103,6 +130,12 @@ public class LanguageRestController {
 
     }
 
+    /**Update a Language
+     * 
+     * @param language
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/language")
     public ResponseEntity editLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {

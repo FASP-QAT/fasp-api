@@ -42,6 +42,12 @@ public class RegionRestController {
     @Autowired
     private UserService userService;
 
+    /**Add or Update Regions
+     * 
+     * @param regions
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
         try {
@@ -60,6 +66,11 @@ public class RegionRestController {
         }
     }
 
+    /**Get list of Regions
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getRegion(Authentication auth) {
         try {
@@ -74,6 +85,12 @@ public class RegionRestController {
         }
     }
 
+    /**Get Region by Id
+     * 
+     * @param regionId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{regionId}")
     public ResponseEntity getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
         try {
@@ -91,6 +108,12 @@ public class RegionRestController {
         }
     }
 
+    /**Get Regions for a RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmCountryId/{realmCountryId}")
     public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {

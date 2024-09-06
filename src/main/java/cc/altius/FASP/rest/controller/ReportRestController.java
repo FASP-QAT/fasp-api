@@ -810,7 +810,7 @@ public class ReportRestController {
         }
     }
 
-    // Report no 31 | Reports -> Consumption Reports -> Forecast Error Report
+    // Report no 31 | Reports -> Consumption Reports -> Forecast Error Report New
     /**
      * <pre>
      * Sample JSON

@@ -32,6 +32,12 @@ public class UserManualRestController {
     @Autowired
     UserManualService userManualService;
     
+    /**Api Used to push the upload the UserManual
+     * 
+     * @param file
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/userManual/uploadUserManual")
     public ResponseEntity uploadUserManual(@RequestParam("file") MultipartFile file, Authentication auth) {
         try {

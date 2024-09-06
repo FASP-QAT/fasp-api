@@ -72,7 +72,10 @@ public class ExportApiRestController {
 //        }
 //    }
     @JsonView(Views.ExportApiView.class)
-    @GetMapping(value = {"/supplyPlan/programId/{programId}/versionId/{versionId}", "/supplyPlan/programId/{programId}/versionId/{versionId}/", "/supplyPlan/programId/{programId}/versionId/{versionId}/startDate/{startDate}"})
+    @GetMapping(value = {
+        "/supplyPlan/programId/{programId}/versionId/{versionId}", 
+        "/supplyPlan/programId/{programId}/versionId/{versionId}/", 
+        "/supplyPlan/programId/{programId}/versionId/{versionId}/startDate/{startDate}"})
     public ResponseEntity getSupplyPlanForProgram(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "startDate", required = false) String startDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

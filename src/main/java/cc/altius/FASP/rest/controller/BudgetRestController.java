@@ -42,7 +42,13 @@ public class BudgetRestController {
     private BudgetService budgetService;
     @Autowired
     private UserService userService;
-
+    
+    /**Add Budget
+     * 
+     * @param budget
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postBudget(@RequestBody Budget budget, Authentication auth) {
         try {
@@ -64,6 +70,12 @@ public class BudgetRestController {
         }
     }
 
+    /**Update Budget
+     * 
+     * @param budget
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putBudget(@RequestBody Budget budget, Authentication auth) {
         try {
@@ -82,6 +94,12 @@ public class BudgetRestController {
         }
     }
 
+    /**GetBudgetList for ProgramIds
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @PostMapping("/programIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
@@ -94,6 +112,11 @@ public class BudgetRestController {
         }
     }
 
+    /**Get Budget List
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(Authentication auth) {
@@ -106,6 +129,12 @@ public class BudgetRestController {
         }
     }
 
+    /**Get Budget for Id
+     * 
+     * @param budgetId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{budgetId}")
     public ResponseEntity getBudget(@PathVariable("budgetId") int budgetId, Authentication auth) {
         try {
@@ -123,6 +152,12 @@ public class BudgetRestController {
         }
     }
 
+    /**Get Budgets for Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {

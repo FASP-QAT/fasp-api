@@ -63,6 +63,11 @@ public class DatasetRestController {
     @Autowired
     private RealmCountryService realmCountryService;
 
+    /**Get list of active Dataset Programs
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/dataset")
     public ResponseEntity getDataset(Authentication auth) {
         try {
@@ -74,6 +79,12 @@ public class DatasetRestController {
         }
     }
 
+    /**Get Dataset by Id
+     * 
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/dataset/{programId}")
     public ResponseEntity getDataset(@PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -91,6 +102,14 @@ public class DatasetRestController {
         }
     }
 
+    /**Get Dataset Program Data based on Program and Version Id list but without the Tree data
+     * 
+     * @param programId
+     * @param versionId
+     * @param includeTreeData
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/datasetData/programId/{programId}/versionId/{versionId}/withoutTree")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @PathVariable(name = "includeTreeData", required = false) boolean includeTreeData, Authentication auth) {
@@ -109,6 +128,13 @@ public class DatasetRestController {
         }
     }
     
+    /**Get Dataset Program Data based on Program and Version Id list
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/datasetData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
@@ -127,6 +153,13 @@ public class DatasetRestController {
         }
     }
 
+    /**Get Planning Unit list for Dataset Program
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/planningUnit/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getPlanningUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -141,6 +174,12 @@ public class DatasetRestController {
         }
     }
 
+    /**Get list of Dataset Programs based on Program and Version Id list
+     * 
+     * @param programVersionList
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.InternalView.class)
     @PostMapping("/datasetData")
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
@@ -165,6 +204,12 @@ public class DatasetRestController {
         }
     }
 
+    /**Add new Dataset Program
+     * 
+     * @param dataset
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/dataset")
     public ResponseEntity postDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
@@ -184,6 +229,12 @@ public class DatasetRestController {
         }
     }
 
+    /**Update Dataset Program
+     * 
+     * @param dataset
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "/dataset")
     public ResponseEntity putDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
@@ -203,6 +254,11 @@ public class DatasetRestController {
         }
     }
 
+    /**Used in the Load Dataset Page
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/loadDataset")
     public ResponseEntity getLoadDataset(Authentication auth) {
         try {
@@ -223,6 +279,13 @@ public class DatasetRestController {
         }
     }
 
+    /**Used in the Load Dataset Page to get the Version history of a specific Program
+     * 
+     * @param programId
+     * @param page
+     * @param auth
+     * @return 
+     */
     @GetMapping("/loadDataset/programId/{programId}/page/{page}")
     public ResponseEntity getLoadDataset(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
         try {
@@ -239,6 +302,13 @@ public class DatasetRestController {
         }
     }
 
+    /**
+     * Gets the list of all Dataset Programs based on a list of ProgramIds, Version Type, Start date and Stop date
+     * 
+     * @param dvli
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @PostMapping("/dataset/versions")
     public ResponseEntity getDatasetVersionList(@RequestBody DatasetVersionListInput dvli, Authentication auth) {

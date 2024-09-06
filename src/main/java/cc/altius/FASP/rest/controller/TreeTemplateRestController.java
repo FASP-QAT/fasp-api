@@ -43,12 +43,10 @@ public class TreeTemplateRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * API used to get the active Tree template list. Will only return those
-     * Tree Templates that are marked Active.
-     *
+    /**Get list of Tree templates for Dropdown
+     * 
      * @param auth
-     * @return returns the active list of active Tree Templates
+     * @return 
      */
 //    @JsonView(Views.InternalView.class)
     @GetMapping("")
@@ -65,11 +63,11 @@ public class TreeTemplateRestController {
         }
     }
 
-    /**
-     * API used to get the complete TreeTemplate list.
-     *
+    /**Get TreeTemplate by Id
+     * 
+     * @param treeTemplateId
      * @param auth
-     * @return returns the complete list of TreeTemplates
+     * @return 
      */
     @GetMapping("/{treeTemplateId}")
     @Operation(description = "API used to get a specific TreeTemplate based on the Id.", summary = "Get TreeTemplate based on the Id", tags = ("treeTemplate"))
@@ -85,6 +83,12 @@ public class TreeTemplateRestController {
         }
     }
 
+    /**Add TreeTemplate
+     * 
+     * @param treeTemplate
+     * @param auth
+     * @return 
+     */
     @PostMapping("")
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
@@ -100,6 +104,12 @@ public class TreeTemplateRestController {
         }
     }
 
+    /**Update TreeTempalte
+     * 
+     * @param treeTemplate
+     * @param auth
+     * @return 
+     */
     @PutMapping("")
     public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {

@@ -34,6 +34,12 @@ public class ForecastingStatisticsRestController {
 //    private static final String URL = "http://localhost:7876";
     private static final String URL = "http://50.16.62.249:8000";
 
+    /**Run Arima on dataset
+     * 
+     * @param request
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(HttpServletRequest request, Authentication auth) {
         try {
@@ -54,6 +60,12 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**Run TES on dataset
+     * 
+     * @param request
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/tes")
     public ResponseEntity postTes(HttpServletRequest request, Authentication auth) {
         try {
@@ -73,6 +85,12 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**Run Regression on dataset
+     * 
+     * @param request
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/regression")
     public ResponseEntity postRegression(HttpServletRequest request, Authentication auth) {
         try {

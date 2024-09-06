@@ -42,6 +42,12 @@ public class DataSourceTypeRestController {
     @Autowired
     private UserService userService;
 
+    /**Add DataSource Type
+     * 
+     * @param dataSourceType
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "")
     public ResponseEntity addDataSourceType(@RequestBody DataSourceType dataSourceType, Authentication auth) {
         try {
@@ -60,6 +66,11 @@ public class DataSourceTypeRestController {
         }
     }
 
+    /**Get DataSource Type
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "")
     public ResponseEntity getDataSourceTypeList(Authentication auth) {
         try {
@@ -71,6 +82,11 @@ public class DataSourceTypeRestController {
         }
     }
 
+    /**Get list of active DataSource Types
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getDataSourceTypeListAll(Authentication auth) {
         try {
@@ -82,6 +98,12 @@ public class DataSourceTypeRestController {
         }
     }
     
+    /**Get DataSource Type by Id
+     * 
+     * @param dataSourceTypeId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/{dataSourceTypeId}")
     public ResponseEntity getDataSourceTypeById(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
@@ -99,6 +121,12 @@ public class DataSourceTypeRestController {
         }
     }
 
+    /**Get list of active DataSource Types for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/realmId/{realmId}")
     public ResponseEntity getDataSourceTypeListForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -116,6 +144,12 @@ public class DataSourceTypeRestController {
         }
     }
 
+    /**Update DataSource Type
+     * 
+     * @param dataSourceType
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "")
     public ResponseEntity editDataSourceType(@RequestBody DataSourceType dataSourceType, Authentication auth) {
         try {

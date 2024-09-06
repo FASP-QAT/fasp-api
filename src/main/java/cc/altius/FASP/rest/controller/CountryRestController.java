@@ -40,6 +40,11 @@ public class CountryRestController {
     @Autowired
     private UserService userService;
 
+    /**Get list of active Countries
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "")
     public ResponseEntity getCountryList(Authentication auth) {
         try {
@@ -51,6 +56,11 @@ public class CountryRestController {
         }
     }
 
+    /**Get list of all Countries
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getCountryListAll(Authentication auth) {
         try {
@@ -62,6 +72,12 @@ public class CountryRestController {
         }
     }
 
+    /**Get Country by Id
+     * 
+     * @param countryId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/{countryId}")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
@@ -76,6 +92,12 @@ public class CountryRestController {
         }
     }
 
+    /**Add Country
+     * 
+     * @param country
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "")
     public ResponseEntity addCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
@@ -97,6 +119,12 @@ public class CountryRestController {
 
     }
 
+    /**Update Country
+     * 
+     * @param country
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "")
     public ResponseEntity editCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {

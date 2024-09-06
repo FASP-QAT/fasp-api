@@ -78,6 +78,13 @@ public class DropDownRestController {
     @Autowired
     private BudgetService budgetService;
 
+    /**Get Program list for Dropdown based on Realm and ProgramType
+     * 
+     * @param realmId
+     * @param programTypeId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/program/realm/{realmId}/programType/{programTypeId}")
     public ResponseEntity getProgramForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -90,6 +97,13 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Program list for Dropdown based on Realm and ProgramType with additional details
+     * 
+     * @param realmId
+     * @param programTypeId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/realm/{realmId}/programType/{programTypeId}/expanded")
     public ResponseEntity getProgramExpandedForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -102,6 +116,14 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Program list for Dropdown based on Realm and ProgramType, RealmCountry and HealthArea
+     * 
+     * @param input
+     * @param realmId
+     * @param programTypeId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/realm/{realmId}/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -114,6 +136,13 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Program list for Dropdown based on ProgramType and list of RealmCountryIds
+     * 
+     * @param realmCountryIds
+     * @param programTypeId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/programType/{programTypeId}/filter/multipleRealmCountry")
     public ResponseEntity getProgramWithFilterForMultipleRealmCountryForDropdown(@RequestBody String[] realmCountryIds, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
@@ -126,6 +155,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Used to find the Planning Unit based on partial name
+     * 
+     * @param autoCompleteInput
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/autocomplete")
     public ResponseEntity getPlanningUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
@@ -138,6 +173,14 @@ public class DropDownRestController {
         }
     }
 
+    /**Used to find the Planning Unit based on partial name and additional filters. Only returns list of Id’s
+     * 
+     * @param searchText
+     * @param language
+     * @param productCategorySortOrder
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDown3View.class)
     @GetMapping("/planningUnit/autocomplete/filter/productCategory/{searchText}/{language}/{productCategorySortOrder}")
     public ResponseEntity getPlanningUnitByAutoCompleteFilterForProductCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "productCategorySortOrder", required = true) String productCategorySortOrder, Authentication auth) {
@@ -154,6 +197,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of all Planning Units for Dropdown 
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/planningUnit")
     public ResponseEntity getPlanningUnitDropDownList(Authentication auth) {
@@ -166,6 +214,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Used to find the Forecasting Unit based on partial name
+     * 
+     * @param autoCompleteInput
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/autocomplete")
     public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
@@ -178,6 +232,14 @@ public class DropDownRestController {
         }
     }
 
+    /**Used to find the Forecasting Unit based on partial name and additional filters. Only returns list of Id’s
+     * 
+     * @param searchText
+     * @param language
+     * @param tracerCategoryId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDown3View.class)
     @GetMapping("/forecastingUnit/autocomplete/filter/tracerCategory/{searchText}/{language}/{tracerCategoryId}")
     public ResponseEntity getForecastingUnitByAutoCompleteWithFilterTracerCategory(@PathVariable(value = "searchText", required = true) String searchText, @PathVariable(value = "language", required = true) String language, @PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
@@ -194,6 +256,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of all Forecasting Units for Dropdown 
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
@@ -206,6 +273,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of all Forecasting Units for Dropdown filtered on ProductCategory and TracerCategory
+     * 
+     * @param input
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/filter/pcAndTc")
     public ResponseEntity getForecastingUnitDropdownListWithFilterForPcAndTc(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
@@ -218,6 +291,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of RealmCountries based on Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/realmCountry/realm/{realmId}")
     public ResponseEntity getRealmCountryDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -230,6 +309,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of HealthAreas based on Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/healthArea/realm/{realmId}")
     public ResponseEntity getHealthAreaDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -242,6 +327,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of Organisations based on Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realm/{realmId}")
     public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -254,6 +345,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of Organisations based on RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
@@ -266,6 +363,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of TracerCategories for a Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategoryDropdownList(Authentication auth) {
@@ -278,6 +380,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of TracerCategories based on a list of Programs for a Dropdown
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/tracerCategory/filter/multiplePrograms")
     public ResponseEntity getTracerCategoryDropdownList(@RequestBody String[] programIds, Authentication auth) {
@@ -290,6 +398,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of FundingSources for a Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSourceDropdownList(Authentication auth) {
@@ -326,6 +439,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of ProcurementAgents for a Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgentDropdownList(Authentication auth) {
@@ -338,6 +456,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of ProcurementAgents based on a list of Programs for a Dropdown
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/procurementAgent/filter/multiplePrograms")
     public ResponseEntity getProcurementAgentDropdownListForFilterMultiplePrograms(@RequestBody String[] programIds, Authentication auth) {
@@ -350,6 +474,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of EquivalencyUnits for a Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
@@ -362,6 +491,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Gets the list of Users for a Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
@@ -374,6 +508,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of all Planning Units for Dropdown filtered on Multiple ProductCategories and TracerCategories
+     * 
+     * @param input
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/program/filter/multipleProgramAndTracerCategory")
     public ResponseEntity getProgramPlanningUnitDropdownList(@RequestBody MultipleProgramAndTracerCategoryDTO input, Authentication auth) {
@@ -386,6 +526,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Planning Unit list for Dataset Program for Dropdown
+     * 
+     * @param input
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/dataset/filter/programAndVersion")
     public ResponseEntity getDatasetPlanningUnitDropdownList(@RequestBody ProgramAndVersionDTO input, Authentication auth) {
@@ -398,6 +544,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of Budgets filtered by FundingSources
+     * 
+     * @param fundingSources
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/budget/filter/multipleFundingSources")
     public ResponseEntity getBudgetDropdownFilterMultipleFundingSources(@RequestBody String[] fundingSources, Authentication auth) {
@@ -410,6 +562,12 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of Budgets for a Program
+     * 
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/budget/program/{programId}")
     public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
@@ -422,6 +580,13 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Version list for Program and ProgramType
+     * 
+     * @param programTypeId
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/version/filter/programTypeId/{programTypeId}/programId/{programId}")
     public ResponseEntity getVersionListForProgram(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
@@ -434,6 +599,13 @@ public class DropDownRestController {
         }
     }
 
+    /**Get Version list for multiple Programs and ProgramType
+     * 
+     * @param programTypeId
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/programTypeId/{programTypeId}/programs")
     public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
@@ -446,6 +618,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of Tree templates for Dropdown
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/treeTemplate")
     public ResponseEntity getTreeTemplateList(Authentication auth) {
@@ -458,6 +635,13 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of SP Programs for Dropdown based on Current Program Version and Current Program Status
+     * 
+     * @param versionStatusIdList
+     * @param versionTypeIdList
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeIdList}")
     public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusIdList", required = true) String versionStatusIdList, @PathVariable(value = "versionTypeIdList", required = true) String versionTypeIdList, Authentication auth) {
@@ -470,6 +654,11 @@ public class DropDownRestController {
         }
     }
 
+    /**Get list of active SimpleObject of PU with FU
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit/basic")
     public ResponseEntity getPlanningUnitListBasic(Authentication auth) {

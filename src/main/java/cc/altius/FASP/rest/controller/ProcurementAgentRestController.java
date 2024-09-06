@@ -46,6 +46,12 @@ public class ProcurementAgentRestController {
     @Autowired
     private UserService userService;
 
+    /**Add Procurement Agent
+     * 
+     * @param procurementAgent
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/procurementAgent")
     public ResponseEntity postProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
@@ -69,6 +75,12 @@ public class ProcurementAgentRestController {
 
     }
 
+    /**Update Procurement Agent
+     * 
+     * @param procurementAgent
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "/procurementAgent")
     public ResponseEntity putProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
@@ -105,6 +117,11 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Get list of active Procurement Agents 
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgent(Authentication auth) {
@@ -128,6 +145,12 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Get list of active Procurement Agents for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/realmId/{realmId}")
     public ResponseEntity getProcurementAgentForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
@@ -163,6 +186,12 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Get Procurement Agent by Id
+     * 
+     * @param procurementAgentId
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/{procurementAgentId}")
     public ResponseEntity getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
@@ -192,6 +221,12 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Add and Update Procurement Agent Procurement Unit
+     * 
+     * @param procurementAgentProcurementUnits
+     * @param auth
+     * @return 
+     */
     @PutMapping("/procurementAgent/procurementUnit")
     public ResponseEntity saveProcurementUnitForProcurementAgent(@RequestBody ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, Authentication auth) {
         try {
@@ -207,6 +242,12 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Get list of active Procurement Units by Procurement Agent Id
+     * 
+     * @param procurementAgentId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit")
     public ResponseEntity getProcurementAgentProcurementUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -221,6 +262,12 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Get list of all Procurement Units by Procurement Agent Id
+     * 
+     * @param procurementAgentId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit/all")
     public ResponseEntity getProcurementAgentProcurementUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -235,6 +282,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**Check if Procurement Agent Display name exists in the same Realm
+     * 
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return 
+     */
     @GetMapping("/procurementAgent/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getProcurementAgentDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {

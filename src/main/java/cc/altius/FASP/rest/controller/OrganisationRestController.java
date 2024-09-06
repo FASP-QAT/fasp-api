@@ -42,6 +42,12 @@ public class OrganisationRestController {
     @Autowired
     private UserService userService;
 
+    /**Add an Organisation
+     * 
+     * @param organisation
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
@@ -60,6 +66,12 @@ public class OrganisationRestController {
         }
     }
 
+    /**Update an Organisation
+     * 
+     * @param organisation
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
@@ -81,6 +93,11 @@ public class OrganisationRestController {
         }
     }
 
+    /**Get list of all Organisations
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getOrganisation(Authentication auth) {
         try {
@@ -92,6 +109,12 @@ public class OrganisationRestController {
         }
     }
 
+    /**Get Organisation by Id
+     * 
+     * @param organisationId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{organisationId}")
     public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
@@ -109,6 +132,13 @@ public class OrganisationRestController {
         }
     }
 
+    /**Check if Organisation Display name exists in the same Realm
+     * 
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return 
+     */
     @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {

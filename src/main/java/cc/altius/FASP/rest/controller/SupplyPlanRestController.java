@@ -50,6 +50,14 @@ public class SupplyPlanRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**Get a SupplyPlan for a Program and Version. Flag if the Supply Plan should be rebuilt before being shared
+     * 
+     * @param programId
+     * @param versionId
+     * @param rebuild
+     * @param auth
+     * @return 
+     */
     @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
     @ResponseBody
     public ResponseEntity buildNewSupplyPlan(
@@ -89,6 +97,12 @@ public class SupplyPlanRestController {
         }
     }
 
+    /**Rebuild the Supply Plan for a list of ProgramId and Version Id
+     * 
+     * @param pvList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/rebuildSupplyPlans")
     @ResponseBody
     public ResponseEntity rebuildSupplyPlans(@RequestBody List<ProgramIdAndVersionId> pvList, Authentication auth) {

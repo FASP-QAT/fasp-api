@@ -48,6 +48,12 @@ public class ForecastingUnitRestController {
     @Autowired
     private UserService userService;
 
+    /**Add a FU
+     * 
+     * @param forecastingUnit
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
@@ -66,6 +72,12 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Update a FU
+     * 
+     * @param forecastingUnit
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
@@ -84,6 +96,11 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get list of active FU’s
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnit(Authentication auth) {
@@ -99,6 +116,12 @@ public class ForecastingUnitRestController {
         }
     }
     
+    /**Get list of FU’s filtered by Id’s
+     * 
+     * @param forecastingUnitIdList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
@@ -111,6 +134,11 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get list of all FU’s
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitAll(Authentication auth) {
@@ -126,6 +154,12 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get list of all FU’s for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -144,6 +178,12 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get FU by Id
+     * 
+     * @param forecastingUnitId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{forecastingUnitId}")
     public ResponseEntity getForecastingUnitById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
@@ -161,6 +201,12 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get FU by TracerCategory
+     * 
+     * @param forecastingUnitId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.InternalView.class)
     public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
@@ -185,6 +231,12 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get FU filtered by TracerCategory list
+     * 
+     * @param tracerCategoryIds
+     * @param auth
+     * @return 
+     */
     @PostMapping("/tracerCategorys")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
@@ -203,6 +255,13 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**Get list of FU’s for the Dataset by ProgramId and VersionId
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/programId/{programId}/versionId/{versionId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
@@ -218,6 +277,12 @@ public class ForecastingUnitRestController {
         }
     }
     
+    /**Get list of FU’s filtered by ProductCategory and TracerCategory
+     * 
+     * @param input
+     * @param auth
+     * @return 
+     */
     @PostMapping("/tracerCategory/productCategory")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByTracerCategoryAndProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {

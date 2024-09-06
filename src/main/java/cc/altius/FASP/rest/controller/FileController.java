@@ -44,6 +44,15 @@ public class FileController {
     private String SHIPMENT_DATA_ENTRY_TEMPLATE;
     
 
+    /**Get File by FileId
+     * 
+     * @param fileName
+     * @param response
+     * @param auth
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
     @GetMapping("/file/{fileName}")
     public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
         FileInputStream fin = null;

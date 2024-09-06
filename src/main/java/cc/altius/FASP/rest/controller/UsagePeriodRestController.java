@@ -87,7 +87,7 @@ public class UsagePeriodRestController {
     }
 
     /**
-     * API used to add and update UsagePeriod
+     * API used to add or update UsagePeriod
      *
      * @param usagePeriodList List<UsagePeriod> object that you want to add or
      * update

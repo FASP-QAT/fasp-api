@@ -44,6 +44,12 @@ public class FundingSourceRestController {
     @Autowired
     private UserService userService;
 
+    /**Add Funding Source
+     * 
+     * @param fundingSource
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "/fundingSource")
     public ResponseEntity postFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
@@ -62,6 +68,12 @@ public class FundingSourceRestController {
         }
     }
 
+    /**Update Funding Source
+     * 
+     * @param fundingSource
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "/fundingSource")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
@@ -83,6 +95,11 @@ public class FundingSourceRestController {
         }
     }
 
+    /**Get list of active Funding Sources
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSource(Authentication auth) {
@@ -95,6 +112,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**Check if Funding Source Display name exists in the same Realm
+     * 
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return 
+     */
     @GetMapping("/fundingSource/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getFundingSourceDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
@@ -106,6 +130,12 @@ public class FundingSourceRestController {
         }
     }
 
+    /**Get list of Funding Sources by RealmId
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
@@ -124,6 +154,12 @@ public class FundingSourceRestController {
         }
     }
 
+    /**Get Funding Source by Id
+     * 
+     * @param fundingSourceId
+     * @param auth
+     * @return 
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/{fundingSourceId}")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {

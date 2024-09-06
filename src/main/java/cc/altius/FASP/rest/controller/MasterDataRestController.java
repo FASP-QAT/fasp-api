@@ -27,7 +27,7 @@ import cc.altius.FASP.service.MasterDataService;
  * @author Akil Mahimwala
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/master")
 public class MasterDataRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,6 +37,11 @@ public class MasterDataRestController {
     @Autowired
     private UserService userService;
 
+    /**Get list of Version types
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
@@ -48,6 +53,11 @@ public class MasterDataRestController {
         }
     }
 
+    /**Get list of Version statuses
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/versionStatus")
     public ResponseEntity getVersionStatus(Authentication auth) {
         try {
@@ -59,6 +69,11 @@ public class MasterDataRestController {
         }
     }
     
+    /**Get list of Shipment Statuses
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/shipmentStatus")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {
@@ -70,7 +85,7 @@ public class MasterDataRestController {
     }
 
     /**
-     * API used to get the complete UsageType list. Will only return those
+     * API used to get the complete active UsageType list. Will only return those
      * UsageTypes that are marked Active.
      *
      * @param auth
@@ -91,7 +106,7 @@ public class MasterDataRestController {
     }
 
     /**
-     * API used to get the complete NodeType list. Will only return those
+     * API used to get the complete active NodeType list. Will only return those
      * NodeTypes that are marked Active.
      *
      * @param auth
@@ -110,9 +125,9 @@ public class MasterDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     /**
-     * API used to get the complete ForecastMethodType list. Will only return
+     * API used to get the complete active ForecastMethodType list. Will only return
      * those NodeTypes that are marked Active.
      *
      * @param auth

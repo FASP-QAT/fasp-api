@@ -33,6 +33,11 @@ public class DashboardRestController {
     @Autowired
     private UserService userService;
 
+    /**Dashboard information for Application level users
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/applicationLevel")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
@@ -44,6 +49,11 @@ public class DashboardRestController {
         }
     }
 
+    /**Dashboard information for Realm level users
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/realmLevel")
     public ResponseEntity realmLevelDashboard(Authentication auth) {
         try {
@@ -55,6 +65,11 @@ public class DashboardRestController {
         }
     }
     
+    /**Dashboard information for Supply Plan
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/supplyPlanReviewerLevel")
     public ResponseEntity supplyPlanReviewerLevelDashboard(Authentication auth) {
         try {
@@ -66,6 +81,11 @@ public class DashboardRestController {
         }
     }
 
+    /**User count for Application level Users
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/applicationLevel/userList")
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
@@ -77,6 +97,11 @@ public class DashboardRestController {
         }
     }
 
+    /**User count for Realm level Users
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/realmLevel/userList")
     public ResponseEntity realmLevelDashboardUserList(Authentication auth) {
         try {

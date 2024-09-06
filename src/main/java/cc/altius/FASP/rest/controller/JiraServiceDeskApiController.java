@@ -40,6 +40,12 @@ public class JiraServiceDeskApiController {
     @Autowired
     private UserService userService;
 
+    /**Used to add a Ticket to Jira
+     * 
+     * @param jsonData
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
         try {            
@@ -59,6 +65,13 @@ public class JiraServiceDeskApiController {
 
     }
 
+    /**Used to add a File to an existing Jira Ticket
+     * 
+     * @param file
+     * @param issueId
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/addIssueAttachment/{issueId}")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
@@ -80,6 +93,11 @@ public class JiraServiceDeskApiController {
         }
     }     
     
+    /**Used to get a summary of Tickets for the current User
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/openIssues")
     public ResponseEntity getOpenIssue(Authentication auth) {
         try {            

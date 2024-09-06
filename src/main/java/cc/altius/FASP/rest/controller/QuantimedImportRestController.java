@@ -38,6 +38,13 @@ public class QuantimedImportRestController {
     @Autowired
     private UserService userService;
     
+    /**Used to Import a Quantimed program into QAT
+     * 
+     * @param file
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/quantimed/quantimedImport/{programId}")
     public ResponseEntity quantimedImport(@RequestParam("file") MultipartFile file, @PathVariable("programId") String programId, Authentication auth) {
         String message = "";

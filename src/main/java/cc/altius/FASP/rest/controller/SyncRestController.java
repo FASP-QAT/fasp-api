@@ -169,6 +169,14 @@ public class SyncRestController {
         }
     }
 
+    /**API to get the data that needs to be Synced with the Offline machine
+     * 
+     * @param programIds
+     * @param lastSyncDate
+     * @param auth
+     * @param response
+     * @return 
+     */
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
@@ -237,6 +245,11 @@ public class SyncRestController {
         }
     }
 
+    /**Get list of Languages that are allowed
+     * 
+     * @param lastSyncDate
+     * @return 
+     */
     @GetMapping(value = "/language/{lastSyncDate}")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
@@ -252,6 +265,12 @@ public class SyncRestController {
         }
     }
     
+    /**Get the list of Tree Anchor nodes for a Specific DataSet Program and a list of Trees
+     * 
+     * @param ta
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/treeAnchor")
     public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
         try {

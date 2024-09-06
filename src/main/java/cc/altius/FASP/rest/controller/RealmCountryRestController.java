@@ -48,6 +48,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @Autowired
     private UserService userService;
 
+    /**Add RealmCountry
+     * 
+     * @param realmCountryList
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
@@ -66,6 +72,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Update RealmCountry
+     * 
+     * @param realmCountryList
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
@@ -84,6 +96,11 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of RealmCountries
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getRealmCountry(Authentication auth) {
         try {
@@ -101,6 +118,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get RealmCountry by Id
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{realmCountryId}")
     public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -118,6 +141,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of RealmCountries for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -135,6 +164,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of active ARU’s for a RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{realmCountryId}/planningUnit")
     public ResponseEntity getPlanningUnitForCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -152,6 +187,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of ARU’s filtered by a list of ProgramIds
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @PostMapping("/programIds/planningUnit")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
@@ -169,6 +210,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of all ARU’s for a RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{realmCountryId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForCountryAll(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -186,6 +233,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Add or Update ARU
+     * 
+     * @param realmCountryPlanningUnits
+     * @param auth
+     * @return 
+     */
     @PutMapping("/planningUnit")
     public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
@@ -207,6 +260,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    /**Get list of RealmCountry with HealthArea mapping for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/program/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmIdForActivePrograms(@PathVariable("realmId") int realmId, Authentication auth) {
         try {

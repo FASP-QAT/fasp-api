@@ -42,6 +42,12 @@ public class HealthAreaRestController {
     @Autowired
     private UserService userService;
 
+    /**Add HealthArea
+     * 
+     * @param healthArea
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postHealthArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
@@ -60,6 +66,12 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Update HealthArea
+     * 
+     * @param healthArea
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
@@ -81,6 +93,11 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Get list of active HealthAreas
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getHealthArea(Authentication auth) {
         try {
@@ -92,6 +109,12 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Get list of HealthAreas for a RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmCountryId/{realmCountryId}")
     public ResponseEntity getHealthAreaByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
@@ -106,6 +129,12 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Get list of HealthAreas for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -123,6 +152,12 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Get HealthArea by Id
+     * 
+     * @param healthAreaId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{healthAreaId}")
     public ResponseEntity getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
@@ -140,6 +175,13 @@ public class HealthAreaRestController {
         }
     }
 
+    /**Check if HealthArea Display name exists in the same Realm
+     * 
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return 
+     */
     @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getHealthAreaDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {

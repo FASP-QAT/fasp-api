@@ -195,7 +195,7 @@ public class EquivalencyUnitRestController {
     }
 
     /**
-     * API used to get the list of Equivalency Units Mapping based on a Program
+     * API used to get the list of active Equivalency Units Mapping list based on a Program
      * and a Forecasting Unit. If you have the PU Id convert it to FU Id first
      * and then call this API. If there are two EU for the same FU the one that
      * matches the Program Id will be returned

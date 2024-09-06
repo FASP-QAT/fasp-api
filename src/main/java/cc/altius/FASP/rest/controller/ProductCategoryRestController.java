@@ -43,6 +43,12 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @Autowired
     private UserService userService;
 
+    /**Add and Update Product Category Tree
+     * 
+     * @param productCategories
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putProductCategory(@RequestBody Node<ProductCategory>[] productCategories, Authentication auth) {
         try {
@@ -58,6 +64,12 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
+    /**Get list of ProductCategories for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
@@ -72,6 +84,15 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
+    /**Get list of ProductCategories for a Realm and other filters
+     * 
+     * @param realmId
+     * @param productCategoryId
+     * @param includeCurrentLevel
+     * @param includeAllChildren
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
     public ResponseEntity getProductCategoryByRealmId(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "includeCurrentLevel", required = false) Optional<Boolean> includeCurrentLevel, @PathVariable("includeAllChildren") Optional<Boolean> includeAllChildren, Authentication auth) {
         boolean bolIncludeCurrentLevel = true;
@@ -91,6 +112,13 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
+    /**Get list of ProductCategories for a Realm that are from a SupplyPlan ProgramPlanning Unit list
+     * 
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {

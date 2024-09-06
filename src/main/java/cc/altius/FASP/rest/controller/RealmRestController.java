@@ -42,6 +42,12 @@ public class RealmRestController {
     @Autowired
     private UserService userService;
 
+    /**Add a new Realm
+     * 
+     * @param realm
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
@@ -57,6 +63,12 @@ public class RealmRestController {
         }
     }
 
+    /**Update a Realm
+     * 
+     * @param realm
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
@@ -75,6 +87,11 @@ public class RealmRestController {
         }
     }
 
+    /**Get list of Realms
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getRealm(Authentication auth) {
         try {
@@ -86,6 +103,12 @@ public class RealmRestController {
         }
     }
 
+    /**Get Realm by Id
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{realmId}")
     public ResponseEntity getRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {

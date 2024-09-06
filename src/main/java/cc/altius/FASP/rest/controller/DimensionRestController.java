@@ -41,6 +41,12 @@ public class DimensionRestController {
     @Autowired
     private UserService userService;
 
+    /**Add Dimension
+     * 
+     * @param dimension
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
@@ -56,6 +62,12 @@ public class DimensionRestController {
         }
     }
 
+    /**Update Dimension
+     * 
+     * @param dimension
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
@@ -74,6 +86,11 @@ public class DimensionRestController {
         }
     }
 
+    /**Get list of active Dimensions
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getDimension(Authentication auth) {
         try {
@@ -84,6 +101,11 @@ public class DimensionRestController {
         }
     }
 
+    /**Get list of all Dimensions
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/all")
     public ResponseEntity getDimensionAll(Authentication auth) {
         try {
@@ -94,6 +116,12 @@ public class DimensionRestController {
         }
     }
 
+    /**Get Dimension by Id
+     * 
+     * @param dimensionId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{dimensionId}")
     public ResponseEntity getDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {

@@ -55,6 +55,12 @@ public class PlanningUnitRestController {
     @Autowired
     private UserService userService;
 
+    /**Add PU
+     * 
+     * @param planningUnit
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
@@ -73,6 +79,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Update PU
+     * 
+     * @param planningUnit
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
@@ -91,6 +103,11 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of active PU’s
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnit(Authentication auth) {
@@ -103,6 +120,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of PU’s by Id’s
+     * 
+     * @param planningUnitIdList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
@@ -115,6 +138,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of PU’s including Price list by Id’s
+     * 
+     * @param planningUnitIdList
+     * @param auth
+     * @return 
+     */
     @PostMapping("/withPrices/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitWithPricesByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
@@ -127,6 +156,11 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of all PU’s
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitAll(Authentication auth) {
@@ -139,6 +173,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of active PU’s for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -157,6 +197,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of all PU’s for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -175,6 +221,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get PU by Id
+     * 
+     * @param planningUnitId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{planningUnitId}")
     public ResponseEntity getPlanningUnitById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
@@ -210,6 +262,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of PU’s filtered by FU
+     * 
+     * @param forecastingUnitId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/forecastingUnit/{forecastingUnitId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitByForecastingUnitId(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
@@ -225,6 +283,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get PUCapacity list for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/capacity/realmId/{realmId}")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -242,6 +306,14 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get PUCapacity list for a Realm filtered by Start and Stop date
+     * 
+     * @param realmId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/capacity/realmId/{realmId}/between/{startDate}/{stopDate}")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
@@ -262,6 +334,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get PUCapacity list for a specific Planning Unit
+     * 
+     * @param planningUnitId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/capacity/{planningUnitId}")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
@@ -279,6 +357,14 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get PUCapacity list for a specific Planning Unit filtered by Start and Stop date
+     * 
+     * @param planningUnitId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/capacity/{planningUnitId}/between/{startDate}/{stopDate}")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
@@ -299,6 +385,11 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get full PUCapacity list 
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/capacity/all")
     public ResponseEntity getPlanningUnitCapacityList(Authentication auth) {
         try {
@@ -316,6 +407,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Add and Update Planning Unit Capacity list
+     * 
+     * @param planningUnitCapacitys
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/capacity")
     public ResponseEntity savePlanningUnitCapacity(@RequestBody PlanningUnitCapacity[] planningUnitCapacitys, Authentication auth) {
         try {
@@ -391,6 +488,12 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**Get list of all Planning Units attached to a Supply Plan for a RealmCountry
+     * 
+     * @param realmCountryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmCountry/{realmCountryId}")
     public ResponseEntity getPlanningUnitByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {

@@ -43,6 +43,12 @@ public class TracerCategoryRestController {
     @Autowired
     private UserService userService;
 
+    /**Add TracerCategory
+     * 
+     * @param tracerCategory
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
@@ -58,6 +64,12 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Update TracerCategory
+     * 
+     * @param tracerCategory
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
@@ -73,6 +85,11 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**List of TracerCategories
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getTracerCategory(Authentication auth) {
         try {
@@ -84,6 +101,11 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Simple list of TracerCategories
+     * 
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/simple")
     public ResponseEntity getTracerCategorySimple(Authentication auth) {
@@ -96,6 +118,12 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Get TracerCategory by Id
+     * 
+     * @param tracerCategoryId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{tracerCategoryId}")
     public ResponseEntity getTracerCategory(@PathVariable("tracerCategoryId") int tracerCategoryId, Authentication auth) {
         try {
@@ -113,6 +141,12 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Get list of TracerCategories for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getTracerCategoryForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -130,6 +164,13 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Get list of TracerCategories for all the PU’s mapped to a SP Program
+     * 
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -147,6 +188,13 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**Get list of TracerCategories for all the PU’s mapped to a list of SP Program
+     * 
+     * @param realmId
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @PostMapping("/realmId/{realmId}/programIds")
     public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
         try {

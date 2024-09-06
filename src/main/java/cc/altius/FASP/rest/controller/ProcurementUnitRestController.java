@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/procurementUnit")
 public class ProcurementUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +42,13 @@ public class ProcurementUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/procurementUnit")
+    /**Add a Procurement Unit
+     * 
+     * @param procurementUnit
+     * @param auth
+     * @return 
+     */
+    @PostMapping(path = "")
     public ResponseEntity postProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -60,7 +66,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @PutMapping(path = "/procurementUnit")
+    /**Update a Procurement Unit
+     * 
+     * @param procurementUnit
+     * @param auth
+     * @return 
+     */
+    @PutMapping(path = "")
     public ResponseEntity putProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -78,7 +90,12 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit")
+    /**Get list of active Procurement Units
+     * 
+     * @param auth
+     * @return 
+     */
+    @GetMapping("")
     public ResponseEntity getProcurementUnit(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -89,7 +106,12 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/all")
+    /**Get list of all Procurement Units
+     * 
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/all")
     public ResponseEntity getProcurementUnitAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -100,7 +122,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}")
+    /**Get list of active Procurement Units by Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getProcurementUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -114,7 +142,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}/all")
+    /**Get list of all Procurement Units by Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/realmId/{realmId}/all")
     public ResponseEntity getProcurementUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -128,7 +162,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}")
+    /**Get list of active Procurement Units by Planning Unit
+     * 
+     * @param planningUnitId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/planningUnitId/{planningUnitId}")
     public ResponseEntity getProcurementUnitForPlanningUnit(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -142,7 +182,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}/all")
+    /**Get list of all Procurement Units by Planning Unit
+     * 
+     * @param planningUnitId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/planningUnitId/{planningUnitId}/all")
     public ResponseEntity getProcurementUnitForPlanningUnitAll(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -156,7 +202,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/{procurementUnitId}")
+    /**Get Procurement Unit by Id
+     * 
+     * @param procurementUnitId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/{procurementUnitId}")
     public ResponseEntity getProcurementUnitById(@PathVariable("procurementUnitId") int procurementUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

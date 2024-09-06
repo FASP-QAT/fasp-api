@@ -41,6 +41,12 @@ public class SupplierRestController {
     @Autowired
     private UserService userService;
 
+    /**Add Supplier
+     * 
+     * @param supplier
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
@@ -56,6 +62,12 @@ public class SupplierRestController {
         }
     }
 
+    /**Update Supplier
+     * 
+     * @param supplier
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
@@ -71,6 +83,11 @@ public class SupplierRestController {
         }
     }
 
+    /**Get Supplier list
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getSupplier(Authentication auth) {
         try {
@@ -82,6 +99,12 @@ public class SupplierRestController {
         }
     }
 
+    /**Get Supplier based on Id
+     * 
+     * @param supplierId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{supplierId}")
     public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
@@ -99,6 +122,12 @@ public class SupplierRestController {
         }
     }
 
+    /**Get Supplier list for Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {

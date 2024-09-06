@@ -42,6 +42,12 @@ public class DataSourceRestController {
     @Autowired
     private UserService userService;
 
+    /**Add DataSource
+     * 
+     * @param dataSource
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "")
     public ResponseEntity addDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
@@ -60,6 +66,11 @@ public class DataSourceRestController {
         }
     }
 
+    /**Get list of active DataSources
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "")
     public ResponseEntity getDataSourceList(Authentication auth) {
         try {
@@ -71,6 +82,11 @@ public class DataSourceRestController {
         }
     }
 
+    /**Get list of all DataSources
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getDataSourceListAll(Authentication auth) {
         try {
@@ -82,6 +98,12 @@ public class DataSourceRestController {
         }
     }
 
+    /**Get DataSource by Id
+     * 
+     * @param dataSourceId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/{dataSourceId}")
     public ResponseEntity getDataSourcebyId(@PathVariable("dataSourceId") int dataSourceId, Authentication auth) {
         try {
@@ -99,6 +121,13 @@ public class DataSourceRestController {
         }
     }
 
+    /**Get DataSource list for a specific ProgramId
+     * 
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getDataSourceListForRealmIdProgramId(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -116,6 +145,12 @@ public class DataSourceRestController {
         }
     }
 
+    /**Get DataSource list by DataSourceTypeId
+     * 
+     * @param dataSourceTypeId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/dataSourceTypeId/{dataSourceTypeId}")
     public ResponseEntity getDataSourceListForDataSourceTypeId(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
@@ -133,6 +168,12 @@ public class DataSourceRestController {
         }
     }
 
+    /**Update DataSource
+     * 
+     * @param dataSource
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "")
     public ResponseEntity editDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {

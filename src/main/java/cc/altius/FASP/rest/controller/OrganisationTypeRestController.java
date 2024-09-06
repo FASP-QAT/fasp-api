@@ -42,6 +42,12 @@ public class OrganisationTypeRestController {
     @Autowired
     private UserService userService;
 
+    /**Add an OrganisationType
+     * 
+     * @param organisationType
+     * @param auth
+     * @return 
+     */
     @PostMapping(path = "")
     public ResponseEntity postOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
@@ -60,6 +66,12 @@ public class OrganisationTypeRestController {
         }
     }
 
+    /**Update an OrganisationType
+     * 
+     * @param organisationType
+     * @param auth
+     * @return 
+     */
     @PutMapping(path = "")
     public ResponseEntity putOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
@@ -81,6 +93,11 @@ public class OrganisationTypeRestController {
         }
     }
 
+    /**Get list of active OrganisationTypes
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping("")
     public ResponseEntity getOrganisationTypeList(Authentication auth) {
         try {
@@ -92,6 +109,11 @@ public class OrganisationTypeRestController {
         }
     }
 
+    /**Get list of all OrganisationTypes
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getOrganisationTypeListAll(Authentication auth) {
         try {
@@ -103,6 +125,12 @@ public class OrganisationTypeRestController {
         }
     }
 
+    /**Get list of OrganisationTypes for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getOrganisationTypeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -120,6 +148,12 @@ public class OrganisationTypeRestController {
         }
     }
 
+    /**Get OrganisationType by Id
+     * 
+     * @param organisationTypeId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/{organisationTypeId}")
     public ResponseEntity getOrganisationType(@PathVariable("organisationTypeId") int organisationTypeId, Authentication auth) {
         try {

@@ -43,6 +43,13 @@ public class CurrencyRestController {
     @Autowired
     private UserService userService;
 
+    /**Add Currency
+     * 
+     * @param currency
+     * @param auth
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
@@ -58,6 +65,11 @@ public class CurrencyRestController {
         }
     }
 
+    /**Get list of active Currencies
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
@@ -69,6 +81,12 @@ public class CurrencyRestController {
         }
     }
 
+    /**Get Currency by Id
+     * 
+     * @param currencyId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/{currencyId}")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
@@ -83,6 +101,11 @@ public class CurrencyRestController {
         }
     }
 
+    /**Get list of all Currencies
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
@@ -94,6 +117,12 @@ public class CurrencyRestController {
         }
     }
 
+    /**Update Currency
+     * 
+     * @param currency
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
