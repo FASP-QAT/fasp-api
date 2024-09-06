@@ -97,3 +97,8 @@ VIEW `vw_tree_template_node` AS
         (`rm_tree_template_node` `ttn`
         LEFT JOIN `ap_label` `l` ON ((`ttn`.`LABEL_ID` = `l`.`LABEL_ID`)))
     ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`;
+
+INSERT INTO ap_node_type_rule VALUES (null, 2, 6);
+INSERT INTO ap_node_type_rule VALUES (null, 3, 6);
+INSERT INTO ap_node_type_rule VALUES (null, 6, 3);
+INSERT INTO ap_node_type_rule VALUES (null, 6, 4);
