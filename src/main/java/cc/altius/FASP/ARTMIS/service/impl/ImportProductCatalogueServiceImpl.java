@@ -6,15 +6,17 @@
 package cc.altius.FASP.ARTMIS.service.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ImportProductCatalogueDao;
+import cc.altius.FASP.ARTMIS.service.ImportProductCatalogueService;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
-import cc.altius.FASP.service.ImportProductCatalogueService;
 import cc.altius.utils.DateUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +128,25 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             this.importProductCatalogueDao.rollBackAutoIncrement(sb);
         }
         return sb.toString();
+    }
+
+    @Override
+    public String importProductCatalogueLegacy() {
+        try {
+            return this.importProductCatalogueDao.importProductCatalogueLegacy();
+        } catch (ParserConfigurationException ex) {
+            java.util.logging.Logger.getLogger(ImportProductCatalogueServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return "Exception";
+        } catch (SAXException ex) {
+            java.util.logging.Logger.getLogger(ImportProductCatalogueServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return "Exception";
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(ImportProductCatalogueServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return "Exception";
+        } catch (BadSqlGrammarException ex) {
+            java.util.logging.Logger.getLogger(ImportProductCatalogueServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return "Exception";
+        }
     }
 
 }

@@ -248,7 +248,7 @@ public class ProgramDataRestController {
     // Used in Forecasting Unit import data from Supply Plan
     /**
      * <pre>
-     * Sample JSON {"programId": 2442, "versionId": 1, "planningUnitIds": ["1074","1082","2802"], "startDate": "2018-01-01", "stopDate":"2021-12-01", "regionIds":["70", "73", "74"]}
+     * Sample JSON {"programVersionList": [{"programId": "2476", "versionId": "100"},{"programId": "2486", "versionId": "115"}], "planningUnitIds": ["1150", "1477", "1483"], "startDate": "2018-01-01", "stopDate":"2021-12-01", "regionIds":["70", "73", "74"]}
      * -- Program Id must be a valid Supply Plan Program Id, cannot be -1 (Any)      *
      * -- versionId must be a valid VersionId of that Program
      * -- forecastingUnitIds must be a list of ForecastingUnits whose PlanningUnits you want the Consumption data for

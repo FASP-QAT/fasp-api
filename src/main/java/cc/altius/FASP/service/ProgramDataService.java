@@ -27,6 +27,7 @@ import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.report.LoadProgramInput;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -72,7 +73,7 @@ public interface ProgramDataService {
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 

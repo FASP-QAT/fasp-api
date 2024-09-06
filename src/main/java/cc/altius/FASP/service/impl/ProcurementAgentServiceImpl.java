@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
+import cc.altius.FASP.model.ProcurementAgentForecastingUnit;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
@@ -18,7 +19,6 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
-import cc.altius.FASP.service.ProgramService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -150,6 +150,16 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
+        ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            return this.procurementAgentDao.getProcurementAgentForecastingUnitList(procurementAgentId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser);
     }
@@ -163,6 +173,17 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
             }
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
+    }
+
+    @Override
+    public int saveProcurementAgentForecastingUnit(ProcurementAgentForecastingUnit[] procurementAgentForecastingUnits, CustomUserDetails curUser) {
+        for (ProcurementAgentForecastingUnit pafu : procurementAgentForecastingUnits) {
+            ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(pafu.getProcurementAgent().getId(), curUser);
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        return this.procurementAgentDao.saveProcurementAgentForecastingUnit(procurementAgentForecastingUnits, curUser);
     }
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
@@ -201,6 +222,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentForecastingUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
         return this.procurementAgentDao.getDisplayName(realmId, name, curUser);
     }
@@ -214,6 +240,15 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         if (programIdsString.length() > 0) {
             return this.procurementAgentDao.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementAgentDao.getProcurementAgentForecastingUnitListForSyncProgram(programIdsString, curUser);
         } else {
             return new LinkedList<>();
         }

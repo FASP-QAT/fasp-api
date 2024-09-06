@@ -13,6 +13,7 @@ import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.TreeAndScenario;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -102,13 +103,13 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 dpu = dpuList.get(idx);
             }
             SelectedForecast sf = new SelectedForecast();
-            sf.setTreeId(rs.getInt("TREE_ID"));
-            if (rs.wasNull()) {
-                sf.setTreeId(null);
-            }
-            sf.setScenarioId(rs.getInt("SCENARIO_ID"));
-            if (rs.wasNull()) {
-                sf.setScenarioId(null);
+            String treeAndScenarioList = rs.getString("TREE_AND_SCENARIO");
+            if (treeAndScenarioList != null) {
+                for (String ts : treeAndScenarioList.split(",")) {
+                    String[] tsData = ts.split("~");
+                    TreeAndScenario tns = new TreeAndScenario(Integer.parseInt(tsData[0]), Integer.parseInt(tsData[1]));
+                    sf.getTreeAndScenario().add(tns);
+                }
             }
             sf.setConsumptionExtrapolationId(rs.getInt("CONSUMPTION_EXTRAPOLATION_ID"));
             if (rs.wasNull()) {

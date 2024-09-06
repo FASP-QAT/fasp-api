@@ -24,7 +24,7 @@ import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.TreeNode;
-import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionData;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.CommitRequest;
@@ -39,6 +39,7 @@ import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -107,7 +108,7 @@ public interface ProgramDataDao {
 
     public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionData acd, Date startDate, Date stopDate, CustomUserDetails curUser);
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 

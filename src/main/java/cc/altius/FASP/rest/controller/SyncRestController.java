@@ -67,9 +67,9 @@ import cc.altius.FASP.service.MasterDataService;
 @Controller
 @RequestMapping("/api/sync")
 public class SyncRestController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     private CountryService countryService;
     @Autowired
@@ -168,7 +168,7 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
@@ -199,6 +199,7 @@ public class SyncRestController {
             masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
             masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds , 
             masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+            masters.setProcurementAgentForecastingUnitList(this.procurementAgentService.getProcurementAgentForecastingUnitListForSyncProgram(programIdsString, curUser));//programIds, 
             masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
             masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
             masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
@@ -224,7 +225,7 @@ public class SyncRestController {
             masters.setFundingSourceType(this.fundingSourceService.getFundingSourceTypeListForSync(lastSyncDate, curUser));
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
-            if(isCompress(jsonString)){
+            if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
             }
             return new ResponseEntity(masters, HttpStatus.OK);
@@ -236,8 +237,8 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping(value = "/language/{lastSyncDate}")
+    
+    @GetMapping(value = "/sync/language/{lastSyncDate}")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
