@@ -48,7 +48,7 @@ import cc.altius.FASP.model.DatasetVersionListInput;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionData;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
@@ -67,6 +67,7 @@ import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
+import cc.altius.FASP.model.TreeAndScenario;
 import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
@@ -97,6 +98,7 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.text.DecimalFormat;
@@ -1796,6 +1798,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit").usingGeneratedKeyColumns("PROGRAM_PLANNING_UNIT_ID");
         siData = null;
         siData = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit_selected");
+        SimpleJdbcInsert siDataTl = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit_selected_tree_list");
         for (DatasetPlanningUnit dpu : dd.getPlanningUnitList()) {
             params.put("PROGRAM_ID", dd.getProgramId());
             params.put("VERSION_ID", version.getVersionId());
@@ -1826,16 +1829,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             // Now store the selected Forecast for this Planning Unit
             if (dpu.getSelectedForecastMap() != null) {
                 batchList.clear();
+                final List<SqlParameterSource> batchListTl = new ArrayList<>();
                 batchArray = null;
                 for (int regionId : dpu.getSelectedForecastMap().keySet()) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
                     batchParams.put("REGION_ID", regionId);
-                    if (dpu.getSelectedForecastMap().get(regionId).getTreeId() != null) {
-                        batchParams.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getTreeId())));
-                    }
-                    if (dpu.getSelectedForecastMap().get(regionId).getScenarioId() != null) {
-                        batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getTreeId() + "-" + dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
+                    if (dpu.getSelectedForecastMap().get(regionId).getTreeAndScenario() != null && !dpu.getSelectedForecastMap().get(regionId).getTreeAndScenario().isEmpty()) {
+                        Map<String, Object> batchParamsTl = new HashMap<>();
+                        for (TreeAndScenario ts : dpu.getSelectedForecastMap().get(regionId).getTreeAndScenario()) {
+                            batchParamsTl.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
+                            batchParamsTl.put("REGION_ID", regionId);
+                            batchParamsTl.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(ts.getTreeId())));
+                            batchParamsTl.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", Integer.toString(ts.getTreeId()) + "-" + Integer.toString(ts.getScenarioId())));
+                            batchListTl.add(new MapSqlParameterSource(batchParamsTl));
+                        }
                     }
                     if (dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId() != null) {
                         batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId())));
@@ -1846,6 +1854,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 batchArray = new SqlParameterSource[batchList.size()];
                 siData.executeBatch(batchList.toArray(batchArray));
+                batchArray = new SqlParameterSource[batchListTl.size()];
+                siDataTl.executeBatch(batchListTl.toArray(batchArray));
             }
         }
 
@@ -2936,12 +2946,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionData acd, Date startDate, Date stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", acd.getProgramId());
         params.put("versionId", acd.getVersionId());
-        params.put("startDate", acd.getStartDate());
-        params.put("stopDate", acd.getStopDate());
+        params.put("startDate", startDate);
+        params.put("stopDate", stopDate);
         params.put("planningUnitListString", acd.getPlanningUnitIdString());
         params.put("regionListString", acd.getRegionIdString());
         return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());

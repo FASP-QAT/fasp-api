@@ -67,9 +67,9 @@ import cc.altius.FASP.service.MasterDataService;
 @Controller
 @RequestMapping("/api/sync")
 public class SyncRestController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     private CountryService countryService;
     @Autowired
@@ -207,6 +207,7 @@ public class SyncRestController {
             masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
             masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds , 
             masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+            masters.setProcurementAgentForecastingUnitList(this.procurementAgentService.getProcurementAgentForecastingUnitListForSyncProgram(programIdsString, curUser));//programIds, 
             masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
             masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
             masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
@@ -232,7 +233,7 @@ public class SyncRestController {
             masters.setFundingSourceType(this.fundingSourceService.getFundingSourceTypeListForSync(lastSyncDate, curUser));
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
-            if(isCompress(jsonString)){
+            if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
             }
             return new ResponseEntity(masters, HttpStatus.OK);

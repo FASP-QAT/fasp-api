@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.service;
+package cc.altius.FASP.ARTMIS.service;
 
 /**
  *
@@ -12,4 +12,6 @@ package cc.altius.FASP.service;
 public interface ImportProductCatalogueService {
 
     public String importProductCatalogue();
+    
+    public String importProductCatalogueLegacy();
 }
