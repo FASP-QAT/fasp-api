@@ -6,8 +6,10 @@
 package cc.altius.FASP.ARTMIS.dao.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ImportProductCatalogueDao;
+import cc.altius.FASP.model.DTO.ForecastingUnitArtmisPull;
 import cc.altius.FASP.model.DTO.PlanningUnitArtmisPull;
 import cc.altius.FASP.model.DTO.ProcurementUnitArtmisPull;
+import cc.altius.FASP.model.DTO.rowMapper.ForecastingUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.PlanningUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProcurementUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.EmailTemplate;
@@ -89,7 +91,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Value("${email.catalogCCList}")
     private String ccList;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String br = "\n<br/>";
+    private static final String br = " <br/>";
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
     String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
 
@@ -369,6 +371,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         dRows = this.jdbcTemplate.update(sqlString);
                         logger.info("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---" + dRows);
                         sb.append("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---").append(dRows).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductIDNoPack)) !=9";
+                        dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the ProductIDNoPack len is not 9 ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the ProductIDNoPack len is not 9 ---").append(dRows).append(br);
                         sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
                         int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
                         logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
@@ -596,7 +602,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create the tmp table
         sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-//                        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+                //                        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(255) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -745,8 +751,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create Temporary Table
 //        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-                        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
+                + "    `SKU_CODE` varchar(255) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
                 + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,   "
@@ -772,13 +779,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductIdNoPack, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
         sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
 
         // Step 4 Match those records that are already present in the main forecasting_unit table
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN "
+        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN rm_procurement_agent_forecasting_unit fupa ON tfu.SKU_CODE=fupa.SKU_CODE LEFT JOIN rm_forecasting_unit fu ON fu.FORECASTING_UNIT_ID=fupa.FORECASTING_UNIT_ID "
                 + "set tfu.LABEL_ID = fu.LABEL_ID, tfu.FOUND=1, tfu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
                 + "where fu.FORECASTING_UNIT_ID is not null AND fu.REALM_ID=1";
         rows = this.jdbcTemplate.update(sqlString);
@@ -814,12 +821,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " null PRODUCT_CATEGORY_ID, null PRODUCT_CATEGORY_LABEL_ID, fu.SUB_CATEGORY PRODUCT_CATEGORY_LABEL_EN, fu.COMMODITY_COUNCIL PRODUCT_CATEGORY_LABEL_FR, null PRODUCT_CATEGORY_LABEL_SP, null PRODUCT_CATEGORY_LABEL_PR, "
                 + " null TRACER_CATEGORY_ID, null TRACER_CATEGORY_LABEL_ID, fu.TRACER_CATEGORY TRACER_CATEGORY_LABEL_EN, null TRACER_CATEGORY_LABEL_FR, null TRACER_CATEGORY_LABEL_SP, null TRACER_CATEGORY_LABEL_PR, "
                 + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
-                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME,fu.SKU_CODE "
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
-        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit");
+        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
+        SimpleJdbcInsert siPafu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_forecasting_unit").usingGeneratedKeyColumns("PROCURMENT_AGENT_FORECASTING_UNIT");
         Map<String, Object> labelParams = new HashMap<>();
         Map<String, Object> forecastingUnitParams = new HashMap<>();
+        Map<String, Object> pafuParams = new HashMap<>();
         int curUserId = 1;
         Date curDate = DateUtils.getCurrentDateObject("EST");
         labelParams.put("CREATED_BY", curUserId);
@@ -842,7 +851,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         forecastingUnitParams.put("PRODUCT_CATEGORY_ID", 0);
         forecastingUnitParams.put("TRACER_CATEGORY_ID", 0);
 
-        for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
+        pafuParams.put("PROCUREMENT_AGENT_ID", 1);
+        pafuParams.put("FORECASTING_UNIT_ID", 0);
+        pafuParams.put("SKU_CODE", "");
+        pafuParams.put("ACTIVE", true);
+        pafuParams.put("CREATED_BY", curUserId);
+        pafuParams.put("CREATED_DATE", curDate);
+        pafuParams.put("LAST_MODIFIED_BY", curUserId);
+        pafuParams.put("LAST_MODIFIED_DATE", curDate);
+
+        for (ForecastingUnitArtmisPull fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitArtmisPullRowMapper())) {
             try {
                 sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=? LIMIT 1";
                 logger.info("unit id code---" + fu.getUnit().getCode());
@@ -881,7 +899,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
                     }
                     sb.append("----------fu 7--------------").append(br);
-                    siForecastingUnit.execute(forecastingUnitParams);
+                    int forecastingUnitId = siForecastingUnit.executeAndReturnKey(forecastingUnitParams).intValue();
+                    pafuParams.replace("FORECASTING_UNIT_ID", forecastingUnitId);
+                    pafuParams.replace("SKU_CODE", fu.getSkuCode());
+                    siPafu.execute(pafuParams);
                     sb.append("----------fu 8--------------").append(br);
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
@@ -1491,4 +1512,662 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
     }
 
+    @Override
+    @Transactional
+    public String importProductCatalogueLegacy() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
+        File dir = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
+        FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
+        File[] files = dir.listFiles(fileFilter);
+        String sqlString;
+        String fileList = "";
+        StringBuilder sb = new StringBuilder();
+        Arrays.sort(files, new FileNameComparator());
+        logger.info("Going to start product catalogue import");
+        sb.append("Going to start product catalogue import").append(br);
+        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_fu`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TABLE `temp_product_catalog_fu` ( "
+                + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
+                + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
+                + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
+                + "  `BASE_UNIT` varchar(255) DEFAULT NULL, "
+                + "  `FORECASTING_UNIT_ID` int(255) DEFAULT NULL, "
+                + "  `PRODUCT_ID` varchar(255) DEFAULT NULL, "
+                + "  `PRODUCT_NAME` varchar(255) DEFAULT NULL, "
+                + "  `PLANNING_UNIT_ID` int(255) DEFAULT NULL, "
+                + "  `UNIT_ID` int(11) DEFAULT NULL, "
+                + "  `FILE_NAME` text, "
+                + "  `GENERIC_LABEL` varchar(255) DEFAULT NULL, "
+                + "  `COMMODITY_COUNCIL` varchar(255) DEFAULT NULL, "
+                + "  `SUB_CATEGORY` varchar(255) DEFAULT NULL, "
+                + "  `TRACER_CATEGORY` varchar(255) DEFAULT NULL, "
+                + "  PRIMARY KEY (`ID`) "
+                + ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "DROP TABLE IF EXISTS `temp_product_catalog_pu`";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TABLE `temp_product_catalog_pu` ( "
+                + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
+                + "  `PRODUCT_ID_NO_NAME` varchar(255) DEFAULT NULL, "
+                + "  `PRODUCT_NAME_NO_NAME` varchar(255) DEFAULT NULL, "
+                + "  `BASE_UNIT` varchar(255) DEFAULT NULL, "
+                + "  `FORECASTING_UNIT_ID` int(255) DEFAULT NULL, "
+                + "  `PRODUCT_ID` varchar(255) DEFAULT NULL, "
+                + "  `PRODUCT_NAME` varchar(255) DEFAULT NULL, "
+                + "  `PLANNING_UNIT_ID` int(255) DEFAULT NULL, "
+                + "  `UNIT_ID` int(11) DEFAULT NULL, "
+                + "  `FILE_NAME` text, "
+                + "  `GENERIC_LABEL` varchar(255) DEFAULT NULL, "
+                + "  `COMMODITY_COUNCIL` varchar(255) DEFAULT NULL, "
+                + "  `SUB_CATEGORY` varchar(255) DEFAULT NULL, "
+                + "  `TRACER_CATEGORY` varchar(255) DEFAULT NULL, "
+                + "  PRIMARY KEY (`ID`) "
+                + ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+        this.jdbcTemplate.update(sqlString);
+        for (int i = 0; i < files.length; i++) {
+            fileList += " " + files[i];
+            logger.info("File names---" + files[i]);
+            sb.append("File names---" + files[i]).append(br);
+        }
+        if (files.length < 1) {
+//            subjectParam = new String[]{"Product Catalogue", "File not found"};
+//            bodyParam = new String[]{"Product Catalogue", "File not found", "File not found"};
+//            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//            int emailerId = this.emailService.saveEmail(emailer);
+//            emailer.setEmailerId(emailerId);
+//            this.emailService.sendMail(emailer);
+            logger.info("File not found");
+            sb.append("File not found").append(br);
+        } else {
+            for (File fXmlFile : files) {
+                String extension = "";
+                int i = fXmlFile.getName().lastIndexOf('.');
+                if (i > 0) {
+                    extension = fXmlFile.getName().substring(i + 1);
+                }
+                if (!extension.equalsIgnoreCase("xml")) {
+//                    subjectParam = new String[]{"Product Catalogue", "File is not an xml"};
+//                    bodyParam = new String[]{"Product Catalogue", "File is not an xml", fileList};
+//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//                    int emailerId = this.emailService.saveEmail(emailer);
+//                    emailer.setEmailerId(emailerId);
+//                    this.emailService.sendMail(emailer);
+                    logger.error("File is not an xml");
+                    sb.append("File is not an xml").append(br);
+                } else {
+                    logger.info("######################################################################");
+                    sb.append("######################################################################");
+                    logger.info("Starting import for file " + fXmlFile.getName());
+                    sb.append("Starting import for file ").append(fXmlFile.getName()).append(br);
+                    logger.info("######################################################################");
+                    sb.append("######################################################################");
+                    if (fXmlFile.length() == 0) {
+                        sb.append("Skipping file since it is empty ").append(fXmlFile.getName()).append(br);
+                        logger.info("Skipping file since it is empty " + fXmlFile.getName());
+                        fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                        logger.info("Product catalog file moved to processed folder successfully");
+                        sb.append("Product catalog file moved to processed folder successfully").append(br);
+                    } else {
+                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                        Document doc = dBuilder.parse(fXmlFile);
+                        doc.getDocumentElement().normalize();
+
+                        NodeList nList1 = doc.getElementsByTagName("itemdata");
+                        MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
+                        Map<String, Object> map = new HashedMap<String, Object>();
+                        int x = 0;
+                        logger.info("Going to drop tmp_product_catalog");
+                        sb.append("Going to drop tmp_product_catalog").append(br);
+                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+//                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+                        this.jdbcTemplate.execute(sqlString);
+                        logger.info("Successfully droped tmp_product_catalog");
+                        sb.append("Successfully droped tmp_product_catalog").append(br);
+
+                        logger.info("Going to create tmp_product_catalog");
+                        sb.append("Going to create tmp_product_catalog").append(br);
+                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                                //                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+                                + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `TracerCategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductActive` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductIDNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductNameNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `OrderUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PackSize` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `NoofBaseUnits` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `BaseUnit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `L5DataTrusteeCode` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UNSPSC` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `INN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Controlled` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Route` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Form` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `QACategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `QACriteria` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitVolumem3` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitWeightkg` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Supplier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `WeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Euro1` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Euro2` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
+                                + "  KEY `idxProductName` (`ProductName`), "
+                                + "  KEY `idxItemName` (`ItemName`) "
+                                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+                        this.jdbcTemplate.execute(sqlString);
+                        logger.info("Successfully created tmp_product_catalog");
+                        sb.append("Successfully created tmp_product_catalog").append(br);
+
+                        logger.info("Going to insert into tmp_product_catalog");
+                        sb.append("Going to insert into tmp_product_catalog").append(br);
+                        sqlString = "INSERT INTO tmp_product_catalog VALUES(:taskOrderLongDescription,:commodityCouncilLongDesc,"
+                                + ":commoditySubcatLongDesc,:productTracerCat,"
+                                + ":productBuyable,:productIdNoPack,:productNameNoPack,"
+                                + ":productId,:productName,:itemUom,"
+                                + ":productPackSize,:productBaseUnitMult,:productBaseUnit,"
+                                + ":productDataTrusteeProductIdentifier,:productUnspsc,"
+                                + ":productInternationalNonproprietaryName,:productControlledItemWho,"
+                                + ":productAdministrationRoute,:productDosageForm,:productQaEligibilityCategory,"
+                                + ":productQaEligibilityCriteria,:productDrug1Name,:productDrug1Abbr,:productDrug1Strength,:productDrug1Measure,:productDrug1Unit,"
+                                + ":productDrug2Name,:productDrug2Abbr,:productDrug2Strength,:productDrug2Measure,:productDrug2Unit,"
+                                + ":productDrug3Name,:productDrug3Abbr,:productDrug3Strength,:productDrug3Measure,:productDrug3Unit,"
+                                + ":productDrug4Name,:productDrug4Abbr,:productDrug4Strength,:productDrug4Measure,:productDrug4Unit,"
+                                + ":usaidArvTier,:planningUnitMoq,:planningUnitPallet,:planningUnitsPerContainer,"
+                                + ":planningUnitVolumeM3,:planningUnitWeightKg,:itemId,:itemName,:itemSupplierName,:itemWeightUom,"
+                                + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemLength,:itemWidth,"
+                                + ":itemManufacturerGtinUpc,:itemLabelLanguages,:itemBuyable,:itemUnitsPerCase,:itemNumOfUnitsPallet,"
+                                + ":unitsPerContainer,:wcsCataloguePrice,:euro1,:euro2);";
+                        for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
+                            Node nNode1 = nList1.item(temp2);
+                            if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
+                                Element dataRecordElement = (Element) nNode1;
+                                map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
+                                map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("commodity_council_long_desc").item(0).getTextContent());
+                                map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("commodity_subcat_long_desc").item(0).getTextContent());
+                                map.put("productTracerCat", dataRecordElement.getElementsByTagName("product_tracer_cat").item(0).getTextContent());
+                                map.put("productBuyable", dataRecordElement.getElementsByTagName("product_buyable").item(0).getTextContent());
+                                map.put("productIdNoPack", dataRecordElement.getElementsByTagName("product_id_no_pack").item(0).getTextContent());
+                                map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
+                                map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
+                                map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
+//                                System.out.println("product name ---"+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
+                                map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
+                                map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
+                                map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
+                                map.put("productBaseUnit", dataRecordElement.getElementsByTagName("product_base_unit").item(0).getTextContent());
+                                map.put("productDataTrusteeProductIdentifier", dataRecordElement.getElementsByTagName("product_data_trustee_product_identifier").item(0).getTextContent());
+                                map.put("productUnspsc", dataRecordElement.getElementsByTagName("product_unspsc").item(0).getTextContent());
+                                map.put("productInternationalNonproprietaryName", dataRecordElement.getElementsByTagName("product_international_nonproprietary_name").item(0).getTextContent());
+                                map.put("productControlledItemWho", dataRecordElement.getElementsByTagName("product_controlled_item_who").item(0).getTextContent());
+                                map.put("productAdministrationRoute", dataRecordElement.getElementsByTagName("product_administration_route").item(0).getTextContent());
+                                map.put("productDosageForm", dataRecordElement.getElementsByTagName("product_dosage_form").item(0).getTextContent());
+                                map.put("productQaEligibilityCategory", dataRecordElement.getElementsByTagName("product_qa_eligibility_category").item(0).getTextContent());
+                                map.put("productQaEligibilityCriteria", dataRecordElement.getElementsByTagName("product_qa_eligibility_criteria").item(0).getTextContent());
+                                map.put("productDrug1Name", dataRecordElement.getElementsByTagName("product_drug_1_name").item(0).getTextContent());
+                                map.put("productDrug1Abbr", dataRecordElement.getElementsByTagName("product_drug_1_abbreviation").item(0).getTextContent());
+                                map.put("productDrug1Strength", dataRecordElement.getElementsByTagName("product_drug_1_strength").item(0).getTextContent());
+                                map.put("productDrug1Measure", dataRecordElement.getElementsByTagName("product_drug_1_measure").item(0).getTextContent());
+                                map.put("productDrug1Unit", dataRecordElement.getElementsByTagName("product_drug_1_unit").item(0).getTextContent());
+
+                                map.put("productDrug2Name", dataRecordElement.getElementsByTagName("product_drug_2_name").item(0).getTextContent());
+                                map.put("productDrug2Abbr", dataRecordElement.getElementsByTagName("product_drug_2_abbreviation").item(0).getTextContent());
+                                map.put("productDrug2Strength", dataRecordElement.getElementsByTagName("product_drug_2_strength").item(0).getTextContent());
+                                map.put("productDrug2Measure", dataRecordElement.getElementsByTagName("product_drug_2_measure").item(0).getTextContent());
+                                map.put("productDrug2Unit", dataRecordElement.getElementsByTagName("product_drug_2_unit").item(0).getTextContent());
+
+                                map.put("productDrug3Name", dataRecordElement.getElementsByTagName("product_drug_3_name").item(0).getTextContent());
+                                map.put("productDrug3Abbr", dataRecordElement.getElementsByTagName("product_drug_3_abbreviation").item(0).getTextContent());
+                                map.put("productDrug3Strength", dataRecordElement.getElementsByTagName("product_drug_3_strength").item(0).getTextContent());
+                                map.put("productDrug3Measure", dataRecordElement.getElementsByTagName("product_drug_3_measure").item(0).getTextContent());
+                                map.put("productDrug3Unit", dataRecordElement.getElementsByTagName("product_drug_3_unit").item(0).getTextContent());
+
+                                map.put("productDrug4Name", dataRecordElement.getElementsByTagName("product_drug_4_name").item(0).getTextContent());
+                                map.put("productDrug4Abbr", dataRecordElement.getElementsByTagName("product_drug_4_abbreviation").item(0).getTextContent());
+                                map.put("productDrug4Strength", dataRecordElement.getElementsByTagName("product_drug_4_strength").item(0).getTextContent());
+                                map.put("productDrug4Measure", dataRecordElement.getElementsByTagName("product_drug_4_measure").item(0).getTextContent());
+                                map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("product_drug_4_unit").item(0).getTextContent());
+
+                                map.put("usaidArvTier", dataRecordElement.getElementsByTagName("usaid_arv_tier").item(0).getTextContent());
+
+                                map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("planning_unit_moq").item(0).getTextContent());
+                                String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
+                                map.put("planningUnitPallet", planningUnitPerPallet);
+
+                                // To be used once ARTMIS confirm that they have implemented the split till then stick to Euro 1 only
+                                try {
+                                    String[] noOfPallets = planningUnitPerPallet.split("\\|");
+                                    String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
+                                    String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
+                                    map.put("euro1", euro1);
+                                    map.put("euro2", euro2);
+                                } catch (Exception e) {
+                                    logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
+                                    map.put("euro1", planningUnitPerPallet);
+                                    map.put("euro2", null);
+//                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
+//                                    bodyParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
+//                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+//                                    int emailerId = this.emailService.saveEmail(emailer);
+//                                    emailer.setEmailerId(emailerId);
+//                                    this.emailService.sendMail(emailer);
+                                    logger.error("Error while pulling tracer category---" + e.getMessage());
+                                }
+
+                                map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
+                                map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
+                                map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
+                                map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
+                                map.put("itemName", dataRecordElement.getElementsByTagName("item_name").item(0).getTextContent());
+                                map.put("itemSupplierName", dataRecordElement.getElementsByTagName("item_supplier_name").item(0).getTextContent());
+                                map.put("itemWeightUom", dataRecordElement.getElementsByTagName("item_weight_uom").item(0).getTextContent());
+                                map.put("itemWeight", dataRecordElement.getElementsByTagName("item_weight").item(0).getTextContent());
+                                map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("item_sizemeasure").item(0).getTextContent());
+                                map.put("itemHeight", dataRecordElement.getElementsByTagName("item_height").item(0).getTextContent());
+//                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
+                                map.put("itemLength", dataRecordElement.getElementsByTagName("item_length").item(0).getTextContent());
+//                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
+                                map.put("itemWidth", dataRecordElement.getElementsByTagName("item_width").item(0).getTextContent());
+                                map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("item_manufacturer_gtin_upc").item(0).getTextContent());
+                                map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("item_label_languages").item(0).getTextContent());
+                                map.put("itemBuyable", dataRecordElement.getElementsByTagName("item_buyable").item(0).getTextContent());
+                                map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("item_units_per_case").item(0).getTextContent());
+                                map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("item_num_of_units_pallet").item(0).getTextContent());
+//                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
+                                map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("units_per_container").item(0).getTextContent());
+                                map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("wcs_catalog_price").item(0).getTextContent());
+                                batchParams[x] = new MapSqlParameterSource(map);
+                                x++;
+                            }
+                        }
+                        int[] rows1 = namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
+                        logger.info("Successfully inserted into tmp_product_catalog records---" + rows1.length);
+                        sb.append("Successfully inserted into tmp_product_catalog records---").append(rows1.length).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where tpc.TaskOrder ='UNKNOWN'";
+                        int dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---").append(dRows).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductID)) !=13";
+                        dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---").append(dRows).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductIDNoPack)) !=9";
+                        dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the ProductIDNoPack len is not 9 ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the ProductIDNoPack len is not 9 ---").append(dRows).append(br);
+                        sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
+                        int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+                        logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
+                        sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
+
+                        sqlString = "INSERT INTO temp_product_catalog_fu SELECT NULL,t.ProductIDNoPack,t.ProductNameNoPack,t.BaseUnit,null,t.ProductID,t.ProductName,null,null,'" + fXmlFile.getName() + "',IF(TRIM(t.INN)='',null,TRIM(t.INN)),t.CommodityCouncil,t.Subcategory,t.TracerCategory from tmp_product_catalog t";
+                        this.jdbcTemplate.execute(sqlString);
+                        sqlString = "INSERT INTO temp_product_catalog_pu SELECT NULL,t.ProductIDNoPack,t.ProductNameNoPack,t.BaseUnit,null,t.ProductID,t.ProductName,null,null,'" + fXmlFile.getName() + "',IF(TRIM(t.INN)='',null,TRIM(t.INN)),t.CommodityCouncil,t.Subcategory,t.TracerCategory from tmp_product_catalog t";
+                        this.jdbcTemplate.execute(sqlString);
+                        File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
+                        if (directory.isDirectory()) {
+                            fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                            logger.info("Product catalog file moved to processed folder successfully");
+                            sb.append("Product catalog file moved to processed folder successfully").append(br);
+                        } else {
+//                            subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
+//                            bodyParam = new String[]{"Product Catalogue", "Backup directory does not exists", "Backup directory does not exists"};
+//                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//                            int emailerId = this.emailService.saveEmail(emailer);
+//                            emailer.setEmailerId(emailerId);
+//                            this.emailService.sendMail(emailer);
+                            logger.error("Backup directory does not exists");
+                            sb.append("Backup directory does not exists").append(br);
+                        }
+
+                    }
+                }
+            }
+        }
+        // Update Unit Ids in FU table
+        sqlString = "update temp_product_catalog_fu p left join vw_unit u on p.BASE_UNIT=u.LABEL_EN SET p.UNIT_ID=u.UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+        //Update Unit Ids in PU table
+        sqlString = "update temp_product_catalog_pu p left join vw_unit u on p.BASE_UNIT=u.LABEL_EN SET p.UNIT_ID=u.UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+        // Delete duplicate FU entries
+        sqlString = "DELETE p.* "
+                + "FROM temp_product_catalog_fu p "
+                + "LEFT JOIN ( "
+                + "    SELECT MAX(t.ID) AS max_id "
+                + "    FROM temp_product_catalog_fu t "
+                + "    WHERE t.PRODUCT_ID_NO_NAME != '' "
+                + "    GROUP BY t.PRODUCT_ID_NO_NAME "
+                + ") AS max_ids "
+                + "ON p.ID = max_ids.max_id "
+                + "WHERE max_ids.max_id IS NULL;";
+        this.jdbcTemplate.update(sqlString);
+        // Update forecasting unit based on forecasting unit name and unit
+        sqlString = "update temp_product_catalog_fu p "
+                + "left join vw_forecasting_unit fu on fu.LABEL_EN=p.PRODUCT_NAME_NO_NAME and fu.UNIT_ID=p.UNIT_ID "
+                + "set p.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+
+        // Create missing forecasting unit
+        try {
+            pullForecastingUnitLegacy(sb);
+        } catch (Exception e) {
+//                            subjectParam = new String[]{"Product Catalog", "Error while pulling forecasting unit"};
+//                            bodyParam = new String[]{"Product Catalog", "Error while pulling forecasting unit", e.getMessage()};
+//                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//                            int emailerId = this.emailService.saveEmail(emailer);
+//                            emailer.setEmailerId(emailerId);
+//                            this.emailService.sendMail(emailer);
+            logger.error("Error while pulling forecasting unit---" + e.getMessage());
+        }
+
+        // After creating forecasting units update the Ids
+        sqlString = "update temp_product_catalog_fu p "
+                + "left join vw_forecasting_unit fu on fu.LABEL_EN=p.PRODUCT_NAME_NO_NAME and fu.UNIT_ID=p.UNIT_ID "
+                + "set p.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "drop table if exists `rm_procurement_agent_forecasting_unit`;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "CREATE TABLE `rm_procurement_agent_forecasting_unit` ( "
+                + "  `PROCUREMENT_AGENT_FORECASTING_UNIT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,"
+                + "  `FORECASTING_UNIT_ID` int(10) unsigned NOT NULL, "
+                + "  `PROCUREMENT_AGENT_ID` int(10) unsigned NOT NULL, "
+                + "  `SKU_CODE` varchar(9) NOT NULL, "
+                + "  `ACTIVE` tinyint(1) unsigned NOT NULL, "
+                + "  `CREATED_BY` int(10) unsigned NOT NULL, "
+                + "  `CREATED_DATE` datetime NOT NULL, "
+                + "  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` datetime NOT NULL, "
+                + "  PRIMARY KEY (`PROCUREMENT_AGENT_FORECASTING_UNIT_ID`), "
+                + "  KEY `FK_rm_procurement_agent_forecasting_unit_fu` (`FORECASTING_UNIT_ID`), "
+                + "  KEY `FK_rm_procurement_agent_forecasting_unit_pa` (`PROCUREMENT_AGENT_ID`), "
+                + "  KEY `fk_rm_procurement_agent_forecasting_unit_cb_idx` (`CREATED_BY`), "
+                + "  KEY `fk_rm_procurement_agent_forecasting_unit_lmb_idx` (`LAST_MODIFIED_BY`), "
+                + "  CONSTRAINT `FK_rm_procurement_agent_forecasting_unit_fu` FOREIGN KEY (`FORECASTING_UNIT_ID`) REFERENCES `rm_forecasting_unit` (`FORECASTING_UNIT_ID`), "
+                + "  CONSTRAINT `FK_rm_procurement_agent_forecasting_unit_pa` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`), "
+                + "  CONSTRAINT `fk_rm_procurement_agent_forecasting_unit_cb` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, "
+                + "  CONSTRAINT `fk_rm_procurement_agent_forecasting_unit_lmb` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION "
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
+        this.jdbcTemplate.update(sqlString);
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        //Insert entries in pafu
+        sqlString = "INSERT INTO rm_procurement_agent_forecasting_unit SELECT NULL,t.FORECASTING_UNIT_ID,1,t.PRODUCT_ID_NO_NAME,1,1,?,1,? FROM temp_product_catalog_fu t";
+        this.jdbcTemplate.update(sqlString,curDate,curDate);
+
+        // Delete duplicate PU entries
+        sqlString = "DELETE p.* "
+                + "FROM temp_product_catalog_pu p "
+                + "LEFT JOIN ( "
+                + "    SELECT MAX(t.ID) AS max_id "
+                + "    FROM temp_product_catalog_pu t "
+                + "    WHERE t.PRODUCT_ID != '' "
+                + "    GROUP BY t.PRODUCT_ID "
+                + ") AS max_ids "
+                + "ON p.ID = max_ids.max_id "
+                + "WHERE max_ids.max_id IS NULL;";
+        this.jdbcTemplate.update(sqlString);
+
+        // Update forecasting units in  pu table
+        sqlString = "update temp_product_catalog_pu p left join temp_product_catalog_fu pp on p.PRODUCT_ID_NO_NAME=pp.PRODUCT_ID_NO_NAME "
+                + "set p.FORECASTING_UNIT_ID=pp.FORECASTING_UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+
+        // Update planning unit Id based on SKU code
+        sqlString = "update temp_product_catalog_pu tpcc "
+                + "left join rm_procurement_agent_planning_unit papu on papu.SKU_CODE=tpcc.PRODUCT_ID and papu.PROCUREMENT_AGENT_ID=1 "
+                + "set tpcc.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID;";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "select tpu.PLANNING_UNIT_ID from temp_product_catalog_pu tpu  "
+                + "left join rm_planning_unit pu on tpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "where tpu.FORECASTING_UNIT_ID!=pu.FORECASTING_UNIT_ID;";
+        List<Integer> pus = this.jdbcTemplate.queryForList(sqlString, Integer.class);
+        logger.info("Mis matched Pu---" + pus);
+        sb.append("Mis matched PU---").append(pus).append(br);        
+        sqlString = "update  "
+                + "rm_planning_unit pu left join temp_product_catalog_pu tpu on tpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "set pu.FORECASTING_UNIT_ID=tpu.FORECASTING_UNIT_ID,pu.LAST_MODIFIED_BY=1,pu.LAST_MODIFIED_DATE=? "
+                + "where tpu.FORECASTING_UNIT_ID!=pu.FORECASTING_UNIT_ID;";
+        this.jdbcTemplate.update(sqlString, curDate);
+        return sb.toString();
+    }
+
+    @Transactional
+    private void pullForecastingUnitLegacy(StringBuilder sb) {
+//        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
+//        String[] subjectParam;
+//        String[] bodyParam;
+//        Emailer emailer;
+        logger.info("------------------------------- Forecasting Unit ------------------------------------");
+        sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
+        //------------Forcasting Unit--------------------------
+        // Step 1 - Drop the table if it exists
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+        this.jdbcTemplate.update(sqlString);
+
+        // Step 2 - Create Temporary Table
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+                + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
+                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
+                + "    `PRODUCT_ID_NO_NAME` varchar(200) COLLATE utf8_bin NOT NULL,   "
+                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
+                + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,   "
+                + "    `GENERIC_LABEL_ID` int (10) unsigned DEFAULT NULL,   "
+                + "    `UNIT_LABEL_EN` VARCHAR (100) COLLATE utf8_bin NULL,  "
+                + "    `COMMODITY_COUNCIL` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `SUB_CATEGORY` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `TRACER_CATEGORY` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `FORECASTING_UNIT_ID` INT(10) UNSIGNED DEFAULT NULL, "
+                + "    PRIMARY KEY (`ID`), "
+                + "    INDEX `idxLabel` (`LABEL` ASC),  "
+                + "    INDEX `idxGenericLabel` (`GENERIC_LABEL` ASC),  "
+                + "    INDEX `idxForecastingUnit_forecastingUnitId_idx` (`FORECASTING_UNIT_ID` ASC),  "
+                + "    INDEX `idxForecastingUnit_labelId_idx` (`LABEL_ID` ASC),  "
+                + "    INDEX `idxForecastingUnit_unitId_idx` (`UNIT_LABEL_EN` ASC),  "
+                + "    INDEX `idxForecastingUnit_genericLabelId_idx` (`GENERIC_LABEL_ID` ASC),  "
+                + "    INDEX `idxForecastingUnit_commodityCouncil_idx` (`COMMODITY_COUNCIL` ASC),  "
+                + "    INDEX `idxForecastingUnit_subCategory_idx` (`SUB_CATEGORY` ASC),  "
+                + "    INDEX `idxForecastingUnit_tracerCategoryId_idx` (`TRACER_CATEGORY` ASC) "
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+        this.jdbcTemplate.update(sqlString);
+
+        // Step 3 insert into the tmp_label the ProductNameNoPack
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null,t.PRODUCT_NAME_NO_NAME,t.PRODUCT_ID_NO_NAME , null, IF(TRIM(t.GENERIC_LABEL)='',null,TRIM(t.GENERIC_LABEL)), null, t.BASE_UNIT, t.COMMODITY_COUNCIL, t.SUB_CATEGORY, t.TRACER_CATEGORY, 0 FROM temp_product_catalog_fu t WHERE t.FORECASTING_UNIT_ID is null";
+        int rows = this.jdbcTemplate.update(sqlString);
+        logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
+        sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
+
+        // Step 4 Match the Generic names
+        sqlString = "update tmp_forecasting_unit tfu "
+                + "LEFT JOIN (SELECT fugl.LABEL_ID, fugl.LABEL_EN FROM rm_forecasting_unit fu LEFT JOIN ap_label fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID WHERE fu.REALM_ID=1 AND fu.GENERIC_LABEL_ID is not null group by fugl.LABEL_EN) gl ON tfu.GENERIC_LABEL=gl.LABEL_EN "
+                + "set tfu.GENERIC_LABEL_ID = gl.LABEL_ID "
+                + "where tfu.GENERIC_LABEL!='' AND tfu.GENERIC_LABEL IS NOT NULL";
+        rows = this.jdbcTemplate.update(sqlString);
+        logger.info(rows + " Generic names matched");
+        sb.append(rows).append(" Generic names matched").append(br);
+
+        sqlString = "SELECT GENERIC_LABEL FROM tmp_forecasting_unit tfu WHERE tfu.GENERIC_LABEL_ID IS NULL AND tfu.GENERIC_LABEL IS NOT NULL AND tfu.GENERIC_LABEL !=''";
+        // Step 4a Create Generic names that did not match
+        sb.append("generic name---" + this.jdbcTemplate.queryForList(sqlString, String.class));
+        for (String genericLabel : this.jdbcTemplate.queryForList(sqlString, String.class)) {
+            // Step 6: Insert into the label table
+            sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 29)";
+            sb.append("ap_label---" + this.jdbcTemplate.update(sqlString, genericLabel));
+            int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+            sqlString = "update tmp_forecasting_unit tfu "
+                    + "set tfu.GENERIC_LABEL_ID = ? "
+                    + "where tfu.GENERIC_LABEL=?";
+            this.jdbcTemplate.update(sqlString, labelId, genericLabel);
+        }
+
+        sqlString = "SELECT null FORECASTING_UNIT_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
+                + " fu.LABEL_ID, fu.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                + " fu.GENERIC_LABEL_ID, fu.GENERIC_LABEL `GENERIC_LABEL_EN`, null `GENERIC_LABEL_FR`, null `GENERIC_LABEL_SP`, null `GENERIC_LABEL_PR`, "
+                + " null PRODUCT_CATEGORY_ID, null PRODUCT_CATEGORY_LABEL_ID, fu.SUB_CATEGORY PRODUCT_CATEGORY_LABEL_EN, fu.COMMODITY_COUNCIL PRODUCT_CATEGORY_LABEL_FR, null PRODUCT_CATEGORY_LABEL_SP, null PRODUCT_CATEGORY_LABEL_PR, "
+                + " null TRACER_CATEGORY_ID, null TRACER_CATEGORY_LABEL_ID, fu.TRACER_CATEGORY TRACER_CATEGORY_LABEL_EN, null TRACER_CATEGORY_LABEL_FR, null TRACER_CATEGORY_LABEL_SP, null TRACER_CATEGORY_LABEL_PR, "
+                + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_forecasting_unit fu";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> forecastingUnitParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 28);
+
+        forecastingUnitParams.put("CREATED_BY", curUserId);
+        forecastingUnitParams.put("CREATED_DATE", curDate);
+        forecastingUnitParams.put("LAST_MODIFIED_BY", curUserId);
+        forecastingUnitParams.put("LAST_MODIFIED_DATE", curDate);
+        forecastingUnitParams.put("ACTIVE", true);
+        forecastingUnitParams.put("REALM_ID", 1);
+        forecastingUnitParams.put("LABEL_ID", 0);
+        forecastingUnitParams.put("GENERIC_LABEL_ID", 0);
+        forecastingUnitParams.put("UNIT_ID", 0);
+        forecastingUnitParams.put("PRODUCT_CATEGORY_ID", 0);
+        forecastingUnitParams.put("TRACER_CATEGORY_ID", 0);
+
+        for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
+            try {
+                sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=? LIMIT 1";
+                logger.info("unit id code---" + fu.getUnit().getCode());
+                logger.info("unit id---" + fu.getUnit().getLabel().getLabel_en());
+                logger.info("unit id---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
+                fu.getUnit().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("UNIT_ID", fu.getUnit().getId());
+                sb.append("----------fu 1--------------").append(br);
+                sqlString = "SELECT SORT_ORDER FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN LIKE '%" + fu.getProductCategory().getLabel().getLabel_fr() + "' AND length(pc.SORT_ORDER)=5";
+                String sortOrder = this.jdbcTemplate.queryForObject(sqlString, String.class);
+                sb.append("----------fu 2--------------").append(br);
+                sqlString = "SELECT PRODUCT_CATEGORY_ID FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN=? AND pc.SORT_ORDER LIKE '" + sortOrder + "%'";
+                fu.getProductCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getProductCategory().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
+                sb.append("----------fu 3--------------").append(br);
+                sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
+//                System.out.println("tracer category---" + fu.getTracerCategory().getLabel().getLabel_en());
+                fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
+                sb.append("----------fu 4--------------").append(br);
+                if (fu.getProductCategory().getId() != null
+                        && fu.getTracerCategory().getId() != null
+                        && fu.getProductCategory().getId() != 0
+                        && fu.getTracerCategory().getId() != 0) {
+                    labelParams.replace("LABEL_EN", fu.getLabel().getLabel_en());
+                    labelParams.replace("SOURCE_ID", 28);
+                    fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                    forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
+                    if (fu.getGenericLabel().getLabel_en() != null) {
+                        sb.append("----------fu 5--------------").append(br);
+                        labelParams.replace("SOURCE_ID", 29);
+                        labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
+                        fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                        forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
+                    } else {
+                        sb.append("----------fu 6--------------").append(br);
+                        forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
+                    }
+                    sb.append("----------fu 7--------------").append(br);
+                    siForecastingUnit.execute(forecastingUnitParams);
+                    sb.append("----------fu 8--------------").append(br);
+                } else {
+                    logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
+                    sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
+//                    subjectParam = new String[]{"Product Catalog", "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en()};
+//                    bodyParam = new String[]{"Product Catalog", "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en(), "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided"};
+//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//                    int emailerId = this.emailService.saveEmail(emailer);
+//                    emailer.setEmailerId(emailerId);
+//                    this.emailService.sendMail(emailer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + " because there was an error " + e.getMessage());
+                sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append(" because there was an error ").append(e.getMessage()).append(br);
+//                subjectParam = new String[]{"Product Catalog", "Error while pulling forecasting unit " + fu.getLabel().getLabel_en()};
+//                bodyParam = new String[]{"Product Catalog", "Error while pulling forecasting unit " + fu.getLabel().getLabel_en(), e.getMessage()};
+//                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, "", subjectParam, bodyParam);
+//                int emailerId = this.emailService.saveEmail(emailer);
+//                emailer.setEmailerId(emailerId);
+//                this.emailService.sendMail(emailer);
+            }
+        }
+
+        // Update queries 
+//        String sqlStringUpdate = "UPDATE tmp_forecasting_unit tfu  "
+//                + "LEFT JOIN rm_forecasting_unit fu ON tfu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+//                + "LEFT JOIN vw_tracer_category tc ON tc.REALM_ID=1 AND tfu.TRACER_CATEGORY=tc.LABEL_EN  "
+//                + "LEFT JOIN vw_unit u ON tfu.UNIT_LABEL_EN=u.LABEL_EN  "
+//                + "LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tfu.SUB_CATEGORY LIKE CONCAT('%',pc.LABEL_EN)  "
+//                + "SET  "
+//                + "    fu.GENERIC_LABEL_ID=tfu.GENERIC_LABEL_ID,  "
+//                + "    fu.UNIT_ID=u.UNIT_ID,  "
+//                + "    fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID,  "
+//                + "    fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID,  "
+//                + "    fu.LAST_MODIFIED_BY= IF(fu.GENERIC_LABEL_ID!=tfu.GENERIC_LABEL_ID OR fu.UNIT_ID!=u.UNIT_ID OR fu.TRACER_CATEGORY_ID!=tc.TRACER_CATEGORY_ID OR fu.PRODUCT_CATEGORY_ID!=pc.PRODUCT_CATEGORY_ID, ?, fu.LAST_MODIFIED_BY),  "
+//                + "    fu.LAST_MODIFIED_DATE= IF(fu.GENERIC_LABEL_ID!=tfu.GENERIC_LABEL_ID OR fu.UNIT_ID!=u.UNIT_ID OR fu.TRACER_CATEGORY_ID!=tc.TRACER_CATEGORY_ID OR fu.PRODUCT_CATEGORY_ID!=pc.PRODUCT_CATEGORY_ID, ?, fu.LAST_MODIFIED_DATE) "
+//                + "WHERE tfu.FOUND=1 AND u.UNIT_ID IS NOT NULL AND tc.TRACER_CATEGORY_ID IS NOT NULL AND pc.PRODUCT_CATEGORY_ID IS NOT NULL";
+//        int rowCount = this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate);
+//        logger.info("Rows updated - " + rowCount);
+//        sb.append("Rows updated - ").append(rowCount).append(br);
+        //Update end
+        sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
+        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows available in rm_forecasting_unit ---" + cnt);
+        sb.append("Total rows available in rm_forecasting_unit ---").append(cnt).append(br);
+    }
 }

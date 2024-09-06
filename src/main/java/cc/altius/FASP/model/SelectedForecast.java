@@ -7,6 +7,8 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -15,9 +17,7 @@ import java.io.Serializable;
 public class SelectedForecast implements Serializable {
 
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Integer treeId;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Integer scenarioId;
+    private List<TreeAndScenario> treeAndScenario;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer consumptionExtrapolationId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -25,20 +25,16 @@ public class SelectedForecast implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double totalForecast;
 
-    public Integer getTreeId() {
-        return treeId;
+    public SelectedForecast() {
+        treeAndScenario = new LinkedList<>();
     }
 
-    public void setTreeId(Integer treeId) {
-        this.treeId = treeId;
+    public List<TreeAndScenario> getTreeAndScenario() {
+        return treeAndScenario;
     }
 
-    public Integer getScenarioId() {
-        return scenarioId;
-    }
-
-    public void setScenarioId(Integer scenarioId) {
-        this.scenarioId = scenarioId;
+    public void setTreeAndScenario(List<TreeAndScenario> treeAndScenario) {
+        this.treeAndScenario = treeAndScenario;
     }
 
     public Integer getConsumptionExtrapolationId() {
