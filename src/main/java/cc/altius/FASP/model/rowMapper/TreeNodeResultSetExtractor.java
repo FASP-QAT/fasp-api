@@ -59,27 +59,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 }
                 int nodeId = rs.getInt("NODE_ID");
                 TreeNode tn = getNode(nodeId, parentNodeId, rs, 1);
-                if (tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
-                    Integer targetNodeId = rs.getInt("TARGET_NODE_ID");
-                    if (rs.wasNull()) {
-                        targetNodeId = null;
-                    }
-                    Integer targetTreeId = rs.getInt("TARGET_TREE_ID");
-                    if (rs.wasNull()) {
-                        targetTreeId = null;
-                    }
-                    Integer targetScenarioId = rs.getInt("TARGET_SCENARIO_ID");
-                    if (rs.wasNull()) {
-                        targetScenarioId = null;
-                    }
-                    if (targetTreeId != null && targetScenarioId != null && targetNodeId != null) {
-                        DownwardAggregation da = new DownwardAggregation(targetTreeId, targetScenarioId, targetNodeId);
-                        int idx = tn.getDownwardAggregationList().indexOf(da);
-                        if (idx == -1) {
-                            tn.getDownwardAggregationList().add(da);
-                        }
-                    }
-                }
                 ForecastNode<TreeNode> n = null;
                 if (tree == null) {
                     // Tree is empty so Initialize the Tree
@@ -95,6 +74,27 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     } else {
                         // Node was found so just link tn
                         tn = n.getPayload();
+                    }
+                }
+                if (tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                    Integer sourceNodeId = rs.getInt("SOURCE_NODE_ID");
+                    if (rs.wasNull()) {
+                        sourceNodeId = null;
+                    }
+                    Integer sourceTreeId = rs.getInt("SOURCE_TREE_ID");
+                    if (rs.wasNull()) {
+                        sourceTreeId = null;
+                    }
+                    Integer sourceScenarioId = rs.getInt("SOURCE_SCENARIO_ID");
+                    if (rs.wasNull()) {
+                        sourceScenarioId = null;
+                    }
+                    if (sourceTreeId != null && sourceScenarioId != null && sourceNodeId != null) {
+                        DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId);
+                        int idx = tn.getDownwardAggregationList().indexOf(da);
+                        if (idx == -1) {
+                            tn.getDownwardAggregationList().add(da);
+                        }
                     }
                 }
                 // Load other data into Payload

@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.GlobalConstants;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.HashMap;

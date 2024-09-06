@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -12,8 +13,11 @@ import java.io.Serializable;
  */
 public class DownwardAggregation implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int treeId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int scenarioId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeId;
 
     public DownwardAggregation() {
@@ -77,6 +81,11 @@ public class DownwardAggregation implements Serializable {
             return false;
         }
         return this.nodeId == other.nodeId;
+    }
+
+    @Override
+    public String toString() {
+        return "DownwardAggregation{" + "treeId=" + treeId + ", scenarioId=" + scenarioId + ", nodeId=" + nodeId + '}';
     }
 
 }
