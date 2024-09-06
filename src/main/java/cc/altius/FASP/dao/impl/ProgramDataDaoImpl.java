@@ -1801,7 +1801,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         for (DatasetTree dt : dd.getTreeList()) {
             for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
                 if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+
                     for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
+                        
+                        System.out.println("targetNodeId=" + n.getPayload().getNodeId());
+                        System.out.println("targetNodeId substituted=" + getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
+                        System.out.println("sourceTreeId=" + Integer.toString(da.getTreeId()));
+                        System.out.println("sourceTreeId substituted =" + getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
+                        System.out.println("sourceScenarioId=" + da.getTreeId() + "-" + da.getScenarioId());
+                        System.out.println("sourceScenarioId substituted=" + getNewId(oldAndNewIdMap, "rm_scenario", da.getTreeId() + "-" + da.getScenarioId()));
+                        System.out.println("sourceNodeId=" + da.getTreeId() + "-" + da.getNodeId());
+                        System.out.println("sourceNodeId substituted=" + getNewId(oldAndNewIdMap, "rm_forecast_tree_node", da.getTreeId() + "-" + da.getNodeId()));
+                        
                         Map<String, Object> batchParams = new HashMap<>();
                         batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
                         batchParams.put("SOURCE_TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
