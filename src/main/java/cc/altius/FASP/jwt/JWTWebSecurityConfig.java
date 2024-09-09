@@ -74,7 +74,7 @@ public class JWTWebSecurityConfig {
 
         return authProvider;
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -100,7 +100,16 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/currency").hasAnyAuthority("ROLE_BF_LIST_CURRENCY", "ROLE_BF_ADD_BUDGET", "ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW", "ROLE_BF_EDIT_COUNTRY", "ROLE_BF_ADD_COUNTRY", "ROLE_BF_MAP_REALM_COUNTRY", "ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET, "api/currency/all").hasAnyAuthority("ROLE_BF_LIST_CURRENCY", "ROLE_BF_ADD_COUNTRY", "ROLE_BF_EDIT_COUNTRY", "ROLE_BF_MAP_REALM_COUNTRY", "ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET, "/api/currency/**").hasAnyAuthority("ROLE_BF_EDIT_CURRENCY")
-                        .requestMatchers(HttpMethod.GET, "/api/applicationLevelDashboard", "/api/applicationLevelDashboardUserList", "/api/ticket/openIssues", "/api/supplyPlanReviewerLevelDashboard", "/api/realmLevelDashboard", "/api/realmLevelDashboardUserList").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/applicationLevelDashboard",
+                                "/api/applicationLevelDashboardUserList",
+                                "/api/ticket/openIssues",
+                                "/api/supplyPlanReviewerLevelDashboard",
+                                "/api/realmLevelDashboard",
+                                "/api/realmLevelDashboardUserList",
+                                "/api/dashboardTop"
+                        ).hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
+                        .requestMatchers(HttpMethod.POST, "/api/dashboardBottom").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/ticket/addIssue", "/api/ticket/addIssueAttachment/**", "/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET, "/api/dataset").hasAnyAuthority("ROLE_BF_COMPARE_VERSION", "ROLE_BF_SUPPLY_PLAN_IMPORT", "ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING", "ROLE_BF_LIST_USAGE_TEMPLATE", "ROLE_BF_MODELING_VALIDATION", "ROLE_BF_PRODUCT_VALIDATION")
                         .requestMatchers(HttpMethod.GET, "/api/loadDataset").hasAnyAuthority("ROLE_BF_LOAD_DELETE_DATASET")

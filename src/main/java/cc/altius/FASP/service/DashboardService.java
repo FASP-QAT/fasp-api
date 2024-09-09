@@ -7,6 +7,9 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.report.DashboardInput;
+import cc.altius.FASP.model.report.DashboardBottom;
+import cc.altius.FASP.model.report.DashboardTop;
 import java.util.List;
 import java.util.Map;
 
@@ -25,4 +28,8 @@ public interface DashboardService {
     List<DashboardUser> getUserListForApplicationLevelAdmin(CustomUserDetails curUser);
 
     List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
+
+    List<DashboardTop> getDashboardTop(CustomUserDetails curUser);
+
+    DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser);
 }
