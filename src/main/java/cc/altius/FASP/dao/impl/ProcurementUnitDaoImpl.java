@@ -7,12 +7,12 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProcurementUnitDao;
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -120,86 +120,103 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
     }
 
     @Override
-    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+    public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) throws DuplicateNameException {
+        String sqlString = "SELECT COUNT(*) FROM vw_procurement_unit pu WHERE LOWER(pu.LABEL_EN)=:procurementUnitName";
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), LabelConstants.RM_PROCUREMENT_UNIT, curUser.getUserId());
-        params.put("LABEL_ID", labelId);
-        params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
-        params.put("UNIT_ID", procurementUnit.getUnit().getId());
-        params.put("MULTIPLIER", procurementUnit.getMultiplier());
-        params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
-        params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit().getId() == null ? null : procurementUnit.getLengthUnit().getId()));
-        params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
-        params.put("VOLUME_QTY", procurementUnit.getVolumeQty());
-        params.put("VOLUME_UNIT_ID", (procurementUnit.getVolumeUnit().getId() == null ? null : procurementUnit.getVolumeUnit().getId()));
-        params.put("LABELING", procurementUnit.getLabeling());
-        params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
-        params.put("UNITS_PER_PALLET_EURO1", procurementUnit.getUnitsPerPalletEuro1());
-        params.put("UNITS_PER_PALLET_EURO2", procurementUnit.getUnitsPerPalletEuro1());
-        params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+        params.put("procurementUnitName", procurementUnit.getLabel().getLabel_en().toLowerCase());
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Procurement unit with same name already exists");
+        } else {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), LabelConstants.RM_PROCUREMENT_UNIT, curUser.getUserId());
+            params.clear();
+            params.put("LABEL_ID", labelId);
+            params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
+            params.put("UNIT_ID", procurementUnit.getUnit().getId());
+            params.put("MULTIPLIER", procurementUnit.getMultiplier());
+            params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
+            params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
+            params.put("WIDTH_QTY", procurementUnit.getWidthQty());
+            params.put("LENGTH_QTY", procurementUnit.getLengthQty());
+            params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit().getId() == null ? null : procurementUnit.getLengthUnit().getId()));
+            params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
+            params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
+            params.put("VOLUME_QTY", procurementUnit.getVolumeQty());
+            params.put("VOLUME_UNIT_ID", (procurementUnit.getVolumeUnit().getId() == null ? null : procurementUnit.getVolumeUnit().getId()));
+            params.put("LABELING", procurementUnit.getLabeling());
+            params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
+            params.put("UNITS_PER_PALLET_EURO1", procurementUnit.getUnitsPerPalletEuro1());
+            params.put("UNITS_PER_PALLET_EURO2", procurementUnit.getUnitsPerPalletEuro1());
+            params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
+            params.put("ACTIVE", true);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            return si.executeAndReturnKey(params).intValue();
+        }
     }
 
     @Override
     public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlString = "UPDATE rm_procurement_unit pru LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID "
-                + "SET  "
-                + "    pru.MULTIPLIER=:multiplier, "
-                + "    pru.UNIT_ID=:unitId, "
-                + "    pru.HEIGHT_QTY=:heightQty, "
-                + "    pru.LENGTH_QTY=:lengthQty, "
-                + "    pru.LENGTH_UNIT_ID=:lengthUnitId, "
-                + "    pru.WIDTH_QTY=:widthQty, "
-                + "    pru.WEIGHT_QTY=:weightQty, "
-                + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
-                + "    pru.VOLUME_QTY=:volumeQty, "
-                + "    pru.VOLUME_UNIT_ID=:volumeUnitId, "
-                + "    pru.UNITS_PER_CASE=:unitsPerCase, "
-                + "    pru.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
-                + "    pru.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
-                + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
-                + "    pru.LABELING=:labeling, "
-                + "    pru.ACTIVE=:active, "
-                + "    pru.LAST_MODIFIED_BY=:curUser, "
-                + "    pru.LAST_MODIFIED_DATE=:curDate, "
-                + "    prul.LABEL_EN=:labelEn, "
-                + "    prul.LAST_MODIFIED_BY=:curUser, "
-                + "    prul.LAST_MODIFIED_DATE=:curDate "
-                + "WHERE pru.PROCUREMENT_UNIT_ID=:procurementUnitId";
+        String sqlString = "SELECT COUNT(*) FROM vw_procurement_unit pu WHERE LOWER(pu.LABEL_EN)=:procurementUnitName AND pu.PROCUREMENT_UNIT_ID!=:procurementUnitId";
         Map<String, Object> params = new HashMap<>();
+        params.put("procurementUnitName", procurementUnit.getLabel().getLabel_en().toLowerCase());
         params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
-        params.put("multiplier", procurementUnit.getMultiplier());
-        params.put("unitId", procurementUnit.getUnit().getId());
-        params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", (procurementUnit.getLengthUnit().getId() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
-        params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", (procurementUnit.getWeightUnit().getId() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
-        params.put("volumeQty", procurementUnit.getVolumeQty());
-        params.put("volumeUnitId", (procurementUnit.getVolumeUnit().getId() == null || procurementUnit.getVolumeUnit().getId() == 0 ? null : procurementUnit.getVolumeUnit().getId()));
-        params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
-        params.put("unitsPerPalletEuro1", procurementUnit.getUnitsPerPalletEuro1());
-        params.put("unitsPerPalletEuro2", procurementUnit.getUnitsPerPalletEuro2());
-        params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
-        params.put("labeling", procurementUnit.getLabeling());
-        params.put("active", procurementUnit.isActive());
-        params.put("labelEn", procurementUnit.getLabel().getLabel_en());
-        params.put("curUser", curUser.getUserId());
-        params.put("curDate", curDate);
-        return this.namedParameterJdbcTemplate.update(sqlString, params);
+        int count = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (count > 0) {
+            throw new DuplicateNameException("Procurement unit with same name already exists");
+        } else {
+            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+            sqlString = "UPDATE rm_procurement_unit pru LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID "
+                    + "SET  "
+                    + "    pru.MULTIPLIER=:multiplier, "
+                    + "    pru.UNIT_ID=:unitId, "
+                    + "    pru.HEIGHT_QTY=:heightQty, "
+                    + "    pru.LENGTH_QTY=:lengthQty, "
+                    + "    pru.LENGTH_UNIT_ID=:lengthUnitId, "
+                    + "    pru.WIDTH_QTY=:widthQty, "
+                    + "    pru.WEIGHT_QTY=:weightQty, "
+                    + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
+                    + "    pru.VOLUME_QTY=:volumeQty, "
+                    + "    pru.VOLUME_UNIT_ID=:volumeUnitId, "
+                    + "    pru.UNITS_PER_CASE=:unitsPerCase, "
+                    + "    pru.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
+                    + "    pru.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
+                    + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
+                    + "    pru.LABELING=:labeling, "
+                    + "    pru.ACTIVE=:active, "
+                    + "    pru.LAST_MODIFIED_BY=:curUser, "
+                    + "    pru.LAST_MODIFIED_DATE=:curDate, "
+                    + "    prul.LABEL_EN=:labelEn, "
+                    + "    prul.LAST_MODIFIED_BY=:curUser, "
+                    + "    prul.LAST_MODIFIED_DATE=:curDate "
+                    + "WHERE pru.PROCUREMENT_UNIT_ID=:procurementUnitId";
+            params.clear();
+            params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
+            params.put("multiplier", procurementUnit.getMultiplier());
+            params.put("unitId", procurementUnit.getUnit().getId());
+            params.put("heightQty", procurementUnit.getHeightQty());
+            params.put("lengthQty", procurementUnit.getLengthQty());
+            params.put("lengthUnitId", (procurementUnit.getLengthUnit().getId() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
+            params.put("widthQty", procurementUnit.getWidthQty());
+            params.put("weightQty", procurementUnit.getWeightQty());
+            params.put("weightUnitId", (procurementUnit.getWeightUnit().getId() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+            params.put("volumeQty", procurementUnit.getVolumeQty());
+            params.put("volumeUnitId", (procurementUnit.getVolumeUnit().getId() == null || procurementUnit.getVolumeUnit().getId() == 0 ? null : procurementUnit.getVolumeUnit().getId()));
+            params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
+            params.put("unitsPerPalletEuro1", procurementUnit.getUnitsPerPalletEuro1());
+            params.put("unitsPerPalletEuro2", procurementUnit.getUnitsPerPalletEuro2());
+            params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
+            params.put("labeling", procurementUnit.getLabeling());
+            params.put("active", procurementUnit.isActive());
+            params.put("labelEn", procurementUnit.getLabel().getLabel_en());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            return this.namedParameterJdbcTemplate.update(sqlString, params);
+        }
     }
 
     @Override
@@ -223,7 +240,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
     }
 
     @Override
-        public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+    public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
                 + "    pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID, pru.LABEL_EN, pru.LABEL_FR, pru.LABEL_SP, pru.LABEL_PR,  "
                 + "    s.SUPPLIER_ID, s.LABEL_ID `SUPPLIER_LABEL_ID`, s.LABEL_EN `SUPPLIER_LABEL_EN`, s.LABEL_FR `SUPPLIER_LABEL_FR`, s.LABEL_SP `SUPPLIER_LABEL_SP`, s.LABEL_PR `SUPPLIER_LABEL_PR`,  "

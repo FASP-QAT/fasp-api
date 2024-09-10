@@ -21,6 +21,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private int programId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String programCode;
+    @JsonView({Views.InternalView.class})
+    private String cutOffDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private RealmCountry realmCountry;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -63,6 +65,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Region> regionList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Version currentVersion;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private List<ProgramVersionTrans> currentVersionTrans;
     private List<Version> versionList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<Consumption> consumptionList;
@@ -136,6 +140,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setProgramCode(String programCode) {
         this.programCode = programCode;
+    }
+
+    public String getCutOffDate() {
+        return cutOffDate;
+    }
+
+    public void setCutOffDate(String cutOffDate) {
+        this.cutOffDate = cutOffDate;
     }
 
     public RealmCountry getRealmCountry() {
@@ -280,6 +292,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setCurrentVersion(Version currentVersion) {
         this.currentVersion = currentVersion;
+    }
+
+    public List<ProgramVersionTrans> getCurrentVersionTrans() {
+        return currentVersionTrans;
+    }
+
+    public void setCurrentVersionTrans(List<ProgramVersionTrans> currentVersionTrans) {
+        this.currentVersionTrans = currentVersionTrans;
     }
 
     public List<Version> getVersionList() {

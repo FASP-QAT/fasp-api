@@ -37,6 +37,7 @@ public class MastersSync implements Serializable {
     private List<ProcurementUnit> procurementUnitList;
     private List<RealmCountryPlanningUnit> realmCountryPlanningUnitList;
     private List<ProcurementAgentPlanningUnit> procurementAgentPlanningUnitList;
+    private List<ProcurementAgentForecastingUnit> procurementAgentForecastingUnitList;
     private List<ProcurementAgentProcurementUnit> procurementAgentProcurementUnitList;
     private List<Program> programList;
     private List<Region> regionList;
@@ -59,6 +60,7 @@ public class MastersSync implements Serializable {
     private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
     private List<ExtrapolationMethod> extrapolationMethodList;
     private List<ProcurementAgentType> procurementAgentyType;
+    private List<FundingSourceType> fundingSourceType;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -236,6 +238,14 @@ public class MastersSync implements Serializable {
         this.procurementAgentPlanningUnitList = procurementAgentPlanningUnitList;
     }
 
+    public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitList() {
+        return procurementAgentForecastingUnitList;
+    }
+
+    public void setProcurementAgentForecastingUnitList(List<ProcurementAgentForecastingUnit> procurementAgentForecastingUnitList) {
+        this.procurementAgentForecastingUnitList = procurementAgentForecastingUnitList;
+    }
+
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList() {
         return procurementAgentProcurementUnitList;
     }
@@ -410,6 +420,14 @@ public class MastersSync implements Serializable {
 
     public List<ProcurementAgentType> getProcurementAgentyType() {
         return procurementAgentyType;
+    }
+
+    public List<FundingSourceType> getFundingSourceType() {
+        return fundingSourceType;
+    }
+
+    public void setFundingSourceType(List<FundingSourceType> fundingSourceType) {
+        this.fundingSourceType = fundingSourceType;
     }
 
 }

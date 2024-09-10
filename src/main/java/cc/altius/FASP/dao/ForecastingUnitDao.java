@@ -5,11 +5,14 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
+import cc.altius.FASP.model.ForecastingUnitWithCount;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
@@ -23,12 +26,12 @@ public interface ForecastingUnitDao {
     public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser);
 
     public List<ForecastingUnit> getForecastingUnitList(int realmId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ForecastingUnit> getForecastingUnitListByIds(List<String> forecastingUnitIdList, CustomUserDetails curUser);
 
-    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser);
+    public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
-    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser);
+    public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser);
 
@@ -43,10 +46,16 @@ public interface ForecastingUnitDao {
     public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public List<SimpleObject> getForecastingUnitListForAutoComplete(AutoCompleteInput autoCompleteInput, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getForecastingUnitListForAutoCompleteWithFilterTracerCategory(AutocompleteInputWithTracerCategoryDTO autoCompleteInput, CustomUserDetails curUser);
-    
+
     public List<SimpleForecastingUnitWithUnitObject> getForecastingUnitDropdownList(CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getForecastingUnitDropdownListWithFilterForPuAndTc(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
+
+    public List<ForecastingUnitWithCount> getForecastingUnitByTracerCategoryAndProductCategory(ProductCategoryAndTracerCategoryDTO input, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser);
+
+    public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser);
 }

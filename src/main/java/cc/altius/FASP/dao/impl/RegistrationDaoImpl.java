@@ -39,7 +39,7 @@ public class RegistrationDaoImpl implements RegistrationDao {
     @Override
     public int saveRegistration(Registration registration) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("registration").usingGeneratedKeyColumns("REGISTRATION_ID");
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> params = new HashMap<>();
         params.put("FIRST_NAME", registration.getFirstName());
         params.put("LAST_NAME", registration.getLastName());
@@ -64,7 +64,7 @@ public class RegistrationDaoImpl implements RegistrationDao {
 
     @Override
     public int updateRegistration(Registration registration) {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.GMT, DateUtils.YMDHMS);
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE registration r SET r.`LAST_MODIFIED_BY`=:curUser,r.`LAST_MODIFIED_DATE`=:curDate,r.`NOTES`=:notes,r.`STATUS`=:status WHERE r.`REGISTRATION_ID`=:regId";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("curUser", 1);

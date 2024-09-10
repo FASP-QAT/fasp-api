@@ -20,6 +20,7 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
@@ -34,6 +35,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -87,6 +89,11 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser) {
+        return this.programDao.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeIdList, curUser);
+    }
+
+    @Override
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         return this.programDao.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser);
     }
@@ -97,7 +104,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int addProgram(Program p, CustomUserDetails curUser) {
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) {
         p.setRealmCountry(this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser));
         if (this.aclService.checkAccessForUser(
                 curUser,
@@ -123,7 +130,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int updateProgram(Program p, CustomUserDetails curUser) {
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) {
         SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
         if (curProg == null) {
             throw new EmptyResultDataAccessException(1);
@@ -234,7 +241,25 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             return new LinkedList<>();
         }
-
+    }
+    
+    @Override
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+        StringBuilder programList = new StringBuilder();
+        for (int programId : programIds) {
+            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+                programList.append("'").append(programId).append("',");
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        if (programList.length() > 0) {
+            programList.setLength(programList.length() - 1);
+            return this.programDao.getProgramAndPlanningUnitListForProgramIds(programList.toString(), curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
     @Override
@@ -249,8 +274,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser) {
-        return this.programDao.getProgramPlanningUnitProcurementAgentList(programPlanningUnitId, active, curUser);
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser) {
+        return this.programDao.getProgramPlanningUnitProcurementAgentList(ppupa, active, curUser);
     }
 
     @Override
@@ -483,6 +508,16 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser) {
         return this.programDao.getTreeAnchorForSync(ta, curUser);
+    }
+
+    @Override
+    public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
+        return this.programDao.getProcurementAgentIdsForProgramId(programId, curUser);
+    }
+
+    @Override
+    public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
+        return this.programDao.getFundingSourceIdsForProgramId(programId, curUser);
     }
 
 }

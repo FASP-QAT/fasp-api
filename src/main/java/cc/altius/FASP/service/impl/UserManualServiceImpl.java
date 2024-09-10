@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class UserManualServiceImpl implements UserManualService {
 
-    @Value("${qat.filePath}")
+    @Value("${qat.homeFolder}")
     private String QAT_FILE_PATH;
     @Value("${qat.additionalFiles.path}")
     private String QAT_ADDITIONAL_FILES;

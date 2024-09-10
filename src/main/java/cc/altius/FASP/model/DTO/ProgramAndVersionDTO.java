@@ -4,6 +4,8 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -12,7 +14,9 @@ import java.io.Serializable;
  */
 public class ProgramAndVersionDTO implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int programId;
+    @JsonView(Views.ReportView.class)
     private int versionId;
 
     public int getProgramId() {
@@ -30,5 +34,4 @@ public class ProgramAndVersionDTO implements Serializable {
     public void setVersionId(int versionId) {
         this.versionId = versionId;
     }
-
 }
