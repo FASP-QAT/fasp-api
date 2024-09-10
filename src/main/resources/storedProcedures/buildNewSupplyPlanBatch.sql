@@ -83,6 +83,7 @@ BEGIN
             LEFT JOIN rm_batch_inventory_trans bt ON bt.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID AND bt.VERSION_ID=tbi.MAX_VERSION_ID
             LEFT JOIN rm_batch_info ON bt.BATCH_ID=rm_batch_info.BATCH_ID
             LEFT JOIN rm_program_planning_unit ppu ON bi.PROGRAM_ID=ppu.PROGRAM_ID AND bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID            
+            WHERE bt.ACTIVE
         ) AS o 
         GROUP BY o.PROGRAM_ID, o.PLANNING_UNIT_ID, o.TRANS_DATE, o.BATCH_ID ORDER BY o.PROGRAM_ID, o.PLANNING_UNIT_ID, o.TRANS_DATE, IFNULL(o.EXPIRY_DATE,'2999-12-31');
 
