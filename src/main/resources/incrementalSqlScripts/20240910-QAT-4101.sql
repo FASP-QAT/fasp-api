@@ -70,30 +70,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion'
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Factor de conversión');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão');-- pr
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.editIn','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Edit in');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modifier dans');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Editar en');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Editar em');-- pr
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.treeTable.updateNotes','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Calculated values in gray cells only recalculate after clicking `Update`.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Les valeurs calculées dans les cellules grises ne sont recalculées qu\'après avoir cliqué sur « Mettre à jour ».');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Los valores calculados en las celdas grises solo se vuelven a calcular después de hacer clic en "Actualizar".');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Os valores calculados nas células cinza só são recalculados após clicar em `Atualizar`.');-- pr
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.treeTable.rightClickNotes','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'right click on any row and click `Open this node for editing` to open that specific node in a separate QAT window');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'faites un clic droit sur n\'importe quelle ligne et cliquez sur « Ouvrir ce nœud pour modification » pour ouvrir ce nœud spécifique dans une fenêtre QAT séparée');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'haga clic derecho en cualquier fila y haga clic en "Abrir este nodo para editar" para abrir ese nodo específico en una ventana QAT separada');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'clique com o botão direito em qualquer linha e clique em `Abrir este nó para edição` para abrir esse nó específico em uma janela QAT separada');-- pr
-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.treeTable.PUReference','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
