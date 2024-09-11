@@ -2,7 +2,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Table');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Table d\'arbre');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Table d\`arbre');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mesa de árbol');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mesa de árvore');-- pr
 
@@ -26,7 +26,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter the value or percentage of parent at the time of the Start Month. If this value changes over time, update in the Add/Edit Node, Modeling/Transfer tab.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez la valeur ou le pourcentage du parent au moment du mois de début. Si cette valeur évolue au fil du temps, mettez à jour dans l\'onglet Ajouter/Modifier un nœud, Modélisation/Transfert.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez la valeur ou le pourcentage du parent au moment du mois de début. Si cette valeur évolue au fil du temps, mettez à jour dans l\`onglet Ajouter/Modifier un nœud, Modélisation/Transfert.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese el valor o porcentaje del padre en el momento del mes de inicio. Si este valor cambia con el tiempo, actualícelo en la pestaña Agregar/Editar nodo, Modelado/Transferencia.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira o valor ou porcentagem do pai no momento do Mês de Início. Se esse valor mudar ao longo do tempo, atualize na guia Adicionar/Editar Nó, Modelagem/Transferência.');-- pr
 
@@ -34,7 +34,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Value is calculated based on the Display Date. To change the Parent Value, edit the Parent Node directly.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La valeur est calculée en fonction de la date d\'affichage. Pour modifier la valeur parent, modifiez directement le nœud parent.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La valeur est calculée en fonction de la date d\`affichage. Pour modifier la valeur parent, modifiez directement le nœud parent.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El valor se calcula en función de la fecha de visualización. Para cambiar el valor principal, edite el nodo principal directamente.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O valor é calculado com base na Data de Exibição. Para alterar o valor pai, edite o nó pai diretamente.');-- pr
 
@@ -42,7 +42,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Value is calculated based on the Display Date.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La valeur est calculée en fonction de la date d\'affichage.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La valeur est calculée en fonction de la date d\`affichage.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El valor se calcula en función de la fecha de visualización.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O valor é calculado com base na Data de Exibição.');-- pr
 
