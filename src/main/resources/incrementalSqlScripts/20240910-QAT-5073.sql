@@ -70,7 +70,6 @@ BEGIN
     SET @sql1 = CONCAT(@sql1, "		) s ");
     SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID ");
     SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN rm_shipment_trans  st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID ");
-    SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN rm_budget b on st.BUDGET_ID=b.BUDGET_ID ");
     SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN vw_funding_source fs on fs.FUNDING_SOURCE_ID=st.FUNDING_SOURCE_ID ");
     SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN vw_procurement_agent pa on pa.PROCUREMENT_AGENT_ID=st.PROCUREMENT_AGENT_ID ");
     SET @sql1 = CONCAT(@sql1, " 	LEFT JOIN vw_planning_unit pu on pu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID ");
