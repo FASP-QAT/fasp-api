@@ -67,6 +67,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ShipmentBudgetAmt;
 import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeAndScenario;
@@ -90,6 +91,7 @@ import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ShipmentBudgetAmtRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionTransRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -101,7 +103,6 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.text.DecimalFormat;
@@ -2277,6 +2278,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("planningUnitActive", planningUnitActive);
         params.put("cutOffDate", (cutOffDate == null || cutOffDate.equals("") ? null : cutOffDate));
         return this.namedParameterJdbcTemplate.query("CALL getBatchInventoryData(:programId, :versionId, :planningUnitActive, :cutOffDate)", params, new BatchInventoryListResultSetExtractor());
+    }
+    
+    @Override
+    public List<ShipmentBudgetAmt> getShipmentBudgetList(int programId, int versionId, CustomUserDetails curUser) {
+        String sqlString = "CALL getShipmentBudgetAmtData(:programId, :versionId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ShipmentBudgetAmtRowMapper());
     }
 
     @Override

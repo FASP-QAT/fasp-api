@@ -85,6 +85,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive, null));
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
         pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(programId, curUser));
+        pd.setShipmentBudgetList(this.programDataDao.getShipmentBudgetList(programId, versionId, curUser));
         return pd;
     }
 
@@ -108,6 +109,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
+            pd.setShipmentBudgetList(this.programDataDao.getShipmentBudgetList(pv.getProgramId(), pv.getVersionId(), curUser));
             programDataList.add(pd);
         });
         return programDataList;

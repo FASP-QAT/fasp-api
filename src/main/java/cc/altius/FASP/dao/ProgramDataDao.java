@@ -35,6 +35,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ShipmentBudgetAmt;
 import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.ShipmentLinking;
 import cc.altius.FASP.model.UpdateProgramVersion;
@@ -62,6 +63,8 @@ public interface ProgramDataDao {
     public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate);
 
     public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
+    
+    public List<ShipmentBudgetAmt> getShipmentBudgetList(int programId, int versionId, CustomUserDetails curUser);
     
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
@@ -132,5 +135,5 @@ public interface ProgramDataDao {
     public NodeDataExtrapolation getNodeDataExtrapolationForNodeDataId(int nodeDataId);
 
     public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionForNodeDataId(int nodeDataId);
-
+    
 }
