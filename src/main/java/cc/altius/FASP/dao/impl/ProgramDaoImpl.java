@@ -679,7 +679,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", programIds);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" GROUP BY p.PROGRAM_ID, pu.PLANNING_UNIT_ID");
+        sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithTypeRowMapper());
     }
 
