@@ -163,7 +163,7 @@ public interface ReportDao {
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
     
     // Report no 31 new 
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser);
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, boolean getREgionalData, CustomUserDetails curUser);
     
     // Mod 2 Report 1 -- Monthly Forecast
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser);

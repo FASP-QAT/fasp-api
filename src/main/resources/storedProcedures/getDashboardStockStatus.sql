@@ -2,7 +2,7 @@ CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardStockStatus`(VAR_ST
 BEGIN
     SET VAR_PROGRAM_ID = VAR_PROGRAM_ID;
     SET VAR_START_DATE = VAR_START_DATE;
-    SET VAR_STOP_DATE = VAR_STOP_DATE;
+    SET VAR_STOP_DATE = VAR_STOP_DATE; 
     
     SELECT 
         SUM(p2.`COUNT_OF_STOCK_OUT`) `COUNT_OF_STOCK_OUT`, 
@@ -26,11 +26,11 @@ BEGIN
         SELECT 
             amc.PLANNING_UNIT_ID, amc.TRANS_DATE,
             CASE
-                WHEN amc.MOS=0 THEN 0
-                WHEN amc.MOS < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1
-                WHEN amc.MOS BETWEEN IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) AND IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2
-                WHEN amc.MOS > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3
-                ELSE 4
+                WHEN amc.CLOSING_BALANCE=0 AND amc.UNMET_DEMAND>0 THEN 0 -- StockOut
+                WHEN amc.MOS < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
+                WHEN amc.MOS BETWEEN IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) AND IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
+                WHEN amc.MOS > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
+                ELSE 4 -- NA
             END `STOCK_CONDITION`
         FROM vw_program p 
         LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID

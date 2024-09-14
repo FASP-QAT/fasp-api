@@ -6,14 +6,20 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
+import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.ProgramCount;
+import cc.altius.FASP.model.report.DashboardActualConsumption;
+import cc.altius.FASP.model.report.DashboardActualConsumptionDetails;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardExpiredPuRowMapper;
-import cc.altius.FASP.model.report.DashboardForecastErrorRowMapper;
 import cc.altius.FASP.model.report.DashboardPuWithCountRowMapper;
+import cc.altius.FASP.model.report.DashboardQpl;
+import cc.altius.FASP.model.report.DashboardActualConsumptionRowMapper;
+import cc.altius.FASP.model.report.DashboardForecastErrorRowMapper;
+import cc.altius.FASP.model.report.DashboardQplRowMapper;
 import cc.altius.FASP.model.report.DashboardShipmentDetailsReportByRowMapper;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.model.report.DashboardTopRowMapper;
@@ -24,10 +30,13 @@ import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +59,8 @@ public class DashboardDaoImpl implements DashboardDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ReportDao reportDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -202,13 +213,14 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) {
+    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException {
         DashboardBottom db = new DashboardBottom();
         String sqlString = "CALL getDashboardStockStatus(:startDate, :stopDate, :programId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", ei.getProgramId());
         params.put("startDate", ei.getStartDate());
         params.put("stopDate", ei.getStopDate());
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.PST));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
 
         sqlString = "SELECT "
@@ -222,16 +234,18 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "GROUP BY pu.PLANNING_UNIT_ID";
         db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
 
-        sqlString = "SELECT "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
-                + "    b.BATCH_ID, b.BATCH_NO, b.AUTO_GENERATED, spb.EXPIRY_DATE, SUM(spb.EXPIRED_STOCK) `EXPIRED_STOCK` , ppu.CATALOG_PRICE "
+        sqlString = "SELECT p1.*, st.`RATE` FROM (SELECT "
+                + "    p.PROGRAM_ID, p.CURRENT_VERSION_ID, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                + "    b.BATCH_ID, b.BATCH_NO, b.AUTO_GENERATED, spb.EXPIRY_DATE, SUM(spb.EXPIRED_STOCK) `EXPIRED_STOCK` "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
                 + "LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND p.CURRENT_VERSION_ID=spb.VERSION_ID AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_batch_info b ON spb.BATCH_ID=b.BATCH_ID "
                 + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND spb.EXPIRED_STOCK>0 "
-                + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID";
+                + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
+                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.CURRENT_VERSION_ID";
         db.setExpiriesList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiredPuRowMapper()));
 
         sqlString = "CALL getDashboardShipmentDetailsReportBy(:startDate, :stopDate, :programId, :displayShipmentsBy)";
@@ -241,8 +255,100 @@ public class DashboardDaoImpl implements DashboardDao {
         sqlString = "CALL getDashboardShipmentWithFundingSourceTbd(:startDate, :stopDate, :programId)";
         db.setShipmentWithFundingSourceTbd(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
 
-        sqlString = "CALL getDashboardForecastError(:startDate, :stopDate, :programId)";
+        sqlString = "CALL getDashboardForecastErrorNew(:startDate, :stopDate, :programId)";
         db.setForecastErrorList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorRowMapper()));
+//        sqlString = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR  FROM rm_program_planning_unit ppu LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE";
+//        List<SimpleObject> puList = this.namedParameterJdbcTemplate.query(sqlString, params, new SimpleObjectRowMapper());
+//        List<DashboardForecastError> forecastErrorList = new LinkedList<>();
+//        for (SimpleObject pu : puList) {
+//            ForecastErrorInputNew fei = new ForecastErrorInputNew();
+//            fei.setViewBy(1);
+//            fei.setProgramId(ei.getProgramId());
+//            fei.setVersionId(-1);
+//            fei.setDaysOfStockOut(false);
+//            fei.setEquivalencyUnitId(0);
+//            fei.setPreviousMonths(5);
+//            fei.setStartDate(DateUtils.getDateFromString(ei.getStartDate(), DateUtils.YMD));
+//            fei.setStopDate(DateUtils.getDateFromString(ei.getStopDate(), DateUtils.YMD));
+//            fei.setUnitIds(new String[]{Integer.toString(pu.getId())});
+//            fei.setRegionIds(new String[]{});
+//            List<ForecastErrorOutput> feoList = this.reportDao.getForecastError(fei, false, curUser);
+//            double averageForecastError = feoList.stream().filter(feo -> feo.getActualQty() != null && feo.getForecastQty() != null && feo.getErrorPerc() != null).map(feo -> feo.getErrorPerc()).collect(Collectors.averagingDouble(Double::doubleValue));
+//            forecastErrorList.add(new DashboardForecastError(pu, 0, averageForecastError));
+//        }
+//        db.setForecastErrorList(forecastErrorList);
+
+        sqlString = "CALL getDashboardForecastConsumptionProblems(:programId, :curDate)";
+        db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+
+        sqlString = "CALL getDashboardActualConsumptionList(:programId, :curDate)";
+        List<DashboardActualConsumption> list = this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardActualConsumptionRowMapper());
+        Map<Integer, List<DashboardActualConsumptionDetails>> dacMap = new HashMap<>();
+        int regionCount = 0;
+        for (DashboardActualConsumption dac : list) {
+            DashboardActualConsumptionDetails dacd = dac.getDacd();
+            regionCount = dacd.getRegionCount();
+            if (dacMap.containsKey(dac.getPlanningUnitId())) {
+                dacMap.get(dac.getPlanningUnitId()).add(dacd);
+            } else {
+                List<DashboardActualConsumptionDetails> dacdList = new LinkedList<>();
+                dacdList.add(dacd);
+                dacMap.put(dac.getPlanningUnitId(), dacdList);
+            }
+        }
+
+        DashboardQpl ac = new DashboardQpl();
+        ac.setPuCount(dacMap.size());
+
+        for (Integer planningUnit : dacMap.keySet()) {
+            boolean check1 = false, check2 = false;
+            // Step 1 check for 3 months of ActualConsumption
+            List<DashboardActualConsumptionDetails> dacdList = (List<DashboardActualConsumptionDetails>) dacMap.get(planningUnit);
+            int actualCount = dacdList.stream().limit(4).map(DashboardActualConsumptionDetails::getActualCount).collect(Collectors.summingInt(Integer::intValue));
+            if (actualCount >= regionCount) {
+                check1 = true;
+            }
+
+            if (check1) {
+                // Step 2 check for gaps in last 6 months 
+                int flipCount = 0;
+                Boolean prevMonth = null;
+                for (DashboardActualConsumptionDetails dacd : dacdList) {
+                    if (prevMonth == null) {
+                        if (dacd.getActualCount() == regionCount) {
+                            // exists
+                            prevMonth = true;
+                        } else {
+                            // does not exist
+                            prevMonth = false;
+                        }
+                    } else {
+                        if (dacd.getActualCount() == regionCount) {
+                            // exists
+                            if (prevMonth == false) {
+                                prevMonth = true;
+                                flipCount++;
+                            }
+                        } else {
+                            // does not exist
+                            if (prevMonth == true) {
+                                prevMonth = false;
+                            }
+                        }
+                    }
+                }
+                if (check1 && flipCount <= 1) {
+                    ac.setCorrectCount(ac.getCorrectCount() + 1);
+                }
+            }
+        }
+        db.setActualConsumptionQpl(ac);
+
+        sqlString = "CALL getDashboardInventoryProblems(:programId, :curDate)";
+        db.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+
+        sqlString = "CALL getDashboardShipmentProblems(:programId, :curDate)";
+        db.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
         return db;
     }

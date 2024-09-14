@@ -23,7 +23,7 @@ public class DashboardExpiredPuRowMapper implements RowMapper<DashboardExpiredPu
                 rs.getDate("EXPIRY_DATE"),
                 rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"),
                 rs.getInt("EXPIRED_STOCK"),
-                rs.getDouble("CATALOG_PRICE"));
+                rs.getDouble("RATE"));
     }
 
 }

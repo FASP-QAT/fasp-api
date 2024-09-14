@@ -29,6 +29,14 @@ public class DashboardBottom implements Serializable {
     List<DashboardPuWithCount> shipmentWithFundingSourceTbd;
     @JsonView(Views.ReportView.class)
     List<DashboardForecastError> forecastErrorList;
+    @JsonView(Views.ReportView.class)
+    DashboardQpl forecastConsumptionQpl;
+    @JsonView(Views.ReportView.class)
+    DashboardQpl actualConsumptionQpl;
+    @JsonView(Views.ReportView.class)
+    DashboardQpl inventoryQpl;
+    @JsonView(Views.ReportView.class)
+    DashboardQpl shipmentQpl;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -86,6 +94,38 @@ public class DashboardBottom implements Serializable {
 
     public void setForecastErrorList(List<DashboardForecastError> forecastErrorList) {
         this.forecastErrorList = forecastErrorList;
+    }
+
+    public DashboardQpl getForecastConsumptionQpl() {
+        return forecastConsumptionQpl;
+    }
+
+    public void setForecastConsumptionQpl(DashboardQpl forecastConsumptionQpl) {
+        this.forecastConsumptionQpl = forecastConsumptionQpl;
+    }
+
+    public DashboardQpl getActualConsumptionQpl() {
+        return actualConsumptionQpl;
+    }
+
+    public void setActualConsumptionQpl(DashboardQpl actualConsumptionQpl) {
+        this.actualConsumptionQpl = actualConsumptionQpl;
+    }
+
+    public DashboardQpl getInventoryQpl() {
+        return inventoryQpl;
+    }
+
+    public void setInventoryQpl(DashboardQpl inventoryQpl) {
+        this.inventoryQpl = inventoryQpl;
+    }
+
+    public DashboardQpl getShipmentQpl() {
+        return shipmentQpl;
+    }
+
+    public void setShipmentQpl(DashboardQpl shipmentQpl) {
+        this.shipmentQpl = shipmentQpl;
     }
 
 }

@@ -35,4 +35,9 @@ public class DashboardForecastError extends DashboardPuWithCount implements Seri
         this.errorPerc = errorPerc;
     }
 
+    @Override
+    public String toString() {
+        return "PU:" + super.getPlanningUnit().getLabel().getLabel_en() + ", errorPerc:" + errorPerc;
+    }
+
 }
