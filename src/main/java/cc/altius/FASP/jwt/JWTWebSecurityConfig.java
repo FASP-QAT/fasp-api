@@ -69,7 +69,7 @@ public class JWTWebSecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoderBean());
         return authProvider;
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -82,31 +82,32 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/error",
-                                "/api/logout",
-                                "/actuator/**",
-                                "/actuator**",
-                                "/actuator/info",
+                                "/error", 
+                                "/api/logout", 
+                                "/actuator/**", 
+                                "/actuator**", 
+                                "/actuator/info", 
                                 "/favicon.ico**",
-                                "/browser**",
-                                "/file**",
-                                "/file/**",
-                                "/api/locales/*/**",
-                                "/api/forgotPassword/**",
-                                "/api/getForgotPasswordToken/**",
-                                "/api/confirmForgotPasswordToken/**",
-                                "/api/updatePassword/**",
-                                "/api/updateExpiredPassword/**",
-                                "/exportSupplyPlan/**",
-                                "/exportManualJson",
-                                "/exportProgramData/**",
-                                "/exportOrderData/**",
-                                "/importShipmentData/**",
-                                "/importProductCatalog/**",
-                                "/api/sync/language/**",
-                                "/exportShipmentLinkingData/**",
-                                "/jira/syncJiraAccountIds/**",
-                                "/api/processCommitRequest/**",
+                                "/browser**", 
+                                "/file**", 
+                                "/file/**", 
+                                "/api/locales/*/**", 
+                                "/api/forgotPassword/**", 
+                                "/api/getForgotPasswordToken/**", 
+                                "/api/confirmForgotPasswordToken/**", 
+                                "/api/updatePassword/**", 
+                                "/api/updateExpiredPassword/**", 
+                                "/exportSupplyPlan/**", 
+                                "/exportManualJson", 
+                                "/exportProgramData/**", 
+                                "/exportOrderData/**", 
+                                "/importShipmentData/**", 
+                                "/importProductCatalog/**", 
+                                "/importProductCatalogLegacy/**", 
+                                "/api/sync/language/**", 
+                                "/exportShipmentLinkingData/**", 
+                                "/jira/syncJiraAccountIds/**", 
+                                "/api/processCommitRequest/**", 
                                 "/api/rebuildSupplyPlans"
                         ).permitAll()
                 );
@@ -125,7 +126,7 @@ public class JWTWebSecurityConfig {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split("~")).authenticated());
             } else {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split("~")).hasAnyAuthority(security.getBfList().split("~")));
-            }
+}
         } else {
             if (security.getBfList().equals("")) {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split("~")).authenticated());
