@@ -81,7 +81,34 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, refreshPath).permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/error", "/api/logout", "/actuator/**", "/favicon.ico**", "/actuator**", "/actuator/info", "/browser**", "/file**", "/file/**", "/api/locales/*/**", "/api/forgotPassword/**", "/api/getForgotPasswordToken/**", "/api/confirmForgotPasswordToken/**", "/api/updatePassword/**", "/api/updateExpiredPassword/**", "/exportSupplyPlan/**", "/exportManualJson", "/exportProgramData/**", "/exportOrderData/**", "/importShipmentData/**", "/importProductCatalog/**", "/api/sync/language/**", "/exportShipmentLinkingData/**", "/jira/syncJiraAccountIds/**", "/api/processCommitRequest/**", "/api/rebuildSupplyPlans").permitAll()
+                        .requestMatchers(
+                                "/error",
+                                "/api/logout",
+                                "/actuator/**",
+                                "/actuator**",
+                                "/actuator/info",
+                                "/favicon.ico**",
+                                "/browser**",
+                                "/file**",
+                                "/file/**",
+                                "/api/locales/*/**",
+                                "/api/forgotPassword/**",
+                                "/api/getForgotPasswordToken/**",
+                                "/api/confirmForgotPasswordToken/**",
+                                "/api/updatePassword/**",
+                                "/api/updateExpiredPassword/**",
+                                "/exportSupplyPlan/**",
+                                "/exportManualJson",
+                                "/exportProgramData/**",
+                                "/exportOrderData/**",
+                                "/importShipmentData/**",
+                                "/importProductCatalog/**",
+                                "/api/sync/language/**",
+                                "/exportShipmentLinkingData/**",
+                                "/jira/syncJiraAccountIds/**",
+                                "/api/processCommitRequest/**",
+                                "/api/rebuildSupplyPlans"
+                        ).permitAll()
                 );
         for (SecurityRequestMatcher security : this.userService.getSecurityList()) {
             buildRequestMatcher(http, security);
