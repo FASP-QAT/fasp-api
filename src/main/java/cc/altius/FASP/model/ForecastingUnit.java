@@ -15,15 +15,15 @@ import java.util.Date;
  */
 public class ForecastingUnit extends BaseModel implements Serializable {
 
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private int forecastingUnitId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleCodeObject realm;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Label genericLabel;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private Label label;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class, Views.ExportApiView.class})
     private SimpleObject productCategory;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject tracerCategory;
@@ -127,6 +127,16 @@ public class ForecastingUnit extends BaseModel implements Serializable {
     @JsonView(Views.ReportView.class)
     public BasicUser getLastModifiedBy() {
         return super.getLastModifiedBy();
+    }
+
+    public void setForecastingUnit(ForecastingUnit fu) {
+        this.forecastingUnitId = fu.getForecastingUnitId();
+        this.realm = fu.getRealm();
+        this.genericLabel = fu.getGenericLabel();
+        this.label = fu.getLabel();
+        this.productCategory = fu.getProductCategory();
+        this.tracerCategory = fu.getTracerCategory();
+        this.unit = fu.getUnit();
     }
 
     @Override

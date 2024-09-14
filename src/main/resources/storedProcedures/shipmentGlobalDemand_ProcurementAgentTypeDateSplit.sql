@@ -52,6 +52,7 @@ BEGIN
         LEFT JOIN rm_program p ON s1.PROGRAM_ID=p.PROGRAM_ID 
         LEFT JOIN rm_shipment s ON s1.SHIPMENT_ID=s.SHIPMENT_ID 
         LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID 
+        LEFT JOIN rm_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
         LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID
         LEFT JOIN rm_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID
         WHERE 
@@ -62,6 +63,7 @@ BEGIN
                 OR (@reportView=1 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceProcurementAgentIds))) 
                 OR (@reportView=2 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds)))
                 OR (@reportView=3 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_TYPE_ID, @fundingSourceProcurementAgentIds)))
+                OR (@reportView=4 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)))
             )
             AND (@includePlannedShipments = 1 OR (@includePlannedShipments = 0 AND st.SHIPMENT_STATUS_ID != 1))
         GROUP BY st.PROCUREMENT_AGENT_ID;
@@ -160,6 +162,8 @@ BEGIN
         SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds)) ");
     ELSEIF @reportView = 3 THEN 
         SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_TYPE_ID, @fundingSourceProcurementAgentIds)) ");
+    ELSEIF @reportView = 4 THEN 
+        SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)) ");    
     END IF;
     SET @sqlString = CONCAT(@sqlString, "GROUP BY LEFT(COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE),7)");
     

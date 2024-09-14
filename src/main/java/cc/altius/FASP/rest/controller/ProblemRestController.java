@@ -7,7 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ManualProblem;
-import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.UserService;

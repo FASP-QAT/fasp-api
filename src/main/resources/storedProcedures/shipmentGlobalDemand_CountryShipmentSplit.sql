@@ -53,7 +53,7 @@ BEGIN
     
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
     SET @sqlString = CONCAT(@sqlString, "       rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID IN (1,2,3,9), ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `PLANNED_SHIPMENT_AMT`, SUM(IF(st.SHIPMENT_STATUS_ID IN (4,5,6,7), ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `ORDERED_SHIPMENT_AMT` ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID IN (1,2,9), ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `PLANNED_SHIPMENT_AMT`, SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7), ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `ORDERED_SHIPMENT_AMT` ");
     SET @sqlString = CONCAT(@sqlString, "FROM ");
     SET @sqlString = CONCAT(@sqlString, "       ( ");
     SET @sqlString = CONCAT(@sqlString, "       SELECT pv.PROGRAM_ID, pv.VERSION_ID, s.SHIPMENT_ID, MAX(st.VERSION_ID) `MAX_VERSION_ID` ");
@@ -104,6 +104,8 @@ BEGIN
         SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds)) ");
     ELSEIF @reportView = 3 THEN 
         SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_TYPE_ID, @fundingSourceProcurementAgentIds)) ");
+    ELSEIF @reportView = 4 THEN 
+        SET @sqlString = CONCAT(@sqlString, "           AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds)) ");    
     END IF;
     SET @sqlString = CONCAT(@sqlString, " GROUP BY rc.REALM_COUNTRY_ID  ");
 

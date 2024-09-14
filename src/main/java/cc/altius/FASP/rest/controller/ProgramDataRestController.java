@@ -13,6 +13,7 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
@@ -79,16 +80,17 @@ public class ProgramDataRestController {
 
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
-    public ResponseEntity getLoadProgramData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
+    public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<ProgramData> masters = this.programDataService.getProgramData(programVersionList, curUser);
+            List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInputList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
             if (isCompress(jsonString)) {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(masters, HttpStatus.OK);
             }
-            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -101,42 +103,41 @@ public class ProgramDataRestController {
         }
     }
 
-    @JsonView(Views.ArtmisView.class)
-    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, true), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @JsonView(Views.GfpVanView.class)
-    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, true), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+//    @JsonView(Views.ArtmisView.class)
+//    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @JsonView(Views.GfpVanView.class)
+//    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
+//    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get ProgramData", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
@@ -190,7 +191,7 @@ public class ProgramDataRestController {
     public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion.getNotes(), curUser, updateProgramVersion.getReviewedProblemList()), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -203,6 +204,24 @@ public class ProgramDataRestController {
         }
     }
 
+    @PutMapping("/programVersion/resetProblem")
+    public ResponseEntity resetProblemForProgramIds(@RequestBody int[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.programDataService.resetProblemListForPrograms(programIds, curUser);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
     public ResponseEntity checkErpOrder(
             @PathVariable(value = "orderNo", required = true) String orderNo,
@@ -286,7 +305,7 @@ public class ProgramDataRestController {
     // Used in Forecasting Unit import data from Supply Plan
     /**
      * <pre>
-     * Sample JSON {"programId": 2442, "versionId": 1, "planningUnitIds": ["1074","1082","2802"], "startDate": "2018-01-01", "stopDate":"2021-12-01", "regionIds":["70", "73", "74"]}
+     * Sample JSON {"programVersionList": [{"programId": "2476", "versionId": "100"},{"programId": "2486", "versionId": "115"}], "planningUnitIds": ["1150", "1477", "1483"], "startDate": "2018-01-01", "stopDate":"2021-12-01", "regionIds":["70", "73", "74"]}
      * -- Program Id must be a valid Supply Plan Program Id, cannot be -1 (Any)      *
      * -- versionId must be a valid VersionId of that Program
      * -- forecastingUnitIds must be a list of ForecastingUnits whose PlanningUnits you want the Consumption data for
@@ -319,6 +338,24 @@ public class ProgramDataRestController {
         try {
             String programIdsString = getProgramIds(programIds);
             return new ResponseEntity(this.programService.getLatestVersionForPrograms(programIdsString), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.ReportView.class)
+    @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})
+    public ResponseEntity getProgramVersionTrans(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = false) int versionId, Authentication auth) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            if (versionId == 0) {
+                versionId = -1;
+            }
+            return new ResponseEntity(this.programDataService.getProgramVersionTrans(programId, versionId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get latest version for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
