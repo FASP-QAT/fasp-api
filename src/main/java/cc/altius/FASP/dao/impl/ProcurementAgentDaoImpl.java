@@ -283,7 +283,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         Map<String, Object> params = new HashMap<>();
         params.put("procurementAgentId", procurementAgentId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
-        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
+//        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentResultSetExtractor());
     }
 

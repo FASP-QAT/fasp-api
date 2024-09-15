@@ -9,6 +9,7 @@ import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @Order(1000)
 public class JWTWebSecurityConfig {
 
@@ -69,7 +70,7 @@ public class JWTWebSecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoderBean());
         return authProvider;
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -82,33 +83,34 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/error", 
-                                "/api/logout", 
-                                "/actuator/**", 
-                                "/actuator**", 
-                                "/actuator/info", 
+                                "/error",
+                                "/api/logout",
+                                "/actuator/**",
+                                "/actuator**",
+                                "/actuator/info",
                                 "/favicon.ico**",
-                                "/browser**", 
-                                "/file**", 
-                                "/file/**", 
-                                "/api/locales/*/**", 
-                                "/api/forgotPassword/**", 
-                                "/api/getForgotPasswordToken/**", 
-                                "/api/confirmForgotPasswordToken/**", 
-                                "/api/updatePassword/**", 
-                                "/api/updateExpiredPassword/**", 
-                                "/exportSupplyPlan/**", 
-                                "/exportManualJson", 
-                                "/exportProgramData/**", 
-                                "/exportOrderData/**", 
-                                "/importShipmentData/**", 
-                                "/importProductCatalog/**", 
-                                "/importProductCatalogLegacy/**", 
-                                "/api/sync/language/**", 
-                                "/exportShipmentLinkingData/**", 
-                                "/jira/syncJiraAccountIds/**", 
-                                "/api/processCommitRequest/**", 
-                                "/api/rebuildSupplyPlans"
+                                "/browser**",
+                                "/file**",
+                                "/file/**",
+                                "/api/locales/*/**",
+                                "/api/forgotPassword/**",
+                                "/api/getForgotPasswordToken/**",
+                                "/api/confirmForgotPasswordToken/**",
+                                "/api/updatePassword/**",
+                                "/api/updateExpiredPassword/**",
+                                "/exportSupplyPlan/**",
+                                "/exportManualJson",
+                                "/exportProgramData/**",
+                                "/exportOrderData/**",
+                                "/importShipmentData/**",
+                                "/importProductCatalog/**",
+                                "/importProductCatalogLegacy/**",
+                                "/api/sync/language/**",
+                                "/exportShipmentLinkingData/**",
+                                "/jira/syncJiraAccountIds/**",
+                                "/api/processCommitRequest/**",
+                                "/api/rebuildSupplyPlans",
+                                "/api/test/**"
                         ).permitAll()
                 );
         for (SecurityRequestMatcher security : this.userService.getSecurityList()) {
@@ -123,15 +125,15 @@ public class JWTWebSecurityConfig {
         HttpMethod method = security.getHttpMethod();
         if (security.getHttpMethod() == null) {
             if (security.getBfList().equals("")) {
-                http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split("~")).authenticated());
+                http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split(",")).authenticated());
             } else {
-                http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split("~")).hasAnyAuthority(security.getBfList().split("~")));
-}
+                http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split(",")).hasAnyAuthority(security.getBfList().split(",")));
+            }
         } else {
             if (security.getBfList().equals("")) {
-                http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split("~")).authenticated());
+                http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split(",")).authenticated());
             } else {
-                http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split("~")).hasAnyAuthority(security.getBfList().split("~")));
+                http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split(",")).hasAnyAuthority(security.getBfList().split(",")));
             }
         }
     }

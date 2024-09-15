@@ -113,9 +113,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
-            System.out.println("length---" + manualTaggingOrderDTO.length);
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
-                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
                     int id = 0;
                     int count = this.erpLinkingDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
@@ -132,7 +130,6 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
-                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
                     this.erpLinkingDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
                 }
             }

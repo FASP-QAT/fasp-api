@@ -242,13 +242,13 @@ public class ProgramServiceImpl implements ProgramService {
             return new LinkedList<>();
         }
     }
-    
+
     @Override
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+            if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
                 programList.append("'").append(programId).append("',");
             } else {
                 throw new AccessDeniedException("Access denied");

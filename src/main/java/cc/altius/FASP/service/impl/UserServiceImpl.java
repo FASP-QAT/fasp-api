@@ -281,8 +281,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String apiUrl) {
-        return this.userDao.getCustomUserByUserIdForApi(userId, apiUrl);
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String methodStr, String apiUrl) {
+        int method = switch (methodStr) {
+            case "GET" ->
+                1;
+            case "POST" ->
+                2;
+            case "PUT" ->
+                3;
+            default ->
+                -1;
+        };
+        return this.userDao.getCustomUserByUserIdForApi(userId, method, apiUrl);
     }
 
 }

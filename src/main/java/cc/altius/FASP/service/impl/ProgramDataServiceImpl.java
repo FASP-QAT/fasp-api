@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -46,6 +45,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -290,7 +291,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         Map<String, List<ActualConsumptionDataOutput>> actualConsumptionMap = new HashMap<>();
         for (ActualConsumptionData pd : acd.getProgramDataList()) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(pd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+            if (sp != null && this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
                 List<ActualConsumptionDataOutput> acdo = this.programDataDao.getActualConsumptionDataInput(pd, acd.getStartDate(), acd.getStopDate(), curUser);
                 actualConsumptionMap.put(pd.getProgramId() + "~" + pd.getVersionId(), acdo);
             } else {
