@@ -112,7 +112,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getTracerCategoryForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -129,7 +129,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -146,7 +146,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @PostMapping("/realmId/{realmId}/programIds")
     public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
         try {

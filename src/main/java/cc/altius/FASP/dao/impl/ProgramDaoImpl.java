@@ -2525,7 +2525,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 logger.info(
                         "ERP Linking : Update completed---");
             } else {
-                System.out.println("delinking inside else----------" + parentShipmentId);
+                logger.info("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
@@ -2540,7 +2540,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
 
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println(
+                logger.info(
                         "delinking inside else else----------" + maxTransId);
             }
         }

@@ -242,7 +242,7 @@ public class ProgramServiceImpl implements ProgramService {
             return new LinkedList<>();
         }
     }
-    
+
     @Override
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
         StringBuilder programList = new StringBuilder();

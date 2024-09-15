@@ -232,7 +232,7 @@ public class BudgetDaoImpl implements BudgetDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
 //        sqlStringBuilder.append(sqlGroupByString);
-        System.out.println(sqlStringBuilder.toString());
+//        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetResultSetExtractor());
     }
 

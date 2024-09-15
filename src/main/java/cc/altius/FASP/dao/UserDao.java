@@ -29,7 +29,7 @@ public interface UserDao {
 
     public CustomUserDetails getCustomUserByUserId(int userId);
     
-    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String apiUrl);
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, int method, String apiUrl);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
     public List<String> getBusinessFunctionsForUserId(int userId);

@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/commit")
 public class CommitRequestRestController {
 
     @Autowired
@@ -236,7 +236,7 @@ public class CommitRequestRestController {
         }
     }
 
-    @PostMapping("/getCommitRequest/{requestStatus}")
+    @PostMapping("/status/{requestStatus}")
     public ResponseEntity getProgramDataCommitRequest(@RequestBody CommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
@@ -40,6 +41,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -79,11 +82,23 @@ public class DropDownRestController {
     private BudgetService budgetService;
 
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/program/realm/{realmId}/programType/{programTypeId}")
-    public ResponseEntity getProgramForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @GetMapping("/supplyPlan/program/realm/{realmId}")
+    public ResponseEntity getProgramForDropdownSupplyPlan(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "/api/dropdown/**");
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, programTypeId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/dataset/program/realm/{realmId}")
+    public ResponseEntity getProgramForDropdownDataset(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

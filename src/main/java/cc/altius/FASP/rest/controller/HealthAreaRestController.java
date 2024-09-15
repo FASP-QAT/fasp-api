@@ -140,6 +140,44 @@ public class HealthAreaRestController {
         }
     }
 
+    @GetMapping("/program")
+    public ResponseEntity getHealthAreaByForProgram(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            if (curUser.getRealm().getRealmId() == -1) {
+                logger.error("A User with access to multiple Realms tried to access a HealthArea Program list without specifying a Realm");
+                return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            }
+            return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(curUser.getRealm().getRealmId(), curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/program/realmId/{realmId}")
+    public ResponseEntity getHealthAreaForProgramByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getHealthAreaDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {

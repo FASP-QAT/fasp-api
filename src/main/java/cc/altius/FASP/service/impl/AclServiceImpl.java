@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.AclDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +24,9 @@ import org.springframework.stereotype.Service;
 public class AclServiceImpl implements AclService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private AclDao aclDao;
 
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId) {
@@ -86,7 +91,6 @@ public class AclServiceImpl implements AclService {
 //        }
 //        return hasAccess;
 //    }
-
     @Override
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
         if (curUser.getRealm().getRealmId() != -1) {
@@ -190,6 +194,11 @@ public class AclServiceImpl implements AclService {
         }
         localSb.append(")");
         sb.append(localSb);
+    }
+
+    @Override
+    public void buildSecurity() {
+        this.aclDao.buildSecurity();
     }
 
 }

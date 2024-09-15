@@ -224,4 +224,25 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
+    @GetMapping("/program")
+    public ResponseEntity getRealmCountryForActivePrograms(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            if (curUser.getRealm().getRealmId() == -1) {
+                logger.error("A User with access to multiple Realms tried to access a RealmCountry Program list without specifying a Realm");
+                return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            }
+            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
