@@ -1008,7 +1008,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<SecurityRequestMatcher> getSecurityList() {
-        String sql = "SELECT `SECURITY_ID`, `METHOD`, `URL` `URL_LIST`, `BF` `BF_LIST` FROM ap_security s ORDER BY s.`SECURITY_ID`";
+        String sql = "SELECT MIN(s.`SECURITY_ID`) `SECURITY_ID`, s.`METHOD`, s.`URL` `URL_LIST`, group_concat(DISTINCT s.`BF`) `BF_LIST` FROM ap_security s GROUP BY s.`METHOD`, s.`URL` ORDER BY s.`SECURITY_ID`";
         return this.jdbcTemplate.query(sql, new SecurityRequestMatcherRowMapper());
     }
 
