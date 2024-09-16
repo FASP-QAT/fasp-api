@@ -521,6 +521,9 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
+    
+    //TODO -> Add a list of Program Planning Units that are active based on the input that was provided. Dolly will use that to loop the Shipments
+    //TODO -> Add PPU notes to the both Aggregated and Individual
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
@@ -541,6 +544,7 @@ public class ReportController {
     // Dropdowns for Report no 16
     // Supply Planning -> Supply Plan Report
     // Based on a list of ProgramIds send back the list of PlannningUnits, ARU's and EU's for those ProgramIds
+    //TODO -> Dolly will pass a variable to only select PU's or ARU's that are available across all selected Programs. Pass PU and ARU back to Dolly based on this filter
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical/dropdowns")
     public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody String[] programIds, Authentication auth) {

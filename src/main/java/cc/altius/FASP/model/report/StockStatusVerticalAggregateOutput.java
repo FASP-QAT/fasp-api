@@ -77,6 +77,8 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     private Long nationalAdjustment;
     @JsonView(Views.ReportView.class)
     private int planBasedOn;
+    //TODO
+    private String ppuNotes;
 
     public StockStatusVerticalAggregateOutput() {
         this.shipmentInfo = new LinkedList<>();

@@ -69,6 +69,8 @@ public class StockStatusVertical implements Serializable {
     private Double maxStock;
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
+    //TODO
+    private String ppuNotes;
 
     public StockStatusVertical() {
         this.shipmentInfo = new LinkedList<>();
