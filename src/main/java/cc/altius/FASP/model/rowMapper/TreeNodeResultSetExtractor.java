@@ -85,17 +85,28 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     if (rs.wasNull()) {
                         sourceTreeId = null;
                     }
-                    Integer sourceScenarioId = rs.getInt("SOURCE_SCENARIO_ID");
-                    if (rs.wasNull()) {
-                        sourceScenarioId = null;
-                    }
-                    if (sourceTreeId != null && sourceScenarioId != null && sourceNodeId != null) {
-                        DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId);
-                        int idx = tn.getDownwardAggregationList().indexOf(da);
-                        if (idx == -1) {
-                            tn.getDownwardAggregationList().add(da);
+                    if (!isTemplate) {
+                        Integer sourceScenarioId = rs.getInt("SOURCE_SCENARIO_ID");
+                        if (rs.wasNull()) {
+                            sourceScenarioId = null;
+                        }
+                        if (sourceTreeId != null && sourceScenarioId != null && sourceNodeId != null) {
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId);
+                            int idx = tn.getDownwardAggregationList().indexOf(da);
+                            if (idx == -1) {
+                                tn.getDownwardAggregationList().add(da);
+                            }
+                        }
+                    } else {
+                        if (sourceTreeId != null && sourceNodeId != null) {
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, 0, sourceNodeId);
+                            int idx = tn.getDownwardAggregationList().indexOf(da);
+                            if (idx == -1) {
+                                tn.getDownwardAggregationList().add(da);
+                            }
                         }
                     }
+
                 }
                 // Load other data into Payload
                 int scenarioId = rs.getInt("SCENARIO_ID");

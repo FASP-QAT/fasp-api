@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.TreeTemplateDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DownwardAggregation;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LabelConstants;
@@ -91,7 +92,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Override
     public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, "
+                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_ID`, ttnda.`SOURCE_NODE_ID`, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -122,6 +123,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "      LEFT JOIN rm_tree_template_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
                 + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
+                + "      LEFT JOIN rm_tree_template_node_downward_aggregation ttnda ON ttn.NODE_ID=ttnda.TARGET_NODE_ID "
                 + "      WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
         Map<String, Object> params = new HashMap<>();
@@ -145,6 +147,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Override
     @Transactional
     public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        Map<String, Map<String, Integer>> oldAndNewIdMap = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template").usingGeneratedKeyColumns("TREE_TEMPLATE_ID");
         Map<String, Object> params = new HashMap<>();
@@ -163,6 +166,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         int treeTemplateId = si.executeAndReturnKey(params).intValue();
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
+        SimpleJdbcInsert nda = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_downward_aggregation");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
@@ -197,6 +201,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("LAST_MODIFIED_DATE", curDate);
             nodeParams.put("ACTIVE", 1);
             int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
             nodeParams.clear();
             if (n.getPayload().getNodeDataMap().get(0) != null) {
                 TreeNodeData tnd = n.getPayload().getNodeDataMap().get(0).get(0);
@@ -223,7 +228,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
-                            nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
+                            nodeParams.put("ONE_TIME_DISPENSING", tnd.getFuNode().getOneTimeDispensing() == null ? true : tnd.getFuNode().getOneTimeDispensing());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -232,7 +237,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
-                            nodeParams.put("ONE_TIME_DISPENSING",true);
+                            nodeParams.put("ONE_TIME_DISPENSING", true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -327,6 +332,22 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     }
                 }
             }
+
+            if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
+                    Map<String, Object> batchParams = new HashMap<>();
+                    batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId())));
+                    batchParams.put("SOURCE_TREE_ID", treeTemplateId);
+                    batchParams.put("SOURCE_SCENARIO_ID", null);
+                    batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(da.getNodeId())));
+                    batchList.add(new MapSqlParameterSource(batchParams));
+                }
+                if (batchList.size() > 0) {
+                    SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                    batchArray = new SqlParameterSource[batchList.size()];
+                    nda.executeBatch(batchList.toArray(batchArray));
+                }
+            }
         }
         params.clear();
         params.put("treeTemplateId", treeTemplateId);
@@ -337,6 +358,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Override
     @Transactional
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        Map<String, Map<String, Integer>> oldAndNewIdMap = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         String sql = "UPDATE rm_tree_template tt LEFT JOIN ap_label l ON l.LABEL_ID=tt.LABEL_ID "
@@ -371,6 +393,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         this.namedParameterJdbcTemplate.update("DELETE ttndp.* FROM rm_tree_template_node_data_pu ttndp LEFT JOIN rm_tree_template_node_data ttnd ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID WHERE ttnd.NODE_DATA_PU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndf.* FROM rm_tree_template_node_data_fu ttndf LEFT JOIN rm_tree_template_node_data ttnd ON ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID WHERE ttnd.NODE_DATA_FU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttl.* FROM rm_tree_template_level ttl WHERE ttl.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttnda.* FROM rm_tree_template_node ttn LEFT JOIN rm_tree_template_node_downward_aggregatiion ttnda ON ttn.NODE_ID=ttnda.TARGET_NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         List<Integer> levelList = this.namedParameterJdbcTemplate.queryForList("SELECT LEVEL_NO FROM rm_tree_template_node ttn WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId GROUP BY LEVEL_NO ORDER BY LEVEL_NO DESC", params, Integer.class);
         params.put("levelNo", 0);
         for (int l : levelList) {
@@ -380,6 +403,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
         SimpleJdbcInsert ttl = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_level").usingGeneratedKeyColumns("TREE_TEMPLATE_LEVEL_ID");
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
+        SimpleJdbcInsert nda = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_downward_aggregation");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
@@ -412,6 +436,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("LAST_MODIFIED_DATE", curDate);
             nodeParams.put("ACTIVE", 1);
             int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
             nodeParams.clear();
             if (n.getPayload().getNodeDataMap().get(0) != null) {
                 TreeNodeData tnd = n.getPayload().getNodeDataMap().get(0).get(0);
@@ -438,7 +463,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
-                            nodeParams.put("ONE_TIME_DISPENSING",tnd.getFuNode().getOneTimeDispensing()==null?true:tnd.getFuNode().getOneTimeDispensing());
+                            nodeParams.put("ONE_TIME_DISPENSING", tnd.getFuNode().getOneTimeDispensing() == null ? true : tnd.getFuNode().getOneTimeDispensing());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -447,7 +472,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
-                            nodeParams.put("ONE_TIME_DISPENSING",true);
+                            nodeParams.put("ONE_TIME_DISPENSING", true);
                             nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
@@ -537,6 +562,22 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     }
                 }
             }
+            if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                final List<SqlParameterSource> batchList = new ArrayList<>();
+                for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
+                    Map<String, Object> batchParams = new HashMap<>();
+                    batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId())));
+                    batchParams.put("SOURCE_TREE_ID", treeTemplateId);
+                    batchParams.put("SOURCE_SCENARIO_ID", null);
+                    batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(da.getNodeId())));
+                    batchList.add(new MapSqlParameterSource(batchParams));
+                }
+                if (batchList.size() > 0) {
+                    SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
+                    batchArray = new SqlParameterSource[batchList.size()];
+                    nda.executeBatch(batchList.toArray(batchArray));
+                }
+            }
         }
         params.clear();
         params.put("treeTemplateId", treeTemplateId);
@@ -552,4 +593,21 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateListResultSetExtractor());
     }
 
+    private void updateOldAndNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId, int newId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
+        if (tableData == null) {
+            tableData = new HashMap<String, Integer>();
+            oldAndNewId.put(tableName, tableData);
+        }
+        tableData.put(oldId, newId);
+    }
+
+    private Integer getNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
+        if (tableData == null) {
+            return null;
+        } else {
+            return tableData.get(oldId);
+        }
+    }
 }

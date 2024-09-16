@@ -102,3 +102,30 @@ INSERT INTO ap_node_type_rule VALUES (null, 2, 6);
 INSERT INTO ap_node_type_rule VALUES (null, 3, 6);
 INSERT INTO ap_node_type_rule VALUES (null, 6, 3);
 INSERT INTO ap_node_type_rule VALUES (null, 6, 4);
+
+
+
+CREATE TABLE `fasp`.`rm_tree_template_node_downward_aggregation` (
+  `NODE_DOWNWARD_AGGREGATION_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `TARGET_NODE_ID` INT UNSIGNED NOT NULL,
+  `SOURCE_TREE_TEMPLATE_ID` INT UNSIGNED NOT NULL,
+  `SOURCE_NODE_ID` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`NODE_DOWNWARD_AGGREGATION_ID`),
+  INDEX `fk_rm_forecast_tree_node_downward_aggregation_targetNodeId_idx` (`TARGET_NODE_ID` ASC) VISIBLE,
+  INDEX `fk_rm_forecast_tree_node_downward_aggregation_targetTreeTem_idx` (`SOURCE_TREE_TEMPLATE_ID` ASC) VISIBLE,
+  INDEX `fk_rm_forecast_tree_node_downward_aggregation_sourceNodeId_idx` (`SOURCE_NODE_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_ftnda_targetNodeId`
+    FOREIGN KEY (`TARGET_NODE_ID`)
+    REFERENCES `fasp`.`rm_tree_template_node` (`NODE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ftnda_sourceTreeTemplateId`
+    FOREIGN KEY (`SOURCE_TREE_TEMPLATE_ID`)
+    REFERENCES `fasp`.`rm_tree_template` (`TREE_TEMPLATE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ftnda_sourceNodeId`
+    FOREIGN KEY (`SOURCE_NODE_ID`)
+    REFERENCES `fasp`.`rm_tree_template_node` (`NODE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
