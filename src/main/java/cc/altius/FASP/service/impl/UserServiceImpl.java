@@ -24,6 +24,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -293,6 +294,11 @@ public class UserServiceImpl implements UserService {
                 -1;
         };
         return this.userDao.getCustomUserByUserIdForApi(userId, method, apiUrl);
+    }
+
+    @Override
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser) {
+        return this.userDao.getAclRoleBfList(userId, curUser);
     }
 
 }

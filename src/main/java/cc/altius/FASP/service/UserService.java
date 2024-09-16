@@ -15,6 +15,7 @@ import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -104,5 +105,7 @@ public interface UserService {
     public String getEmailByUserId(int userId);
 
     public List<SecurityRequestMatcher> getSecurityList();
+    
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser);
 
 }
