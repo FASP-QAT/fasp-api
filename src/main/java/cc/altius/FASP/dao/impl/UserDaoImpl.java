@@ -19,6 +19,7 @@ import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.rowMapper.AclRoleBusinessFunctionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
@@ -1039,6 +1040,14 @@ public class UserDaoImpl implements UserDao {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser) {
+        String sqlString = "SELECT acl.ROLE_ID, rbf.BUSINESS_FUNCTION_ID FROM us_user_acl acl LEFT JOIN us_role_business_function rbf ON acl.ROlE_ID=rbf.ROLE_ID WHERE acl.USER_ID=:userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new AclRoleBusinessFunctionResultSetExtractor(curUser.getBusinessFunction()));
     }
 
 }

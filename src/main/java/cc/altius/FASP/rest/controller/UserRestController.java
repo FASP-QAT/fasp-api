@@ -6,6 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.IncorrectAccessControlException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -17,11 +18,13 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +58,8 @@ public class UserRestController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProgramService programService;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
@@ -163,16 +168,26 @@ public class UserRestController {
         }
     }
 
-    /**Get user by UserId
-     * 
+    /**
+     * Used after the User has Logged in to retrieve the ACL and other data for
+     * this user
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping(value = "/user/details")
     public ResponseEntity getUserDetails(Authentication auth) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId(), curUser), HttpStatus.OK);
+            Map<String, Object> dataMap = new HashMap<>();
+            dataMap.put("user", this.userService.getUserByUserId(curUser.getUserId(), curUser));
+            dataMap.put("aclRoleBfList", this.userService.getAclRoleBfList(curUser.getUserId(), curUser));
+
+            curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/supplyPlan/list");
+            dataMap.put("spProgramList", this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser).stream().map(p -> p.getId()).toList());
+            curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/dataset/list");
+            dataMap.put("fcProgramList", this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser).stream().map(p -> p.getId()).toList());
+            return new ResponseEntity(dataMap, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get User details", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
