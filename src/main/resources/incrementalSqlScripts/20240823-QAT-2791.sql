@@ -10,10 +10,10 @@
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.bulkExtrapolation','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Bulk Extraploation');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extraploation en masse');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extraploação em massa');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extraplotación masiva');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Bulk Extrapolation');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extrapolation en masse');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extrapolação em massa');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extrapoltación masiva');-- sp
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.optimizeTES&ARIMA','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -50,10 +50,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extrapolar con ARIMA y
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.bulkExtrapolationSuccess','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Bulk Extraploation done successfully');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extraploation groupée effectuée avec succès');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extraploação em massa realizada com sucesso');-- pr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extraploación masiva realizada con éxito');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Bulk Extrapolation done successfully');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extrapolation groupée effectuée avec succès');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Extrapolação em massa realizada com sucesso');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Extrapolación masiva realizada con éxito');-- sp
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.extrapolateTES&ARIMAUsingDefaultParams','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -79,3 +79,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Extrapolation not poss
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Extrapolation impossible car les unités de planification du programme sélectionnées ne disposent pas de suffisamment de données');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A extrapolação não é possível porque as unidades de planejamento do programa selecionadas não possuem dados suficientes');-- pr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La extrapolación no es posible porque las unidades de planificación de programas seleccionadas no tienen datos suficientes');-- sp
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.estimateTime','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Estimated time for extrapolation in seconds : ');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Temps estimé pour l`extrapolation en secondes :');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tempo estimado para extrapolação em segundos:');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tiempo estimado de extrapolación en segundos:');-- sp
