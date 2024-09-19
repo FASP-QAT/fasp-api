@@ -219,8 +219,9 @@ public class DashboardDaoImpl implements DashboardDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", ei.getProgramId());
         params.put("startDate", ei.getStartDate());
-        params.put("stopDate", ei.getStopDate());
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.PST));
+        params.put("stopDate", DateUtils.getEndOfMonthVariable(ei.getStopDate()));
+        params.put("curDate", DateUtils.getCurrentDateString(DateUtils.PST, DateUtils.YMD));
+        params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
 
         sqlString = "SELECT "
@@ -230,7 +231,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
                 + "LEFT JOIN rm_supply_plan_amc amc ON p.PROGRAM_ID=amc.PROGRAM_ID AND p.CURRENT_VERSION_ID=amc.VERSION_ID AND ppu.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID "
-                + "WHERE p.PROGRAM_ID = :programId AND pu.PLANNING_UNIT_ID IS NOT NULL AND amc.TRANS_DATE BETWEEN :startDate AND :stopDate AND amc.CLOSING_BALANCE=0 AND amc.UNMET_DEMAND>0 "
+                + "WHERE p.PROGRAM_ID = :programId AND pu.PLANNING_UNIT_ID IS NOT NULL AND amc.TRANS_DATE BETWEEN :startDate AND :stopDate AND amc.CLOSING_BALANCE=0 AND amc.MOS IS NOT NULL "
                 + "GROUP BY pu.PLANNING_UNIT_ID";
         db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
 
@@ -278,7 +279,7 @@ public class DashboardDaoImpl implements DashboardDao {
 //        }
 //        db.setForecastErrorList(forecastErrorList);
 
-        sqlString = "CALL getDashboardForecastConsumptionProblems(:programId, :curDate)";
+        sqlString = "CALL getDashboardForecastConsumptionProblems(:programId, :curStartOfMonth)";
         db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
         sqlString = "CALL getDashboardActualConsumptionList(:programId, :curDate)";

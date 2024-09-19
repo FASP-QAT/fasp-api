@@ -16,6 +16,7 @@ import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProgramService;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) {
+    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException{
         try {
             SimpleProgram p = this.programService.getSimpleProgramById(ei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             DashboardBottom db = this.dashboardDao.getDashboardBottom(ei, curUser);

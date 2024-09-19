@@ -30,16 +30,18 @@ BEGIN
             SUM(IF(STOCK_CONDITION=1, 1, 0)) `COUNT_OF_UNDER_STOCK`, 
             SUM(IF(STOCK_CONDITION=2, 1, 0)) `COUNT_OF_ADEQUATE_STOCK`, 
             SUM(IF(STOCK_CONDITION=3, 1, 0)) `COUNT_OF_OVER_STOCK`, 
-            SUM(IF(STOCK_CONDITION=4, 1, 0)) `COUNT_OF_NA`
-        FROM (
+            SUM(IF(STOCK_CONDITION=4, 1, 0)) `COUNT_OF_NA`,
+            SUM(IF(STOCK_CONDITION=5, 1, 0)) `COUNT_OF_UNK`
+        FROM ( 
         SELECT 
-            amc.PLANNING_UNIT_ID, amc.TRANS_DATE,
+            amc.PLANNING_UNIT_ID, amc.`TRANS_DATE`,
             CASE
-                WHEN amc.CLOSING_BALANCE=0 AND amc.UNMET_DEMAND>0 THEN 0 -- StockOut
-                WHEN amc.MOS < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
-                WHEN amc.MOS BETWEEN IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) AND IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
-                WHEN amc.MOS > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
-                ELSE 4 -- NA
+                WHEN ROUND(amc.MOS,1) is null THEN 4 -- NA
+                WHEN amc.CLOSING_BALANCE=0 THEN 0 -- StockOut
+                WHEN ROUND(amc.MOS,1) < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
+                WHEN ROUND(amc.MOS,1) <= IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
+                WHEN ROUND(amc.MOS,1) > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
+                ELSE 5 -- Unknown
             END `STOCK_CONDITION`
         FROM vw_program p 
         LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID
@@ -271,8 +273,8 @@ USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastConsumptionProblems`(VAR_PROGRAM_ID INT, VAR_CUR_DATE DATE)
 BEGIN
 
-    SET @stopDate = CONCAT(SUBSTRING(VAR_CUR_DATE,1,7),"-01");
-    SET @startDate = DATE_SUB(@stopDate, INTERVAL 18 MONTH);
+    SET @varStartDate = VAR_CUR_DATE;
+    SET @varStopDate = DATE_ADD(@varStartDate, INTERVAL 18 MONTH);
     SELECT p.CURRENT_VERSION_ID into @versionId FROM rm_program p WHERE p.PROGRAM_ID=VAR_PROGRAM_ID;
     
     SELECT p2.PU_COUNT, SUM(IF(FORECAST_COUNT=19*p2.REGION_COUNT,1,0)) `GOOD_COUNT` FROM 
@@ -297,7 +299,7 @@ BEGIN
 	LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
     LEFT JOIN vw_planning_unit pu ON ct.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=VAR_PROGRAM_ID AND ppu.PLANNING_UNIT_ID=ct.PLANNING_UNIT_ID
-    WHERE ppu.ACTIVE AND pu.ACTIVE AND ct.ACTIVE AND ct.CONSUMPTION_DATE BETWEEN @startDate and @stopDate
+    WHERE ppu.ACTIVE AND pu.ACTIVE AND ct.ACTIVE AND ct.CONSUMPTION_DATE BETWEEN @varStartDate and @varStopDate
     GROUP BY ct.PLANNING_UNIT_ID) c1 ON TRUE
     GROUP BY p2.PROGRAM_ID;
 END$$
