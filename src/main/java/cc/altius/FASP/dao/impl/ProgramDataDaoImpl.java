@@ -47,6 +47,7 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.DownwardAggregation;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -1726,7 +1727,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("LAST_MODIFIED_DATE", dt.getLastModifiedDate());
             params.put("ACTIVE", dt.isActive());
             params.put("NOTES", dt.getNotes());
-            int treeId = si.executeAndReturnKey(params).intValue();
+            int substitutedTreeId = si.executeAndReturnKey(params).intValue();
+            int originalTreeId = dt.getTreeId();
             // Check if the TreeAnchorId is available if not then add it to the table and get the value here.
             if (dt.getTreeAnchorId() == 0) {
                 SimpleJdbcInsert sita = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_anchor").usingGeneratedKeyColumns("TREE_ANCHOR_ID");
@@ -1734,14 +1736,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("PROGRAM_ID", spcr.getProgram().getId());
                 params.put("TREE_NAME", dt.getLabel().getLabel_en());
                 params.put("CREATED_DATE", dt.getCreatedDate());
-                params.put("TREE_ID", treeId);
+                params.put("TREE_ID", substitutedTreeId);
                 dt.setTreeAnchorId(sita.executeAndReturnKey(params).intValue());
                 params.clear();
-                params.put("treeId", treeId);
+                params.put("treeId", substitutedTreeId);
                 params.put("treeAnchorId", dt.getTreeAnchorId());
                 this.namedParameterJdbcTemplate.update("UPDATE rm_forecast_tree t SET t.TREE_ANCHOR_ID=:treeAnchorId WHERE t.TREE_ID=:treeId", params);
             }
-            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), treeId);
+            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), substitutedTreeId);
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
             SimpleJdbcInsert n2 = null;
             SimpleJdbcInsert n3 = null;
@@ -1749,7 +1751,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchList.clear();
             for (SimpleObject region : dt.getRegionList()) {
                 Map<String, Object> batchParams = new HashMap<>();
-                batchParams.put("TREE_ID", treeId);
+                batchParams.put("TREE_ID", substitutedTreeId);
                 batchParams.put("REGION_ID", region.getId());
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
@@ -1761,7 +1763,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchList.clear();
             for (TreeLevel level : dt.getLevelList()) {
                 Map<String, Object> batchParams = new HashMap<>();
-                batchParams.put("TREE_ID", treeId);
+                batchParams.put("TREE_ID", substitutedTreeId);
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
@@ -1775,10 +1777,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             // Step 3B -- Insert all the Nodes for the Tree
             for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
                 Map<String, Object> nodeParams = new HashMap<>();
-                nodeParams.put("TREE_ID", treeId);
+                nodeParams.put("TREE_ID", substitutedTreeId);
                 nodeParams.put("SORT_ORDER", n.getSortOrder());
                 nodeParams.put("LEVEL_NO", n.getLevel() + 1);
                 nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
+                nodeParams.put("DOWNWARD_AGGREGATION_ALLOWED", n.getPayload().isDownwardAggregationAllowed());
                 nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
@@ -1789,13 +1792,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("LAST_MODIFIED_DATE", dt.getCreatedDate());
                 nodeParams.put("ACTIVE", 1);
                 int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
-                updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
+                updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(originalTreeId) + "-" + Integer.toString(n.getPayload().getNodeId()), nodeId);
                 nodeParams.clear();
             }
 
             // Step 3C -- Update the Parent Node Id for the Tree Nodes that you just inserted
             params.clear();
-            params.put("treeId", treeId);
+            params.put("treeId", substitutedTreeId);
             this.namedParameterJdbcTemplate.update("UPDATE rm_forecast_tree_node ttn LEFT JOIN rm_forecast_tree_node ttn2 ON ttn.TREE_ID=ttn2.TREE_ID AND left(ttn.SORT_ORDER, length(ttn.SORT_ORDER)-3)=ttn2.SORT_ORDER SET ttn.PARENT_NODE_ID=ttn2.NODE_ID WHERE ttn.TREE_ID=:treeId", params);
             params.clear();
             ni = null;
@@ -1804,7 +1807,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_scenario").usingGeneratedKeyColumns("SCENARIO_ID");
             for (TreeScenario ts : dt.getScenarioList()) {
                 Map<String, Object> nodeParams = new HashMap<>();
-                nodeParams.put("TREE_ID", treeId);
+                nodeParams.put("TREE_ID", substitutedTreeId);
                 int scenarioLabelId = this.labelDao.addLabel(ts.getLabel(), LabelConstants.RM_SCENARIO, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", scenarioLabelId);
                 nodeParams.put("CREATED_BY", dt.getCreatedBy().getUserId());
@@ -1860,7 +1863,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataPuId = ni.executeAndReturnKey(nodeDataParams).intValue();
                         }
                         nodeDataParams.clear();
-                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
+                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(originalTreeId) + "-" + Integer.toString(n.getPayload().getNodeId())));
                         nodeDataParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId()));
                         nodeDataParams.put("MONTH", tnd.getMonth());
                         nodeDataParams.put("DATA_VALUE", tnd.getDataValue());
@@ -2034,6 +2037,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
             }
 
+        }
+
+        // Step 3 part 2
+        // The reason I am handling it here is because the SourceNode could be from another Tree that would not have been added as yet
+        // So first add all Trees, Scenarios and Nodes and then come back to handle Downward Aggregation if there are any
+        batchList.clear();
+        SimpleJdbcInsert dai = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_downward_aggregation");
+        for (DatasetTree dt : dd.getTreeList()) {
+            for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                    for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
+                        Map<String, Object> batchParams = new HashMap<>();
+                        batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(dt.getTreeId()) + "-" + Integer.toString(n.getPayload().getNodeId())));
+                        batchParams.put("SOURCE_TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
+                        batchParams.put("SOURCE_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", da.getTreeId() + "-" + da.getScenarioId()));
+                        batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", da.getTreeId() + "-" + da.getNodeId()));
+                        batchList.add(new MapSqlParameterSource(batchParams));
+                    }
+                }
+            }
+        }
+        if (batchList.size() > 0) {
+            batchArray = new SqlParameterSource[batchList.size()];
+            dai.executeBatch(batchList.toArray(batchArray));
         }
 
         //Step 4 -- Insert the Planning Units and the Selected Forecasts
@@ -3169,7 +3196,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_ID`, ttnda.`SOURCE_SCENARIO_ID`, ttnda.`SOURCE_NODE_ID`, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -3200,6 +3227,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      LEFT JOIN rm_forecast_tree_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
                 + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_downward_aggregation ttnda ON ttn.NODE_ID=ttnda.TARGET_NODE_ID "
                 + "      WHERE ttn.TREE_ID=? "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
 //        Map<String, Object> params = new HashMap<>();
