@@ -258,26 +258,6 @@ public class DashboardDaoImpl implements DashboardDao {
 
         sqlString = "CALL getDashboardForecastErrorNew(:startDate, :stopDate, :programId)";
         db.setForecastErrorList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorRowMapper()));
-//        sqlString = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR  FROM rm_program_planning_unit ppu LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE";
-//        List<SimpleObject> puList = this.namedParameterJdbcTemplate.query(sqlString, params, new SimpleObjectRowMapper());
-//        List<DashboardForecastError> forecastErrorList = new LinkedList<>();
-//        for (SimpleObject pu : puList) {
-//            ForecastErrorInputNew fei = new ForecastErrorInputNew();
-//            fei.setViewBy(1);
-//            fei.setProgramId(ei.getProgramId());
-//            fei.setVersionId(-1);
-//            fei.setDaysOfStockOut(false);
-//            fei.setEquivalencyUnitId(0);
-//            fei.setPreviousMonths(5);
-//            fei.setStartDate(DateUtils.getDateFromString(ei.getStartDate(), DateUtils.YMD));
-//            fei.setStopDate(DateUtils.getDateFromString(ei.getStopDate(), DateUtils.YMD));
-//            fei.setUnitIds(new String[]{Integer.toString(pu.getId())});
-//            fei.setRegionIds(new String[]{});
-//            List<ForecastErrorOutput> feoList = this.reportDao.getForecastError(fei, false, curUser);
-//            double averageForecastError = feoList.stream().filter(feo -> feo.getActualQty() != null && feo.getForecastQty() != null && feo.getErrorPerc() != null).map(feo -> feo.getErrorPerc()).collect(Collectors.averagingDouble(Double::doubleValue));
-//            forecastErrorList.add(new DashboardForecastError(pu, 0, averageForecastError));
-//        }
-//        db.setForecastErrorList(forecastErrorList);
 
         sqlString = "CALL getDashboardForecastConsumptionProblems(:programId, :curStartOfMonth)";
         db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
