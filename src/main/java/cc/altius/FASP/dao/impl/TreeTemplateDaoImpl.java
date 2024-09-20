@@ -92,7 +92,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Override
     public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_ID`, ttnda.`SOURCE_NODE_ID`, "
+                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, 0 `IS_EXTRAPOLATION`, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_TEMPLATE_ID` SOURCE_TREE_ID, ttnda.`SOURCE_NODE_ID`, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -337,7 +337,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId())));
-                    batchParams.put("SOURCE_TREE_ID", treeTemplateId);
+                    batchParams.put("c", treeTemplateId);
                     batchParams.put("SOURCE_SCENARIO_ID", null);
                     batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(da.getNodeId())));
                     batchList.add(new MapSqlParameterSource(batchParams));
@@ -393,7 +393,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         this.namedParameterJdbcTemplate.update("DELETE ttndp.* FROM rm_tree_template_node_data_pu ttndp LEFT JOIN rm_tree_template_node_data ttnd ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID WHERE ttnd.NODE_DATA_PU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndf.* FROM rm_tree_template_node_data_fu ttndf LEFT JOIN rm_tree_template_node_data ttnd ON ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID WHERE ttnd.NODE_DATA_FU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttl.* FROM rm_tree_template_level ttl WHERE ttl.TREE_TEMPLATE_ID=:treeTemplateId", params);
-        this.namedParameterJdbcTemplate.update("DELETE ttnda.* FROM rm_tree_template_node ttn LEFT JOIN rm_tree_template_node_downward_aggregatiion ttnda ON ttn.NODE_ID=ttnda.TARGET_NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
+        this.namedParameterJdbcTemplate.update("DELETE ttnda.* FROM rm_tree_template_node ttn LEFT JOIN rm_tree_template_node_downward_aggregation ttnda ON ttn.NODE_ID=ttnda.TARGET_NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         List<Integer> levelList = this.namedParameterJdbcTemplate.queryForList("SELECT LEVEL_NO FROM rm_tree_template_node ttn WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId GROUP BY LEVEL_NO ORDER BY LEVEL_NO DESC", params, Integer.class);
         params.put("levelNo", 0);
         for (int l : levelList) {
@@ -426,6 +426,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             nodeParams.put("SORT_ORDER", n.getSortOrder());
             nodeParams.put("LEVEL_NO", n.getLevel() + 1);
             nodeParams.put("COLLAPSED", n.getPayload().isCollapsed());
+            nodeParams.put("DOWNWARD_AGGREGATION_ALLOWED", n.getPayload().isDownwardAggregationAllowed());
             nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
             nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
             int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE_NODE, curUser.getUserId());
@@ -567,7 +568,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 for (DownwardAggregation da : n.getPayload().getDownwardAggregationList()) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(n.getPayload().getNodeId())));
-                    batchParams.put("SOURCE_TREE_ID", treeTemplateId);
+                    batchParams.put("SOURCE_TREE_TEMPLATE_ID", treeTemplateId);
                     batchParams.put("SOURCE_SCENARIO_ID", null);
                     batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_tree_template_node", Integer.toString(da.getNodeId())));
                     batchList.add(new MapSqlParameterSource(batchParams));
