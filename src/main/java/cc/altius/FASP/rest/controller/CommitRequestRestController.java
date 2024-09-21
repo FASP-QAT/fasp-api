@@ -72,12 +72,13 @@ public class CommitRequestRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**Part 1 of the Commit Request for Supply Plan
-     * 
+    /**
+     * Part 1 of the Commit Request for Supply Plan
+     *
      * @param comparedVersionId
      * @param programDataCompressed
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
@@ -130,12 +131,13 @@ public class CommitRequestRestController {
         }
     }
 
-    /**Part 1 of the Commit Request for Dataset
-     * 
+    /**
+     * Part 1 of the Commit Request for Dataset
+     *
      * @param comparedVersionId
      * @param request
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping("/datasetData/{comparedVersionId}")
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
@@ -251,12 +253,13 @@ public class CommitRequestRestController {
         }
     }
 
-    /**Seems to return a list of the CommitRequests with status
-     * 
+    /**
+     * Seems to return a list of the CommitRequests with status
+     *
      * @param spcr
      * @param requestStatus
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/getCommitRequest/{requestStatus}")
     public ResponseEntity getProgramDataCommitRequest(@RequestBody CommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
@@ -274,10 +277,11 @@ public class CommitRequestRestController {
         }
     }
 
-    /**Gets the status of a CommitRequest based on Id
-     * 
+    /**
+     * Gets the status of a CommitRequest based on Id
+     *
      * @param commitRequestId
-     * @return 
+     * @return
      */
     @GetMapping("/sendNotification/{commitRequestId}")
     public ResponseEntity sendNotification(@PathVariable("commitRequestId") int commitRequestId) {
