@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -44,10 +46,17 @@ public class FundingSourceRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Funding Source
+     *
+     * @param fundingSource
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/fundingSource")
     public ResponseEntity postFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.fundingSourceService.addFundingSource(fundingSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -62,10 +71,17 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Update Funding Source
+     *
+     * @param fundingSource
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/fundingSource")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.fundingSourceService.updateFundingSource(fundingSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -83,11 +99,17 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of active Funding Sources
+     *
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSource(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding source", e);
@@ -95,10 +117,18 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Check if Funding Source Display name exists in the same Realm
+     *
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSource/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getFundingSourceDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Funding source suggested display name", e);
@@ -106,11 +136,18 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of Funding Sources by RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Funding source for Realm, RealmId=" + realmId, ae);
@@ -124,11 +161,18 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get Funding Source by Id
+     *
+     * @param fundingSourceId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/{fundingSourceId}")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceById(fundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
@@ -142,10 +186,17 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Add Funding Source Type
+     *
+     * @param fundingSourceType
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/fundingSourceType")
     public ResponseEntity postFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int fundingSourceTypeId = this.fundingSourceService.addFundingSourceType(fundingSourceType, curUser);
             if (fundingSourceTypeId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -165,10 +216,17 @@ public class FundingSourceRestController {
 
     }
 
+    /**
+     * Update Funding Source Type
+     *
+     * @param fundingSourceType
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/fundingSourceType")
     public ResponseEntity putFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rows = this.fundingSourceService.updateFundingSourceType(fundingSourceType, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -183,10 +241,16 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of active Funding Source Types
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSourceType")
     public ResponseEntity getFundingSourceType(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding Source Type", e);
@@ -194,10 +258,17 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of Funding Source Types by RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSourceType/realmId/{realmId}")
     public ResponseEntity getFundingSourceTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeByRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Funding Source Type", e);
@@ -211,10 +282,16 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get Funding Source Type by Id
+     * @param fundingSourceTypeId
+     * @param auth
+     * @return 
+     */
     @GetMapping("/fundingSourceType/{fundingSourceTypeId}")
     public ResponseEntity getFundingSourceType(@PathVariable("fundingSourceTypeId") int fundingSourceTypeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeById(fundingSourceTypeId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Funding Source Type Id" + fundingSourceTypeId, er);

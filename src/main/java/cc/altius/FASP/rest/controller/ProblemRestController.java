@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -32,17 +34,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class ProblemRestController implements Serializable {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ProblemService problemService;
     @Autowired
     private UserService userService;
-    
+
+    /**
+     * Used to create a Manual Problem for a Supply Plan Program
+     *
+     * @param manualProblem
+     * @param auth
+     * @return
+     */
     @PostMapping("/problemReport/createManualProblem")
     public ResponseEntity createManualProblem(@RequestBody ManualProblem manualProblem, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.problemService.createManualProblem(manualProblem, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Problem list", e);
@@ -55,16 +64,22 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * List of Problem Stauses
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/problemStatus")
     public ResponseEntity getProblemStatusList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.problemService.getProblemStatus(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while listing problemStatus", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

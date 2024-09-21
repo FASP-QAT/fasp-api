@@ -24,7 +24,6 @@ import cc.altius.utils.PassPhrase;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -77,7 +78,7 @@ public class UserRestController {
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getRoleList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Role", e);
@@ -109,7 +110,7 @@ public class UserRestController {
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.addRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " added successfully");
@@ -136,7 +137,7 @@ public class UserRestController {
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.updateRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " updated successfully");
@@ -177,7 +178,7 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/details")
     public ResponseEntity getUserDetails(Authentication auth) {
-        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         try {
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("user", this.userService.getUserByUserId(curUser.getUserId(), curUser));
@@ -219,7 +220,7 @@ public class UserRestController {
     @GetMapping(value = "/user/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for RealmId=" + realmId, e);
@@ -242,7 +243,7 @@ public class UserRestController {
     @GetMapping(value = "/user/programId/{programId}")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for ProgramId=" + programId, e);
@@ -567,7 +568,7 @@ public class UserRestController {
     @PutMapping(value = "/user/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.mapAccessControls(user, curUser);
             if (row > 0) {
                 auditLogger.error(user + " updated successfully");
@@ -597,7 +598,7 @@ public class UserRestController {
     @PostMapping(value = "/user/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update language change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserLanguage(curUser.getUserId(), languageUser.getLanguageCode());
             auditLogger.info("Preferred language updated successfully for Username: " + curUser.getUsername());
@@ -617,7 +618,7 @@ public class UserRestController {
     @PostMapping(value = "/user/module/{moduleId}")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Module change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserModule(curUser.getUserId(), moduleId);
             auditLogger.info("Default Module updated successfully for Username: " + curUser.getUsername());

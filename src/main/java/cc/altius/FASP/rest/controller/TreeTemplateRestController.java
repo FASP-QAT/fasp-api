@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -44,11 +46,10 @@ public class TreeTemplateRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * API used to get the active Tree template list. Will only return those
-     * Tree Templates that are marked Active.
+     * Get list of Tree templates for Dropdown
      *
      * @param auth
-     * @return returns the active list of active Tree Templates
+     * @return
      */
 //    @JsonView(Views.InternalView.class)
     @GetMapping("")
@@ -57,7 +58,7 @@ public class TreeTemplateRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate list")
     public ResponseEntity getTreeTemplate(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list TreeTemplate", e);
@@ -66,10 +67,11 @@ public class TreeTemplateRestController {
     }
 
     /**
-     * API used to get the complete TreeTemplate list.
+     * Get TreeTemplate by Id
      *
+     * @param treeTemplateId
      * @param auth
-     * @return returns the complete list of TreeTemplates
+     * @return
      */
     @GetMapping("/{treeTemplateId}")
     @Operation(description = "API used to get a specific TreeTemplate based on the Id.", summary = "Get TreeTemplate based on the Id", tags = ("treeTemplate"))
@@ -77,7 +79,7 @@ public class TreeTemplateRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate")
     public ResponseEntity getTreeTemplate(@PathVariable("treeTemplateId") int treeTemplateId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TreeTemplate", e);
@@ -85,10 +87,17 @@ public class TreeTemplateRestController {
         }
     }
 
+    /**
+     * Add TreeTemplate
+     *
+     * @param treeTemplate
+     * @param auth
+     * @return
+     */
     @PostMapping("")
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int treeTemplateId = this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -100,10 +109,17 @@ public class TreeTemplateRestController {
         }
     }
 
+    /**
+     * Update TreeTempalte
+     *
+     * @param treeTemplate
+     * @param auth
+     * @return
+     */
     @PutMapping("")
     public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {

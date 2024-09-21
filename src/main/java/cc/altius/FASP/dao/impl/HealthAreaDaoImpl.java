@@ -91,7 +91,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", h.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(h.getLabel(), LabelConstants.RM_HEALTH_AREA, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("HEALTH_AREA_CODE", h.getHealthAreaCode());

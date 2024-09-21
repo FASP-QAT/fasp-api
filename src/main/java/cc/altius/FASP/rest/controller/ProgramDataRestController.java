@@ -59,6 +59,14 @@ public class ProgramDataRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get SupplyPlan Data for a ProgramId and VersionId
+     *
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
@@ -80,6 +88,12 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get SupplyPlan Data for a list of ProgramId and VersionId
+     *
+     * @param loadProgramInputList
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
     public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
@@ -105,6 +119,20 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get list of Program Versions filtered on various parameters
+     * 
+     * @param programId
+     * @param versionId
+     * @param realmCountryId
+     * @param healthAreaId
+     * @param organisationId
+     * @param versionTypeId
+     * @param versionStatusId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return 
+     */
     @GetMapping("/programVersion/programId/{programId}/versionId/{versionId}/realmCountryId/{realmCountryId}/healthAreaId/{healthAreaId}/organisationId/{organisationId}/versionTypeId/{versionTypeId}/versionStatusId/{versionStatusId}/dates/{startDate}/{stopDate}")
     public ResponseEntity getProgramVersionList(
             @PathVariable(value = "programId", required = true) int programId,
@@ -132,6 +160,15 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Update the status of a Program Version
+     *
+     * @param updateProgramVersion
+     * @param programId
+     * @param versionId
+     * @param versionStatusId
+     * @param auth
+     * @return
+     */
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
     public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
         try {
@@ -149,6 +186,12 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Resets the Problem Reports for all the list of ProgramIds provided
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @PutMapping("/programVersion/resetProblem")
     public ResponseEntity resetProblemForProgramIds(@RequestBody int[] programIds, Authentication auth) {
         try {
@@ -166,7 +209,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
     public ResponseEntity checkErpOrder(
             @PathVariable(value = "orderNo", required = true) String orderNo,
@@ -183,6 +226,15 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get Shipment list for Sync
+     *
+     * @param programId
+     * @param versionId
+     * @param userId
+     * @param lastSyncDate
+     * @param auth
+     * @return
+     */
     @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
     public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "userId", required = true) int userId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -200,7 +252,8 @@ public class ProgramDataRestController {
     }
 
     /**
-     * Sample JSON
+     * Checks if newer versions are available for a list of ProgramId and
+     * VersionId s Sample JSON
      * [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
      *
      * @param programVersionList
@@ -278,6 +331,11 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get latest ProgramId and VersionId for a list of ProgramIds
+     * 
+     * @param programIds
+     * @return 
+     */
     @PostMapping("/programData/getLatestVersionForPrograms")
     public ResponseEntity getLatestVersionForProgram(@RequestBody String[] programIds) {
         try {
@@ -292,6 +350,15 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Gets the list of Version trans notes for a Program Id includes all Versions //For (/program/data/version/trans/programId/{programId}) this URL
+     * 
+     * Gets the list of Version trans notes for a Program Id and VersionId //For (/program/data/version/trans/programId/{programId}/versionId/{versionId}) this URL
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.ReportView.class)
     @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})
     public ResponseEntity getProgramVersionTrans(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = false) int versionId, Authentication auth) {

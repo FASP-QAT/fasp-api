@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -33,10 +35,16 @@ public class DashboardRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Dashboard information for Application level users
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/applicationLevel")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getApplicationLevelDashboard(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -44,21 +52,33 @@ public class DashboardRestController {
         }
     }
 
+    /**
+     * Dashboard information for Realm level users
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/realmLevel")
     public ResponseEntity realmLevelDashboard(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getRealmLevelDashboard(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Dashboard information for Supply Plan
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/supplyPlanReviewerLevel")
     public ResponseEntity supplyPlanReviewerLevelDashboard(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getSupplyPlanReviewerLevelDashboard(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -66,10 +86,16 @@ public class DashboardRestController {
         }
     }
 
+    /**
+     * User count for Application level Users
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/applicationLevel/userList")
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getUserListForApplicationLevelAdmin(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -77,10 +103,16 @@ public class DashboardRestController {
         }
     }
 
+    /**
+     * User count for Realm level Users
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/realmLevel/userList")
     public ResponseEntity realmLevelDashboardUserList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getUserListForRealmLevelAdmin(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);

@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -52,6 +54,8 @@ public class ErpLinkingRestController {
     private UserService userService;
 
     /**
+     * Tab 1 option
+     *
      * This function is called when the user clicks on Tab1 option in the
      * Linking screen. Current data is taken from the local but this API serves
      * historical data.
@@ -66,7 +70,7 @@ public class ErpLinkingRestController {
     @PostMapping("/notLinkedQatShipments/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getNotLinkedQatShipments(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @RequestBody String[] planningUnitIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("ERP Linking : Error while trying to list Shipment list Not Linked Qat Shipments", e);
@@ -81,6 +85,8 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Used to autocomplete the Ro/Po order
+     *
      * The autocomplete runs only if the roPo provided is 4 or more characters
      *
      * @param roPo -- PO Number or RO Number that you want to search for. 0 if
@@ -97,7 +103,7 @@ public class ErpLinkingRestController {
             if (erpAutoCompleteDto.getRoPo().equals("0")) {
                 erpAutoCompleteDto.setRoPo(null);
             }
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             if (erpAutoCompleteDto.getRoPo() == null || erpAutoCompleteDto.getRoPo().length() >= 4) {
                 return new ResponseEntity(this.erpLinkingService.autoCompleteOrder(erpAutoCompleteDto, curUser), HttpStatus.OK);
             } else {
@@ -116,6 +122,8 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Used to autocomplete the PlanningUnit
+     *
      * The autocomplete runs only if the search term provided is more than 4
      * characters
      *
@@ -128,7 +136,7 @@ public class ErpLinkingRestController {
     @PostMapping("/autoCompletePu")
     public ResponseEntity autoCompletePu(@RequestBody AutoCompletePuDTO autoCompletePuDTO, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             if (autoCompletePuDTO.getPuName() != null && autoCompletePuDTO.getPuName().length() >= 4) {
                 return new ResponseEntity(this.erpLinkingService.autoCompletePu(autoCompletePuDTO, curUser), HttpStatus.OK);
             } else {
@@ -147,6 +155,7 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Not linked ERP shipments
      *
      * @param input programId -- Program Id of the Shipment that you clicked on
      * to open the popup | shipmentPlanningUnitId -- Planning Unit Id of the
@@ -159,7 +168,7 @@ public class ErpLinkingRestController {
     @PostMapping("/notLinkedErpShipments")
     public ResponseEntity getNonLinkedErpShipments(@RequestBody NotLinkedErpShipmentsInput input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipmentsTab1AndTab3(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to get list of not linked ERP shipments", e);
@@ -174,6 +183,7 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * Not linked ERP shipments for Tab 3
      *
      * @param input realmCountryId -- that you want to see the ERP shipments for
      * productCategorySortOrder -- Sort order of the Product Category that you
@@ -185,7 +195,7 @@ public class ErpLinkingRestController {
     @PostMapping("/notLinkedErpShipments/tab3")
     public ResponseEntity getNonLinkedErpShipmentsTab3(@RequestBody NotLinkedErpShipmentsInputTab3 input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotLinkedErpShipmentsTab3(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to get list of QAT Linked shipments", e);
@@ -200,6 +210,7 @@ public class ErpLinkingRestController {
     }
 
     /**
+     * List of already linked QAT shipments for Program and Version
      *
      * @param programId -- Program Id that you want to see the linked Shipments
      * for
@@ -213,7 +224,7 @@ public class ErpLinkingRestController {
     @PostMapping("/linkedShipments/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getLinkedQatShipments(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @RequestBody String[] planningUnitIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error linking : Error while trying to autoCompleteOrder", e);
@@ -227,10 +238,17 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Used to sync Shipments for ERP Linking
+     *
+     * @param shipmentSyncInputList
+     * @param auth
+     * @return
+     */
     @PostMapping("/shipmentSync")
     public ResponseEntity shipmentSync(@RequestBody List<ShipmentSyncInput> shipmentSyncInputList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getShipmentListForSync(shipmentSyncInputList, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while getting Sync list for Shipments", p);
@@ -241,10 +259,17 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Used to check if a Shipment is linked to another program
+     *
+     * @param shipmentInput
+     * @param auth
+     * @return
+     */
     @PostMapping("/otherProgramCheck")
     public ResponseEntity shipmentLinkedToOtherProgramCheck(@RequestBody ShipmentLinkedToOtherProgramInput shipmentInput, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getShipmentLinkedToOtherProgram(shipmentInput, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Shipments Linked to other Programs check", e);
@@ -252,10 +277,18 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Artmist history for the RO/PO
+     *
+     * @param roNo
+     * @param roPrimeLineNo
+     * @param auth
+     * @return
+     */
     @GetMapping("/artmisHistory/{roNo}/{roPrimeLineNo}")
     public ResponseEntity artmisHistory(@PathVariable("roNo") String roNo, @PathVariable("roPrimeLineNo") int roPrimeLineNo, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getArtmisHistory(roNo, roPrimeLineNo), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
@@ -269,10 +302,17 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Batch details for the RO/PO and Prime line no
+     *
+     * @param roAndRoPrimeLineNoList
+     * @param auth
+     * @return
+     */
     @PostMapping("/batchDetails")
     public ResponseEntity getBatchDetails(@RequestBody List<RoAndRoPrimeLineNo> roAndRoPrimeLineNoList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getBatchDetails(roAndRoPrimeLineNoList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Shipments Linked to other Programs check", e);
@@ -280,10 +320,18 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Shipment lniking notification for Program and Version
+     *
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return
+     */
     @GetMapping("/shipmentLinkingNotification/programId/{programId}/versionId/{versionId}")
     public ResponseEntity shipmentLinkingNotification(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotificationList(programId, versionId), HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -298,10 +346,17 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Update notification as processed
+     *
+     * @param eRPNotificationDTO
+     * @param auth
+     * @return
+     */
     @PutMapping("/updateNotification")
     public ResponseEntity updateNotification(@RequestBody List<ERPNotificationDTO> eRPNotificationDTO, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.erpLinkingService.updateNotification(eRPNotificationDTO, curUser);
             return new ResponseEntity(true, HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
@@ -320,10 +375,16 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Notification count
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/getNotificationCount")
     public ResponseEntity getNotificationCount(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotificationCount(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
@@ -331,10 +392,16 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Notification summary
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/getNotificationSummary")
     public ResponseEntity getNotificationSummary(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getNotificationSummary(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
@@ -342,10 +409,17 @@ public class ErpLinkingRestController {
         }
     }
 
+    /**
+     * Product category list for RealmCountry for ERP Linking
+     *
+     * @param realmCountryId
+     * @param auth
+     * @return
+     */
     @GetMapping("/productCategory/realmCountryId/{realmCountryId}")
     public ResponseEntity getProductCategoryListForRealmCountryForErpLinking(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.erpLinkingService.getProductCategoryListForRealmCountryForErpLinking(curUser, realmCountryId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);

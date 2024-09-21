@@ -38,6 +38,12 @@ public class LabelRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get the list of all Database Labels
+     *
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping(value = "/getDatabaseLabelsListAll")
     public ResponseEntity getDatabaseLabelsList(Authentication auth) {
@@ -51,6 +57,11 @@ public class LabelRestController {
 
     }
 
+    /**
+     * Get the list of all Static Labels
+     *
+     * @return
+     */
     @GetMapping(value = "/getStaticLabelsListAll")
     public ResponseEntity getStaticLabelsList() {
         try {
@@ -61,6 +72,13 @@ public class LabelRestController {
         }
     }
 
+    /**
+     * Update the Database lables
+     *
+     * @param json
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/saveDatabaseLabels")
     public ResponseEntity putDatabaseLabels(@RequestBody String json, Authentication auth) {
         try {
@@ -74,6 +92,13 @@ public class LabelRestController {
         }
     }
 
+    /**
+     * Update Static labels
+     *
+     * @param staticLabelList
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/saveStaticLabels")
     public ResponseEntity putStaticLabels(@RequestBody List<StaticLabelDTO> staticLabelList, Authentication auth) {
         try {

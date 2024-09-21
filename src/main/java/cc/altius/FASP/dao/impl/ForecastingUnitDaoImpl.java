@@ -96,7 +96,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             params.put("LABEL_ID", labelId);
             int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
             params.put("GENERIC_LABEL_ID", genericLabelId);
-            params.put("REALM_ID", forecastingUnit.getRealm().getId());
+            params.put("REALM_ID", curUser.getRealm().getRealmId());
             params.put("UNIT_ID", forecastingUnit.getUnit().getId());
             params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getId());
             params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getId());

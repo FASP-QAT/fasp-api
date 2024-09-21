@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -33,24 +35,30 @@ import org.springframework.web.multipart.MultipartFile;
 public class JiraServiceDeskApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
 
     @Autowired
     private JiraServiceDeskApiService jiraServiceDeskApiService;
     @Autowired
     private UserService userService;
 
+    /**
+     * Used to add a Ticket to Jira
+     *
+     * @param jsonData
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
-        try {            
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssue(jsonData, curUser);
-            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {                
+            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
                 return new ResponseEntity(response.getBody(), HttpStatus.OK);
-            } else {                
+            } else {
                 return new ResponseEntity(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }                        
+            }
 
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
@@ -59,10 +67,18 @@ public class JiraServiceDeskApiController {
 
     }
 
+    /**
+     * Used to add a File to an existing Jira Ticket
+     *
+     * @param file
+     * @param issueId
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/addIssueAttachment/{issueId}")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
-        try {            
+        try {
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssueAttachment(file, issueId);
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
@@ -73,18 +89,24 @@ public class JiraServiceDeskApiController {
                 return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-        } catch (Exception e) {     
+        } catch (Exception e) {
             logger.error("Error while upload the file", e);
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }     
-    
+    }
+
+    /**
+     * Used to get a summary of Tickets for the current User
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/openIssues")
     public ResponseEntity getOpenIssue(Authentication auth) {
-        try {            
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
-            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);            
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

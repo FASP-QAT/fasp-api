@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,9 +32,16 @@ import org.springframework.web.client.RestTemplate;
 public class ForecastingStatisticsRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-//    private static final String URL = "http://localhost:7876";
-    private static final String URL = "http://50.16.62.249:8000";
+    @Value("forecastStats.server.url")
+    private String URL;
 
+    /**
+     * Run Arima on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(HttpServletRequest request, Authentication auth) {
         try {
@@ -54,6 +62,13 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**
+     * Run TES on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/tes")
     public ResponseEntity postTes(HttpServletRequest request, Authentication auth) {
         try {
@@ -73,6 +88,13 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**
+     * Run Regression on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/regression")
     public ResponseEntity postRegression(HttpServletRequest request, Authentication auth) {
         try {

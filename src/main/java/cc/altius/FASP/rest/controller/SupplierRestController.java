@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.UserService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -41,10 +43,17 @@ public class SupplierRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Supplier
+     *
+     * @param supplier
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.supplierService.addSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -56,10 +65,17 @@ public class SupplierRestController {
         }
     }
 
+    /**
+     * Update Supplier
+     *
+     * @param supplier
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.supplierService.updateSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -71,10 +87,16 @@ public class SupplierRestController {
         }
     }
 
+    /**
+     * Get Supplier list
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity getSupplier(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Supplier list", e);
@@ -82,10 +104,17 @@ public class SupplierRestController {
         }
     }
 
+    /**
+     * Get Supplier based on Id
+     *
+     * @param supplierId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{supplierId}")
     public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierById(supplierId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Supplier list", er);
@@ -99,10 +128,17 @@ public class SupplierRestController {
         }
     }
 
+    /**
+     * Get Supplier list for Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Supplier list", er);

@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -59,7 +61,7 @@ public class UsageTemplateRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageTemplate list", e);
@@ -79,7 +81,7 @@ public class UsageTemplateRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageTemplate list", e);
@@ -88,7 +90,7 @@ public class UsageTemplateRestController {
     }
 
     /**
-     * API used to add and update UsageTemplate
+     * API used to add or update UsageTemplate
      *
      * @param usageTemplateList List<UsageTemplate> object that you want to add
      * or update
@@ -105,7 +107,7 @@ public class UsageTemplateRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteUsageTemplate(@RequestBody List<UsageTemplate> usageTemplateList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.usageTemplateService.addAndUpdateUsageTemplate(usageTemplateList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -121,7 +123,7 @@ public class UsageTemplateRestController {
     }
 
     /**
-     * API used to get the active UsageTemplate list based on filters provided.
+     * API used to get the list of UsageTemplats filtered by TracerCategory.
      * Will only return those UsageTemplates that are marked Active and match
      * with Filter criteria.
      *
@@ -139,7 +141,7 @@ public class UsageTemplateRestController {
             @PathVariable("tracerCategoryId") int tracerCategoryId,
             Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(tracerCategoryId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageTemplate list", e);

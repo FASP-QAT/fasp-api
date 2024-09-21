@@ -41,6 +41,13 @@ public class UnitRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Unit
+     *
+     * @param unit
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
@@ -56,6 +63,13 @@ public class UnitRestController {
         }
     }
 
+    /**
+     * Update Unit
+     *
+     * @param unit
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
@@ -71,6 +85,12 @@ public class UnitRestController {
         }
     }
 
+    /**
+     * Get list of Units
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity getUnit(Authentication auth) {
         try {
@@ -81,6 +101,13 @@ public class UnitRestController {
         }
     }
 
+    /**
+     * Get list of Units for a Dimension
+     *
+     * @param dimensionId
+     * @param auth
+     * @return
+     */
     @GetMapping("/dimension/{dimensionId}")
     public ResponseEntity getUnitByDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
@@ -91,6 +118,13 @@ public class UnitRestController {
         }
     }
 
+    /**
+     * Get Unit by Id
+     *
+     * @param unitId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{unitId}")
     public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {

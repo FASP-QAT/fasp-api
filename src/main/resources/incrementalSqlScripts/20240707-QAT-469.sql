@@ -97,6 +97,215 @@ INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/program/supplyPlan/list', 
 INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/program/dataset/list', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/user/details', '');
 
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastMethod', 'ROLE_BF_LIST_FORECAST_METHOD');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/forecastMethod', 'ROLE_BF_ADD_FORECAST_METHOD');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastMethod/*', 'ROLE_BF_LIST_FORECAST_METHOD');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/modelingType', 'ROLE_BF_LIST_MODELING_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/modelingType', 'ROLE_BF_ADD_MODELING_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/modelingType/*', 'ROLE_BF_LIST_MODELING_TYPE');
+
+INSERT INTO us_role_business_function VALUES (null, 'ROLE_INTERNAL_USER', 'ROLE_BF_ADD_MODELING_TYPE', 1, now(), 1, now()), (null, 'ROLE_REALM_ADMIN', 'ROLE_BF_ADD_MODELING_TYPE', 1, now(), 1, now());
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/problemReport/createManualProblem', 'ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/problemStatus', 'ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/supplier', 'ROLE_BF_ADD_SUPPLIER');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/supplier', 'ROLE_BF_EDIT_SUPPLIER');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/supplier', 'ROLE_BF_LIST_SUPPLIER');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/supplier/**', 'ROLE_BF_LIST_SUPPLIER');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/supplier/**', 'ROLE_BF_LIST_SUPPLIER');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/unit', 'ROLE_BF_ADD_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/unit', 'ROLE_BF_EDIT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/unit', 'ROLE_BF_LIST_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/fundingSource', 'ROLE_BF_ADD_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/fundingSource', 'ROLE_BF_EDIT_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSource', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSource/**', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSource/**', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSource/**', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/fundingSourceType', 'ROLE_BF_ADD_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/fundingSourceType', 'ROLE_BF_EDIT_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSourceType', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSourceType/**', 'ROLE_BF_LIST_FUNDING_SOURCE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/fundingSourceType/**', 'ROLE_BF_LIST_FUNDING_SOURCE');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/healthArea', 'ROLE_BF_ADD_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/healthArea', 'ROLE_BF_EDIT_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/healthArea/**', 'ROLE_BF_LIST_HEALTH_AREA');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/organisation', 'ROLE_BF_ADD_ORGANIZATION');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/organisation', 'ROLE_BF_EDIT_ORGANIZATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisation', 'ROLE_BF_LIST_ORGANIZATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisation/**', 'ROLE_BF_LIST_ORGANIZATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisation/**', 'ROLE_BF_LIST_ORGANIZATION');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/organisationType', 'ROLE_BF_ADD_ORGANIZATION_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/organisationType', 'ROLE_BF_EDIT_ORGANIZATION_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisationType', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/procurementAgentType', 'ROLE_BF_ADD_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementAgentType', 'ROLE_BF_EDIT_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgentType', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgentType/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgentType/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/procurementAgent', 'ROLE_BF_ADD_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementAgent', 'ROLE_BF_EDIT_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementAgent/**', 'ROLE_BF_LIST_PROCUREMENT_AGENT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/productCategory', 'ROLE_BF_MANAGE_PRODUCT_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/tracerCategory', 'ROLE_BF_ADD_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/tracerCategory', 'ROLE_BF_EDIT_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/tracerCategory', 'ROLE_BF_LIST_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/tracerCategory/**', 'ROLE_BF_LIST_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/tracerCategory/**', 'ROLE_BF_LIST_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/tracerCategory/**', 'ROLE_BF_LIST_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/tracerCategory/**', 'ROLE_BF_LIST_TRACER_CATEGORY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/tracerCategory/**', 'ROLE_BF_LIST_TRACER_CATEGORY');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/usagePeriod', 'ROLE_BF_LIST_USAGE_PERIOD');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/usagePeriod', 'ROLE_BF_ADD_USAGE_PERIOD');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/usagePeriod/**', 'ROLE_BF_LIST_USAGE_PERIOD');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/usageTemplate**', 'ROLE_BF_LIST_USAGE_TEMPLATE');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/usageTemplate**', 'ROLE_BF_EDIT_USAGE_TEMPLATE');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/usageTemplate**', 'ROLE_BF_EDIT_USAGE_TEMPLATE_ALL');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/usageTemplate**', 'ROLE_BF_EDIT_USAGE_TEMPLATE_OWN');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/usageTemplate**', 'ROLE_BF_LIST_USAGE_TEMPLATE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/usageTemplate**', 'ROLE_BF_LIST_USAGE_TEMPLATE');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/equivalencyUnit', 'ROLE_BF_LIST_EQUIVALENCY_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/equivalencyUnit', 'ROLE_BF_ADD_EQUIVALENCY_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/equivalencyUnit/**', 'ROLE_BF_LIST_EQUIVALENCY_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/equivalencyUnit/**', 'ROLE_BF_LIST_EQUIVALENCY_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/equivalencyUnit/mapping', 'ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/equivalencyUnit/mapping', 'ROLE_BF_ADD_EQUIVALENCY_UNIT_MAPPING');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/equivalencyUnit/mapping/**', 'ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/forecastingUnit', 'ROLE_BF_ADD_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/forecastingUnit', 'ROLE_BF_EDIT_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integration', 'ROLE_BF_LIST_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/integration', 'ROLE_BF_ADD_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/integration', 'ROLE_BF_EDIT_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integration/*', 'ROLE_BF_LIST_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integration/*', 'ROLE_BF_LIST_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integrationProgram', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/integrationProgram', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integrationProgram/**', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/integrationProgram/**', 'ROLE_BF_MANUAL_INTEGRATION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/integrationProgram/**', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/planningUnit', 'ROLE_BF_ADD_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/planningUnit', 'ROLE_BF_EDIT_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/capacity/**', 'ROLE_BF_LIST_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/capacity/**', 'ROLE_BF_LIST_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/capacity/**', 'ROLE_BF_LIST_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/planningUnit/capacity', 'ROLE_BF_MAP_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/capacity/**', 'ROLE_BF_LIST_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/capacity/**', 'ROLE_BF_LIST_PLANNING_UNIT_CAPACITY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/planningUnit/productCategoryList/active/realmCountryId/*', 'ROLE_BF_MANUAL_TAGGING');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/procurementUnit', 'ROLE_BF_ADD_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/procurementUnit', 'ROLE_BF_EDIT_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/realmCountry', 'ROLE_BF_MAP_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/realmCountry', 'ROLE_BF_MAP_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry', 'ROLE_BF_LIST_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
+
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/realm', 'ROLE_BF_CREATE_REALM');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/realm', 'ROLE_BF_EDIT_REALM');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realm', 'ROLE_BF_LIST_REALM');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/realm/*', 'ROLE_BF_LIST_REALM');
+
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/region', 'ROLE_BF_MAP_REGION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/region', 'ROLE_BF_MAP_REGION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
+
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/treeTemplate', 'ROLE_BF_VIEW_TREE_TEMPLATES');
+INSERT IGNORE INTO ap_security VALUES (null, 2, '/api/treeTemplate', 'ROLE_BF_ADD_TREE_TEMPLATE');
+INSERT IGNORE INTO ap_security VALUES (null, 3, '/api/treeTemplate', 'ROLE_BF_EDIT_TREE_TEMPLATE');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_BF_VIEW_TREE_TEMPLATES');
+
+UPDATE us_user u set u.REALM_ID=null where u.USER_ID=36;
+
+
 -- TRUNCATE TABLE temp_security;
 -- INSERT INTO temp_security VALUES (null, 2, '/api/budget','ROLE_BF_ADD_BUDGET');
 -- INSERT INTO temp_security VALUES (null, 1, '/api/budget','ROLE_BF_TICKETING~ROLE_BF_LIST_BUDGET');

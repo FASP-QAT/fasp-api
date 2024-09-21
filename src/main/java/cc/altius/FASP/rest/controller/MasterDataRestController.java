@@ -21,13 +21,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.MasterDataService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author Akil Mahimwala
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/master")
 public class MasterDataRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,10 +39,16 @@ public class MasterDataRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get list of Version types
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.masterDataService.getVersionTypeList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Version Type", e);
@@ -48,17 +56,29 @@ public class MasterDataRestController {
         }
     }
 
+    /**
+     * Get list of Version statuses
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/versionStatus")
     public ResponseEntity getVersionStatus(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.masterDataService.getVersionStatusList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Version Status", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Get list of Shipment Statuses
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/shipmentStatus")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {
@@ -70,8 +90,8 @@ public class MasterDataRestController {
     }
 
     /**
-     * API used to get the complete UsageType list. Will only return those
-     * UsageTypes that are marked Active.
+     * API used to get the complete active UsageType list. Will only return
+     * those UsageTypes that are marked Active.
      *
      * @param auth
      * @return returns the complete list of active UsageTypes
@@ -82,7 +102,7 @@ public class MasterDataRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageType list")
     public ResponseEntity getUsageTypeList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.masterDataService.getUsageTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageType list", e);
@@ -91,7 +111,7 @@ public class MasterDataRestController {
     }
 
     /**
-     * API used to get the complete NodeType list. Will only return those
+     * API used to get the complete active NodeType list. Will only return those
      * NodeTypes that are marked Active.
      *
      * @param auth
@@ -103,7 +123,7 @@ public class MasterDataRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of NodeType list")
     public ResponseEntity getNodeTypeList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.masterDataService.getNodeTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  NodeType list", e);
@@ -112,8 +132,8 @@ public class MasterDataRestController {
     }
 
     /**
-     * API used to get the complete ForecastMethodType list. Will only return
-     * those NodeTypes that are marked Active.
+     * API used to get the complete active ForecastMethodType list. Will only
+     * return those NodeTypes that are marked Active.
      *
      * @param auth
      * @return returns the complete list of active ForecastMethodTypes
@@ -124,7 +144,7 @@ public class MasterDataRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethodType list")
     public ResponseEntity getForecastMethodTypeList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.masterDataService.getForecastMethodTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  ForecastMethodType list", e);

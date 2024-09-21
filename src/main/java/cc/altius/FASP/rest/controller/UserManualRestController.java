@@ -27,11 +27,18 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api")
 public class UserManualRestController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     UserManualService userManualService;
-    
+
+    /**
+     * Api Used to push the upload the UserManual
+     *
+     * @param file
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/userManual/uploadUserManual")
     public ResponseEntity uploadUserManual(@RequestParam("file") MultipartFile file, Authentication auth) {
         try {
@@ -48,5 +55,5 @@ public class UserManualRestController {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

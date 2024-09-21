@@ -59,6 +59,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import cc.altius.FASP.service.MasterDataService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -67,9 +69,9 @@ import cc.altius.FASP.service.MasterDataService;
 @Controller
 @RequestMapping("/api/sync")
 public class SyncRestController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private CountryService countryService;
     @Autowired
@@ -154,7 +156,7 @@ public class SyncRestController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             String programIdsString = getProgramIds(programIds);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             MastersSync masters = new MastersSync();
 //            masters.setExtrapolationMethodList(this.forecastingStaticDataService.getExtrapolationMethodListForSync(lastSyncDate, curUser));
 //            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
@@ -168,14 +170,23 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * API to get the data that needs to be Synced with the Offline machine
+     *
+     * @param programIds
+     * @param lastSyncDate
+     * @param auth
+     * @param response
+     * @return
+     */
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             String programIdsString = getProgramIds(programIds);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             MastersSync masters = new MastersSync();
             masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));//programIds -- Done for Dataset
             masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
@@ -237,8 +248,14 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping(value = "/sync/language/{lastSyncDate}")
+
+    /**
+     * Get list of Languages that are allowed
+     *
+     * @param lastSyncDate
+     * @return
+     */
+    @GetMapping(value = "/language/{lastSyncDate}")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -252,11 +269,19 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Get the list of Tree Anchor nodes for a Specific DataSet Program and a
+     * list of Trees
+     *
+     * @param ta
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/treeAnchor")
     public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getTreeAnchorForSync(ta, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Tree Anchor list", e);

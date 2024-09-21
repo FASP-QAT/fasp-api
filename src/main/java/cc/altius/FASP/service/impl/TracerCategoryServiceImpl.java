@@ -35,11 +35,7 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
 
     @Override
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getId())) {
-            return this.tracerCategoryDao.addTracerCategory(m, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.tracerCategoryDao.addTracerCategory(m, curUser);
     }
 
     @Override
