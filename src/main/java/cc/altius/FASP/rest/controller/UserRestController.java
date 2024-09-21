@@ -6,9 +6,9 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.IncorrectAccessControlException;
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
+import cc.altius.FASP.model.BfAndProgramId;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
@@ -17,12 +17,15 @@ import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,15 +183,34 @@ public class UserRestController {
     public ResponseEntity getUserDetails(Authentication auth) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         try {
-            Map<String, Object> dataMap = new HashMap<>();
-            dataMap.put("user", this.userService.getUserByUserId(curUser.getUserId(), curUser));
-            dataMap.put("aclRoleBfList", this.userService.getAclRoleBfList(curUser.getUserId(), curUser));
+            User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
+            cc.altius.FASP.model.UserDetails ud = new cc.altius.FASP.model.UserDetails();
+            ud.setUser(loggedInUser);
+            Map<String, BfAndProgramId> bfAndProgramMap = new HashMap<>();
+            ud.setBfAndProgramIdMap(bfAndProgramMap);
+            Map<String, List<String>> aclBfMap = this.userService.getAclRoleBfList(curUser.getUserId(), curUser);
+            for (String role : aclBfMap.keySet()) {
+                if (bfAndProgramMap.containsKey(role)) {
+                    bfAndProgramMap.get(role).getBusinessFunctionList().addAll(aclBfMap.get(role));
+                } else {
+                    BfAndProgramId bfAndProgramId = new BfAndProgramId();
+                    bfAndProgramId.getBusinessFunctionList().addAll(aclBfMap.get(role));
+                    bfAndProgramMap.put(role, bfAndProgramId);
+                }
+            }
 
-            curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/supplyPlan/list");
-            dataMap.put("spProgramList", this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser).stream().map(p -> p.getId()).toList());
-            curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/dataset/list");
-            dataMap.put("fcProgramList", this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser).stream().map(p -> p.getId()).toList());
-            return new ResponseEntity(dataMap, HttpStatus.OK);
+            for (UserAcl acl : loggedInUser.getUserAclList()) {
+                curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/supplyPlan/list");
+                curUser.getAclList().clear();
+                curUser.getAclList().add(acl);
+                HashSet<Integer> programSet;
+                String role = acl.getRoleId();
+                if (role == null) {
+                    role = "";
+                }
+                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser).stream().map(p -> p.getId()).toList());
+            }
+            return new ResponseEntity(ud, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get User details", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
