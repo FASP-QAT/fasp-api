@@ -8,6 +8,7 @@ package cc.altius.FASP.dao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.AnnualTargetCalculator;
 import cc.altius.FASP.model.Batch;
+import cc.altius.FASP.model.BatchInventory;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -17,7 +18,6 @@ import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramVersion;
-import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
@@ -60,6 +60,8 @@ public interface ProgramDataDao {
 
     public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate);
 
+    public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
+    
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
     public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
