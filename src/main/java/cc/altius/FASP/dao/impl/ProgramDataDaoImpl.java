@@ -2861,23 +2861,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         cleanedBatchDataList.add(bd);
                     } else {
                         BatchData tmpBd = cleanedBatchDataList.get(idx);
-                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0L)+Optional.ofNullable(bd.getActualConsumption()).orElse(0L));
+                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0.0)+Optional.ofNullable(bd.getActualConsumption()).orElse(0.0));
                         tmpBd.setUseActualConsumption(tmpBd.isUseActualConsumption() || bd.isUseActualConsumption());
-                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0L)+Optional.ofNullable(bd.getShipment()).orElse(0L));
-                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0L)+Optional.ofNullable(bd.getShipmentWps()).orElse(0L));
-                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0L)+Optional.ofNullable(bd.getAdjustment()).orElse(0L));
-                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0L)+Optional.ofNullable(bd.getStock()).orElse(0L));
+                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0.0)+Optional.ofNullable(bd.getShipment()).orElse(0.0));
+                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0.0)+Optional.ofNullable(bd.getShipmentWps()).orElse(0.0));
+                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0.0)+Optional.ofNullable(bd.getAdjustment()).orElse(0.0));
+                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0.0)+Optional.ofNullable(bd.getStock()).orElse(0.0));
                         tmpBd.setAllRegionsReportedStock(tmpBd.isAllRegionsReportedStock() || bd.isAllRegionsReportedStock());
-                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0L));
-                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0L));
-                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0L)+Optional.ofNullable(bd.getExpiredStock()).orElse(0L));
-                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0L)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0L));
-                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0L));
-                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0L));
-                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0L));
-                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0L));
-                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0L)+Optional.ofNullable(bd.getClosingBalance()).orElse(0L));
-                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0L));
+                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0.0));
+                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0.0));
+                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStock()).orElse(0.0));
+                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0.0));
+                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0.0));
+                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0));
+                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0.0));
+                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0));
+                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalance()).orElse(0.0));
+                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0));
                         cleanedBatchDataList.set(idx, tmpBd);
                     }
                 });

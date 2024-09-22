@@ -18,17 +18,13 @@ public class BatchData implements Serializable {
     private Integer batchId;
     private String expiryDate;
     private int shelfLife;
-    private Long actualConsumption;
-    private long shipment;
-    private long shipmentWps;
-    private Long adjustment;
-    private Long stock;
-    private Long inventoryQty;
+    
     private Double actualConsumption;
     private double shipment;
     private double shipmentWps;
     private Double adjustment;
     private Double stock;
+    private Double inventoryQty;
 
     private boolean allRegionsReportedStock;
     private boolean useActualConsumption;
@@ -125,11 +121,11 @@ public class BatchData implements Serializable {
         this.stock = stock;
     }
 
-    public Long getInventoryQty() {
+    public Double getInventoryQty() {
         return inventoryQty;
     }
 
-    public void setInventoryQty(Long inventoryQty) {
+    public void setInventoryQty(Double inventoryQty) {
         this.inventoryQty = inventoryQty;
     }
 
