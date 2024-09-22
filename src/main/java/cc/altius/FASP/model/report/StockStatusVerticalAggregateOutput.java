@@ -23,14 +23,14 @@ import java.util.Objects;
  *
  * @author akil
  */
-public class StockStatusVerticalOutput implements Serializable {
+public class StockStatusVerticalAggregateOutput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date dt;
     @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
+    private SimpleObject reportingUnit; // PU, ARU or EU
     @JsonView(Views.ReportView.class)
     private Long openingBalance;
     @JsonView(Views.ReportView.class)
@@ -60,9 +60,13 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
-    private Double minMos;
+    private Double minStockMos;
     @JsonView(Views.ReportView.class)
-    private Double maxMos;
+    private Double maxStockMos;
+    @JsonView(Views.ReportView.class)
+    private Double minStockQty;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockQty;
     @JsonView(Views.ReportView.class)
     private Long unmetDemand;
     @JsonView(Views.ReportView.class)
@@ -72,21 +76,17 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Long nationalAdjustment;
     @JsonView(Views.ReportView.class)
-    private Double minStock;
-    @JsonView(Views.ReportView.class)
-    private Double maxStock;
-    @JsonView(Views.ReportView.class)
-    private int planBasedOn; //1- MoS , 2- Qty
-    @JsonView(Views.ReportView.class)
-    private int distributionLeadTime;
+    private int planBasedOn;
+    //TODO
+    private String ppuNotes;
 
-    public StockStatusVerticalOutput() {
+    public StockStatusVerticalAggregateOutput() {
         this.shipmentInfo = new LinkedList<>();
         this.consumptionInfo = new LinkedList<>();
         this.inventoryInfo = new LinkedList<>();
     }
 
-    public StockStatusVerticalOutput(Date dt) {
+    public StockStatusVerticalAggregateOutput(Date dt) {
         this.dt = dt;
         this.shipmentInfo = new LinkedList<>();
         this.consumptionInfo = new LinkedList<>();
@@ -101,12 +101,12 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public SimpleObject getReportingUnit() {
+        return reportingUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setReportingUnit(SimpleObject reportingUnit) {
+        this.reportingUnit = reportingUnit;
     }
 
     public Long getOpeningBalance() {
@@ -197,20 +197,36 @@ public class StockStatusVerticalOutput implements Serializable {
         this.mos = mos;
     }
 
-    public Double getMinMos() {
-        return minMos;
+    public Double getMinStockMos() {
+        return minStockMos;
     }
 
-    public void setMinMos(Double minMos) {
-        this.minMos = minMos;
+    public void setMinStockMos(Double minStockMos) {
+        this.minStockMos = minStockMos;
     }
 
-    public Double getMaxMos() {
-        return maxMos;
+    public Double getMaxStockMos() {
+        return maxStockMos;
     }
 
-    public void setMaxMos(Double maxMos) {
-        this.maxMos = maxMos;
+    public void setMaxStockMos(Double maxStockMos) {
+        this.maxStockMos = maxStockMos;
+    }
+
+    public Double getMinStockQty() {
+        return minStockQty;
+    }
+
+    public void setMinStockQty(Double minStockQty) {
+        this.minStockQty = minStockQty;
+    }
+
+    public Double getMaxStockQty() {
+        return maxStockQty;
+    }
+
+    public void setMaxStockQty(Double maxStockQty) {
+        this.maxStockQty = maxStockQty;
     }
 
     public Long getUnmetDemand() {
@@ -269,36 +285,12 @@ public class StockStatusVerticalOutput implements Serializable {
         this.inventoryInfo = inventoryInfo;
     }
 
-    public Double getMinStock() {
-        return minStock;
-    }
-
-    public void setMinStock(Double minStock) {
-        this.minStock = minStock;
-    }
-
-    public Double getMaxStock() {
-        return maxStock;
-    }
-
-    public void setMaxStock(Double maxStock) {
-        this.maxStock = maxStock;
-    }
-
     public int getPlanBasedOn() {
         return planBasedOn;
     }
 
     public void setPlanBasedOn(int planBasedOn) {
         this.planBasedOn = planBasedOn;
-    }
-
-    public int getDistributionLeadTime() {
-        return distributionLeadTime;
-    }
-
-    public void setDistributionLeadTime(int distributionLeadTime) {
-        this.distributionLeadTime = distributionLeadTime;
     }
 
     @Override
@@ -308,9 +300,8 @@ public class StockStatusVerticalOutput implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 67 * hash + Objects.hashCode(this.dt);
-        hash = 67 * hash + Objects.hashCode(this.planningUnit);
+        int hash = 3;
+        hash = 61 * hash + Objects.hashCode(this.dt);
         return hash;
     }
 
@@ -326,8 +317,8 @@ public class StockStatusVerticalOutput implements Serializable {
             return false;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
-        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.dt))) {
+        final StockStatusVerticalAggregateOutput other = (StockStatusVerticalAggregateOutput) obj;
+        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.getDt()))) {
             return false;
         }
         return true;
