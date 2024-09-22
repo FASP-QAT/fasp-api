@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
@@ -67,7 +67,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/report/")
-public class ReportController {
+public class ReportRestController {
 
     @Autowired
     private ReportService reportService;
@@ -78,7 +78,7 @@ public class ReportController {
     @Autowired
     private IntegrationProgramService integrationProgramService;
 
-    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportRestController.class);
 
     // Report no 1
     // Reports -> Program Catalog
