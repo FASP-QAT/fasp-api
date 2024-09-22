@@ -379,3 +379,5 @@ END$$
 DELIMITER ;
 ;
 
+-- After running the scripts of QAT-2224
+ALTER TABLE `fasp`.`rm_batch_inventory_trans` CHANGE COLUMN `QTY` `QTY` DECIMAL(24,8) UNSIGNED NULL DEFAULT NULL ;

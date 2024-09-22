@@ -1261,7 +1261,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `BATCH_INVENTORY_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_ID` INT(10) NOT NULL, "
-                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `QTY` DECIMAL(24,8) UNSIGNED NOT NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_batch_inventory_trans_1_idx` (`BATCH_INVENTORY_ID` ASC), "
