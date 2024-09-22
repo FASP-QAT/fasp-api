@@ -18,31 +18,31 @@ public class BatchData implements Serializable {
     private Integer batchId;
     private String expiryDate;
     private int shelfLife;
-    private Long actualConsumption;
-    private long shipment;
-    private long shipmentWps;
-    private Long adjustment;
-    private Long stock;
+    private Double actualConsumption;
+    private double shipment;
+    private double shipmentWps;
+    private Double adjustment;
+    private Double stock;
 
     private boolean allRegionsReportedStock;
     private boolean useAdjustment;
     private boolean useActualConsumption;
 
-    private long openingBalance;
-    private long expiredStock;
-    private long unallocatedFEFO;
-    private long unallocatedLEFO;
-    private long calculatedFEFO;
-    private long calculatedLEFO;
-    private long closingBalance;
+    private double openingBalance;
+    private double expiredStock;
+    private double unallocatedFEFO;
+    private double unallocatedLEFO;
+    private double calculatedFEFO;
+    private double calculatedLEFO;
+    private double closingBalance;
 
-    private long openingBalanceWps;
-    private long expiredStockWps;
-    private long unallocatedFEFOWps;
-    private long unallocatedLEFOWps;
-    private long calculatedFEFOWps;
-    private long calculatedLEFOWps;
-    private long closingBalanceWps;
+    private double openingBalanceWps;
+    private double expiredStockWps;
+    private double unallocatedFEFOWps;
+    private double unallocatedLEFOWps;
+    private double calculatedFEFOWps;
+    private double calculatedLEFOWps;
+    private double closingBalanceWps;
 
     public BatchData() {
     }
@@ -80,43 +80,43 @@ public class BatchData implements Serializable {
         this.shelfLife = shelfLife;
     }
 
-    public Long getActualConsumption() {
+    public Double getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Long actualConsumption) {
+    public void setActualConsumption(Double actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public long getShipment() {
+    public double getShipment() {
         return shipment;
     }
 
-    public void setShipment(long shipment) {
+    public void setShipment(double shipment) {
         this.shipment = shipment;
     }
 
-    public long getShipmentWps() {
+    public double getShipmentWps() {
         return shipmentWps;
     }
 
-    public void setShipmentWps(long shipmentWps) {
+    public void setShipmentWps(double shipmentWps) {
         this.shipmentWps = shipmentWps;
     }
 
-    public Long getAdjustment() {
+    public Double getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Long adjustment) {
+    public void setAdjustment(Double adjustment) {
         this.adjustment = adjustment;
     }
 
-    public Long getStock() {
+    public Double getStock() {
         return stock;
     }
 
-    public void setStock(Long stock) {
+    public void setStock(Double stock) {
         this.stock = stock;
     }
 
@@ -144,115 +144,115 @@ public class BatchData implements Serializable {
         this.useActualConsumption = useActualConsumption;
     }
 
-    public long getOpeningBalance() {
+    public double getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(long openingBalance) {
+    public void setOpeningBalance(double openingBalance) {
         this.openingBalance = openingBalance;
     }
 
-    public long getExpiredStock() {
+    public double getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(long expiredStock) {
+    public void setExpiredStock(double expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public long getClosingBalance() {
+    public double getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(long closingBalance) {
+    public void setClosingBalance(double closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public long getOpeningBalanceWps() {
+    public double getOpeningBalanceWps() {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(long openingBalanceWps) {
+    public void setOpeningBalanceWps(double openingBalanceWps) {
         this.openingBalanceWps = openingBalanceWps;
     }
 
-    public long getExpiredStockWps() {
+    public double getExpiredStockWps() {
         return expiredStockWps;
     }
 
-    public void setExpiredStockWps(long expiredStockWps) {
+    public void setExpiredStockWps(double expiredStockWps) {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public long getClosingBalanceWps() {
+    public double getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
-    public void setClosingBalanceWps(long closingBalanceWps) {
+    public void setClosingBalanceWps(double closingBalanceWps) {
         this.closingBalanceWps = closingBalanceWps;
     }
 
-    public long getUnallocatedFEFO() {
+    public double getUnallocatedFEFO() {
         return unallocatedFEFO;
     }
 
-    public void setUnallocatedFEFO(long unallocatedFEFO) {
+    public void setUnallocatedFEFO(double unallocatedFEFO) {
         this.unallocatedFEFO = unallocatedFEFO;
     }
 
-    public long getUnallocatedLEFO() {
+    public double getUnallocatedLEFO() {
         return unallocatedLEFO;
     }
 
-    public void setUnallocatedLEFO(long unallocatedLEFO) {
+    public void setUnallocatedLEFO(double unallocatedLEFO) {
         this.unallocatedLEFO = unallocatedLEFO;
     }
 
-    public long getCalculatedFEFO() {
+    public double getCalculatedFEFO() {
         return calculatedFEFO;
     }
 
-    public void setCalculatedFEFO(long calculatedFEFO) {
+    public void setCalculatedFEFO(double calculatedFEFO) {
         this.calculatedFEFO = calculatedFEFO;
     }
 
-    public long getCalculatedLEFO() {
+    public double getCalculatedLEFO() {
         return calculatedLEFO;
     }
 
-    public void setCalculatedLEFO(long calculatedLEFO) {
+    public void setCalculatedLEFO(double calculatedLEFO) {
         this.calculatedLEFO = calculatedLEFO;
     }
 
-    public long getUnallocatedFEFOWps() {
+    public double getUnallocatedFEFOWps() {
         return unallocatedFEFOWps;
     }
 
-    public void setUnallocatedFEFOWps(long unallocatedFEFOWps) {
+    public void setUnallocatedFEFOWps(double unallocatedFEFOWps) {
         this.unallocatedFEFOWps = unallocatedFEFOWps;
     }
 
-    public long getUnallocatedLEFOWps() {
+    public double getUnallocatedLEFOWps() {
         return unallocatedLEFOWps;
     }
 
-    public void setUnallocatedLEFOWps(long unallocatedLEFOWps) {
+    public void setUnallocatedLEFOWps(double unallocatedLEFOWps) {
         this.unallocatedLEFOWps = unallocatedLEFOWps;
     }
 
-    public long getCalculatedFEFOWps() {
+    public double getCalculatedFEFOWps() {
         return calculatedFEFOWps;
     }
 
-    public void setCalculatedFEFOWps(long calculatedFEFOWps) {
+    public void setCalculatedFEFOWps(double calculatedFEFOWps) {
         this.calculatedFEFOWps = calculatedFEFOWps;
     }
 
-    public long getCalculatedLEFOWps() {
+    public double getCalculatedLEFOWps() {
         return calculatedLEFOWps;
     }
 
-    public void setCalculatedLEFOWps(long calculatedLEFOWps) {
+    public void setCalculatedLEFOWps(double calculatedLEFOWps) {
         this.calculatedLEFOWps = calculatedLEFOWps;
     }
 

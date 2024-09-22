@@ -42,17 +42,17 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             }
             bd.setExpiryDate(rs.getString("EXPIRY_DATE"));
             bd.setShelfLife(rs.getInt("SHELF_LIFE"));
-            bd.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
+            bd.setActualConsumption(rs.getDouble("ACTUAL_CONSUMPTION"));
             if (rs.wasNull()) {
                 bd.setActualConsumption(null);
             }
-            bd.setShipment(rs.getLong("SHIPMENT"));
-            bd.setShipmentWps(rs.getLong("SHIPMENT_WPS"));
-            bd.setAdjustment(rs.getLong("ADJUSTMENT"));
+            bd.setShipment(rs.getDouble("SHIPMENT"));
+            bd.setShipmentWps(rs.getDouble("SHIPMENT_WPS"));
+            bd.setAdjustment(rs.getDouble("ADJUSTMENT"));
             if (rs.wasNull()) {
                 bd.setAdjustment(null);
             }
-            bd.setStock(rs.getLong("STOCK"));
+            bd.setStock(rs.getDouble("STOCK"));
             if (rs.wasNull()) {
                 bd.setStock(null);
             }
