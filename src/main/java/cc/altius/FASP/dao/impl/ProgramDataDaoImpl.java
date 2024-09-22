@@ -688,11 +688,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // ###########################  Inventory  ############################################
         // ###########################  Shipment  #############################################
         params.clear();
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
-                        sqlString = "CREATE TABLE `tmp_shipment` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
+//                        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `TEMP_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
