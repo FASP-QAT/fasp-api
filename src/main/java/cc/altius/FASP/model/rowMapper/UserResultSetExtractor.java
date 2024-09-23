@@ -41,6 +41,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), new LabelRowMapper("LANGUAGE_").mapRow(rs, 1), rs.getString("LANGUAGE_CODE"), rs.getString("COUNTRY_CODE")));
                 user.setDefaultModuleId(rs.getInt("DEFAULT_MODULE_ID"));
+                user.setDefaultThemeId(rs.getInt("DEFAULT_THEME_ID"));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
