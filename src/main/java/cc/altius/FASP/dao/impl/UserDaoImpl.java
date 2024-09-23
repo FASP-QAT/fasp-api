@@ -41,6 +41,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
@@ -345,10 +347,12 @@ public class UserDaoImpl implements UserDao {
         int userId = this.namedParameterJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", map, Integer.class);
 
         sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
-        Map<String, Object>[] paramArray = new HashMap[user.getRoles().length];
+
+        Set<String> uniqueRoles = user.getUserAclList().stream().map(acl -> acl.getRoleId()).collect(Collectors.toSet());
+        Map<String, Object>[] paramArray = new HashMap[uniqueRoles.size()];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
-        for (String role : user.getRoles()) {
+        for (String role : uniqueRoles) {
             params = new HashMap<>();
             params.put("userId", userId);
             params.put("roleId", role);
@@ -364,50 +368,22 @@ public class UserDaoImpl implements UserDao {
         params.clear();
         paramArray = null;
         paramArray = new HashMap[user.getUserAcls().length];
-        if (user.getUserAcls() != null && user.getUserAcls().length > 1) {
-            for (UserAcl userAcl : user.getUserAcls()) {
-                count = 0;
-                if (userAcl.getRoleId() == null) {
-                    count++;
-                }
-                if (userAcl.getRealmCountryId() == -1) {
-                    count++;
-                }
-                if (userAcl.getHealthAreaId() == -1) {
-                    count++;
-                }
-                if (userAcl.getOrganisationId() == -1) {
-                    count++;
-                }
-                if (userAcl.getProgramId() == -1) {
-                    count++;
-                }
-                if (count == 5) {
-                    throw new IncorrectAccessControlException();
-                }
-            }
-        }
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+        paramArray = new HashMap[user.getUserAcls().length];
+        for (UserAcl userAcl : user.getUserAcls()) {
+            params = new HashMap<>();
             params.put("userId", user.getUserId());
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", user.getUserId());
-                params.put("roleId", userAcl.getRoleId());
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser.getUserId());
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+            params.put("roleId", userAcl.getRoleId());
+            params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+            params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
+            params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+            params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            paramArray[x] = params;
+            x++;
         }
+        row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
         if (row == 0) {
             throw new IncorrectAccessControlException();
         }
@@ -523,10 +499,12 @@ public class UserDaoImpl implements UserDao {
         sqlString = "DELETE FROM us_user_role WHERE  USER_ID=:userId";
         row = this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
-        Map<String, Object>[] paramArray = new HashMap[user.getRoles().length];
+
+        Set<String> uniqueRoles = user.getUserAclList().stream().map(acl -> acl.getRoleId()).collect(Collectors.toSet());
+        Map<String, Object>[] paramArray = new HashMap[uniqueRoles.size()];
         params.clear();
         int x = 0;
-        for (String role : user.getRoles()) {
+        for (String role : uniqueRoles) {
             params = new HashMap<>();
             params.put("userId", user.getUserId());
             params.put("roleId", role);
@@ -541,51 +519,27 @@ public class UserDaoImpl implements UserDao {
         params.clear();
         paramArray = null;
         paramArray = new HashMap[user.getUserAcls().length];
-        if (user.getUserAcls() != null && user.getUserAcls().length > 1) {
-            for (UserAcl userAcl : user.getUserAcls()) {
-                count = 0;
-                if (userAcl.getRoleId() == null) {
-                    count++;
-                }
-                if (userAcl.getRealmCountryId() == -1) {
-                    count++;
-                }
-                if (userAcl.getHealthAreaId() == -1) {
-                    count++;
-                }
-                if (userAcl.getOrganisationId() == -1) {
-                    count++;
-                }
-                if (userAcl.getProgramId() == -1) {
-                    count++;
-                }
-                if (count == 5) {
-                    throw new IncorrectAccessControlException();
-                }
-            }
 
-        }
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+        sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+        params.put("userId", user.getUserId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+        paramArray = new HashMap[user.getUserAcls().length];
+        for (UserAcl userAcl : user.getUserAcls()) {
+            params = new HashMap<>();
             params.put("userId", user.getUserId());
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", user.getUserId());
-                params.put("roleId", userAcl.getRoleId());
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser.getUserId());
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+            params.put("roleId", userAcl.getRoleId());
+            params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+            params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
+            params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+            params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            paramArray[x] = params;
+            x++;
         }
+        row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+
         if (row == 0) {
             throw new IncorrectAccessControlException();
         }
