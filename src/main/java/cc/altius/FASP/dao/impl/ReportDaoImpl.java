@@ -145,6 +145,7 @@ public class ReportDaoImpl implements ReportDao {
     private AclService aclService;
 
     // Report no 1
+    // CALL programProductCatalog(2030, -1, -1);
     @Override
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
