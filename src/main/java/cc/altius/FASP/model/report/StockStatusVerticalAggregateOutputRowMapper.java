@@ -30,40 +30,40 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
             ssv.setReportingUnit(new SimpleObject(rs.getInt("RU_ID"), new LabelRowMapper("RU_").mapRow(rs, 1)));
             int index = ssvList.indexOf(ssv);
             if (index == -1) {
-                ssv.setOpeningBalance(rs.getLong("FINAL_OPENING_BALANCE"));
+                ssv.setOpeningBalance(rs.getDouble("FINAL_OPENING_BALANCE"));
                 ssv.setActualConsumption(rs.getBoolean("ACTUAL"));
                 if (rs.wasNull()) {
                     ssv.setActualConsumption(null);
                 }
-                ssv.setActualConsumptionQty(rs.getLong("ACTUAL_CONSUMPTION_QTY"));
+                ssv.setActualConsumptionQty(rs.getDouble("ACTUAL_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     ssv.setActualConsumptionQty(null);
                 }
-                ssv.setForecastedConsumptionQty(rs.getLong("FORECASTED_CONSUMPTION_QTY"));
+                ssv.setForecastedConsumptionQty(rs.getDouble("FORECASTED_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     ssv.setForecastedConsumptionQty(null);
                 }
-                ssv.setFinalConsumptionQty(rs.getLong("FINAL_CONSUMPTION_QTY"));
+                ssv.setFinalConsumptionQty(rs.getDouble("FINAL_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     ssv.setFinalConsumptionQty(null);
                 }
-                ssv.setShipmentQty(rs.getLong("SQTY"));
+                ssv.setShipmentQty(rs.getDouble("SQTY"));
                 if (rs.wasNull()) {
                     ssv.setShipmentQty(null);
                 }
-                ssv.setAdjustment(rs.getLong("ADJUSTMENT"));
+                ssv.setAdjustment(rs.getDouble("ADJUSTMENT"));
                 if (rs.wasNull()) {
                     ssv.setAdjustment(null);
                 }
-                ssv.setNationalAdjustment(rs.getLong("NATIONAL_ADJUSTMENT"));
+                ssv.setNationalAdjustment(rs.getDouble("NATIONAL_ADJUSTMENT"));
                 if (rs.wasNull()) {
                     ssv.setNationalAdjustment(null);
                 }
-                ssv.setExpiredStock(rs.getLong("EXPIRED_STOCK"));
+                ssv.setExpiredStock(rs.getDouble("EXPIRED_STOCK"));
                 if (rs.wasNull()) {
                     ssv.setExpiredStock(null);
                 }
-                ssv.setClosingBalance(rs.getLong("FINAL_CLOSING_BALANCE"));
+                ssv.setClosingBalance(rs.getDouble("FINAL_CLOSING_BALANCE"));
                 if (rs.wasNull()) {
                     ssv.setClosingBalance(null);
                 }
@@ -91,7 +91,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
                 if (rs.wasNull()) {
                     ssv.setMaxStockQty(null);
                 }
-                ssv.setUnmetDemand(rs.getLong("UNMET_DEMAND"));
+                ssv.setUnmetDemand(rs.getDouble("UNMET_DEMAND"));
                 if (rs.wasNull()) {
                     ssv.setUnmetDemand(null);
                 }
@@ -106,7 +106,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
             if (!rs.wasNull()) {
                 ShipmentInfo si = new ShipmentInfo(
                         rs.getInt("SHIPMENT_ID"),
-                        rs.getLong("SHIPMENT_QTY"), // in terms of ReportingUnit
+                        rs.getDouble("SHIPMENT_QTY"), // in terms of ReportingUnit
                         new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")),
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")),

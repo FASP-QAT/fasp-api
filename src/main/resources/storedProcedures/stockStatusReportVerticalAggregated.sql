@@ -1,7 +1,7 @@
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
-    -- Report no 16
+    -- Report no 16 Aggregated
     -- %%%%%%%%%%%%%%%%%%%%%
     
     SET @varStartDate = VAR_START_DATE;
@@ -23,20 +23,20 @@ BEGIN
       `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
       `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,
-      `OPENING_BALANCE` bigint DEFAULT NULL,
-      `SHIPMENT_QTY` bigint DEFAULT NULL,
-      `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `FINAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `OPENING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `FINAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
       `ACTUAL` tinyint(1) DEFAULT NULL,
-      `ADJUSTMENT_QTY` bigint DEFAULT NULL,
-      `STOCK_QTY` bigint DEFAULT NULL,
+      `ADJUSTMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `REGION_COUNT` int unsigned NOT NULL,
       `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL,
-      `EXPIRED_STOCK` bigint DEFAULT NULL,
-      `CLOSING_BALANCE` bigint DEFAULT NULL,
-      `UNMET_DEMAND` bigint DEFAULT NULL,
-      `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL,
+      `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL,
+      `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `UNMET_DEMAND` decimal(24,8) DEFAULT NULL,
+      `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL,
       PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`),
       KEY `idx_rm_supply_plan_amc_transDate` (`TRANS_DATE`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;

@@ -1,7 +1,7 @@
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_REPORTING_UNIT_ID INT(10), VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
-    -- Report no 16
+    -- Report no 16 Individual
     -- %%%%%%%%%%%%%%%%%%%%%
     
     SET @varStartDate = VAR_START_DATE;
@@ -19,20 +19,20 @@ BEGIN
       `TRANS_DATE` date NOT NULL,
       `AMC` decimal(24,8) DEFAULT NULL,
       `AMC_COUNT` int DEFAULT NULL,
-      `OPENING_BALANCE` bigint DEFAULT NULL,
-      `SHIPMENT_QTY` bigint DEFAULT NULL,
-      `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `FINAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `OPENING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `FINAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
       `ACTUAL` tinyint(1) DEFAULT NULL,
-      `ADJUSTMENT_QTY` bigint DEFAULT NULL,
-      `STOCK_QTY` bigint DEFAULT NULL,
+      `ADJUSTMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `REGION_COUNT` int unsigned NOT NULL,
       `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL,
-      `EXPIRED_STOCK` bigint DEFAULT NULL,
-      `CLOSING_BALANCE` bigint DEFAULT NULL,
-      `UNMET_DEMAND` bigint DEFAULT NULL,
-      `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL,
+      `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL,
+      `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `UNMET_DEMAND` decimal(24,8) DEFAULT NULL,
+      `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL,
       `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
       `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,

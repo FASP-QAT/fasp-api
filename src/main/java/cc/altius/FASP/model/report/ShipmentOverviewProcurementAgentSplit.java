@@ -22,9 +22,9 @@ public class ShipmentOverviewProcurementAgentSplit implements Serializable {
     @JsonView(Views.ReportView.class)
     private int multiplier;
     @JsonView(Views.ReportView.class)
-    private Map<String, Long> procurementAgentQty;
+    private Map<String, Double> procurementAgentQty;
     @JsonView(Views.ReportView.class)
-    private long total;
+    private double total;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -42,19 +42,19 @@ public class ShipmentOverviewProcurementAgentSplit implements Serializable {
         this.multiplier = multiplier;
     }
 
-    public Map<String, Long> getProcurementAgentQty() {
+    public Map<String, Double> getProcurementAgentQty() {
         return procurementAgentQty;
     }
 
-    public void setProcurementAgentQty(Map<String, Long> procurementAgentQty) {
+    public void setProcurementAgentQty(Map<String, Double> procurementAgentQty) {
         this.procurementAgentQty = procurementAgentQty;
     }
 
-    public long getTotal() {
+    public double getTotal() {
         return total;
     }
 
-    public void setTotal(long total) {
+    public void setTotal(double total) {
         this.total = total;
     }
 

@@ -24,9 +24,9 @@ public class StockStatusOverTimeOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private Long stock;
+    private Double stock;
     @JsonView(Views.ReportView.class)
-    private Long consumptionQty;
+    private Double consumptionQty;
     @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
     @JsonView(Views.ReportView.class)
@@ -64,19 +64,19 @@ public class StockStatusOverTimeOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Long getStock() {
+    public Double getStock() {
         return stock;
     }
 
-    public void setStock(Long stock) {
+    public void setStock(Double stock) {
         this.stock = stock;
     }
 
-    public Long getConsumptionQty() {
+    public Double getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(Long consumptionQty) {
+    public void setConsumptionQty(Double consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 

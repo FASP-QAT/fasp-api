@@ -25,7 +25,7 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private int shipmentId;
     @JsonView(Views.ReportView.class)
-    private long shipmentQty;
+    private double shipmentQty;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
     @JsonView(Views.ReportView.class)
@@ -56,7 +56,7 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleCodeObject program, SimpleObject planningUnit, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, String roNo, String roPrimeLineNo, Date receivedDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, double shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleCodeObject program, SimpleObject planningUnit, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, String roNo, String roPrimeLineNo, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
@@ -81,11 +81,11 @@ public class ShipmentInfo implements Serializable {
         this.shipmentId = shipmentId;
     }
 
-    public long getShipmentQty() {
+    public double getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(long shipmentQty) {
+    public void setShipmentQty(double shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 

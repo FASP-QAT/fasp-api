@@ -22,7 +22,7 @@ public class FundingSourceShipmentReportOutput extends ShipmentReportOutput impl
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSourceType;
 
-    public FundingSourceShipmentReportOutput(SimpleObject planningUnit, long qty, double productCost, double freightPerc, double freightCost) {
+    public FundingSourceShipmentReportOutput(SimpleObject planningUnit, double qty, double productCost, double freightPerc, double freightCost) {
         super(planningUnit, qty, productCost, freightPerc, freightCost);
     }
 

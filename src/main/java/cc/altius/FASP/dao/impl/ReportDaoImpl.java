@@ -506,10 +506,10 @@ public class ReportDaoImpl implements ReportDao {
         if (!sopList.isEmpty()) {
             List<String> keyListToRemove = new LinkedList<>();
             for (String key : sopList.get(0).getProcurementAgentQty().keySet()) {
-                Long total = sopList.stream()
-                        .map(x -> (Long) x.getProcurementAgentQty().get(key))
-                        .collect(Collectors.summingLong(Long::longValue));
-                if (total.longValue() == 0) {
+                Double total = sopList.stream()
+                        .map(x -> (Double) x.getProcurementAgentQty().get(key))
+                        .collect(Collectors.summingDouble(Double::doubleValue));
+                if (total.doubleValue() == 0) {
                     // Add to the remove List
                     keyListToRemove.add(key);
                 }
@@ -703,25 +703,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", dt);
         params.put("approvedSupplyPlanOnly", useApprovedSupplyPlanOnly);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
-    }
-
-    // Report no 31
-    @Override
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", fei.getProgramId());
-        params.put("versionId", fei.getVersionId());
-        params.put("startDate", fei.getStartDate());
-        params.put("stopDate", fei.getStopDate());
-        params.put("viewBy", fei.getViewBy());
-        params.put("unitId", fei.getUnitId());
-        params.put("regionIds", fei.getRegionIdString());
-        params.put("previousMonths", fei.getPreviousMonths());
-        params.put("daysOfStockOut", fei.isDaysOfStockOut());
-        params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
-        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId, :previousMonths, :daysOfStockOut)";
-        List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
-        return feList;
     }
 
     // Report no 31

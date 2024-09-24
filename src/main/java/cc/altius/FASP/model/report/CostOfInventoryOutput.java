@@ -21,7 +21,7 @@ public class CostOfInventoryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private double cost;
     @JsonView(Views.ReportView.class)
-    private long stock;
+    private double stock;
     @JsonView(Views.ReportView.class)
     private double catalogPrice;
     @JsonView(Views.ReportView.class)
@@ -43,11 +43,11 @@ public class CostOfInventoryOutput implements Serializable {
         this.cost = cost;
     }
 
-    public long getStock() {
+    public double getStock() {
         return stock;
     }
 
-    public void setStock(long stock) {
+    public void setStock(double stock) {
         this.stock = stock;
     }
 
