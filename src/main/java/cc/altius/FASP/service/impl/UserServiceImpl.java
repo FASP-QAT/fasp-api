@@ -243,6 +243,11 @@ public class UserServiceImpl implements UserService {
     public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException {
         return this.userDao.updateUserModule(userId, moduleId);
     }
+    
+    @Override
+    public int updateUserTheme(int userId, int themeId) throws CouldNotSaveException {
+        return this.userDao.updateUserTheme(userId, themeId);
+    }
 
     @Override
     public int acceptUserAgreement(int userId) {

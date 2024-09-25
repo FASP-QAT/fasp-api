@@ -33,6 +33,7 @@ public class ProcurementAgentListResultSetExtractor implements ResultSetExtracto
                     rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
                     rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
             pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
+            pa.setColorHtmlDarkCode(rs.getString("COLOR_HTML_DARK_CODE"));
             pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
             int idx = -1;
             idx = paList.indexOf(pa);
