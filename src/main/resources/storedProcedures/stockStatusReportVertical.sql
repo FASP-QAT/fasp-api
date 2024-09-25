@@ -92,7 +92,7 @@ BEGIN
 
     SELECT 
         @ruId `RU_ID`, 0 `RU_LABEL_ID`, @ruLabelEn `RU_LABEL_EN`, @ruLabelFr `RU_LABEL_FR`, @ruLabelSp `RU_LABEL_SP`, @ruLabelPr `RU_LABEL_PR`, 
-        s3.`TRANS_DATE`, 
+        s3.`TRANS_DATE`, s3.`PPU_NOTES`, 
         s3.`FINAL_OPENING_BALANCE`,
         s3.`ACTUAL_CONSUMPTION_QTY`, s3.`FORECASTED_CONSUMPTION_QTY`, 
         s3.`FINAL_CONSUMPTION_QTY`,
@@ -115,7 +115,7 @@ BEGIN
         ppu.`REORDER_FREQUENCY_IN_MONTHS`, ppu.`MIN_MONTHS_OF_STOCK`, ppu.`LOCAL_PROCUREMENT_LEAD_TIME`, ppu.`SHELF_LIFE`, ppu.`MONTHS_IN_FUTURE_FOR_AMC`, ppu.`MONTHS_IN_PAST_FOR_AMC`, ppu.`PLAN_BASED_ON`, ppu.`MIN_QTY`, ppu.`DISTRIBUTION_LEAD_TIME`, ppu.`NOTES`
     FROM (
         SELECT 
-            s2.`TRANS_DATE`, 
+            s2.`TRANS_DATE`, s2.`PPU_NOTES`, 
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_OPENING_BALANCE`, s2.`FINAL_OPENING_BALANCE`*@varRcpuMultiplier) `FINAL_OPENING_BALANCE`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ACTUAL_CONSUMPTION_QTY`, s2.`ACTUAL_CONSUMPTION_QTY`*@varRcpuMultiplier) `ACTUAL_CONSUMPTION_QTY`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FORECASTED_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`*@varRcpuMultiplier) `FORECASTED_CONSUMPTION_QTY`,
@@ -134,7 +134,7 @@ BEGIN
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_QTY`*@varRcpuMultiplier) `MAX_STOCK_QTY`
         FROM (
             SELECT 
-                mn.`MONTH` `TRANS_DATE`, 
+                mn.`MONTH` `TRANS_DATE`, ppu.`NOTES` `PPU_NOTES`,
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 

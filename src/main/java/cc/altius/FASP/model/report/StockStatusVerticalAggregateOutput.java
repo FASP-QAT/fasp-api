@@ -77,7 +77,7 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     private Double nationalAdjustment;
     @JsonView(Views.ReportView.class)
     private int planBasedOn;
-    //TODO
+    @JsonView(Views.ReportView.class)
     private String ppuNotes;
 
     public StockStatusVerticalAggregateOutput() {
@@ -291,6 +291,14 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
 
     public void setPlanBasedOn(int planBasedOn) {
         this.planBasedOn = planBasedOn;
+    }
+
+    public String getPpuNotes() {
+        return ppuNotes;
+    }
+
+    public void setPpuNotes(String ppuNotes) {
+        this.ppuNotes = ppuNotes;
     }
 
     @Override

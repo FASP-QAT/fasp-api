@@ -93,7 +93,7 @@ BEGIN
 
     SELECT 
         @ruId `RU_ID`, 0 `RU_LABEL_ID`, @ruLabelEn `RU_LABEL_EN`, @ruLabelFr `RU_LABEL_FR`, @ruLabelSp `RU_LABEL_SP`, @ruLabelPr `RU_LABEL_PR`, 
-        s3.`TRANS_DATE`, 
+        s3.`TRANS_DATE`, s3.`PPU_NOTES`,
         s3.`FINAL_OPENING_BALANCE`,
         s3.`ACTUAL_CONSUMPTION_QTY`, s3.`FORECASTED_CONSUMPTION_QTY`, 
         s3.`FINAL_CONSUMPTION_QTY`,
@@ -114,7 +114,7 @@ BEGIN
         ss.`SHIPMENT_STATUS_ID`, ss.`LABEL_ID` `SHIPMENT_STATUS_LABEL_ID`, ss.`LABEL_EN` `SHIPMENT_STATUS_LABEL_EN`, ss.`LABEL_FR` `SHIPMENT_STATUS_LABEL_FR`, ss.`LABEL_SP` `SHIPMENT_STATUS_LABEL_SP`, ss.`LABEL_PR` `SHIPMENT_STATUS_LABEL_PR`
     FROM (
         SELECT 
-            s2.`TRANS_DATE`, 
+            s2.`TRANS_DATE`, s2.`PPU_NOTES`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_OPENING_BALANCE`, s2.`FINAL_OPENING_BALANCE`*@varRcpuMultiplier) `FINAL_OPENING_BALANCE`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ACTUAL_CONSUMPTION_QTY`, s2.`ACTUAL_CONSUMPTION_QTY`*@varRcpuMultiplier) `ACTUAL_CONSUMPTION_QTY`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FORECASTED_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`*@varRcpuMultiplier) `FORECASTED_CONSUMPTION_QTY`,
@@ -131,7 +131,7 @@ BEGIN
             s2.`MIN_STOCK_QTY`, s2.`MIN_STOCK_MOS`, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_MOS`
         FROM (
             SELECT 
-                mn.`MONTH` `TRANS_DATE`, 
+                mn.`MONTH` `TRANS_DATE`, GROUP_CONCAT(IF(ppu.`NOTES` IS NOT NULL, CONCAT(p.PROGRAM_CODE, ":", ppu.`NOTES`), null) separator "|") `PPU_NOTES`,
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 
@@ -148,6 +148,7 @@ BEGIN
                 AVG(sma.`MIN_STOCK_QTY`) `MIN_STOCK_QTY`, AVG(sma.`MIN_STOCK_MOS`) `MIN_STOCK_MOS`, AVG(sma.`MAX_STOCK_QTY`) `MAX_STOCK_QTY`, AVG(sma.`MAX_STOCK_MOS`) `MAX_STOCK_MOS`
             FROM mn 
             LEFT JOIN tmp_supply_plan_amc sma ON mn.`MONTH`=sma.`TRANS_DATE` 
+            LEFT JOIN vw_program p ON sma.PROGRAM_ID=p.PROGRAM_ID
             LEFT JOIN rm_planning_unit pu ON sma.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
             LEFT JOIN rm_program_planning_unit ppu ON sma.PROGRAM_ID=ppu.PROGRAM_ID AND sma.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID
             LEFT JOIN rm_equivalency_unit eu1 ON eu1.PROGRAM_ID=sma.PROGRAM_ID AND eu1.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId 
