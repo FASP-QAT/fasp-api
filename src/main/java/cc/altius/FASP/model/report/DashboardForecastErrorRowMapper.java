@@ -15,10 +15,17 @@ import org.springframework.jdbc.core.RowMapper;
  * @author akil
  */
 public class DashboardForecastErrorRowMapper implements RowMapper<DashboardForecastError> {
-
+    
     @Override
     public DashboardForecastError mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new DashboardForecastError(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("").mapRow(rs, rowNum)), rs.getInt("NO_OF_MONTHS"), rs.getDouble("ERROR_PERC"));
+        DashboardForecastError fe = new DashboardForecastError();
+        fe.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("").mapRow(rs, rowNum)));
+        fe.setCount(rs.getInt("NO_OF_MONTHS"));
+        fe.setErrorPerc(rs.getDouble("ERROR_PERC"));
+        if (rs.wasNull()) {
+            fe.setErrorPerc(null);
+        }
+        return fe;
     }
-
+    
 }

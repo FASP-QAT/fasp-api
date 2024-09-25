@@ -43,8 +43,10 @@ public class Realm extends BaseModel implements Serializable {
     private int minCountForMode;
     @JsonView(Views.InternalView.class)
     private double minPercForMode;
+    @JsonView(Views.InternalView.class)
+    private int noOfMonthsInPastForBottomDashboard;
 
-    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode) {
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode, int noOfMonthsInPastForBottomDashboard) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
         }
@@ -60,6 +62,7 @@ public class Realm extends BaseModel implements Serializable {
         this.actualConsumptionMonthsInPast = actualConsumptionMonthsInPast;
         this.forecastConsumptionMonthsInPast = forecastConsumtionMonthsInPast;
         this.inventoryMonthsInPast = inventoryMonthsInPast;
+        this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
     }
 
     public Realm(Integer realmId, Label label, String realmCode) {
@@ -202,6 +205,14 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setMinPercForMode(double minPercForMode) {
         this.minPercForMode = minPercForMode;
+    }
+
+    public int getNoOfMonthsInPastForBottomDashboard() {
+        return noOfMonthsInPastForBottomDashboard;
+    }
+
+    public void setNoOfMonthsInPastForBottomDashboard(int noOfMonthsInPastForBottomDashboard) {
+        this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
     }
 
     @Override

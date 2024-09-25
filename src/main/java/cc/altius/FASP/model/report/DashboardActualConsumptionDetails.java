@@ -14,15 +14,13 @@ import java.util.Objects;
 public class DashboardActualConsumptionDetails {
 
     private Date consumptionDate;
-    private int regionCount;
     private int actualCount;
 
     public DashboardActualConsumptionDetails() {
     }
 
-    public DashboardActualConsumptionDetails(Date consumptionDate, int regionCount, int actualCount) {
+    public DashboardActualConsumptionDetails(Date consumptionDate, int actualCount) {
         this.consumptionDate = consumptionDate;
-        this.regionCount = regionCount;
         this.actualCount = actualCount;
     }
 
@@ -32,14 +30,6 @@ public class DashboardActualConsumptionDetails {
 
     public void setConsumptionDate(Date consumptionDate) {
         this.consumptionDate = consumptionDate;
-    }
-
-    public int getRegionCount() {
-        return regionCount;
-    }
-
-    public void setRegionCount(int regionCount) {
-        this.regionCount = regionCount;
     }
 
     public int getActualCount() {
@@ -70,11 +60,6 @@ public class DashboardActualConsumptionDetails {
         }
         final DashboardActualConsumptionDetails other = (DashboardActualConsumptionDetails) obj;
         return Objects.equals(this.consumptionDate, other.consumptionDate);
-    }
-
-    @Override
-    public String toString() {
-        return "{" + "consumptionDate=" + consumptionDate + ", regionCount=" + regionCount + ", actualCount=" + actualCount + '}';
     }
 
 }

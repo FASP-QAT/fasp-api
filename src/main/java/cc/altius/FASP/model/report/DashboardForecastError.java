@@ -16,28 +16,22 @@ import java.io.Serializable;
 public class DashboardForecastError extends DashboardPuWithCount implements Serializable {
 
     @JsonView(Views.ReportView.class)
-    private double errorPerc;
+    private Double errorPerc;
 
     public DashboardForecastError() {
         super();
     }
 
-    public DashboardForecastError(SimpleObject planningUnit, int count, double errorPerc) {
+    public DashboardForecastError(SimpleObject planningUnit, int count, Double errorPerc) {
         super(planningUnit, count);
         this.errorPerc = errorPerc;
     }
 
-    public double getErrorPerc() {
+    public Double getErrorPerc() {
         return errorPerc;
     }
 
-    public void setErrorPerc(double errorPerc) {
+    public void setErrorPerc(Double errorPerc) {
         this.errorPerc = errorPerc;
     }
-
-    @Override
-    public String toString() {
-        return "PU:" + super.getPlanningUnit().getLabel().getLabel_en() + ", errorPerc:" + errorPerc;
-    }
-
 }

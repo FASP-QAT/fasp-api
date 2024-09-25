@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
+import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
 import cc.altius.FASP.model.report.DashboardTop;
 import java.text.ParseException;
 import java.util.List;
@@ -43,5 +44,7 @@ public interface DashboardDao {
     List<DashboardTop> getDashboardTop(CustomUserDetails curUser);
     
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
+    
+    DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException;
 
 }

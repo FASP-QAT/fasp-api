@@ -28,7 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(1000)
 public class JWTWebSecurityConfig {
@@ -107,7 +107,8 @@ public class JWTWebSecurityConfig {
                                 "/api/supplyPlanReviewerLevelDashboard",
                                 "/api/realmLevelDashboard",
                                 "/api/realmLevelDashboardUserList",
-                                "/api/dashboardTop"
+                                "/api/dashboardTop",
+                                "/api/db/**"
                         ).hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/dashboardBottom").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/ticket/addIssue", "/api/ticket/addIssueAttachment/**", "/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")

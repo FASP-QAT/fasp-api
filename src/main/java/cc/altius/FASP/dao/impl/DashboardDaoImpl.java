@@ -10,22 +10,27 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.ProgramCount;
-import cc.altius.FASP.model.report.DashboardActualConsumption;
 import cc.altius.FASP.model.report.DashboardActualConsumptionDetails;
+import cc.altius.FASP.model.report.DashboardActualConsumptionResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardExpiredPuRowMapper;
 import cc.altius.FASP.model.report.DashboardPuWithCountRowMapper;
 import cc.altius.FASP.model.report.DashboardQpl;
-import cc.altius.FASP.model.report.DashboardActualConsumptionRowMapper;
+import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
+import cc.altius.FASP.model.report.DashboardExpiriesForLoadProgramResultSetExtractor;
+import cc.altius.FASP.model.report.DashboardForecastErrorForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardForecastErrorRowMapper;
+import cc.altius.FASP.model.report.DashboardQplForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardQplRowMapper;
 import cc.altius.FASP.model.report.DashboardShipmentDetailsReportByRowMapper;
+import cc.altius.FASP.model.report.DashboardShipmentDetailsReportForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.model.report.DashboardTopRowMapper;
 import cc.altius.FASP.model.report.DashboardStockOutAndExpired;
 import cc.altius.FASP.model.report.DashboardStockOutAndExpiredRowMapper;
 import cc.altius.FASP.model.report.DashboardStockStatusRowMapper;
+import cc.altius.FASP.model.report.DashboardStockStatusForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -33,7 +38,6 @@ import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -222,6 +226,7 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("stopDate", DateUtils.getEndOfMonthVariable(ei.getStopDate()));
         params.put("curDate", DateUtils.getCurrentDateString(DateUtils.PST, DateUtils.YMD));
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
+        params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
 
         sqlString = "SELECT "
@@ -231,7 +236,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
                 + "LEFT JOIN rm_supply_plan_amc amc ON p.PROGRAM_ID=amc.PROGRAM_ID AND p.CURRENT_VERSION_ID=amc.VERSION_ID AND ppu.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID "
-                + "WHERE p.PROGRAM_ID = :programId AND pu.PLANNING_UNIT_ID IS NOT NULL AND amc.TRANS_DATE BETWEEN :startDate AND :stopDate AND amc.CLOSING_BALANCE=0 AND amc.MOS IS NOT NULL "
+                + "WHERE p.PROGRAM_ID = :programId AND pu.PLANNING_UNIT_ID IS NOT NULL AND amc.TRANS_DATE BETWEEN :startDate AND :stopDate AND ROUND(amc.MOS,1)=0 "
                 + "GROUP BY pu.PLANNING_UNIT_ID";
         db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
 
@@ -263,40 +268,22 @@ public class DashboardDaoImpl implements DashboardDao {
         db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
         sqlString = "CALL getDashboardActualConsumptionList(:programId, :curDate)";
-        List<DashboardActualConsumption> list = this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardActualConsumptionRowMapper());
-        Map<Integer, List<DashboardActualConsumptionDetails>> dacMap = new HashMap<>();
-        int regionCount = 0;
-        for (DashboardActualConsumption dac : list) {
-            DashboardActualConsumptionDetails dacd = dac.getDacd();
-            regionCount = dacd.getRegionCount();
-            if (dacMap.containsKey(dac.getPlanningUnitId())) {
-                dacMap.get(dac.getPlanningUnitId()).add(dacd);
-            } else {
-                List<DashboardActualConsumptionDetails> dacdList = new LinkedList<>();
-                dacdList.add(dacd);
-                dacMap.put(dac.getPlanningUnitId(), dacdList);
-            }
-        }
+        Map<Integer, List<DashboardActualConsumptionDetails>> dacMap = this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardActualConsumptionResultSetExtractor());
 
         DashboardQpl ac = new DashboardQpl();
         ac.setPuCount(dacMap.size());
 
         for (Integer planningUnit : dacMap.keySet()) {
-            boolean check1 = false, check2 = false;
             // Step 1 check for 3 months of ActualConsumption
             List<DashboardActualConsumptionDetails> dacdList = (List<DashboardActualConsumptionDetails>) dacMap.get(planningUnit);
             int actualCount = dacdList.stream().limit(4).map(DashboardActualConsumptionDetails::getActualCount).collect(Collectors.summingInt(Integer::intValue));
-            if (actualCount >= regionCount) {
-                check1 = true;
-            }
-
-            if (check1) {
+            if (actualCount >= 1) {
                 // Step 2 check for gaps in last 6 months 
                 int flipCount = 0;
                 Boolean prevMonth = null;
                 for (DashboardActualConsumptionDetails dacd : dacdList) {
                     if (prevMonth == null) {
-                        if (dacd.getActualCount() == regionCount) {
+                        if (dacd.getActualCount() == 1) {
                             // exists
                             prevMonth = true;
                         } else {
@@ -304,7 +291,7 @@ public class DashboardDaoImpl implements DashboardDao {
                             prevMonth = false;
                         }
                     } else {
-                        if (dacd.getActualCount() == regionCount) {
+                        if (dacd.getActualCount() == 1) {
                             // exists
                             if (prevMonth == false) {
                                 prevMonth = true;
@@ -318,19 +305,71 @@ public class DashboardDaoImpl implements DashboardDao {
                         }
                     }
                 }
-                if (check1 && flipCount <= 1) {
+                if (flipCount <= 1) {
                     ac.setCorrectCount(ac.getCorrectCount() + 1);
                 }
             }
         }
         db.setActualConsumptionQpl(ac);
 
-        sqlString = "CALL getDashboardInventoryProblems(:programId, :curDate)";
+        sqlString = "CALL getDashboardInventoryProblems(:programId, :curEndOfMonth)";
         db.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
-        sqlString = "CALL getDashboardShipmentProblems(:programId, :curDate)";
+        sqlString = "CALL getDashboardShipmentProblems(:programId, :curEndOfMonth)";
         db.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
+        return db;
+    }
+
+    @Override
+    public DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException {
+        DashboardBottomForLoadProgram db = new DashboardBottomForLoadProgram();
+        db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.PST));
+//        db.setStopDate(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), 3)));
+//        db.setStartDate(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), -18)));
+        db.setStartDate(DateUtils.getDateFromString("2023-01-01", DateUtils.YMD));
+        db.setStopDate(DateUtils.getDateFromString("2023-12-31", DateUtils.YMD));
+        String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDate, :stopDate, :programId, :versionId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("startDate", db.getStartDate());
+        params.put("stopDate", db.getStopDate());
+        params.put("curDate", db.getCurDate());
+        params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
+        params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardStockStatusForLoadProgramResultSetExtractor(db));
+
+        sqlString = "SELECT p1.*, st.`RATE` FROM (SELECT "
+                + "    p.PROGRAM_ID, spb.VERSION_ID, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                + "    b.BATCH_ID, b.BATCH_NO, b.AUTO_GENERATED, spb.EXPIRY_DATE, SUM(spb.EXPIRED_STOCK) `EXPIRED_STOCK` "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
+                + "LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND spb.VERSION_ID=:versionId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_batch_info b ON spb.BATCH_ID=b.BATCH_ID "
+                + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND spb.EXPIRED_STOCK>0 "
+                + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
+                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiriesForLoadProgramResultSetExtractor(db));
+
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 1)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 1));
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 2)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 2));
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 3)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 3));
+        sqlString = "CALL getDashboardForecastErrorForLoadProgram(:startDate, :stopDate, :programId, :versionId)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorForLoadProgramResultSetExtractor(db));
+        sqlString = "CALL getDashboardForecastConsumptionProblemsForLoadProgram(:programId, :versionId, :curStartOfMonth)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 1));
+        sqlString = "CALL getDashboardActualConsumptionList(:programId, :curStartOfMonth)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 2));
+        sqlString = "CALL getDashboardInventoryProblemsForLoadProgram(:programId, :versionId, :curEndOfMonth)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 3));
+        sqlString = "CALL getDashboardShipmentProblemsForLoadProgram(:programId, :versionId, :curEndOfMonth)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 4));
         return db;
     }
 

@@ -13,9 +13,11 @@ import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
+import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +85,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException{
+    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException {
         try {
             SimpleProgram p = this.programService.getSimpleProgramById(ei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             DashboardBottom db = this.dashboardDao.getDashboardBottom(ei, curUser);
@@ -92,6 +94,14 @@ public class DashboardServiceImpl implements DashboardService {
         } catch (EmptyResultDataAccessException erda) {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException {
+        SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        DashboardBottomForLoadProgram db = this.dashboardDao.getDashboardBottomForLoadProgram(programId, versionId, noOfMonthsInPast, curUser);
+        db.setProgram(p);
+        return db;
     }
 
 }

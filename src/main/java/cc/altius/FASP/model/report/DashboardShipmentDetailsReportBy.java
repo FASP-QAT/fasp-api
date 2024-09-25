@@ -21,7 +21,7 @@ public class DashboardShipmentDetailsReportBy implements Serializable {
     @JsonView(Views.ReportView.class)
     private int orderCount;
     @JsonView(Views.ReportView.class)
-    private long quantity;
+    private double quantity;
     @JsonView(Views.ReportView.class)
     private double cost;
 
@@ -41,11 +41,11 @@ public class DashboardShipmentDetailsReportBy implements Serializable {
         this.orderCount = orderCount;
     }
 
-    public long getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 

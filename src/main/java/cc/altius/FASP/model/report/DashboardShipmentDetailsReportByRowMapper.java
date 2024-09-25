@@ -22,7 +22,7 @@ public class DashboardShipmentDetailsReportByRowMapper implements RowMapper<Dash
         DashboardShipmentDetailsReportBy sdfs = new DashboardShipmentDetailsReportBy();
         sdfs.setReportBy(new SimpleCodeObject(rs.getInt("REPORT_BY_ID"), new LabelRowMapper("RB_").mapRow(rs, i), rs.getString("REPORT_BY_CODE")));
         sdfs.setOrderCount(rs.getInt("ORDER_COUNT"));
-        sdfs.setQuantity(rs.getLong("QUANTITY"));
+        sdfs.setQuantity(rs.getDouble("QUANTITY"));
         sdfs.setCost(rs.getDouble("COST"));
         return sdfs;
     }

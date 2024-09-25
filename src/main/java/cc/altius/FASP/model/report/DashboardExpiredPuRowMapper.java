@@ -22,7 +22,7 @@ public class DashboardExpiredPuRowMapper implements RowMapper<DashboardExpiredPu
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("").mapRow(rs, rowNum)),
                 rs.getDate("EXPIRY_DATE"),
                 rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"),
-                rs.getInt("EXPIRED_STOCK"),
+                rs.getDouble("EXPIRED_STOCK"),
                 rs.getDouble("RATE"));
     }
 

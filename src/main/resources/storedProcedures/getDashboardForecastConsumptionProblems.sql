@@ -13,7 +13,8 @@ BEGIN
                 p.PROGRAM_ID, COUNT(pr.REGION_ID) `REGION_COUNT`  
             FROM vw_program p 
             LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID 
-            WHERE p.PROGRAM_ID=VAR_PROGRAM_ID
+            LEFT JOIN rm_region r ON pr.REGION_ID=r.REGION_ID
+            WHERE p.PROGRAM_ID=VAR_PROGRAM_ID AND pr.ACTIVE AND r.ACTIVE
             GROUP BY p.PROGRAM_ID
         ) p1 
         LEFT JOIN rm_program_planning_unit ppu ON p1.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE
@@ -22,7 +23,7 @@ BEGIN
     ) p2 
     LEFT JOIN (SELECT 
             ct.PLANNING_UNIT_ID, SUM(IF(ct.ACTUAL_FLAG=0, IF(ct.CONSUMPTION_QTY is not null, 1, 0), 0)) `FORECAST_COUNT`
-	FROM (SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE (@versionId=-1 OR ct.VERSION_ID<=@versionId) AND c.PROGRAM_ID=VAR_PROGRAM_ID GROUP BY ct.CONSUMPTION_ID) tc 
+	FROM (SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE ct.VERSION_ID<=@versionId AND c.PROGRAM_ID=VAR_PROGRAM_ID GROUP BY ct.CONSUMPTION_ID) tc 
 	LEFT JOIN rm_consumption cons ON tc.CONSUMPTION_ID=cons.CONSUMPTION_ID
 	LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
     LEFT JOIN vw_planning_unit pu ON ct.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
