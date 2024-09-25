@@ -523,8 +523,6 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
-    //TODO -> Add a list of Program Planning Units that are active based on the input that was provided. Dolly will use that to loop the Shipments
-    //TODO -> Add PPU notes to the both Aggregated and Individual
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
