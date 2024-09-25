@@ -98,6 +98,7 @@ public class StockStatusVerticalAggregateOutputRowMapper implements ResultSetExt
                 ssv.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
                 ssv.setRegionCount(rs.getInt("REGION_COUNT"));
                 ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
+                ssv.setPpuNotes(rs.getString("PPU_NOTES"));
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);

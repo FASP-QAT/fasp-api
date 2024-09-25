@@ -37,6 +37,7 @@ public class StockStatusVerticalIndividualOutputResultSetExtractor implements Re
                         rs.getDouble("DISTRIBUTION_LEAD_TIME"),
                         rs.getString("NOTES")
                 );
+                ssv.setPpuNotes(rs.getString("PPU_NOTES"));
                 isFirst = false;
             }
             StockStatusVertical ssvo = new StockStatusVertical(rs.getDate("TRANS_DATE"));

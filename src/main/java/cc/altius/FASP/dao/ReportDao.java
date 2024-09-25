@@ -37,6 +37,7 @@ import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.MonthlyForecastOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
@@ -120,16 +121,19 @@ public interface ReportDao {
 
     // Report no 16
     public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser);
-    
+
     // Report no 16
     public StockStatusVerticalIndividualOutput getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+
+    // Report no 16 PU list
+    public List<ProgramAndPlanningUnit> getPlanningUnitListForStockStatusVerticalAggregate(StockStatusVerticalInput ssvi, CustomUserDetails curUser);
 
     // Report no 16a
     public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16b
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
-    
+
     // Report no 16c
     public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy);
 
@@ -165,16 +169,16 @@ public interface ReportDao {
 
     //Report no 30
     public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt, boolean useApprovedSupplyPlanOnly);
-    
+
     // Report no 31
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
-    
+
     // Report no 31 new 
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser);
-    
+
     // Mod 2 Report 1 -- Monthly Forecast
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser);
-    
+
     // Mod 2 Report 2 -- Forecast Summary
     public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser);
 }

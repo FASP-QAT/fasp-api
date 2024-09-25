@@ -44,6 +44,7 @@ import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.MonthlyForecastOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
@@ -70,7 +71,7 @@ import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
-import cc.altius.FASP.model.report.StockStatusVertical;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
@@ -256,16 +257,21 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser) {
+    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser) {
         DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
-        dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ArrayUtils.convertArrayToString(programIds), curUser));
-        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ArrayUtils.convertArrayToString(programIds), curUser));
-        if (programIds != null && programIds.length == 1) {
-            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), false, curUser));
+        dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ssvdi, curUser));
+        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ssvdi, curUser));
+        if (ssvdi.getProgramIds() != null && ssvdi.getProgramIds().length == 1) {
+            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(ssvdi.getProgramIds()), false, curUser));
         } else {
-            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), true, curUser));
+            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(ssvdi.getProgramIds()), true, curUser));
         }
         return dd;
+    }
+
+    @Override
+    public List<ProgramAndPlanningUnit> getPlanningUnitListForStockStatusVerticalAggregate(StockStatusVerticalInput ssvi, CustomUserDetails curUser) {
+        return this.reportDao.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser);
     }
 
     @Override

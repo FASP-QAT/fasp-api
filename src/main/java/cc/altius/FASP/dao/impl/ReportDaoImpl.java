@@ -54,6 +54,7 @@ import cc.altius.FASP.model.report.MonthlyForecastOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
+import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutputRowMapper;
@@ -108,6 +109,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BatchCostResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
@@ -365,6 +367,32 @@ public class ReportDaoImpl implements ReportDao {
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programId", ssv.getProgramId());
         return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalIndividualOutputResultSetExtractor());
+    }
+
+    @Override
+    public List<ProgramAndPlanningUnit> getPlanningUnitListForStockStatusVerticalAggregate(StockStatusVerticalInput ssvi, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder();
+        if (ssvi.getViewBy() == 1) { // PU
+            sqlStringBuilder.append("SELECT p.PROGRAM_ID, pu.`PLANNING_UNIT_ID` "
+                    + "FROM rm_program_planning_unit ppu "
+                    + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                    + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                    + "WHERE FIND_IN_SET(ppu.PROGRAM_ID, :programIds) AND FIND_IN_SET(ppu.PLANNING_UNIT_ID, :ruIds) AND ppu.ACTIVE AND pu.ACTIVE "
+                    + "GROUP BY p.PROGRAM_ID, pu.PLANNING_UNIT_ID");
+        } else if (ssvi.getViewBy() == 2) {//ARU
+            sqlStringBuilder.append("SELECT p.PROGRAM_ID, pu.`PLANNING_UNIT_ID` "
+                    + "FROM rm_program_planning_unit ppu "
+                    + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                    + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                    + "LEFT JOIN rm_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID "
+                    + "LEFT JOIN ap_label l ON rcpu.LABEL_ID=l.LABEL_ID "
+                    + "WHERE FIND_IN_SET(ppu.PROGRAM_ID, :programIds) AND FIND_IN_SET(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, :ruIds) AND ppu.ACTIVE AND pu.ACTIVE AND rcpu.ACTIVE "
+                    + "GROUP BY p.PROGRAM_ID, pu.PLANNING_UNIT_ID");
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ssvi.getProgramIdsString());
+        params.put("ruIds", ssvi.getReportingUnitIdsString());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramAndPlanningUnitRowMapper());
     }
 
     // Report no 16a

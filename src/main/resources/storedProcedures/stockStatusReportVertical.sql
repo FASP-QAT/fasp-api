@@ -1,7 +1,7 @@
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_REPORTING_UNIT_ID INT(10), VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
-    -- Report no 16
+    -- Report no 16 Individual
     -- %%%%%%%%%%%%%%%%%%%%%
     
     SET @varStartDate = VAR_START_DATE;
@@ -19,20 +19,20 @@ BEGIN
       `TRANS_DATE` date NOT NULL,
       `AMC` decimal(24,8) DEFAULT NULL,
       `AMC_COUNT` int DEFAULT NULL,
-      `OPENING_BALANCE` bigint DEFAULT NULL,
-      `SHIPMENT_QTY` bigint DEFAULT NULL,
-      `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
-      `FINAL_CONSUMPTION_QTY` bigint DEFAULT NULL,
+      `OPENING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
+      `FINAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL,
       `ACTUAL` tinyint(1) DEFAULT NULL,
-      `ADJUSTMENT_QTY` bigint DEFAULT NULL,
-      `STOCK_QTY` bigint DEFAULT NULL,
+      `ADJUSTMENT_QTY` decimal(24,8) DEFAULT NULL,
+      `STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `REGION_COUNT` int unsigned NOT NULL,
       `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL,
-      `EXPIRED_STOCK` bigint DEFAULT NULL,
-      `CLOSING_BALANCE` bigint DEFAULT NULL,
-      `UNMET_DEMAND` bigint DEFAULT NULL,
-      `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL,
+      `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL,
+      `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL,
+      `UNMET_DEMAND` decimal(24,8) DEFAULT NULL,
+      `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL,
       `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
       `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
       `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,
@@ -92,7 +92,7 @@ BEGIN
 
     SELECT 
         @ruId `RU_ID`, 0 `RU_LABEL_ID`, @ruLabelEn `RU_LABEL_EN`, @ruLabelFr `RU_LABEL_FR`, @ruLabelSp `RU_LABEL_SP`, @ruLabelPr `RU_LABEL_PR`, 
-        s3.`TRANS_DATE`, 
+        s3.`TRANS_DATE`, s3.`PPU_NOTES`, 
         s3.`FINAL_OPENING_BALANCE`,
         s3.`ACTUAL_CONSUMPTION_QTY`, s3.`FORECASTED_CONSUMPTION_QTY`, 
         s3.`FINAL_CONSUMPTION_QTY`,
@@ -115,7 +115,7 @@ BEGIN
         ppu.`REORDER_FREQUENCY_IN_MONTHS`, ppu.`MIN_MONTHS_OF_STOCK`, ppu.`LOCAL_PROCUREMENT_LEAD_TIME`, ppu.`SHELF_LIFE`, ppu.`MONTHS_IN_FUTURE_FOR_AMC`, ppu.`MONTHS_IN_PAST_FOR_AMC`, ppu.`PLAN_BASED_ON`, ppu.`MIN_QTY`, ppu.`DISTRIBUTION_LEAD_TIME`, ppu.`NOTES`
     FROM (
         SELECT 
-            s2.`TRANS_DATE`, 
+            s2.`TRANS_DATE`, s2.`PPU_NOTES`, 
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_OPENING_BALANCE`, s2.`FINAL_OPENING_BALANCE`*@varRcpuMultiplier) `FINAL_OPENING_BALANCE`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ACTUAL_CONSUMPTION_QTY`, s2.`ACTUAL_CONSUMPTION_QTY`*@varRcpuMultiplier) `ACTUAL_CONSUMPTION_QTY`,
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FORECASTED_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`*@varRcpuMultiplier) `FORECASTED_CONSUMPTION_QTY`,
@@ -134,7 +134,7 @@ BEGIN
             IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_QTY`*@varRcpuMultiplier) `MAX_STOCK_QTY`
         FROM (
             SELECT 
-                mn.`MONTH` `TRANS_DATE`, 
+                mn.`MONTH` `TRANS_DATE`, ppu.`NOTES` `PPU_NOTES`,
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 

@@ -35,6 +35,8 @@ import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
@@ -521,19 +523,21 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
-    
     //TODO -> Add a list of Program Planning Units that are active based on the input that was provided. Dolly will use that to loop the Shipments
     //TODO -> Add PPU notes to the both Aggregated and Individual
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
-    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            if (ssv.isAggregate()) {
-                return new ResponseEntity(this.reportService.getStockStatusVerticalAggregate(ssv, curUser), HttpStatus.OK);
+            if (ssvi.isAggregate()) {
+                StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
+                ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
+                ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
+                return new ResponseEntity(ssv, HttpStatus.OK);
             } else {
                 // Map where Key is ProgramId~ReportingUnitId
-                return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
+                return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
             }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
@@ -544,13 +548,13 @@ public class ReportController {
     // Dropdowns for Report no 16
     // Supply Planning -> Supply Plan Report
     // Based on a list of ProgramIds send back the list of PlannningUnits, ARU's and EU's for those ProgramIds
-    //TODO -> Dolly will pass a variable to only select PU's or ARU's that are available across all selected Programs. Pass PU and ARU back to Dolly based on this filter
+    // If onlyAllowPuPresentAcrossAllPrograms=true then only include those PU's that exist in all of the selected Programs
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical/dropdowns")
-    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody String[] programIds, Authentication auth) {
+    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(programIds, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical/dropdowns", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
