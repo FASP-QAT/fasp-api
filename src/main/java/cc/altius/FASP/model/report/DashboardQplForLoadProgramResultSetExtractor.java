@@ -7,9 +7,6 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.dao.impl.DashboardBottomPuData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
