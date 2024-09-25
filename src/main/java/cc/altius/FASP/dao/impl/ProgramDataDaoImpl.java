@@ -65,6 +65,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.ShipmentBudgetAmt;
 import cc.altius.FASP.model.ProgramVersionTrans;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.TreeAndScenario;
@@ -87,6 +88,7 @@ import cc.altius.FASP.model.rowMapper.NodeDataMomRowMapper;
 import cc.altius.FASP.model.rowMapper.NodeDataOverrideRowMapper;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ShipmentBudgetAmtRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionTransRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -2023,6 +2025,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("planningUnitActive", planningUnitActive);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
+    }
+
+    @Override
+    public List<ShipmentBudgetAmt> getShipmentBudgetList(int programId, int versionId, CustomUserDetails curUser) {
+        String sqlString = "CALL getShipmentBudgetAmtData(:programId, :versionId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ShipmentBudgetAmtRowMapper());
     }
 
     @Override
