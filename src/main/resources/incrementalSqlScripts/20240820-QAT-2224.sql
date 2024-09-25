@@ -1,3 +1,151 @@
+CREATE TABLE `fasp`.`rm_batch_inventory` (
+  `BATCH_INVENTORY_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` INT UNSIGNED NOT NULL,
+  `PLANNING_UNIT_ID` INT UNSIGNED NOT NULL,
+  `INVENTORY_DATE` DATE NOT NULL,
+  `MAX_VERSION_ID` INT UNSIGNED NOT NULL,
+  `TMP_ID` INT UNSIGNED NULL,
+  PRIMARY KEY (`BATCH_INVENTORY_ID`));
+
+
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+ADD INDEX `fk_rm_batch_inventory_programId_idx` (`PROGRAM_ID` ASC) VISIBLE,
+ADD INDEX `fk_rm_batch_inventory_planningUnitId_idx` (`PLANNING_UNIT_ID` ASC) VISIBLE,
+ADD INDEX `idx_rm_batch_inventory_inventoryDate` (`INVENTORY_DATE` ASC) VISIBLE;
+;
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+ADD CONSTRAINT `fk_rm_batch_inventory_programId`
+  FOREIGN KEY (`PROGRAM_ID`)
+  REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_batch_inventory_planningUnitId`
+  FOREIGN KEY (`PLANNING_UNIT_ID`)
+  REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+ADD INDEX `idx_rm_batch_inventory_maxVersionId` (`MAX_VERSION_ID` ASC) VISIBLE;
+;
+
+CREATE TABLE `fasp`.`rm_batch_inventory_trans` (
+  `BATCH_INVENTORY_TRANS_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `BATCH_INVENTORY_ID` INT UNSIGNED NOT NULL,
+  `BATCH_ID` INT UNSIGNED NOT NULL,
+  `QTY` INT UNSIGNED NULL,
+  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL,
+  `LAST_MODIFIED_DATE` DATETIME NULL,
+  `VERSION_ID` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`BATCH_INVENTORY_TRANS_ID`),
+  INDEX `fk_rm_batch_inventory_trans_batchInventoryId_idx` (`BATCH_INVENTORY_ID` ASC) VISIBLE,
+  INDEX `fk_rm_batch_inventory_trans_batchId_idx` (`BATCH_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_rm_batch_inventory_trans_batchInventoryId`
+    FOREIGN KEY (`BATCH_INVENTORY_ID`)
+    REFERENCES `fasp`.`rm_batch_inventory` (`BATCH_INVENTORY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_batch_inventory_trans_batchId`
+    FOREIGN KEY (`BATCH_ID`)
+    REFERENCES `fasp`.`rm_batch_info` (`BATCH_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+ALTER TABLE `fasp`.`rm_batch_inventory_trans` 
+CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL ,
+ADD INDEX `fk_rm_batch_inventory_trans_lmb_idx` (`LAST_MODIFIED_BY` ASC) VISIBLE;
+;
+ALTER TABLE `fasp`.`rm_batch_inventory_trans` 
+ADD CONSTRAINT `fk_rm_batch_inventory_trans_lmb`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_batch_inventory_trans` 
+ADD INDEX `idx_rm_batch_inventory_trans_versionId` (`VERSION_ID` ASC) VISIBLE;
+;
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getBatchInventoryData`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getBatchInventoryData`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getBatchInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
+BEGIN
+    SET @programId = PROGRAM_ID;
+    SET @versionId = VERSION_ID;
+    SET @planningUmitActive= PLANNING_UNIT_ACTIVE;
+    IF @versionId = -1 THEN 
+        SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
+    END IF;
+    SET @cutOffDate = CUT_OFF_DATE;
+    SET @useCutOff = false;
+    IF @cutOffDate is not null && LENGTH(@cutOffDate)!=0 THEN
+        SET @useCutOff = true;
+    END IF;
+    
+    SELECT bi.BATCH_INVENTORY_ID, bi.PROGRAM_ID, bt.VERSION_ID, bi.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, bi.INVENTORY_DATE, bt.BATCH_INVENTORY_TRANS_ID, bt.BATCH_ID, bt.QTY, b.BATCH_NO, b.AUTO_GENERATED, b.EXPIRY_DATE, b.CREATED_DATE `BATCH_CREATED_DATE`, bi.CREATED_DATE, bt.LAST_MODIFIED_DATE, cb.USER_ID `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`
+    FROM (SELECT bi.BATCH_INVENTORY_ID,bt.BATCH_ID, MAX(bt.VERSION_ID) MAX_VERSION_ID FROM rm_batch_inventory bi LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID WHERE (@versionId=-1 OR bt.VERSION_ID<=@versionId) AND bi.PROGRAM_ID=@programId GROUP BY bt.BATCH_INVENTORY_ID,bt.BATCH_ID) tb
+    LEFT JOIN rm_batch_inventory bi ON tb.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID
+    LEFT JOIN rm_batch_inventory_trans bt ON bt.BATCH_ID=tb.BATCH_ID and bt.VERSION_ID=tb.MAX_VERSION_ID
+    LEFT JOIN rm_program_planning_unit ppu ON bi.PROGRAM_ID=ppu.PROGRAM_ID AND bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID
+    LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+    LEFT JOIN rm_batch_info b ON bt.BATCH_ID=b.BATCH_ID 
+    LEFT JOIN us_user cb ON bi.CREATED_BY=cb.USER_ID
+    LEFT JOIN us_user lmb ON bt.LAST_MODIFIED_BY=lmb.USER_ID
+    WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND bi.INVENTORY_DATE>=DATE_SUB(@cutOffDate,INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH))) AND bt.ACTIVE
+    ORDER BY bi.PLANNING_UNIT_ID, bi.INVENTORY_DATE, bt.BATCH_ID;
+    
+END$$
+
+DELIMITER ;
+;
+
+
+
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+ADD COLUMN `CREATED_DATE` DATETIME NULL AFTER `TMP_ID`,
+ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NULL AFTER `CREATED_DATE`,
+ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NULL AFTER `CREATED_BY`,
+ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NULL AFTER `LAST_MODIFIED_DATE`,
+ADD INDEX `fk_rm_batch_inventory_createdBy_idx` (`CREATED_BY` ASC) VISIBLE,
+ADD INDEX `fk_rm_batch_inventory_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC) VISIBLE;
+UPDATE rm_batch_inventory bi SET bi.CREATED_DATE=now(), bi.CREATED_BY=1, bi.LAST_MODIFIED_DATE=now(), bi.LAST_MODIFIED_BY=1;
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+CHANGE COLUMN `TMP_ID` `TMP_ID` INT UNSIGNED NULL DEFAULT NULL AFTER `LAST_MODIFIED_BY`,
+CHANGE COLUMN `CREATED_DATE` `CREATED_DATE` DATETIME NOT NULL ,
+CHANGE COLUMN `CREATED_BY` `CREATED_BY` INT UNSIGNED NOT NULL ,
+CHANGE COLUMN `LAST_MODIFIED_DATE` `LAST_MODIFIED_DATE` DATETIME NOT NULL ,
+CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL ;
+
+ALTER TABLE `fasp`.`rm_batch_inventory` 
+ADD CONSTRAINT `fk_rm_batch_inventory_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_batch_inventory_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_batch_inventory_trans` 
+ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER `LAST_MODIFIED_DATE`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `buildNewSupplyPlanBatch`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`buildNewSupplyPlanBatch`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildNewSupplyPlanBatch`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
@@ -87,4 +235,7 @@ BEGIN
         ) AS o 
         GROUP BY o.PROGRAM_ID, o.PLANNING_UNIT_ID, o.TRANS_DATE, o.BATCH_ID ORDER BY o.PROGRAM_ID, o.PLANNING_UNIT_ID, o.TRANS_DATE, IFNULL(o.EXPIRY_DATE,'2999-12-31');
 
-END
+END$$
+
+DELIMITER ;
+;
