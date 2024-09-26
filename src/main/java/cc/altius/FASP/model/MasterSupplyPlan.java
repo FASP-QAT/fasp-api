@@ -29,7 +29,7 @@ public class MasterSupplyPlan implements Serializable {
     private static final String REGION_FILE = "/home/akil/Desktop/region.txt";
     private static final String BATCH_FILE = "/home/akil/Desktop/batch.txt";
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     public MasterSupplyPlan() {
         this.newBatchCounter = -1;
     }
@@ -87,11 +87,14 @@ public class MasterSupplyPlan implements Serializable {
 
     private void updateOpeningBalance(NewSupplyPlan nsp) throws ParseException {
         NewSupplyPlan prevNsp = getPrevMonth(nsp.getPlanningUnitId(), nsp.getPrevTransDate());
+        logger.debug("Prev NSP PU Id " + nsp.getPlanningUnitId() + "Trans Date " + nsp.getPrevTransDate() + " Prev Nsp" + prevNsp);
         if (prevNsp == null) {
             nsp.setOpeningBalance(0);
             nsp.setOpeningBalanceWps(0);
         } else {
+            logger.debug("Prev Closing Balance " + prevNsp.getClosingBalance());
             nsp.setOpeningBalance(prevNsp.getClosingBalance());
+            logger.debug("NSP Opening Balance " + nsp.getOpeningBalance());
             nsp.setOpeningBalanceWps(prevNsp.getClosingBalanceWps());
             for (BatchData bd : prevNsp.getBatchDataList()) {
                 BatchData newBd = new BatchData();
@@ -182,7 +185,6 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getActualConsumption()).append("\t")
                         .append(bd.isAllRegionsReportedStock()).append("\t")
                         .append(bd.getStock()).append("\t")
-                        .append(bd.isUseAdjustment()).append("\t")
                         .append(bd.getAdjustment()).append("\t")
                         .append(bd.getUnallocatedFEFO()).append("\t")
                         .append(bd.getCalculatedFEFO()).append("\t")
@@ -207,8 +209,7 @@ public class MasterSupplyPlan implements Serializable {
                     .append(nsp.isActualConsumptionFlag()).append("\t")
                     .append(nsp.getActualConsumptionQty()).append("\t")
                     .append(nsp.getStockQty()).append("\t")
-                    .append(nsp.isUseAdjustment()).append("\t")
-                    .append(nsp.getFinalAdjustmentQty()).append("\t")
+                    .append(nsp.getAdjustmentQty()).append("\t")
                     .append(nsp.getExpectedStock()).append("\t")
                     .append(nsp.getExpectedStockWps()).append("\t")
                     .append(nsp.getNationalAdjustment()).append("\t")
@@ -253,8 +254,6 @@ public class MasterSupplyPlan implements Serializable {
             nsp.removeUnusedBatches();   // handles both All and WPS
             nsp.getBatchDataList().forEach(bd -> {
                 bd.setUseActualConsumption(nsp.isActualConsumptionFlag());
-                bd.setUseAdjustment(nsp.isUseAdjustment());
-
             });
         }
     }

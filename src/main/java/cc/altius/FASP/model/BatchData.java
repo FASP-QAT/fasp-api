@@ -23,9 +23,9 @@ public class BatchData implements Serializable {
     private long shipmentWps;
     private Long adjustment;
     private Long stock;
+    private Long inventoryQty;
 
     private boolean allRegionsReportedStock;
-    private boolean useAdjustment;
     private boolean useActualConsumption;
 
     private long openingBalance;
@@ -120,20 +120,20 @@ public class BatchData implements Serializable {
         this.stock = stock;
     }
 
+    public Long getInventoryQty() {
+        return inventoryQty;
+    }
+
+    public void setInventoryQty(Long inventoryQty) {
+        this.inventoryQty = inventoryQty;
+    }
+
     public boolean isAllRegionsReportedStock() {
         return allRegionsReportedStock;
     }
 
     public void setAllRegionsReportedStock(boolean allRegionsReportedStock) {
         this.allRegionsReportedStock = allRegionsReportedStock;
-    }
-
-    public boolean isUseAdjustment() {
-        return useAdjustment;
-    }
-
-    public void setUseAdjustment(boolean useAdjustment) {
-        this.useAdjustment = useAdjustment;
     }
 
     public boolean isUseActualConsumption() {

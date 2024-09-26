@@ -37,6 +37,7 @@ public class CustomUserDetailsResultSetExtractorBasic implements ResultSetExtrac
                 user.setActive(rs.getBoolean("ACTIVE"));
                 user.setExpiresOn(rs.getTimestamp("EXPIRES_ON"));
                 user.setAgreementAccepted(rs.getBoolean("AGREEMENT_ACCEPTED"));
+                user.setDefaultThemeId(rs.getInt("DEFAULT_THEME_ID"));
                 user.setRoles(new LinkedList<>());
                 user.setAclList(new LinkedList<>());
             }

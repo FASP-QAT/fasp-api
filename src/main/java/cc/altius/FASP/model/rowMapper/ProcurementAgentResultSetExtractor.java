@@ -34,6 +34,7 @@ public class ProcurementAgentResultSetExtractor implements ResultSetExtractor<Pr
                         rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME")
                 );
                 pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
+                pa.setColorHtmlDarkCode(rs.getString("COLOR_HTML_DARK_CODE"));
                 pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 isFirst = false;
             }
