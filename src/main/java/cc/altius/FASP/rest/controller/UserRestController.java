@@ -492,6 +492,20 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.moduleChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @PostMapping("/user/theme/{themeId}")
+    public ResponseEntity updateUserTheme(@PathVariable int themeId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
+            this.userService.updateUserTheme(curUser.getUserId(), themeId);
+            auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            auditLogger.info("Could not update default theme", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.themeChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
