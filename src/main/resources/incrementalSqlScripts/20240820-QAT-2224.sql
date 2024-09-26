@@ -239,3 +239,5 @@ END$$
 
 DELIMITER ;
 ;
+
+update rm_program_planning_unit ppu set ppu.LAST_MODIFIED_DATE=now();
