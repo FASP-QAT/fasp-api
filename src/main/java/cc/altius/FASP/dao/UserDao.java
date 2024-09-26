@@ -94,6 +94,8 @@ public interface UserDao {
     public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
     
     public int updateUserTheme(int userId, int themeId) throws CouldNotSaveException;
+    
+    public int updateUserDecimalPreference(int userId, boolean showDecimals);
 
     public int acceptUserAgreement(int userId);
 

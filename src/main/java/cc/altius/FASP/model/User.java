@@ -32,6 +32,7 @@ public class User extends BaseModel implements Serializable {
     private Language language;
     private int defaultModuleId;
     private int defaultThemeId;
+    private boolean showDecimals;
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -139,6 +140,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setDefaultThemeId(int defaultThemeId) {
         this.defaultThemeId = defaultThemeId;
+    }
+
+    public boolean isShowDecimals() {
+        return showDecimals;
+    }
+
+    public void setShowDecimals(boolean showDecimals) {
+        this.showDecimals = showDecimals;
     }
 
     public int getFaildAttempts() {
