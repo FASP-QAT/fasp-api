@@ -37,6 +37,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private Language language;
     private Date syncExpiresOn;
     private boolean agreementAccepted;
+    private int defaultThemeId;
 
     public Realm getRealm() {
         return realm;
@@ -175,6 +176,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     public void setAgreementAccepted(boolean agreementAccepted) {
         this.agreementAccepted = agreementAccepted;
+    }
+
+    public int getDefaultThemeId() {
+        return defaultThemeId;
+    }
+
+    public void setDefaultThemeId(int defaultThemeId) {
+        this.defaultThemeId = defaultThemeId;
     }
 
     @Override
