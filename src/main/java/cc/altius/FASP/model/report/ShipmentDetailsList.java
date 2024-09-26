@@ -39,7 +39,7 @@ public class ShipmentDetailsList implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
     @JsonView(Views.ReportView.class)
-    private long shipmentQty;
+    private double shipmentQty;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
@@ -109,11 +109,11 @@ public class ShipmentDetailsList implements Serializable {
         this.shipmentStatus = shipmentStatus;
     }
 
-    public long getShipmentQty() {
+    public double getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(long shipmentQty) {
+    public void setShipmentQty(double shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 

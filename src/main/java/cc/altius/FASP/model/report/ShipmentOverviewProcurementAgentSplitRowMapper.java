@@ -24,13 +24,13 @@ public class ShipmentOverviewProcurementAgentSplitRowMapper implements RowMapper
         ShipmentOverviewProcurementAgentSplit sopa = new ShipmentOverviewProcurementAgentSplit();
         sopa.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         sopa.setMultiplier(rs.getInt("MULTIPLIER"));
-        sopa.setTotal(rs.getLong("SHIPMENT_QTY"));
+        sopa.setTotal(rs.getDouble("SHIPMENT_QTY"));
         sopa.setProcurementAgentQty(new HashMap<>());
         ResultSetMetaData md = rs.getMetaData();
         for (int x=1 ; x<=md.getColumnCount(); x++) {
             String colName = md.getColumnName(x);
             if (colName.startsWith("PA_")) {
-                sopa.getProcurementAgentQty().put(colName.substring(3), rs.getLong(x));
+                sopa.getProcurementAgentQty().put(colName.substring(3), rs.getDouble(x));
             }
         }
         return sopa;

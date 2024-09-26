@@ -22,7 +22,7 @@ public class CostOfInventoryRowMapper implements RowMapper<CostOfInventoryOutput
         CostOfInventoryOutput c = new CostOfInventoryOutput();
         c.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, i)));
         c.setCost(rs.getDouble("COST"));
-        c.setStock(rs.getLong("STOCK"));
+        c.setStock(rs.getDouble("STOCK"));
         c.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
         c.setCalculated(rs.getBoolean("CALCULATED"));
         return c;

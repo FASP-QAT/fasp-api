@@ -61,10 +61,10 @@ public interface ProgramDataDao {
     public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive, String cutOffDate);
 
     public List<ShipmentLinking> getShipmentLinkingList(int programId, int versionId, String cutOffDate);
-
-    public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
     
     public List<ShipmentBudgetAmt> getShipmentBudgetList(int programId, int versionId, CustomUserDetails curUser);
+
+    public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
     
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 

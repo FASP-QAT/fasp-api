@@ -20,7 +20,7 @@ public class ShipmentGlobalDemandCountrySplit implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
     @JsonView(Views.ReportView.class)
-    private Map<String, Integer> amount;
+    private Map<String, Double> amount;
 
     public SimpleCodeObject getCountry() {
         return country;
@@ -30,11 +30,11 @@ public class ShipmentGlobalDemandCountrySplit implements Serializable {
         this.country = country;
     }
 
-    public Map<String, Integer> getAmount() {
+    public Map<String, Double> getAmount() {
         return amount;
     }
 
-    public void setAmount(Map<String, Integer> amount) {
+    public void setAmount(Map<String, Double> amount) {
         this.amount = amount;
     }
 
