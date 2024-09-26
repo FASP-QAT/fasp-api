@@ -74,7 +74,7 @@ DROP procedure IF EXISTS `fasp`.`getBatchInventoryData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getBatchInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getBatchInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
@@ -146,7 +146,7 @@ DROP procedure IF EXISTS `fasp`.`buildNewSupplyPlanBatch`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildNewSupplyPlanBatch`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `buildNewSupplyPlanBatch`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;

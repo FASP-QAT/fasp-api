@@ -7,7 +7,7 @@ DROP procedure IF EXISTS `fasp`.`getShipmentBudgetAmtData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentBudgetAmtData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentBudgetAmtData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
