@@ -13,14 +13,14 @@ import java.io.Serializable;
 public class DashboardStockOutAndExpired implements Serializable {
 
     private int countOfStockOutPU;
-    private int countOfExpiredPU;
+    private double valueOfExpiredPU;
 
     public DashboardStockOutAndExpired() {
     }
 
-    public DashboardStockOutAndExpired(int countOfStockOutPU, int countOfExpiredPU) {
+    public DashboardStockOutAndExpired(int countOfStockOutPU, double valueOfExpiredPU) {
         this.countOfStockOutPU = countOfStockOutPU;
-        this.countOfExpiredPU = countOfExpiredPU;
+        this.valueOfExpiredPU = valueOfExpiredPU;
     }
 
     public int getCountOfStockOutPU() {
@@ -31,12 +31,12 @@ public class DashboardStockOutAndExpired implements Serializable {
         this.countOfStockOutPU = countOfStockOutPU;
     }
 
-    public int getCountOfExpiredPU() {
-        return countOfExpiredPU;
+    public double getValueOfExpiredPU() {
+        return valueOfExpiredPU;
     }
 
-    public void setCountOfExpiredPU(int countOfExpiredPU) {
-        this.countOfExpiredPU = countOfExpiredPU;
+    public void setValueOfExpiredPU(double valueOfExpiredPU) {
+        this.valueOfExpiredPU = valueOfExpiredPU;
     }
 
 }

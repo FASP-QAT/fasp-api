@@ -4,7 +4,6 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.dao.impl.DashboardBottomData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
@@ -14,11 +13,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author akil
  */
-public class DashboardForecastErrorForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
+public class DashboardTopExpiriesForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
 
     private final DashboardForLoadProgram db;
 
-    public DashboardForecastErrorForLoadProgramResultSetExtractor(DashboardForLoadProgram db) {
+    public DashboardTopExpiriesForLoadProgramResultSetExtractor(DashboardForLoadProgram db) {
         this.db = db;
     }
 
@@ -27,14 +26,12 @@ public class DashboardForecastErrorForLoadProgramResultSetExtractor implements R
         int rows = 0;
         while (rs.next()) {
             int planningUnitId = rs.getInt("PLANNING_UNIT_ID");
-            if (!db.getBottomPuData().containsKey(planningUnitId)) {
-                db.getBottomPuData().put(planningUnitId, new DashboardBottomData());
+            if (!db.getTopPuData().containsKey(planningUnitId)) {
+                db.getTopPuData().put(planningUnitId, new DashboardTopData());
             }
-            Double error = rs.getDouble("ERROR_PERC");
-            if (rs.wasNull()) {
-                error = null;
-            }
-            db.getBottomPuData().get(planningUnitId).setForecastError(error);
+            double expiredStockQty = rs.getDouble("EXPIRED_STOCK");
+            double rate = rs.getDouble("RATE");
+            db.getTopPuData().get(planningUnitId).setValueOfExpiredStock(db.getTopPuData().get(planningUnitId).getValueOfExpiredStock() + expiredStockQty * rate);
             rows++;
         }
         return rows;

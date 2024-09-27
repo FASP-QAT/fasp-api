@@ -4,7 +4,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.dao.impl.DashboardBottomPuData;
+import cc.altius.FASP.dao.impl.DashboardBottomData;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -18,9 +18,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  */
 public class DashboardExpiriesForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
 
-    private final DashboardBottomForLoadProgram db;
+    private final DashboardForLoadProgram db;
 
-    public DashboardExpiriesForLoadProgramResultSetExtractor(DashboardBottomForLoadProgram db) {
+    public DashboardExpiriesForLoadProgramResultSetExtractor(DashboardForLoadProgram db) {
         this.db = db;
     }
 
@@ -29,10 +29,10 @@ public class DashboardExpiriesForLoadProgramResultSetExtractor implements Result
         int rows = 0;
         while (rs.next()) {
             int planningUnitId = rs.getInt("PLANNING_UNIT_ID");
-            if (!db.getPuData().containsKey(planningUnitId)) {
-                db.getPuData().put(planningUnitId, new DashboardBottomPuData());
+            if (!db.getBottomPuData().containsKey(planningUnitId)) {
+                db.getBottomPuData().put(planningUnitId, new DashboardBottomData());
             }
-            db.getPuData().get(planningUnitId).getExpiriesList().add(
+            db.getBottomPuData().get(planningUnitId).getExpiriesList().add(
                     new DashboardExpiredPu(
                             new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("").mapRow(rs, 1)),
                             rs.getDate("EXPIRY_DATE"),

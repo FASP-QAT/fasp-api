@@ -30,7 +30,7 @@ public class DashboardTop implements Serializable {
     @JsonView(Views.ReportView.class)
     private int countOfStockOutPU;
     @JsonView(Views.ReportView.class)
-    private int countOfExpiredPU;
+    private double valueOfExpiredPU;
     @JsonView(Views.ReportView.class)
     private int countOfOpenProblem;
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -92,12 +92,12 @@ public class DashboardTop implements Serializable {
         this.countOfStockOutPU = countOfStockOutPU;
     }
 
-    public int getCountOfExpiredPU() {
-        return countOfExpiredPU;
+    public double getValueOfExpiredPU() {
+        return valueOfExpiredPU;
     }
 
-    public void setCountOfExpiredPU(int countOfExpiredPU) {
-        this.countOfExpiredPU = countOfExpiredPU;
+    public void setValueOfExpiredPU(double valueOfExpiredPU) {
+        this.valueOfExpiredPU = valueOfExpiredPU;
     }
 
     public int getCountOfOpenProblem() {

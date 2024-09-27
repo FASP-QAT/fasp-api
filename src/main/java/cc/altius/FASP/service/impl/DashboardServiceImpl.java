@@ -13,18 +13,16 @@ import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
-import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProgramService;
-import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -97,9 +95,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException {
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
         SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        DashboardBottomForLoadProgram db = this.dashboardDao.getDashboardBottomForLoadProgram(programId, versionId, noOfMonthsInPast, curUser);
+        DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser);
         db.setProgram(p);
         return db;
     }

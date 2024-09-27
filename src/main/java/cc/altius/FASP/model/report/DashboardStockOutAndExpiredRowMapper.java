@@ -16,7 +16,7 @@ public class DashboardStockOutAndExpiredRowMapper implements RowMapper<Dashboard
 
     @Override
     public DashboardStockOutAndExpired mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new DashboardStockOutAndExpired(rs.getInt("PRODUCTS_WITH_EXPIRED_STOCK"), rs.getInt("PRODUCTS_WITH_UNMET_DEMAND"));
+        return new DashboardStockOutAndExpired(rs.getInt("PRODUCTS_WITH_STOCK_OUT"), rs.getInt("PRODUCTS_WITH_STOCK_OUT"));
     }
-    
+
 }

@@ -9,7 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
-import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardTop;
 import java.text.ParseException;
 import java.util.List;
@@ -35,5 +35,5 @@ public interface DashboardService {
 
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
     
-    DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException;
+    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
 }

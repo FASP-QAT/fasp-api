@@ -124,10 +124,10 @@ public class DashboardRestController {
 
     @GetMapping(value = "/db/{programId}/{versionId}")
     @JsonView(Views.ReportView.class)
-    public ResponseEntity getDashboardBottomForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
+    public ResponseEntity getDashboardForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getDashboardBottomForLoadProgram(programId, versionId, 18, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, 18, 18, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while getting Dashboard", ae);
             return new ResponseEntity(HttpStatus.FORBIDDEN);

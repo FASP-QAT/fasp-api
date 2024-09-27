@@ -17,7 +17,7 @@ import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardExpiredPuRowMapper;
 import cc.altius.FASP.model.report.DashboardPuWithCountRowMapper;
 import cc.altius.FASP.model.report.DashboardQpl;
-import cc.altius.FASP.model.report.DashboardBottomForLoadProgram;
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardExpiriesForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardForecastErrorForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardForecastErrorRowMapper;
@@ -31,9 +31,12 @@ import cc.altius.FASP.model.report.DashboardStockOutAndExpired;
 import cc.altius.FASP.model.report.DashboardStockOutAndExpiredRowMapper;
 import cc.altius.FASP.model.report.DashboardStockStatusRowMapper;
 import cc.altius.FASP.model.report.DashboardStockStatusForLoadProgramResultSetExtractor;
+import cc.altius.FASP.model.report.DashboardTopExpiriesForLoadProgramResultSetExtractor;
+import cc.altius.FASP.model.report.DashboardTopStockOutForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
@@ -194,22 +197,34 @@ public class DashboardDaoImpl implements DashboardDao {
         Date curMonth = DateUtils.getStartOfMonthObject();
         Date endMonth = DateUtils.addMonths(curMonth, 17);
         edList.forEach(ed -> {
-            String sql = "SELECT "
-                    + "    s1.PROGRAM_ID, "
-                    + "    SUM(IF(s1.`SUM_EXPIRED_STOCK`>0,1,0)) `PRODUCTS_WITH_EXPIRED_STOCK`, "
-                    + "    SUM(IF(s1.`SUM_UNMET_DEMAND`>0,1,0)) `PRODUCTS_WITH_UNMET_DEMAND` "
-                    + "FROM "
-                    + "    (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(sma.EXPIRED_STOCK) `SUM_EXPIRED_STOCK` , SUM(sma.UNMET_DEMAND) `SUM_UNMET_DEMAND` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID "
-                    + ") s1 GROUP BY s1.PROGRAM_ID ";
+            String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth AND sma.MOS=0 group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
             eParams.put("programId", ed.getProgram().getId());
             eParams.put("curMonth", curMonth);
             eParams.put("endMonth", endMonth);
+            String sql2 = "SELECT SUM(p1.EXPIRED_STOCK*st.RATE) EXPIRED_VALUE "
+                    + "    FROM ( "
+                    + "        SELECT "
+                    + "            p.PROGRAM_ID, p.CURRENT_VERSION_ID, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                    + "            b.BATCH_ID, b.BATCH_NO, b.AUTO_GENERATED, spb.EXPIRY_DATE, SUM(spb.EXPIRED_STOCK) `EXPIRED_STOCK` "
+                    + "        FROM vw_program p "
+                    + "        LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
+                    + "        LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
+                    + "        LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND spb.VERSION_ID=p.CURRENT_VERSION_ID AND spb.TRANS_DATE BETWEEN :curMonth and :endMonth AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
+                    + "        LEFT JOIN rm_batch_info b ON spb.BATCH_ID=b.BATCH_ID "
+                    + "        WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :curMonth and :endMonth AND spb.EXPIRED_STOCK>0 "
+                    + "        GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID "
+                    + "    ) p1 "
+                    + "    LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
+                    + "    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.CURRENT_VERSION_ID";
             try {
-                DashboardStockOutAndExpired se = this.namedParameterJdbcTemplate.queryForObject(sql, eParams, new DashboardStockOutAndExpiredRowMapper());
-                ed.setCountOfExpiredPU(se.getCountOfExpiredPU());
-                ed.setCountOfStockOutPU((Integer) se.getCountOfStockOutPU());
-            } catch (IncorrectResultSizeDataAccessException irda) {
+                ed.setCountOfStockOutPU(this.namedParameterJdbcTemplate.queryForObject(sql1, eParams, Integer.class));
+            } catch (Exception e) {
+            }
+
+            try {
+                ed.setValueOfExpiredPU(this.namedParameterJdbcTemplate.queryForObject(sql2, eParams, Double.class));
+            } catch (Exception e) {
 
             }
         });
@@ -229,29 +244,10 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
 
-        sqlString = "SELECT "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
-                + "    COUNT(amc.PLANNING_UNIT_ID) `COUNT` "
-                + "FROM vw_program p "
-                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
-                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
-                + "LEFT JOIN rm_supply_plan_amc amc ON p.PROGRAM_ID=amc.PROGRAM_ID AND p.CURRENT_VERSION_ID=amc.VERSION_ID AND ppu.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID "
-                + "WHERE p.PROGRAM_ID = :programId AND pu.PLANNING_UNIT_ID IS NOT NULL AND amc.TRANS_DATE BETWEEN :startDate AND :stopDate AND ROUND(amc.MOS,1)=0 "
-                + "GROUP BY pu.PLANNING_UNIT_ID";
-        db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
+        sqlString = "CALL getDashboardStockOutCount(:startDate, :stopDate, :programId, -1)";
+        db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()).stream().filter(d -> d.getCount() > 0).collect(Collectors.toList()));
 
-        sqlString = "SELECT p1.*, st.`RATE` FROM (SELECT "
-                + "    p.PROGRAM_ID, p.CURRENT_VERSION_ID, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
-                + "    b.BATCH_ID, b.BATCH_NO, b.AUTO_GENERATED, spb.EXPIRY_DATE, SUM(spb.EXPIRED_STOCK) `EXPIRED_STOCK` "
-                + "FROM vw_program p "
-                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
-                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
-                + "LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND p.CURRENT_VERSION_ID=spb.VERSION_ID AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
-                + "LEFT JOIN rm_batch_info b ON spb.BATCH_ID=b.BATCH_ID "
-                + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND spb.EXPIRED_STOCK>0 "
-                + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
-                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
-                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.CURRENT_VERSION_ID";
+        sqlString = "CALL getDashboardExpiriesList(:startDate, :stopDate, :programId, -1)";
         db.setExpiriesList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiredPuRowMapper()));
 
         sqlString = "CALL getDashboardShipmentDetailsReportBy(:startDate, :stopDate, :programId, :displayShipmentsBy)";
@@ -322,19 +318,22 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public DashboardBottomForLoadProgram getDashboardBottomForLoadProgram(int programId, int versionId, int noOfMonthsInPast, CustomUserDetails curUser) throws ParseException {
-        DashboardBottomForLoadProgram db = new DashboardBottomForLoadProgram();
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
+        DashboardForLoadProgram db = new DashboardForLoadProgram();
         db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.PST));
-//        db.setStopDate(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), 3)));
-//        db.setStartDate(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), -18)));
-        db.setStartDate(DateUtils.getDateFromString("2023-01-01", DateUtils.YMD));
-        db.setStopDate(DateUtils.getDateFromString("2023-12-31", DateUtils.YMD));
-        String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDate, :stopDate, :programId, :versionId)";
+        db.setStartDateBottom(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), -1 * noOfMonthsInPastForBottom)));
+        db.setStopDateBottom(DateUtils.getEndOfMonthObject());
+        db.setStartDateTop(DateUtils.getStartOfMonthObject());
+        db.setStopDateTop(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), noOfMonthsInFutureForTop)));
+
+        String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        params.put("startDate", db.getStartDate());
-        params.put("stopDate", db.getStopDate());
+        params.put("startDateBottom", db.getStartDateBottom());
+        params.put("stopDateBottom", db.getStopDateBottom());
+        params.put("startDateTop", db.getStartDateTop());
+        params.put("stopDateTop", db.getStopDateTop());
         params.put("curDate", db.getCurDate());
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
@@ -346,21 +345,21 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE "
-                + "LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND spb.VERSION_ID=:versionId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_supply_plan_batch_qty spb ON p.PROGRAM_ID=spb.PROGRAM_ID AND spb.VERSION_ID=:versionId AND spb.TRANS_DATE BETWEEN :startDateBottom and :stopDateBottom AND pu.PLANNING_UNIT_ID=spb.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_batch_info b ON spb.BATCH_ID=b.BATCH_ID "
-                + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDate and :stopDate AND spb.EXPIRED_STOCK>0 "
+                + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDateBottom and :stopDateBottom AND spb.EXPIRED_STOCK>0 "
                 + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
                 + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
                 + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiriesForLoadProgramResultSetExtractor(db));
 
-        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 1)";
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId, 1)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 1));
-        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 2)";
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId, 2)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 2));
-        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDate, :stopDate, :programId, :versionId, 3)";
+        sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId, 3)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(db, 3));
-        sqlString = "CALL getDashboardForecastErrorForLoadProgram(:startDate, :stopDate, :programId, :versionId)";
+        sqlString = "CALL getDashboardForecastErrorForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorForLoadProgramResultSetExtractor(db));
         sqlString = "CALL getDashboardForecastConsumptionProblemsForLoadProgram(:programId, :versionId, :curStartOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 1));
@@ -370,6 +369,11 @@ public class DashboardDaoImpl implements DashboardDao {
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 3));
         sqlString = "CALL getDashboardShipmentProblemsForLoadProgram(:programId, :versionId, :curEndOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 4));
+        sqlString = "CALL getDashboardStockOutCount(:startDateTop, :stopDateTop, :programId, :versionId)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardTopStockOutForLoadProgramResultSetExtractor(db));
+        sqlString = "CALL getDashboardExpiriesList(:startDateTop, :stopDateTop, :programId, :versionId)";
+        this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardTopExpiriesForLoadProgramResultSetExtractor(db));
+
         return db;
     }
 

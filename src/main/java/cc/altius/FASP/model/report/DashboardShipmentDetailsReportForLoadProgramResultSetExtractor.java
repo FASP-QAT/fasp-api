@@ -4,7 +4,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.dao.impl.DashboardBottomPuData;
+import cc.altius.FASP.dao.impl.DashboardBottomData;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -18,10 +18,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  */
 public class DashboardShipmentDetailsReportForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
 
-    private final DashboardBottomForLoadProgram db;
+    private final DashboardForLoadProgram db;
     private final int reportBy;
 
-    public DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(DashboardBottomForLoadProgram db, int reportBy) {
+    public DashboardShipmentDetailsReportForLoadProgramResultSetExtractor(DashboardForLoadProgram db, int reportBy) {
         this.db = db;
         this.reportBy = reportBy;
     }
@@ -31,8 +31,8 @@ public class DashboardShipmentDetailsReportForLoadProgramResultSetExtractor impl
         int rows = 0;
         while (rs.next()) {
             int planningUnitId = rs.getInt("PLANNING_UNIT_ID");
-            if (!db.getPuData().containsKey(planningUnitId)) {
-                db.getPuData().put(planningUnitId, new DashboardBottomPuData());
+            if (!db.getBottomPuData().containsKey(planningUnitId)) {
+                db.getBottomPuData().put(planningUnitId, new DashboardBottomData());
             }
             DashboardShipmentDetailsReportBy sd = new DashboardShipmentDetailsReportBy();
             sd.setReportBy(new SimpleCodeObject(rs.getInt("REPORT_BY_ID"), new LabelRowMapper("RB_").mapRow(rs, 1), rs.getString("REPORT_BY_CODE")));
@@ -41,15 +41,15 @@ public class DashboardShipmentDetailsReportForLoadProgramResultSetExtractor impl
             sd.setCost(rs.getDouble("COST"));
             switch (reportBy) {
                 case 1 -> {
-                    db.getPuData().get(planningUnitId).getShipmentDetailsByFundingSource().add(sd);
+                    db.getBottomPuData().get(planningUnitId).getShipmentDetailsByFundingSource().add(sd);
                     if (sd.getReportBy().getId() == 8) { // Funding Source = TBD
-                        db.getPuData().get(planningUnitId).incrementCountOfTbdFundingSource();
+                        db.getBottomPuData().get(planningUnitId).incrementCountOfTbdFundingSource();
                     }
                 }
                 case 2 ->
-                    db.getPuData().get(planningUnitId).getShipmentDetailsByProcurementAgent().add(sd);
+                    db.getBottomPuData().get(planningUnitId).getShipmentDetailsByProcurementAgent().add(sd);
                 case 3 ->
-                    db.getPuData().get(planningUnitId).getShipmentDetailsByShipmentStatus().add(sd);
+                    db.getBottomPuData().get(planningUnitId).getShipmentDetailsByShipmentStatus().add(sd);
             }
             rows++;
         }

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author akil
  */
-public class DashboardBottomPuData {
+public class DashboardBottomData {
 
     @JsonView(Views.ReportView.class)
     private DashboardStockStatus stockStatus;
@@ -42,7 +42,7 @@ public class DashboardBottomPuData {
     @JsonView(Views.ReportView.class)
     private boolean shipmentQplPassed;
 
-    public DashboardBottomPuData() {
+    public DashboardBottomData() {
         this.expiriesList = new LinkedList<>();
         this.shipmentDetailsByFundingSource = new LinkedList<>();
         this.shipmentDetailsByProcurementAgent = new LinkedList<>();

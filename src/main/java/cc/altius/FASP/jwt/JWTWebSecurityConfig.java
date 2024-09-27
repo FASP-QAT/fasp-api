@@ -108,7 +108,7 @@ public class JWTWebSecurityConfig {
                                 "/api/realmLevelDashboard",
                                 "/api/realmLevelDashboardUserList",
                                 "/api/dashboardTop",
-                                "/api/db/**"
+                                "/api/db/**", "/api/dt/**"
                         ).hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/dashboardBottom").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/ticket/addIssue", "/api/ticket/addIssueAttachment/**", "/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")

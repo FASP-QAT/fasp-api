@@ -4,7 +4,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.dao.impl.DashboardBottomPuData;
+import cc.altius.FASP.dao.impl.DashboardBottomData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
@@ -16,10 +16,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  */
 public class DashboardQplForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
 
-    private final DashboardBottomForLoadProgram db;
+    private final DashboardForLoadProgram db;
     private final int qplType;
 
-    public DashboardQplForLoadProgramResultSetExtractor(DashboardBottomForLoadProgram db, int qplType) {
+    public DashboardQplForLoadProgramResultSetExtractor(DashboardForLoadProgram db, int qplType) {
         this.db = db;
         this.qplType = qplType;
     }
@@ -29,8 +29,8 @@ public class DashboardQplForLoadProgramResultSetExtractor implements ResultSetEx
         int rows = 0;
         while (rs.next()) {
             int planningUnitId = rs.getInt("PLANNING_UNIT_ID");
-            if (!db.getPuData().containsKey(planningUnitId)) {
-                db.getPuData().put(planningUnitId, new DashboardBottomPuData());
+            if (!db.getBottomPuData().containsKey(planningUnitId)) {
+                db.getBottomPuData().put(planningUnitId, new DashboardBottomData());
             }
 
             switch (qplType) {
@@ -39,17 +39,17 @@ public class DashboardQplForLoadProgramResultSetExtractor implements ResultSetEx
                     int requiredCount = rs.getInt("REQUIRED_COUNT");
                     int goodCount = rs.getInt("FORECAST_COUNT");
                     if (requiredCount == goodCount) {
-                        db.getPuData().get(planningUnitId).setForecastConsumptionQplPassed(true);
+                        db.getBottomPuData().get(planningUnitId).setForecastConsumptionQplPassed(true);
                     }
                 }
                 case 2 -> {
-                    db.getPuData().get(planningUnitId).getActualConsumptionDetails().add(new DashboardActualConsumptionDetails(rs.getDate("CONSUMPTION_DATE"), rs.getInt("ACTUAL_COUNT")));
+                    db.getBottomPuData().get(planningUnitId).getActualConsumptionDetails().add(new DashboardActualConsumptionDetails(rs.getDate("CONSUMPTION_DATE"), rs.getInt("ACTUAL_COUNT")));
                 }
                 case 3 -> {
                     // Inventory
                     int inventoryCount = rs.getInt("INVENTORY_COUNT");
                     if (inventoryCount > 0) {
-                        db.getPuData().get(planningUnitId).setInventoryQplPassed(true);
+                        db.getBottomPuData().get(planningUnitId).setInventoryQplPassed(true);
                     }
                 }
                 case 4 -> {
@@ -57,7 +57,7 @@ public class DashboardQplForLoadProgramResultSetExtractor implements ResultSetEx
                     int receivedDateInPastCount = rs.getInt("RECEIVED_DATE_IN_PAST_COUNT");
                     int shouldHaveSubmittedCount = rs.getInt("SHOULD_HAVE_SUBMITTED_COUNT");
                     if (receivedDateInPastCount == 0 && shouldHaveSubmittedCount == 0) {
-                        db.getPuData().get(planningUnitId).setShipmentQplPassed(true);
+                        db.getBottomPuData().get(planningUnitId).setShipmentQplPassed(true);
                     }
                 }
             }

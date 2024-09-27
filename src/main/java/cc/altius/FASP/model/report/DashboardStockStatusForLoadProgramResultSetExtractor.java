@@ -4,7 +4,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.dao.impl.DashboardBottomPuData;
+import cc.altius.FASP.dao.impl.DashboardBottomData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
@@ -16,9 +16,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  */
 public class DashboardStockStatusForLoadProgramResultSetExtractor implements ResultSetExtractor<Integer> {
 
-    private final DashboardBottomForLoadProgram db;
+    private final DashboardForLoadProgram db;
 
-    public DashboardStockStatusForLoadProgramResultSetExtractor(DashboardBottomForLoadProgram db) {
+    public DashboardStockStatusForLoadProgramResultSetExtractor(DashboardForLoadProgram db) {
         this.db = db;
     }
 
@@ -27,10 +27,10 @@ public class DashboardStockStatusForLoadProgramResultSetExtractor implements Res
         int rows = 0;
         while (rs.next()) {
             int planningUnitId = rs.getInt("PLANNING_UNIT_ID");
-            if (!db.getPuData().containsKey(planningUnitId)) {
-                db.getPuData().put(planningUnitId, new DashboardBottomPuData());
+            if (!db.getBottomPuData().containsKey(planningUnitId)) {
+                db.getBottomPuData().put(planningUnitId, new DashboardBottomData());
             }
-            db.getPuData().get(planningUnitId).setStockStatus(
+            db.getBottomPuData().get(planningUnitId).setStockStatus(
                     new DashboardStockStatus(
                             rs.getInt("COUNT_OF_STOCK_OUT"),
                             rs.getInt("COUNT_OF_UNDER_STOCK"),
