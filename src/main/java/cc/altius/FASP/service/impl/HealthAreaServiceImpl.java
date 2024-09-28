@@ -39,11 +39,7 @@ public class HealthAreaServiceImpl implements HealthAreaService {
 
     @Override
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getId())) {
-            return this.healthAreaDao.addHealthArea(h, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.healthAreaDao.addHealthArea(h, curUser);
     }
 
     @Override

@@ -137,13 +137,15 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) {
-        b.setProgramsWithAccess(new LinkedList<>());
-        for (SimpleCodeObject p : b.getPrograms()) {
-            try {
-                SimpleProgram sp = this.programService.getSimpleProgramById(p.getId(), curUser);
-                b.getProgramsWithAccess().add(p);
-            } catch (EmptyResultDataAccessException e) {
+        if (b != null) {
+            b.setProgramsWithAccess(new LinkedList<>());
+            for (SimpleCodeObject p : b.getPrograms()) {
+                try {
+                    SimpleProgram sp = this.programService.getSimpleProgramById(p.getId(), curUser);
+                    b.getProgramsWithAccess().add(p);
+                } catch (EmptyResultDataAccessException e) {
 
+                }
             }
         }
     }

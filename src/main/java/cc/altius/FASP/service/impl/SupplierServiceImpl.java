@@ -34,11 +34,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public int addSupplier(Supplier m, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getId())) {
-            return this.supplierDao.addSupplier(m, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.supplierDao.addSupplier(m, curUser);
     }
 
     @Override

@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -42,10 +44,17 @@ public class DataSourceRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add DataSource
+     *
+     * @param dataSource
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "")
     public ResponseEntity addDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dataSourceService.addDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -60,10 +69,16 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Get list of active DataSources
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "")
     public ResponseEntity getDataSourceList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dataSourceService.getDataSourceList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -71,10 +86,16 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Get list of all DataSources
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getDataSourceListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dataSourceService.getDataSourceList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -82,10 +103,17 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Get DataSource by Id
+     *
+     * @param dataSourceId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/{dataSourceId}")
     public ResponseEntity getDataSourcebyId(@PathVariable("dataSourceId") int dataSourceId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dataSourceService.getDataSourceById(dataSourceId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -99,10 +127,18 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Get DataSource list for a specific ProgramId
+     *
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getDataSourceListForRealmIdProgramId(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dataSourceService.getDataSourceForRealmAndProgram(realmId, programId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -116,10 +152,17 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Get DataSource list by DataSourceTypeId
+     *
+     * @param dataSourceTypeId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/dataSourceTypeId/{dataSourceTypeId}")
     public ResponseEntity getDataSourceListForDataSourceTypeId(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dataSourceService.getDataSourceForDataSourceType(dataSourceTypeId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -133,10 +176,17 @@ public class DataSourceRestController {
         }
     }
 
+    /**
+     * Update DataSource
+     *
+     * @param dataSource
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "")
     public ResponseEntity editDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dataSourceService.updateDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {

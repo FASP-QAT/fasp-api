@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -42,10 +44,17 @@ public class OrganisationRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add an Organisation
+     *
+     * @param organisation
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -60,10 +69,17 @@ public class OrganisationRestController {
         }
     }
 
+    /**
+     * Update an Organisation
+     *
+     * @param organisation
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.organisationService.updateOrganisation(organisation, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -81,10 +97,16 @@ public class OrganisationRestController {
         }
     }
 
+    /**
+     * Get list of all Organisations
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity getOrganisation(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.organisationService.getOrganisationList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Organisation list", e);
@@ -92,10 +114,17 @@ public class OrganisationRestController {
         }
     }
 
+    /**
+     * Get Organisation by Id
+     *
+     * @param organisationId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{organisationId}")
     public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.organisationService.getOrganisationById(organisationId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Organisation list", er);
@@ -109,10 +138,18 @@ public class OrganisationRestController {
         }
     }
 
+    /**
+     * Check if Organisation Display name exists in the same Realm
+     *
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return
+     */
     @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.organisationService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Funding source suggested display name", e);

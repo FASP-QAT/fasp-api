@@ -68,11 +68,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
 
     @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
-        if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
-            return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
     }
 
     @Override
@@ -153,7 +149,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, active, curUser);
     }
-    
+
     @Override
     public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, active, curUser);

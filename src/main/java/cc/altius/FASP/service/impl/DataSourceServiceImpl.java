@@ -36,7 +36,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceTypeDao dataSourceTypeDao;
     @Autowired
     private RealmDao realmDao;
-    @Autowired 
+    @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
@@ -48,11 +48,7 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSource.getRealm().getId())) {
-            return this.dataSourceDao.addDataSource(dataSource, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.dataSourceDao.addDataSource(dataSource, curUser);
     }
 
     @Override

@@ -45,10 +45,17 @@ public class BudgetRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Budget
+     *
+     * @param budget
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postBudget(@RequestBody Budget budget, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.budgetService.addBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
@@ -66,10 +73,17 @@ public class BudgetRestController {
         }
     }
 
+    /**
+     * Update Budget
+     *
+     * @param budget
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putBudget(@RequestBody Budget budget, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rows = this.budgetService.updateBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
@@ -84,11 +98,18 @@ public class BudgetRestController {
         }
     }
 
+    /**
+     * GetBudgetList for ProgramIds
+     *
+     * @param programIds
+     * @param auth
+     * @return
+     */
     @PostMapping("/programIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetListForProgramIds(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Budget list", e);
@@ -96,11 +117,20 @@ public class BudgetRestController {
         }
     }
 
+    /**
+     * Get Budget List
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
+                    ((CustomUserDetails) auth.getPrincipal()).getUserId(), 
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), 
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Budget list", e);
@@ -108,10 +138,17 @@ public class BudgetRestController {
         }
     }
 
+    /**
+     * Get Budget for Id
+     *
+     * @param budgetId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{budgetId}")
     public ResponseEntity getBudget(@PathVariable("budgetId") int budgetId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetById(budgetId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get Budget Id=" + budgetId, erda);
@@ -125,11 +162,18 @@ public class BudgetRestController {
         }
     }
 
+    /**
+     * Get Budgets for Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetListForRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get Budget list", erda);

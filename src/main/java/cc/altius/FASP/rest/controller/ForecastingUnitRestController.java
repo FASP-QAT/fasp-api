@@ -32,6 +32,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -48,10 +50,17 @@ public class ForecastingUnitRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add a FU
+     *
+     * @param forecastingUnit
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.forecastingUnitService.addForecastingUnit(forecastingUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateNameException de) {
@@ -66,10 +75,17 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Update a FU
+     *
+     * @param forecastingUnit
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.forecastingUnitService.updateForecastingUnit(forecastingUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateNameException de) {
@@ -84,11 +100,17 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of active FU’s
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnit(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);
@@ -99,11 +121,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of FU’s filtered by Id’s
+     *
+     * @param forecastingUnitIdList
+     * @param auth
+     * @return
+     */
     @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByIds(forecastingUnitIdList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -111,11 +140,17 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of all FU’s
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(false, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);
@@ -126,11 +161,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of all FU’s for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(realmId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -144,10 +186,17 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get FU by Id
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{forecastingUnitId}")
     public ResponseEntity getForecastingUnitById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);
@@ -161,11 +210,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get ForecastingUnitId with information on SP and FC programs
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{forecastingUnitId}/withPrograms")
     @JsonView(Views.InternalView.class)
     public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             Map<String, Object> data = new HashMap<>();
             data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
             data.put("spProgramListActive", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
@@ -185,11 +241,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get FU by TracerCategory
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
     @GetMapping("/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -203,11 +266,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get FU filtered by TracerCategory list
+     *
+     * @param tracerCategoryIds
+     * @param auth
+     * @return
+     */
     @PostMapping("/tracerCategorys")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategoryIds(tracerCategoryIds, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -221,11 +291,19 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of FU’s for the Dataset by ProgramId and VersionId
+     *
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/programId/{programId}/versionId/{versionId}")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForDataset(programId, versionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);
@@ -236,11 +314,18 @@ public class ForecastingUnitRestController {
         }
     }
 
+    /**
+     * Get list of FU’s filtered by ProductCategory and TracerCategory
+     *
+     * @param input
+     * @param auth
+     * @return
+     */
     @PostMapping("/tracerCategory/productCategory")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getForecastingUnitByTracerCategoryAndProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);

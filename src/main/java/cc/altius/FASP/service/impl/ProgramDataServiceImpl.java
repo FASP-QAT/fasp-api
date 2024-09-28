@@ -18,7 +18,6 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ShipmentSync;
-import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
@@ -169,16 +168,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             datasetDataList.add(getDatasetData(pv.getProgramId(), pv.getVersionId(), true, curUser));
         });
         return datasetDataList;
-    }
-
-    @Override
-    public List<SimpleObject> getVersionTypeList() {
-        return this.programDataDao.getVersionTypeList();
-    }
-
-    @Override
-    public List<SimpleObject> getVersionStatusList() {
-        return this.programDataDao.getVersionStatusList();
     }
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {

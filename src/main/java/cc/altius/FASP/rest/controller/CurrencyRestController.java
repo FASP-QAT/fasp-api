@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -43,10 +45,18 @@ public class CurrencyRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Currency
+     *
+     * @param currency
+     * @param auth
+     * @param request
+     * @return
+     */
     @PostMapping(value = "")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.currencyService.addCurrency(currency, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
@@ -58,10 +68,16 @@ public class CurrencyRestController {
         }
     }
 
+    /**
+     * Get list of active Currencies
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.currencyService.getCurrencyList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
@@ -69,10 +85,17 @@ public class CurrencyRestController {
         }
     }
 
+    /**
+     * Get Currency by Id
+     *
+     * @param currencyId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/{currencyId}")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.currencyService.getCurrencyById(currencyId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Currency list", e);
@@ -83,10 +106,16 @@ public class CurrencyRestController {
         }
     }
 
+    /**
+     * Get list of all Currencies
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.currencyService.getCurrencyList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
@@ -94,10 +123,17 @@ public class CurrencyRestController {
         }
     }
 
+    /**
+     * Update Currency
+     *
+     * @param currency
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.currencyService.updateCurrency(currency, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {

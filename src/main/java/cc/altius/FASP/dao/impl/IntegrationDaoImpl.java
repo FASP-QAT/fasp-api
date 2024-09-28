@@ -51,7 +51,7 @@ public class IntegrationDaoImpl implements IntegrationDao {
     public int addIntegration(Integration i, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("ap_integration").usingGeneratedKeyColumns("INTEGRATION_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", i.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         params.put("INTEGRATION_NAME", i.getIntegrationName());
         params.put("FOLDER_LOCATION", i.getFolderLocation());
         params.put("FILE_NAME", i.getFileName());

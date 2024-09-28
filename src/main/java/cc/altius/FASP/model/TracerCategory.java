@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,9 +14,11 @@ import java.io.Serializable;
  */
 public class TracerCategory extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int tracerCategoryId;
     private SimpleCodeObject realm;
     private SimpleCodeObject healthArea;
+    @JsonView(Views.InternalView.class)
     private Label label;
 
     public TracerCategory() {

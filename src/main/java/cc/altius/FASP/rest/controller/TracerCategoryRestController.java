@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -45,10 +45,17 @@ public class TracerCategoryRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add TracerCategory
+     *
+     * @param tracerCategory
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "")
     public ResponseEntity postTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.tracerCategoryService.addTracerCategory(tracerCategory, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -60,10 +67,17 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**
+     * Update TracerCategory
+     *
+     * @param tracerCategory
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "")
     public ResponseEntity putTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.tracerCategoryService.updateTracerCategory(tracerCategory, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -75,22 +89,16 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**
+     * List of TracerCategories
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity getTracerCategory(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
-    @JsonView(Views.InternalView.class)
-    @GetMapping("/simple")
-    public ResponseEntity getTracerCategorySimple(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
@@ -98,10 +106,35 @@ public class TracerCategoryRestController {
         }
     }
 
+    /**
+     * Simple list of TracerCategories
+     *
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.InternalView.class)
+    @GetMapping("/simple")
+    public ResponseEntity getTracerCategorySimple(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get TracerCategory list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get TracerCategory by Id
+     *
+     * @param tracerCategoryId
+     * @param auth
+     * @return
+     */
     @GetMapping("/{tracerCategoryId}")
     public ResponseEntity getTracerCategory(@PathVariable("tracerCategoryId") int tracerCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryById(tracerCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
@@ -114,11 +147,18 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Get list of TracerCategories for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/realmId/{realmId}")
     public ResponseEntity getTracerCategoryForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
@@ -131,11 +171,19 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Get list of TracerCategories for all the PU’s mapped to a SP Program
+     *
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return
+     */
     @GetMapping("/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
@@ -148,11 +196,20 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Get list of TracerCategories for all the PU’s mapped to a list of SP
+     * Program
+     *
+     * @param realmId
+     * @param programIds
+     * @param auth
+     * @return
+     */
     @PostMapping("/realmId/{realmId}/programIds")
     public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programIds, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);

@@ -46,6 +46,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -71,10 +73,15 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
+    /**Get list of Roles
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getRoleList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Role", e);
@@ -82,6 +89,11 @@ public class UserRestController {
         }
     }
 
+    /**Get Role by Id
+     * 
+     * @param roleId
+     * @return 
+     */
     @GetMapping(value = "/role/{roleId}")
     public ResponseEntity getRoleById(@PathVariable("roleId") String roleId) {
         try {
@@ -92,10 +104,16 @@ public class UserRestController {
         }
     }
 
+    /**Add Role
+     * 
+     * @param role
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.addRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " added successfully");
@@ -113,10 +131,16 @@ public class UserRestController {
         }
     }
 
+    /**Update Role
+     * 
+     * @param role
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.updateRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " updated successfully");
@@ -134,6 +158,10 @@ public class UserRestController {
         }
     }
 
+    /**Get list of Business functions
+     * 
+     * @return 
+     */
     @GetMapping(value = "/businessFunction")
     public ResponseEntity getBusinessFunctionList() {
         try {
@@ -153,7 +181,7 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/details")
     public ResponseEntity getUserDetails(Authentication auth) {
-        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         try {
             User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
             cc.altius.FASP.model.UserDetails ud = new cc.altius.FASP.model.UserDetails();
@@ -189,6 +217,11 @@ public class UserRestController {
         }
     }
 
+    /**Get User list
+     * 
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user")
     public ResponseEntity getUserList(Authentication auth) {
         try {
@@ -200,10 +233,16 @@ public class UserRestController {
         }
     }
 
+    /**Get User list for Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for RealmId=" + realmId, e);
@@ -217,10 +256,16 @@ public class UserRestController {
         }
     }
 
+    /**Get list of Users that have access to a Program
+     * 
+     * @param programId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/programId/{programId}")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for ProgramId=" + programId, e);
@@ -233,7 +278,13 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    /**Get User by Id
+     * 
+     * @param userId
+     * @param auth
+     * @return 
+     */
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
@@ -255,6 +306,13 @@ public class UserRestController {
         }
     }
 
+    /**Add User
+     * 
+     * @param user
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user")
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -297,6 +355,13 @@ public class UserRestController {
         }
     }
 
+    /**Update User
+     * 
+     * @param user
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @PutMapping(value = "/user")
     public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -325,6 +390,11 @@ public class UserRestController {
         }
     }
 
+    /**Update a new passwords when a password has expired for a user
+     * 
+     * @param password
+     * @return 
+     */
     @PostMapping(value = "/user/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -355,6 +425,12 @@ public class UserRestController {
         }
     }
 
+    /**Update a new password for the user
+     * 
+     * @param password
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
@@ -380,6 +456,12 @@ public class UserRestController {
         }
     }
 
+    /**Sends out the Forgot password email to the registered emailId
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user/forgotPassword")
     public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
         auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
@@ -412,6 +494,12 @@ public class UserRestController {
         }
     }
 
+    /**Used to validate the token when the link in the forgot password email is clicked
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping(value = "/user/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -427,6 +515,12 @@ public class UserRestController {
         }
     }
 
+    /**Update a new password from forgot password
+     * 
+     * @param user
+     * @param request
+     * @return 
+     */
     @PostMapping("/user/updatePassword")
     public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -459,6 +553,12 @@ public class UserRestController {
         }
     }
 
+    /**Log a user out
+     * 
+     * @param authentication
+     * @param request
+     * @return 
+     */
     @GetMapping(value = "/logout")
     public ResponseEntity logout(Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -481,10 +581,16 @@ public class UserRestController {
         }
     }
 
+    /**Updates the list of Access controls for a User
+     * 
+     * @param user
+     * @param auth
+     * @return 
+     */
     @PutMapping(value = "/user/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.mapAccessControls(user, curUser);
             if (row > 0) {
                 auditLogger.error(user + " updated successfully");
@@ -505,10 +611,16 @@ public class UserRestController {
         }
     }
 
+    /**Sets the default language used by a User
+     * 
+     * @param languageUser
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update language change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserLanguage(curUser.getUserId(), languageUser.getLanguageCode());
             auditLogger.info("Preferred language updated successfully for Username: " + curUser.getUsername());
@@ -519,10 +631,16 @@ public class UserRestController {
         }
     }
 
+    /**Sets the default module used by a User
+     * 
+     * @param moduleId
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/module/{moduleId}")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Module change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserModule(curUser.getUserId(), moduleId);
             auditLogger.info("Default Module updated successfully for Username: " + curUser.getUsername());
@@ -547,6 +665,11 @@ public class UserRestController {
         }
     }
 
+    /**Updates the I agree field for a User
+     * 
+     * @param auth
+     * @return 
+     */
     @PostMapping(value = "/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {

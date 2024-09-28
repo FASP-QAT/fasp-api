@@ -34,11 +34,7 @@ public class DataSourceTypeServiceImpl implements DataSourceTypeService {
 
     @Override
     public int addDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSourceType.getRealm().getId())) {
-            return this.dataSourceTypeDao.addDataSourceType(dataSourceType, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.dataSourceTypeDao.addDataSourceType(dataSourceType, curUser);
     }
 
     @Override

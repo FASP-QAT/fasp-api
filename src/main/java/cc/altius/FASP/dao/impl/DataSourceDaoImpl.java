@@ -66,7 +66,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_data_source").usingGeneratedKeyColumns("DATA_SOURCE_ID");
         Map<String, Object> map = new HashedMap<>();
         map.put("DATA_SOURCE_TYPE_ID", dataSource.getDataSourceType().getId());
-        map.put("REALM_ID", dataSource.getRealm().getId());
+        map.put("REALM_ID", curUser.getRealm().getRealmId());
         map.put("PROGRAM_ID", (dataSource.getProgram() != null ? (dataSource.getProgram().getId() == null || dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()) : null));
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);

@@ -84,7 +84,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + ":CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", o.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         params.put("ORGANISATION_TYPE_ID", o.getOrganisationType().getId());
         int labelId = this.labelDao.addLabel(o.getLabel(), LabelConstants.RM_ORGANISATION, curUser.getUserId());
         params.put("ORGANISATION_CODE", o.getOrganisationCode());

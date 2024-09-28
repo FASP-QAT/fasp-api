@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -40,10 +42,16 @@ public class CountryRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get list of active Countries
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "")
     public ResponseEntity getCountryList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.countryService.getCountryList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -51,10 +59,16 @@ public class CountryRestController {
         }
     }
 
+    /**
+     * Get list of all Countries
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/all")
     public ResponseEntity getCountryListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.countryService.getCountryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list all", e);
@@ -62,10 +76,17 @@ public class CountryRestController {
         }
     }
 
+    /**
+     * Get Country by Id
+     *
+     * @param countryId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/{countryId}")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.countryService.getCountryById(countryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting country id=" + countryId, er);
@@ -76,10 +97,17 @@ public class CountryRestController {
         }
     }
 
+    /**
+     * Add Country
+     *
+     * @param country
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "")
     public ResponseEntity addCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int countryId = this.countryService.addCountry(country, curUser);
             if (countryId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -97,10 +125,17 @@ public class CountryRestController {
 
     }
 
+    /**
+     * Update Country
+     *
+     * @param country
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "")
     public ResponseEntity editCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int updatedId = this.countryService.updateCountry(country, curUser);
             if (updatedId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
@@ -117,4 +152,4 @@ public class CountryRestController {
         }
     }
 
-        }
+}

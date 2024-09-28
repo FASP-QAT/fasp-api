@@ -37,11 +37,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
-            return this.fundingSourceDao.addFundingSource(f, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.fundingSourceDao.addFundingSource(f, curUser);
     }
 
     @Override
@@ -75,7 +71,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
         FundingSource f = this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
+        if (f == null || this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
             return f;
         } else {
             throw new AccessDeniedException("Access denied");
