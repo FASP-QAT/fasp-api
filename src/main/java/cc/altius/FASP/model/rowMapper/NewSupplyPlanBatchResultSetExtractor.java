@@ -56,9 +56,12 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             if (rs.wasNull()) {
                 bd.setStock(null);
             }
+            bd.setInventoryQty(rs.getLong("INVENTORY_QTY"));
+            if (rs.wasNull()) {
+                bd.setInventoryQty(null);
+            }
             bd.setAllRegionsReportedStock(nsp.isAllRegionsReportedStock());
             bd.setUseActualConsumption(nsp.isActualConsumptionFlag());
-            bd.setUseAdjustment(nsp.isUseAdjustment());
             nsp.getBatchDataList().add(bd);
         }
         return this.nspList;

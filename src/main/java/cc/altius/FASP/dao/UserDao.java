@@ -96,6 +96,8 @@ public interface UserDao {
     public int updateUserLanguageByEmailId(String emailId, String languageCode);
 
     public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException;
+    
+    public int updateUserTheme(int userId, int themeId) throws CouldNotSaveException;
 
     public int acceptUserAgreement(int userId);
 
