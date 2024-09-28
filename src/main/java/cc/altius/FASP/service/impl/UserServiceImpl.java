@@ -290,6 +290,8 @@ public class UserServiceImpl implements UserService {
                 2;
             case "PUT" ->
                 3;
+            case "DELETE" ->
+                4;
             default ->
                 -1;
         };
