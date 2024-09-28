@@ -28,9 +28,9 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     @JsonView({Views.ReportView.class})
     private String procurementAgentCode;
     @JsonView({Views.ReportView.class})
-    private double submittedToApprovedLeadTime;
+    private Double submittedToApprovedLeadTime;
     @JsonView({Views.ReportView.class})
-    private double approvedToShippedLeadTime;
+    private Double approvedToShippedLeadTime;
     @JsonView({Views.ReportView.class})
     private String colorHtmlCode;
     @JsonView({Views.ReportView.class})
@@ -49,14 +49,12 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.programList = new LinkedList<>();
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, SimpleCodeObject procurementAgentType, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, SimpleCodeObject procurementAgentType, Label label, String procurementAgentCode) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.procurementAgentType = procurementAgentType;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
-        this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
-        this.approvedToShippedLeadTime = approvedToShippedLeadTime;
         this.programList = new LinkedList<>();
     }
 
@@ -100,19 +98,19 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public double getApprovedToShippedLeadTime() {
+    public Double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(Double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getSubmittedToApprovedLeadTime() {
+    public Double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(Double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 
