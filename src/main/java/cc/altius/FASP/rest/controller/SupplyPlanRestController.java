@@ -7,8 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
-import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
@@ -20,13 +18,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,52 +44,58 @@ public class SupplyPlanRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**Get a SupplyPlan for a Program and Version. Flag if the Supply Plan should be rebuilt before being shared
-     * 
-     * @param programId
-     * @param versionId
-     * @param rebuild
-     * @param auth
-     * @return 
-     */
-    @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
-    @ResponseBody
-    public ResponseEntity buildNewSupplyPlan(
-            @PathVariable(value = "programId", required = true) int programId,
-            @PathVariable(value = "versionId", required = true) int versionId,
-            @PathVariable(value = "rebuild", required = false) boolean rebuild,
-            Authentication auth
-    ) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            SimpleProgram sp = this.programService.getSimpleProgramById(programId, curUser);
-            if (versionId == -1) {
-                versionId = sp.getCurrentVersionId();
-            }
-//            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
-//            System.out.println(new Date());
-            List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild, true);
-            if (rebuild) {
-//                System.out.println("Completed Supply plan build");
-//                System.out.println(new Date());
-                return new ResponseEntity("Completed", HttpStatus.OK);
-            } else {
-//                System.out.println("Completed Supply plan build");
-//                System.out.println(new Date());
-                return new ResponseEntity(spList, HttpStatus.OK);
-            }
-
-        } catch (EmptyResultDataAccessException erda) {
-            logger.error("Error while trying to rebuild Supply Plan", erda);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to rebuild Supply Plan", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to rebuild Supply Plan", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
+//    @ResponseBody
+//    public ResponseEntity buildSupplyPlan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId) {
+//        System.out.println("Starting supply plan build");
+//        System.out.println(new Date());
+//        SupplyPlan sp = this.programDataService.getSupplyPlan(programId, versionId);
+//        System.out.println("Completed Supply plan build");
+//        System.out.println(new Date());
+//        System.out.println("Going to save to the rm_supply_plan_batch_info table");
+//        List<SimplifiedSupplyPlan> simplifiedSupplyPlan = this.programDataService.updateSupplyPlanBatchInfo(sp);
+//        System.out.println("Completed save to the table");
+//        System.out.println(new Date());
+//        return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
+//    }
+//    @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
+//    @ResponseBody
+//    public ResponseEntity buildNewSupplyPlan(
+//            @PathVariable(value = "programId", required = true) int programId,
+//            @PathVariable(value = "versionId", required = true) int versionId,
+//            @PathVariable(value = "rebuild", required = false) boolean rebuild,
+//            Authentication auth
+//    ) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            SimpleProgram sp = this.programService.getSimpleProgramById(programId, curUser);
+//            if (versionId == -1) {
+//                versionId = sp.getCurrentVersionId();
+//            }
+////            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
+////            System.out.println(new Date());
+//            List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild, true);
+//            if (rebuild) {
+////                System.out.println("Completed Supply plan build");
+////                System.out.println(new Date());
+//                return new ResponseEntity("Completed", HttpStatus.OK);
+//            } else {
+////                System.out.println("Completed Supply plan build");
+////                System.out.println(new Date());
+//                return new ResponseEntity(spList, HttpStatus.OK);
+//            }
+//
+//        } catch (EmptyResultDataAccessException erda) {
+//            logger.error("Error while trying to rebuild Supply Plan", erda);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (AccessDeniedException ae) {
+//            logger.error("Error while trying to rebuild Supply Plan", ae);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to rebuild Supply Plan", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**Rebuild the Supply Plan for a list of ProgramId and Version Id
      * 

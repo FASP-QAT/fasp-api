@@ -209,22 +209,22 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
-    public ResponseEntity checkErpOrder(
-            @PathVariable(value = "orderNo", required = true) String orderNo,
-            @PathVariable(value = "primeLineNo", required = true) String primeLineNo,
-            @PathVariable(value = "realmCountryId", required = true) int realmCountryId,
-            @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
-            Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to update ProgramVersion", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    
+//    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
+//    public ResponseEntity checkErpOrder(
+//            @PathVariable(value = "orderNo", required = true) String orderNo,
+//            @PathVariable(value = "primeLineNo", required = true) String primeLineNo,
+//            @PathVariable(value = "realmCountryId", required = true) int realmCountryId,
+//            @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
+//            Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to update ProgramVersion", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**Get Shipment list for Sync
      *

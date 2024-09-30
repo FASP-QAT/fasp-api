@@ -84,22 +84,16 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of SP Programs from list of Program Ids
-     * 
-     * @param programIds
-     * @param auth
-     * @return 
-     */
-    @PostMapping("/program/programIds")
-    public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping("/program/programIds")
+//    public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Program", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**Get list of active SP Programs
      * 
@@ -278,7 +272,7 @@ public class ProgramRestController {
      * @return 
      */
 //    Allow for -1 in PlanningUnit
-    @PutMapping("/program/planningingUnit/procurementAgent")
+    @PutMapping("/program/planningUnit/procurementAgent")
     public ResponseEntity saveProgramPlanningUnitProcurementAgentPrices(@RequestBody ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -493,35 +487,35 @@ public class ProgramRestController {
     * returns true if the ProgramCode is not present and is a valid entry
     * returns false if the ProgramCode exists and cannot be used again
      */
-    @GetMapping("/program/validate/realmId/{realmId}/programId/{programId}/programCode/{programCode}")
-    public ResponseEntity validateProgramCode(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("programCode") String programCode, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.validateProgramCode(realmId, programId, programCode, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("program/validate/realmId/{realmId}/programId/{programId}/programCode/{programCode}")
+//    public ResponseEntity validateProgramCode(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("programCode") String programCode, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programService.validateProgramCode(realmId, programId, programCode, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException e) {
+//            return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to list Programs", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Programs", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
-    @GetMapping("/program/supplyPlanReviewer/programId/{programId}")
-    public ResponseEntity getSupplyPlanReviewerListForProgram(@PathVariable("programId") int programId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getSupplyPlanReviewerList(programId, curUser), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("program/supplyPlanReviewer/programId/{programId}")
+//    public ResponseEntity getSupplyPlanReviewerListForProgram(@PathVariable("programId") int programId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programService.getSupplyPlanReviewerList(programId, curUser), HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to list Programs", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to list Programs", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**Get Simple list of Programs for list fo a RealmCountries
      * 
