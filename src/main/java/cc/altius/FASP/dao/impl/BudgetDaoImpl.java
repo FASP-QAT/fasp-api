@@ -83,7 +83,8 @@ public class BudgetDaoImpl implements BudgetDao {
             + "    AND st.SHIPMENT_STATUS_ID!=8 "
             + "    AND st.ACCOUNT_FLAG=1 "
             + "    AND st.ACTIVE "
-            + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
+            + " LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID WHERE ppu.ACTIVE "
+            + " GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
             + "WHERE "
             + "	TRUE  ";
 //    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";

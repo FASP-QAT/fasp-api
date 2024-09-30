@@ -31,6 +31,7 @@ public class User extends BaseModel implements Serializable {
     private String[] roles;
     private Language language;
     private int defaultModuleId;
+    private int defaultThemeId;
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -130,6 +131,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setDefaultModuleId(int defaultModuleId) {
         this.defaultModuleId = defaultModuleId;
+    }
+
+    public int getDefaultThemeId() {
+        return defaultThemeId;
+    }
+
+    public void setDefaultThemeId(int defaultThemeId) {
+        this.defaultThemeId = defaultThemeId;
     }
 
     public int getFaildAttempts() {

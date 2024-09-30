@@ -34,6 +34,8 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     @JsonView({Views.ReportView.class})
     private String colorHtmlCode;
     @JsonView({Views.ReportView.class})
+    private String colorHtmlDarkCode;
+    @JsonView({Views.ReportView.class})
     List<SimpleObject> programList;
 
     public ProcurementAgent() {
@@ -120,6 +122,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setColorHtmlCode(String colorHtmlCode) {
         this.colorHtmlCode = colorHtmlCode;
+    }
+
+    public String getColorHtmlDarkCode() {
+        return colorHtmlDarkCode;
+    }
+
+    public void setColorHtmlDarkCode(String colorHtmlDarkCode) {
+        this.colorHtmlDarkCode = colorHtmlDarkCode;
     }
 
     public List<SimpleObject> getProgramList() {
