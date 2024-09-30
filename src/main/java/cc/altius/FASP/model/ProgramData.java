@@ -92,6 +92,8 @@ public class ProgramData extends BaseModel implements Serializable {
     @JsonView(Views.InternalView.class)
     private List<SimpleCodeObject> procurementAgentList;
     @JsonView(Views.InternalView.class)
+    private List<ShipmentBudgetAmt> shipmentBudgetList;
+    @JsonView(Views.InternalView.class)
     DashboardForLoadProgram dashboardData;
 
     public int getRequestedProgramVersion() {
@@ -436,6 +438,8 @@ public class ProgramData extends BaseModel implements Serializable {
             }
         });
         return budgetSummary;
+    }
+
     public DashboardForLoadProgram getDashboardData() {
         return dashboardData;
     }
