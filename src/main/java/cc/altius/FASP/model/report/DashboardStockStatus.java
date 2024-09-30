@@ -16,18 +16,18 @@ import java.util.List;
  */
 public class DashboardStockStatus implements Serializable {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int stockOut;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int underStock;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int adequate;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int overStock;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int na;
     private int total;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private List<DashboardPuWithCount> puStockOutList;
 
     public DashboardStockStatus() {
@@ -93,27 +93,27 @@ public class DashboardStockStatus implements Serializable {
         this.total = total;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getOverStockPerc() {
         return (double)this.overStock / (double)this.total;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getAdequatePerc() {
         return (double)this.adequate / (double)this.total;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getUnderStockPerc() {
         return (double)this.underStock / (double)this.total;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getStockOutPerc() {
         return (double)this.stockOut / (double)this.total;
     }
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getNaPerc() {
         return (double)this.na / (double)this.total;
     }

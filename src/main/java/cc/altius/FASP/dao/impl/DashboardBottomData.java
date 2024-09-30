@@ -20,26 +20,26 @@ import java.util.stream.Collectors;
  */
 public class DashboardBottomData {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private DashboardStockStatus stockStatus;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private List<DashboardExpiredPu> expiriesList;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private List<DashboardShipmentDetailsReportBy> shipmentDetailsByFundingSource;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private List<DashboardShipmentDetailsReportBy> shipmentDetailsByProcurementAgent;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private List<DashboardShipmentDetailsReportBy> shipmentDetailsByShipmentStatus;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int countOfTbdFundingSource;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Double forecastError;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private boolean forecastConsumptionQplPassed;
     private List<DashboardActualConsumptionDetails> actualConsumptionDetails;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private boolean inventoryQplPassed;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private boolean shipmentQplPassed;
 
     public DashboardBottomData() {

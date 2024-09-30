@@ -43,7 +43,7 @@ public class ExportDataServiceImpl implements ExportDataService {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
                 sdf.setLenient(false);
                 Date dt1 = sdf.parse(startDate);
-                Date dt2 = sdf.parse(DateUtils.formatDate(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), -12), DateUtils.YMD).substring(0, 7));
+                Date dt2 = sdf.parse(DateUtils.formatDate(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -12), DateUtils.YMD).substring(0, 7));
                 if (DateUtils.compareDate(dt1, dt2)<=0) {
                     return this.exportDataDao.getSupplyPlanForProgramId(p, versionId, startDate, curUser);
                 } else {

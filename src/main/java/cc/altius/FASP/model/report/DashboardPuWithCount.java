@@ -15,9 +15,9 @@ import java.io.Serializable;
  */
 public class DashboardPuWithCount implements Serializable {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleObject planningUnit;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int count;
 
     public DashboardPuWithCount() {

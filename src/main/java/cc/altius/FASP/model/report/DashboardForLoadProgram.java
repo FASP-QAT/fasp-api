@@ -22,31 +22,31 @@ import java.util.Map;
  */
 public class DashboardForLoadProgram {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleCodeObject program;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date curDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date startDateBottom;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date stopDateBottom;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date startDateTop;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private Date stopDateTop;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     Map<Integer, DashboardBottomData> bottomPuData;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     Map<Integer, DashboardTopData> topPuData;
 
     public DashboardForLoadProgram() {

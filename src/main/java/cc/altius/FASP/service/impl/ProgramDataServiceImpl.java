@@ -23,7 +23,9 @@ import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramVersionTrans;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.UpdateProgramVersion;
@@ -33,10 +35,12 @@ import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.service.RealmService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -68,6 +72,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private ProblemService problemService;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private DashboardService dashboardService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
@@ -91,10 +97,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) {
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException {
         List<ProgramData> programDataList = new LinkedList<>();
-        lpInputList.forEach(pv -> {
-            ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+                lpInputList.forEach(pv -> {
+            Program p = this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            ProgramData pd = new ProgramData(p);
             pd.setCutOffDate(pv.getCutOffDate());
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
@@ -110,7 +117,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
-            pd.setShipmentBudgetList(this.programDataDao.getShipmentBudgetList(pv.getProgramId(), pv.getVersionId(), curUser));
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
+            if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
+                noOfMonthsInPastForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInPastForBottomDashboard();
+            } else {
+                noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
+            }
+            try {
+                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser));
+            } catch (ParseException ex) {
+                logger.error("Error occurred getting the dates for Dashboard", ex);
+            }
             programDataList.add(pd);
         });
         return programDataList;

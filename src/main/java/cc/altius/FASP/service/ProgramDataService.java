@@ -37,7 +37,7 @@ public interface ProgramDataService {
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) throws IncorrectAccessControlException;
 
-    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser);
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException;
 
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
