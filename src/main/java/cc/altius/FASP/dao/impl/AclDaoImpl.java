@@ -61,7 +61,7 @@ public class AclDaoImpl implements AclDao {
                     } catch (DuplicateKeyException d) {
                         logger.error("Duplicate Key Error while trying to add ap_security", d);
                     } catch (DataIntegrityViolationException de) {
-                        System.out.println("Failed to build for " + params);
+                        logger.error("Failed to build for " + params);
                         fail++;
                     }
                 }
