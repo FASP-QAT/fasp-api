@@ -180,7 +180,7 @@ public class SyncRestController {
      * @param response
      * @return
      */
-    @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
+    @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
