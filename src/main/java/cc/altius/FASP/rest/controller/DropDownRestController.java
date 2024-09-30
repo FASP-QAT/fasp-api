@@ -81,10 +81,9 @@ public class DropDownRestController {
     @Autowired
     private BudgetService budgetService;
 
-    /**Get Program list for Dropdown based on Realm and ProgramType
+    /**Get Program list for Dropdown based on Realm
      * 
      * @param realmId
-     * @param programTypeId
      * @param auth
      * @return 
      */
@@ -112,58 +111,110 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Program list for Dropdown based on Realm and ProgramType with additional details
+    /**Get Program list for Dropdown based on Realm and with additional details
      * 
      * @param realmId
-     * @param programTypeId
      * @param auth
      * @return 
      */
     @JsonView(Views.DropDown2View.class)
-    @GetMapping("/program/realm/{realmId}/programType/{programTypeId}/expanded")
-    public ResponseEntity getProgramExpandedForDropdown(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @GetMapping("/program/sp/expanded/realm/{realmId}")
+    public ResponseEntity getProgramExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, programTypeId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Program list for Dropdown based on Realm and with additional details
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDown2View.class)
+    @GetMapping("/program/fc/expanded/realm/{realmId}")
+    public ResponseEntity getProgramExpandedForFcDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**Get Program list for Dropdown based on Realm and ProgramType, RealmCountry and HealthArea
+    /**Get Program list for Dropdown based on Realm and RealmCountry and HealthArea
      * 
      * @param input
      * @param realmId
-     * @param programTypeId
      * @param auth
      * @return 
      */
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/program/realm/{realmId}/programType/{programTypeId}/filter/healthAreaAndRealmCountry")
-    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @PostMapping("/program/sp/filter/healthAreaAndRealmCountry/realm/{realmId}")
+    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForSpDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, programTypeId, input, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, input, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Program list for Dropdown based on Realm and RealmCountry and HealthArea
+     * 
+     * @param input
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/program/fc/filter/healthAreaAndRealmCountry/realm/{realmId}")
+    public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForFcDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**Get Program list for Dropdown based on ProgramType and list of RealmCountryIds
+    /**Get Program list for Dropdown based on list of RealmCountryIds
      * 
      * @param realmCountryIds
-     * @param programTypeId
      * @param auth
      * @return 
      */
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/program/programType/{programTypeId}/filter/multipleRealmCountry")
-    public ResponseEntity getProgramWithFilterForMultipleRealmCountryForDropdown(@RequestBody String[] realmCountryIds, @PathVariable(value = "programTypeId", required = true) int programTypeId, Authentication auth) {
+    @PostMapping("/program/sp/filter/multipleRealmCountry")
+    public ResponseEntity getProgramWithFilterForMultipleRealmCountryForSpDropdown(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramWithFilterForMultipleRealmCountryListForDropdown(programTypeId, String.join(",", realmCountryIds), curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramWithFilterForMultipleRealmCountryListForDropdown(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, String.join(",", realmCountryIds), curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Program list for Dropdown based on list of RealmCountryIds
+     * 
+     * @param realmCountryIds
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/program/fc/filter/multipleRealmCountry")
+    public ResponseEntity getProgramWithFilterForMultipleRealmCountryForFcDropdown(@RequestBody String[] realmCountryIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramWithFilterForMultipleRealmCountryListForDropdown(GlobalConstants.PROGRAM_TYPE_DATASET, String.join(",", realmCountryIds), curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -180,7 +231,7 @@ public class DropDownRestController {
     @PostMapping("/planningUnit/autocomplete")
     public ResponseEntity getPlanningUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListForAutoComplete(autoCompleteInput, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -204,7 +255,7 @@ public class DropDownRestController {
             aci.setLanguage(language);
             aci.setSearchText(searchText);
             aci.setProductCategorySortOrder(productCategorySortOrder);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListForAutoCompleteFilterForProductCategory(aci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -221,7 +272,7 @@ public class DropDownRestController {
     @GetMapping("/planningUnit")
     public ResponseEntity getPlanningUnitDropDownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitDropDownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -239,7 +290,7 @@ public class DropDownRestController {
     @PostMapping("/forecastingUnit/autocomplete")
     public ResponseEntity getForecastingUnitByAutoComplete(@RequestBody AutoCompleteInput autoCompleteInput, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoComplete(autoCompleteInput, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -263,7 +314,7 @@ public class DropDownRestController {
             aci.setLanguage(language);
             aci.setSearchText(searchText);
             aci.setTracerCategoryId(tracerCategoryId);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForAutoCompleteWithFilterTracerCategory(aci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -280,7 +331,7 @@ public class DropDownRestController {
     @GetMapping("/forecastingUnit")
     public ResponseEntity getForecastingUnitDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitDropdownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -298,7 +349,7 @@ public class DropDownRestController {
     @PostMapping("/forecastingUnit/filter/pcAndTc")
     public ResponseEntity getForecastingUnitDropdownListWithFilterForPcAndTc(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitDropdownListWithFilterForPuAndTc(input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
@@ -316,7 +367,7 @@ public class DropDownRestController {
     @GetMapping("/realmCountry/realm/{realmId}")
     public ResponseEntity getRealmCountryDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -334,7 +385,7 @@ public class DropDownRestController {
     @GetMapping("/healthArea/realm/{realmId}")
     public ResponseEntity getHealthAreaDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list HealthArea", e);
@@ -352,7 +403,7 @@ public class DropDownRestController {
     @GetMapping("/organisation/realm/{realmId}")
     public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.organisationService.getOrganisationDropdownList(realmId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Organisation", e);
@@ -370,7 +421,7 @@ public class DropDownRestController {
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.organisationService.getOrganisationDropdownListForRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Organisation", e);
@@ -387,7 +438,7 @@ public class DropDownRestController {
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategoryDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryDropdownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list TracerCategory", e);
@@ -405,7 +456,7 @@ public class DropDownRestController {
     @PostMapping("/tracerCategory/filter/multiplePrograms")
     public ResponseEntity getTracerCategoryDropdownList(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryDropdownListForFilterMultiplerPrograms(String.join(",", programIds), curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list TracerCategory", e);
@@ -422,7 +473,7 @@ public class DropDownRestController {
     @GetMapping("/fundingSource")
     public ResponseEntity getFundingSourceDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceDropdownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding Source", e);
@@ -434,7 +485,7 @@ public class DropDownRestController {
     @PostMapping("/fundingSource/programs")
     public ResponseEntity getFundingSourceForProgramsDropdownList(@RequestBody int[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceForProgramsDropdownList(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding Source", e);
@@ -446,7 +497,7 @@ public class DropDownRestController {
     @PostMapping("/fundingSourceType/programs")
     public ResponseEntity getFundingSourceTypeForProgramsDropdownList(@RequestBody int[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeForProgramsDropdownList(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding Source Type", e);
@@ -463,7 +514,7 @@ public class DropDownRestController {
     @GetMapping("/procurementAgent")
     public ResponseEntity getProcurementAgentDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentDropdownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Procurement Agent", e);
@@ -481,7 +532,7 @@ public class DropDownRestController {
     @PostMapping("/procurementAgent/filter/multiplePrograms")
     public ResponseEntity getProcurementAgentDropdownListForFilterMultiplePrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentDropdownListForFilterMultiplePrograms(String.join(",", programIds), curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Procurement Agent", e);
@@ -498,7 +549,7 @@ public class DropDownRestController {
     @GetMapping("/equivalencyUnit")
     public ResponseEntity getEquivalencyUnitDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.equivalencyUnitService.getEquivalencyUnitDropDownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Equivalency Unit", e);
@@ -515,7 +566,7 @@ public class DropDownRestController {
     @GetMapping("/user")
     public ResponseEntity getUserDropdownList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserDropDownList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list User", e);
@@ -533,7 +584,7 @@ public class DropDownRestController {
     @PostMapping("/planningUnit/program/filter/multipleProgramAndTracerCategory")
     public ResponseEntity getProgramPlanningUnitDropdownList(@RequestBody MultipleProgramAndTracerCategoryDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitByProgramAndTracerCategory(input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list User", e);
@@ -551,7 +602,7 @@ public class DropDownRestController {
     @PostMapping("/planningUnit/dataset/filter/programAndVersion")
     public ResponseEntity getDatasetPlanningUnitDropdownList(@RequestBody ProgramAndVersionDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitForDatasetByProgramAndVersion(input, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list User", e);
@@ -569,7 +620,7 @@ public class DropDownRestController {
     @PostMapping("/budget/filter/multipleFundingSources")
     public ResponseEntity getBudgetDropdownFilterMultipleFundingSources(@RequestBody String[] fundingSources, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetDropdownFilterMultipleFundingSources(String.join(",", fundingSources), curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Budget", e);
@@ -587,7 +638,7 @@ public class DropDownRestController {
     @GetMapping("/budget/program/{programId}")
     public ResponseEntity getBudgetDropdownForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetDropdownForProgram(programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Budget", e);
@@ -595,38 +646,72 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Version list for Program and ProgramType
+    /**Get Version list for Program
      * 
-     * @param programTypeId
      * @param programId
      * @param auth
      * @return 
      */
     @JsonView(Views.DropDownView.class)
-    @GetMapping("/version/filter/programTypeId/{programTypeId}/programId/{programId}")
-    public ResponseEntity getVersionListForProgram(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
+    @GetMapping("/version/filter/fc/programId/{programId}")
+    public ResponseEntity getVersionListForFcProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getVersionListForProgramId(programTypeId, programId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getVersionListForProgramId(GlobalConstants.PROGRAM_TYPE_DATASET, programId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Version", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Version list for Program for SupplyPlan
+     * 
+     * @param programId
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/version/filter/sp/programId/{programId}")
+    public ResponseEntity getVersionListForSpProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getVersionListForProgramId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Version", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**Get Version list for multiple Programs and ProgramType
+    /**Get Version list for multiple Programs for Dataset
      * 
-     * @param programTypeId
      * @param programIds
      * @param auth
      * @return 
      */
     @JsonView(Views.DropDownView.class)
-    @PostMapping("/version/filter/programTypeId/{programTypeId}/programs")
-    public ResponseEntity getVersionListForPrograms(@PathVariable(value = "programTypeId", required = true) int programTypeId, @RequestBody String[] programIds, Authentication auth) {
+    @PostMapping("/version/filter/fc/programs")
+    public ResponseEntity getVersionListForFcPrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getVersionListForPrograms(programTypeId, programIds, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getVersionListForPrograms(GlobalConstants.PROGRAM_TYPE_DATASET, programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Version", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Version list for multiple Programs for Supply Plan
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/version/filter/sp/programs")
+    public ResponseEntity getVersionListForSpPrograms(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getVersionListForPrograms(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Version", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -642,7 +727,7 @@ public class DropDownRestController {
     @GetMapping("/treeTemplate")
     public ResponseEntity getTreeTemplateList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateListForDropDown(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list TreeTemplate", e);
@@ -661,7 +746,7 @@ public class DropDownRestController {
     @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeIdList}")
     public ResponseEntity getProgramListByVersionStatusAndVersionType(@PathVariable(value = "versionStatusIdList", required = true) String versionStatusIdList, @PathVariable(value = "versionTypeIdList", required = true) String versionTypeIdList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListByVersionStatusAndVersionType(versionStatusIdList, versionTypeIdList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
@@ -678,7 +763,7 @@ public class DropDownRestController {
     @GetMapping("/planningUnit/basic")
     public ResponseEntity getPlanningUnitListBasic(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListBasic(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);

@@ -712,7 +712,7 @@ public class UserRestController {
     @PostMapping("/user/theme/{themeId}")
     public ResponseEntity updateUserTheme(@PathVariable int themeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserTheme(curUser.getUserId(), themeId);
             auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
