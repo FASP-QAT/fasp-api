@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.List;
@@ -86,7 +87,9 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<SimplePlanningUnitForSupplyPlanObject> planningUnitList;
     @JsonView(Views.InternalView.class)
     private List<SimpleCodeObject> procurementAgentList;
-    
+    @JsonView(Views.InternalView.class)
+    DashboardForLoadProgram dashboardData;
+
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
     }
@@ -400,6 +403,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setProcurementAgentList(List<SimpleCodeObject> procurementAgentList) {
         this.procurementAgentList = procurementAgentList;
+    }
+
+    public DashboardForLoadProgram getDashboardData() {
+        return dashboardData;
+    }
+
+    public void setDashboardData(DashboardForLoadProgram dashboardData) {
+        this.dashboardData = dashboardData;
     }
 
     @Override

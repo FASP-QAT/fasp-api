@@ -13,9 +13,9 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class DashboardTopData {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private boolean stockOut;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double valueOfExpiredStock;
 
     public boolean isStockOut() {

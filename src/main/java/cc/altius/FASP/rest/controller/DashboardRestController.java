@@ -5,11 +5,16 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.service.DashboardService;
+import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.RealmService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
@@ -39,6 +44,10 @@ public class DashboardRestController {
     private DashboardService dashboardService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProgramService programService;
+    @Autowired
+    private RealmService realmService;
 
     @GetMapping(value = "/applicationLevelDashboard")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
@@ -127,7 +136,15 @@ public class DashboardRestController {
     public ResponseEntity getDashboardForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, 18, 18, curUser), HttpStatus.OK);
+            Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            Realm r = this.realmService.getRealmById(curUser.getRealm().getRealmId(), curUser);
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = r.getNoOfMonthsInFutureForTopDashboard();
+            if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
+                noOfMonthsInPastForBottom = r.getNoOfMonthsInPastForBottomDashboard();
+            } else {
+                noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
+            }
+            return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while getting Dashboard", ae);
             return new ResponseEntity(HttpStatus.FORBIDDEN);

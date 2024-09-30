@@ -27,8 +27,6 @@ import cc.altius.FASP.model.report.DashboardShipmentDetailsReportByRowMapper;
 import cc.altius.FASP.model.report.DashboardShipmentDetailsReportForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.model.report.DashboardTopRowMapper;
-import cc.altius.FASP.model.report.DashboardStockOutAndExpired;
-import cc.altius.FASP.model.report.DashboardStockOutAndExpiredRowMapper;
 import cc.altius.FASP.model.report.DashboardStockStatusRowMapper;
 import cc.altius.FASP.model.report.DashboardStockStatusForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardTopExpiriesForLoadProgramResultSetExtractor;
@@ -36,7 +34,6 @@ import cc.altius.FASP.model.report.DashboardTopStockOutForLoadProgramResultSetEx
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
@@ -48,7 +45,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -239,7 +235,7 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("programId", ei.getProgramId());
         params.put("startDate", ei.getStartDate());
         params.put("stopDate", DateUtils.getEndOfMonthVariable(ei.getStopDate()));
-        params.put("curDate", DateUtils.getCurrentDateString(DateUtils.PST, DateUtils.YMD));
+        params.put("curDate", DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD));
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
@@ -320,11 +316,11 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
         DashboardForLoadProgram db = new DashboardForLoadProgram();
-        db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.PST));
-        db.setStartDateBottom(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), -1 * noOfMonthsInPastForBottom)));
+        db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.EST));
+        db.setStartDateBottom(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * noOfMonthsInPastForBottom)));
         db.setStopDateBottom(DateUtils.getEndOfMonthObject());
         db.setStartDateTop(DateUtils.getStartOfMonthObject());
-        db.setStopDateTop(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.PST), noOfMonthsInFutureForTop)));
+        db.setStopDateTop(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), noOfMonthsInFutureForTop)));
 
         String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId)";
         Map<String, Object> params = new HashMap<>();

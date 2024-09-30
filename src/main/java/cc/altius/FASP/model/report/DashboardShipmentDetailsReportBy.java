@@ -16,13 +16,13 @@ import java.io.Serializable;
  */
 public class DashboardShipmentDetailsReportBy implements Serializable {
 
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleCodeObject reportBy;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private int orderCount;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double quantity;
-    @JsonView(Views.ReportView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double cost;
 
     public SimpleCodeObject getReportBy() {
