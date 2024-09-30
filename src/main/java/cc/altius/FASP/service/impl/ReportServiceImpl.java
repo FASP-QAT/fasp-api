@@ -250,7 +250,7 @@ public class ReportServiceImpl implements ReportService {
     // Report no 31 new
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
-        return this.reportDao.getForecastError(fei, curUser);
+        return this.reportDao.getForecastError(fei, true, curUser);
     }
     
     // Mod 2 Report 1 -- Monthly Forecast

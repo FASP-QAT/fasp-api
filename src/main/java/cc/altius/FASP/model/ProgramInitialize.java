@@ -45,6 +45,7 @@ public class ProgramInitialize extends Program implements Serializable {
         setCurrentVersion(p.getCurrentVersion());
         setVersionList(p.getVersionList());
         setActive(p.isActive());
+        setNoOfMonthsInPastForBottomDashboard(p.getNoOfMonthsInPastForBottomDashboard());
     }
 
     public ProgramPlanningUnit[] getProgramPlanningUnits() {
