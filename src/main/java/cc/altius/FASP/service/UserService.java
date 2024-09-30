@@ -14,8 +14,10 @@ import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  *
@@ -48,7 +50,7 @@ public interface UserService {
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessDeniedException;
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
@@ -82,6 +84,8 @@ public interface UserService {
 
     public void addTokenToLogout(String token);
 
+    public List<UserAcl> getAccessControls(CustomUserDetails curUser);
+    
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
     public int updateSuncExpiresOn(String emailId);

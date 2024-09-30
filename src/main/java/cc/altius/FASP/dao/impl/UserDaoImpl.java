@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
@@ -29,6 +30,7 @@ import cc.altius.FASP.model.rowMapper.ForgotPasswordTokenRowMapper;
 import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SecurityRequestMatcherRowMapper;
+import cc.altius.FASP.model.rowMapper.UserAclRowMapper;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
 import cc.altius.FASP.service.AclService;
@@ -56,6 +58,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -229,6 +232,7 @@ public class UserDaoImpl implements UserDao {
             CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractorBasic());
             return user;
         } catch (Exception e) {
+            logger.info("Error", e);
             return null;
         }
     }
@@ -393,12 +397,33 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userList + this.userOrderBy;
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
+                + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
+                + "    r.`REALM_ID`, r.`REALM_CODE`, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.`LABEL_PR` `REALM_LABEL_PR`, "
+                + "   l.`LANGUAGE_ID`, ll.`LABEL_ID` AS `LANGUAGE_LABEL_ID`, ll.`LABEL_EN` AS `LANGUAGE_LABEL_EN`, ll.`LABEL_FR` AS `LANGUAGE_LABEL_FR`, ll.`LABEL_PR` `LANGUAGE_LABEL_PR`, ll.`LABEL_SP` AS `LANGUAGE_LABEL_SP`, l.`LANGUAGE_CODE`, l.`COUNTRY_CODE`, "
+                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, "
+                + "   ro.`ROLE_ID`, rol.`LABEL_ID` `ROLE_LABEL_ID`, rol.`LABEL_EN` `ROLE_LABEL_EN`, rol.`LABEL_FR` `ROLE_LABEL_FR`, rol.`LABEL_SP` `ROLE_LABEL_SP`, rol.`LABEL_PR` `ROLE_LABEL_PR` "
+                + "FROM us_user u "
+                + "LEFT JOIN vw_realm r ON r.`REALM_ID`=u.`REALM_ID` "
+                + "LEFT JOIN ap_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID` "
+                + "LEFT JOIN ap_label ll ON ll.`LABEL_ID`=l.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON cb.`USER_ID`=u.`CREATED_BY` "
+                + "LEFT JOIN us_user lmb ON lmb.`USER_ID`=u.`LAST_MODIFIED_BY` "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_role ro ON ur.`ROLE_ID`=ro.`ROLE_ID` "
+                + "LEFT JOIN ap_label rol ON ro.`LABEL_ID`=rol.`LABEL_ID` "
+                + "WHERE "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        params.put("realmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
-        params.put("userRealmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
-        return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
+        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
+        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
+            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
+        }
+        sb.append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
+        logger.info(LogUtils.buildStringForLog(sb.toString(), params));
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }
 
     @Override
@@ -412,49 +437,45 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userList;
-
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
+                + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
+                + "    r.`REALM_ID`, r.`REALM_CODE`, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.`LABEL_PR` `REALM_LABEL_PR`, "
+                + "   l.`LANGUAGE_ID`, ll.`LABEL_ID` AS `LANGUAGE_LABEL_ID`, ll.`LABEL_EN` AS `LANGUAGE_LABEL_EN`, ll.`LABEL_FR` AS `LANGUAGE_LABEL_FR`, ll.`LABEL_PR` `LANGUAGE_LABEL_PR`, ll.`LABEL_SP` AS `LANGUAGE_LABEL_SP`, l.`LANGUAGE_CODE`, l.`COUNTRY_CODE`, "
+                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, "
+                + "   ro.`ROLE_ID`, rol.`LABEL_ID` `ROLE_LABEL_ID`, rol.`LABEL_EN` `ROLE_LABEL_EN`, rol.`LABEL_FR` `ROLE_LABEL_FR`, rol.`LABEL_SP` `ROLE_LABEL_SP`, rol.`LABEL_PR` `ROLE_LABEL_PR` "
+                + "FROM us_user u "
+                + "LEFT JOIN vw_realm r ON r.`REALM_ID`=u.`REALM_ID` "
+                + "LEFT JOIN ap_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID` "
+                + "LEFT JOIN ap_label ll ON ll.`LABEL_ID`=l.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON cb.`USER_ID`=u.`CREATED_BY` "
+                + "LEFT JOIN us_user lmb ON lmb.`USER_ID`=u.`LAST_MODIFIED_BY` "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_role ro ON ur.`ROLE_ID`=ro.`ROLE_ID` "
+                + "LEFT JOIN ap_label rol ON ro.`LABEL_ID`=rol.`LABEL_ID` "
+                + "WHERE "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-            sql += " AND user.REALM_ID=:userRealmId ";
-        }
         params.put("curUser", curUser.getUserId());
-        sql += this.userOrderBy;
-        return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
+        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
+        sb.append(" AND u.REALM_ID=").append(realmId);
+        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
+            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
+        }
+        sb.append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
+        logger.info(LogUtils.buildStringForLog(sb.toString(), params));
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }
 
-    // TODO
     // Need to add RoleId condition here
     // Check if this method is being used anywhere
     // This is used to get the list of Users that can be a Program Admin for a particular Program
     @Override
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(this.userCommonString)
-                .append(" WHERE user.USER_ID in (SELECT DISTINCT(u.USER_ID) "
-                        + "FROM vw_all_program p "
-                        + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                        + "LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "
-                        + "LEFT JOIN us_user u ON u.REALM_ID = rc.REALM_ID "
-                        + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID "
-                        + "WHERE "
-                        + "    p.PROGRAM_ID=:programId "
-                        + "    AND u.REALM_ID IS NOT NULL "
-                        + "    AND u.ACTIVE "
-                        + "    AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID) "
-                        + "    AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID)) "
-                        + "    AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) "
-                        + "    AND (acl.PROGRAM_ID IS NULL OR p.PROGRAM_ID=acl.PROGRAM_ID)")
-                .append(this.userOrderBy);
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) {
+        String sb = "SELECT u.USER_ID, u.USERNAME FROM us_user u WHERE u.ACTIVE AND  u.USER_ID in (SELECT DISTINCT(u.USER_ID) FROM vw_all_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID LEFT JOIN us_user u ON u.REALM_ID = rc.REALM_ID LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID WHERE p.PROGRAM_ID=:programId) ORDER BY u.USERNAME";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        params.put("curUser", curUser.getUserId());
-        sb
-                .append(")")
-                .append(this.userOrderBy);
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserRowMapper());
     }
 
     @Override
@@ -830,6 +851,41 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public List<UserAcl> getAccessControls(CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "   acl.USER_ACL_ID, u.`USER_ID`, u.`USERNAME`, "
+                + "   acl.`ROLE_ID`, aclrl.`LABEL_ID` `ACL_ROLE_LABEL_ID`, aclrl.`LABEL_EN` `ACL_ROLE_LABEL_EN`, aclrl.`LABEL_FR` `ACL_ROLE_LABEL_FR`, aclrl.`LABEL_SP` `ACL_ROLE_LABEL_SP`, aclrl.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
+                + "   aclrc.`REALM_COUNTRY_ID` `REALM_COUNTRY_ID`, aclc.`LABEL_ID` `ACL_REALM_COUNTRY_LABEL_ID`, aclc.`LABEL_EN` `ACL_REALM_COUNTRY_LABEL_EN`, aclc.`LABEL_FR` `ACL_REALM_COUNTRY_LABEL_FR`, aclc.`LABEL_SP` `ACL_REALM_COUNTRY_LABEL_SP`, aclc.`LABEL_PR` `ACL_REALM_COUNTRY_LABEL_PR`, "
+                + "   aclha.`HEALTH_AREA_ID` `HEALTH_AREA_ID`, aclha.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, aclha.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, aclha.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, aclha.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, aclha.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
+                + "   aclo.`ORGANISATION_ID` `ORGANISATION_ID`, aclo.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, aclo.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, aclo.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, aclo.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, aclo.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
+                + "   aclp.`PROGRAM_ID` `PROGRAM_ID`, aclp.`LABEL_ID` `ACL_PROGRAM_LABEL_ID`, aclp.`LABEL_EN` `ACL_PROGRAM_LABEL_EN`, aclp.`LABEL_FR` `ACL_PROGRAM_LABEL_FR`, aclp.`LABEL_SP` `ACL_PROGRAM_LABEL_SP`, aclp.`LABEL_PR` `ACL_PROGRAM_LABEL_PR`, "
+                + "   acl.`LAST_MODIFIED_DATE` "
+                + "FROM us_user u "
+                + "LEFT JOIN rm_realm r ON u.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN us_user_role ur ON u.`USER_ID`=ur.`USER_ID` "
+                + "LEFT JOIN us_user_acl acl ON u.`USER_ID`=acl.`USER_ID` "
+                + "LEFT JOIN us_role aclr ON acl.`ROLE_ID`=aclr.`ROLE_ID` "
+                + "LEFT JOIN ap_label aclrl ON aclr.`LABEL_ID`=aclrl.`LABEL_ID` "
+                + "LEFT JOIN rm_realm_country aclrc ON acl.`REALM_COUNTRY_ID`=aclrc.`REALM_COUNTRY_ID` "
+                + "LEFT JOIN vw_country aclc ON aclrc.`COUNTRY_ID`=aclc.`COUNTRY_ID` "
+                + "LEFT JOIN vw_health_area aclha ON acl.`HEALTH_AREA_ID`=aclha.`HEALTH_AREA_ID` "
+                + "LEFT JOIN vw_organisation aclo ON acl.`ORGANISATION_ID`=aclo.`ORGANISATION_ID` "
+                + "LEFT JOIN vw_all_program aclp ON acl.`PROGRAM_ID`=aclp.`PROGRAM_ID` "
+                + "WHERE "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
+        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
+            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
+        }
+        sb.append(" ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
+//        sb.append(" LIMIT 10 ");
+        logger.info(LogUtils.buildStringForLog(sb.toString(), params));
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserAclRowMapper());
+    }
+
+    @Override
     @Transactional
     public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
@@ -917,7 +973,7 @@ public class UserDaoImpl implements UserDao {
         sql = "UPDATE us_user u SET u.`DEFAULT_MODULE_ID`=?, u.`LAST_MODIFIED_DATE`=?, u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, moduleId, curDate, userId, userId);
     }
-    
+
     @Override
     public int updateUserTheme(int userId, int themeId) throws CouldNotSaveException {
         String sql;

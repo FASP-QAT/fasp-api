@@ -36,5 +36,5 @@ public interface AclService {
 
     public void addUserAclForRealmCountry(StringBuilder sb, Map<String, Object> params, String rcAlias, CustomUserDetails curUser);
 
-    public void buildSecurity();
+    public int buildSecurity();
 }

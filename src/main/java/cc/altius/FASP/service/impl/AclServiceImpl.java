@@ -197,8 +197,8 @@ public class AclServiceImpl implements AclService {
     }
 
     @Override
-    public void buildSecurity() {
-        this.aclDao.buildSecurity();
+    public int buildSecurity() {
+        return this.aclDao.buildSecurity();
     }
 
 }

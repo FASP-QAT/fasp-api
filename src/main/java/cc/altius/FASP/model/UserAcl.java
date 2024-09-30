@@ -5,7 +5,13 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -14,18 +20,36 @@ import java.util.Objects;
  */
 public class UserAcl implements Serializable {
 
+    @JsonView(Views.UserListView.class)
+    private int userAclId;
+    @JsonView(Views.UserListView.class)
     private int userId;
+    @JsonView(Views.UserListView.class)
+    private String username;
+    @JsonView(Views.UserListView.class)
     private String roleId;
+    @JsonView(Views.UserListView.class)
     private Label roleDesc;
+    @JsonView(Views.UserListView.class)
     private int realmCountryId;
+    @JsonView(Views.UserListView.class)
     private Label countryName;
+    @JsonView(Views.UserListView.class)
     private int healthAreaId;
+    @JsonView(Views.UserListView.class)
     private Label healthAreaName;
+    @JsonView(Views.UserListView.class)
     private int organisationId;
+    @JsonView(Views.UserListView.class)
     private Label organisationName;
+    @JsonView(Views.UserListView.class)
     private int programId;
+    @JsonView(Views.UserListView.class)
     private Label programName;
-    private String lastModifiedDate;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.UserListView.class)
+    private Date lastModifiedDate;
 
     public UserAcl() {
     }
@@ -40,7 +64,7 @@ public class UserAcl implements Serializable {
         this.lastModifiedDate = this.lastModifiedDate;
     }
 
-    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String lastModifiedDate) {
+    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, Date lastModifiedDate) {
         this.userId = userId;
         this.roleId = roleId;
         this.setRealmCountryId(realmCountryId);
@@ -55,12 +79,28 @@ public class UserAcl implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public int getUserAclId() {
+        return userAclId;
+    }
+
+    public void setUserAclId(int userAclId) {
+        this.userAclId = userAclId;
+    }
+
     public int getUserId() {
         return userId;
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getRoleId() {
@@ -143,11 +183,11 @@ public class UserAcl implements Serializable {
         this.programName = programName;
     }
 
-    public String getLastModifiedDate() {
+    public Date getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public void setLastModifiedDate(String lastModifiedDate) {
+    public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
 

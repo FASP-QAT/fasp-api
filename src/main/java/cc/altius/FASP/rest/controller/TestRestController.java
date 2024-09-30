@@ -102,8 +102,12 @@ public class TestRestController {
 
     @GetMapping(path = "/buildSecurity")
     public String buildSecurity() {
-        this.aclService.buildSecurity();
-        return "Completed build";
+        int fail = this.aclService.buildSecurity();
+        if (fail == 0) {
+            return "Completed build";
+        } else {
+            return "Build failed for " + fail + " cases";
+        }
     }
 
     @GetMapping(path = "/sendTestEmail/{emailerId}")

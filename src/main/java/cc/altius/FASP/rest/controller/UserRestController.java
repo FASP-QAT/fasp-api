@@ -18,10 +18,13 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.annotations.VisibleForTesting;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,11 +76,13 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
-    /**Get list of Roles
-     * 
+    /**
+     * Get list of Roles
+     *
      * @param auth
-     * @return 
+     * @return
      */
+    @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
@@ -89,11 +94,13 @@ public class UserRestController {
         }
     }
 
-    /**Get Role by Id
-     * 
+    /**
+     * Get Role by Id
+     *
      * @param roleId
-     * @return 
+     * @return
      */
+    @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role/{roleId}")
     public ResponseEntity getRoleById(@PathVariable("roleId") String roleId) {
         try {
@@ -104,11 +111,12 @@ public class UserRestController {
         }
     }
 
-    /**Add Role
-     * 
+    /**
+     * Add Role
+     *
      * @param role
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
@@ -131,11 +139,12 @@ public class UserRestController {
         }
     }
 
-    /**Update Role
-     * 
+    /**
+     * Update Role
+     *
      * @param role
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
@@ -158,9 +167,10 @@ public class UserRestController {
         }
     }
 
-    /**Get list of Business functions
-     * 
-     * @return 
+    /**
+     * Get list of Business functions
+     *
+     * @return
      */
     @GetMapping(value = "/businessFunction")
     public ResponseEntity getBusinessFunctionList() {
@@ -217,11 +227,13 @@ public class UserRestController {
         }
     }
 
-    /**Get User list
-     * 
+    /**
+     * Get User list
+     *
      * @param auth
-     * @return 
+     * @return
      */
+    @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user")
     public ResponseEntity getUserList(Authentication auth) {
         try {
@@ -233,12 +245,14 @@ public class UserRestController {
         }
     }
 
-    /**Get User list for Realm
-     * 
+    /**
+     * Get User list for Realm
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
+    @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -256,11 +270,12 @@ public class UserRestController {
         }
     }
 
-    /**Get list of Users that have access to a Program
-     * 
+    /**
+     * Get list of Users that have access to a Program
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping(value = "/user/programId/{programId}")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
@@ -278,12 +293,13 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get User by Id
-     * 
+
+    /**
+     * Get User by Id
+     *
      * @param userId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
@@ -306,12 +322,13 @@ public class UserRestController {
         }
     }
 
-    /**Add User
-     * 
+    /**
+     * Add User
+     *
      * @param user
      * @param authentication
      * @param request
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user")
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
@@ -355,12 +372,13 @@ public class UserRestController {
         }
     }
 
-    /**Update User
-     * 
+    /**
+     * Update User
+     *
      * @param user
      * @param authentication
      * @param request
-     * @return 
+     * @return
      */
     @PutMapping(value = "/user")
     public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
@@ -390,10 +408,11 @@ public class UserRestController {
         }
     }
 
-    /**Update a new passwords when a password has expired for a user
-     * 
+    /**
+     * Update a new passwords when a password has expired for a user
+     *
      * @param password
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
@@ -425,18 +444,19 @@ public class UserRestController {
         }
     }
 
-    /**Update a new password for the user
-     * 
+    /**
+     * Update a new password for the user
+     *
      * @param password
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             User user = this.userService.getUserByUserId(password.getUserId(), curUser);
-            if (!this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
+            if (curUser.getUserId()!=password.getUserId() || !this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -456,11 +476,12 @@ public class UserRestController {
         }
     }
 
-    /**Sends out the Forgot password email to the registered emailId
-     * 
+    /**
+     * Sends out the Forgot password email to the registered emailId
+     *
      * @param user
      * @param request
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/forgotPassword")
     public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
@@ -494,11 +515,13 @@ public class UserRestController {
         }
     }
 
-    /**Used to validate the token when the link in the forgot password email is clicked
-     * 
+    /**
+     * Used to validate the token when the link in the forgot password email is
+     * clicked
+     *
      * @param user
      * @param request
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
@@ -515,11 +538,12 @@ public class UserRestController {
         }
     }
 
-    /**Update a new password from forgot password
-     * 
+    /**
+     * Update a new password from forgot password
+     *
      * @param user
      * @param request
-     * @return 
+     * @return
      */
     @PostMapping("/user/updatePassword")
     public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
@@ -553,11 +577,12 @@ public class UserRestController {
         }
     }
 
-    /**Log a user out
-     * 
+    /**
+     * Log a user out
+     *
      * @param authentication
      * @param request
-     * @return 
+     * @return
      */
     @GetMapping(value = "/logout")
     public ResponseEntity logout(Authentication authentication, HttpServletRequest request) {
@@ -581,11 +606,34 @@ public class UserRestController {
         }
     }
 
-    /**Updates the list of Access controls for a User
-     * 
+    /**
+     * Gets the list of Access controls for all Users
+     *
      * @param user
      * @param auth
-     * @return 
+     * @return
+     */
+    @JsonView(Views.UserListView.class)
+    @GetMapping(value = "/user/accessControls")
+    public ResponseEntity accessControl(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.userService.getAccessControls(curUser), HttpStatus.OK);
+        } catch (DuplicateKeyException e) {
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            auditLogger.error("Error while trying to Add Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Updates the list of Access controls for a User
+     *
+     * @param user
+     * @param auth
+     * @return
      */
     @PutMapping(value = "/user/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
@@ -611,11 +659,12 @@ public class UserRestController {
         }
     }
 
-    /**Sets the default language used by a User
-     * 
+    /**
+     * Sets the default language used by a User
+     *
      * @param languageUser
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
@@ -631,11 +680,12 @@ public class UserRestController {
         }
     }
 
-    /**Sets the default module used by a User
-     * 
+    /**
+     * Sets the default module used by a User
+     *
      * @param moduleId
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/module/{moduleId}")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
@@ -650,7 +700,14 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.moduleChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Sets the Theme that the user wants
+     *
+     * @param themeId
+     * @param auth
+     * @return
+     */
     @PostMapping("/user/theme/{themeId}")
     public ResponseEntity updateUserTheme(@PathVariable int themeId, Authentication auth) {
         try {
@@ -665,10 +722,11 @@ public class UserRestController {
         }
     }
 
-    /**Updates the I agree field for a User
-     * 
+    /**
+     * Updates the I agree field for a User
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(value = "/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {

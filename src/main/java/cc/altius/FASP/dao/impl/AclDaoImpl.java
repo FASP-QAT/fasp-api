@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -36,10 +38,14 @@ public class AclDaoImpl implements AclDao {
     }
 
     @Override
-    public void buildSecurity() {
-        String sqlString = "SELECT SECURITY_ID, METHOD, URL_LIST, BF_LIST FROM temp_security";
+    public int buildSecurity() {
+        String sqlString = "TRUNCATE TABLE ap_security";
+        this.jdbcTemplate.update(sqlString);
+
+        sqlString = "SELECT SECURITY_ID, METHOD, URL_LIST, BF_LIST FROM temp_security";
         List<SecurityRequestMatcher> secList = this.jdbcTemplate.query(sqlString, new SecurityRequestMatcherRowMapper());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ap_security");
+        int fail = 0;
         for (SecurityRequestMatcher sec : secList) {
             for (String url : sec.getUrlList().split("~")) {
                 for (String bf : sec.getBfList().split("~")) {
@@ -47,10 +53,17 @@ public class AclDaoImpl implements AclDao {
                     params.put("METHOD", sec.getMethod());
                     params.put("URL", url);
                     params.put("BF", bf);
-                    si.execute(params);
+                    try {
+                        si.execute(params);
+                    } catch (DuplicateKeyException d) {
+                    } catch (DataIntegrityViolationException de) {
+                        System.out.println("Failed to build for " + params);
+                        fail++;
+                    }
                 }
             }
         }
+        return fail;
     }
 
 }

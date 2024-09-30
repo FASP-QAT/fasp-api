@@ -13,5 +13,5 @@ import java.util.List;
  */
 public interface AclDao {
 
-    public void buildSecurity();
+    public int buildSecurity();
 }

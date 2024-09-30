@@ -94,7 +94,6 @@ public class JWTWebSecurityConfig {
                                 "/file/**",
                                 "/api/locales/*/**",
                                 "/api/forgotPassword/**",
-                                "/api/getForgotPasswordToken/**",
                                 "/api/confirmForgotPasswordToken/**",
                                 "/api/updatePassword/**",
                                 "/api/updateExpiredPassword/**",

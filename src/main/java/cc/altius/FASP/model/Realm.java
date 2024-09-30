@@ -14,11 +14,11 @@ import java.io.Serializable;
  */
 public class Realm extends BaseModel implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.UserListView.class})
     private Integer realmId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.UserListView.class})
     private Label label;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.UserListView.class})
     private String realmCode;
     private boolean defaultRealm;
     @JsonView(Views.InternalView.class)
