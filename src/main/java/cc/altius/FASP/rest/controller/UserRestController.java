@@ -24,7 +24,6 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.annotations.VisibleForTesting;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -191,6 +190,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/details")
     public ResponseEntity getUserDetails(Authentication auth) {
+        logger.info("getCustomUserByUserIdForApi==>" + ((CustomUserDetails) auth.getPrincipal()).getUserId() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+
         CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         try {
             User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
@@ -456,7 +457,7 @@ public class UserRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             User user = this.userService.getUserByUserId(password.getUserId(), curUser);
-            if (curUser.getUserId()!=password.getUserId() || !this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
+            if (curUser.getUserId() != password.getUserId() || !this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
