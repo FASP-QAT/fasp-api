@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,6 +31,7 @@ public class AclDaoImpl implements AclDao {
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -56,6 +59,7 @@ public class AclDaoImpl implements AclDao {
                     try {
                         si.execute(params);
                     } catch (DuplicateKeyException d) {
+                        logger.error("Duplicate Key Error while trying to add ap_security", d);
                     } catch (DataIntegrityViolationException de) {
                         System.out.println("Failed to build for " + params);
                         fail++;
