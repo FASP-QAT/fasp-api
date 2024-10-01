@@ -259,10 +259,10 @@ INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/region', 'ROLE_BF_MAP_RE
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region', 'ROLE_BF_MAP_REGION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/role', 'ROLE_BF_ADD_ROLE');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/role', 'ROLE_BF_ADD_ROLE~ROLE_BF_TICKETING');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/role', 'ROLE_BF_ADD_ROLE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/role', 'ROLE_BF_ADD_ROLE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/role/{roleId}', 'ROLE_BF_ADD_ROLE');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/role/*', 'ROLE_BF_ADD_ROLE');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/supplier', 'ROLE_BF_ADD_SUPPLIER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/supplier', 'ROLE_BF_EDIT_SUPPLIER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/supplier', 'ROLE_BF_LIST_SUPPLIER~ROLE_BF_DROPDOWN_SP');
@@ -440,7 +440,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/program/planningUnit/pro
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/program/planningUnit/procurementAgent', 'ROLE_BF_MAP_COUNTRY_SPECIFIC_PRICES');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/planningUnit/programs', 'ROLE_BF_LIST_ALTERNATE_REPORTING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/{programId}', 'ROLE_BF_UPDATE_PROGRAM');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/*', 'ROLE_BF_UPDATE_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/program/initialize', 'ROLE_BF_CREATE_A_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/loadProgram', 'ROLE_BF_DOWNLOAD_PROGARM');
