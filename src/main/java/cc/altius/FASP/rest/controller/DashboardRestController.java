@@ -136,7 +136,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/dashboardTop")
+    @GetMapping(value = "/supplyPlanTop")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getDashboardTop(Authentication auth) {
         try {
@@ -148,7 +148,7 @@ public class DashboardRestController {
         }
     }
 
-    @PostMapping(value = "/dashboardBottom")
+    @PostMapping(value = "/supplyPlanBottom")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getDashboardBottom(@RequestBody DashboardInput ei, Authentication auth) {
         try {
