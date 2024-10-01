@@ -36,6 +36,10 @@ INSERT INTO us_role_business_function VALUES (null, 'ROLE_TRAINER_ADMIN', 'ROLE_
 INSERT INTO us_role_business_function VALUES (null, 'ROLE_REALM_ADMIN', 'ROLE_BF_DROPDOWN_FC', 1, now(), 1, now());
 INSERT INTO us_role_business_function SELECT null, r.ROLE_ID, 'ROLE_BF_LOGGED_IN', 1, now(), 1, now() FROM us_role r;
 
+INSERT INTO ap_label VALUES (null, 'Enhanced Supply Plan Dashboard', null, null, null, 1, now(), 1, now(), 1);
+INSERT INTO us_business_function values ('ROLE_BF_SP_DASHBOARD', last_insert_id(), 1, now(), 1, now());
+INSERT INTO us_role_business_function SELECT null, r.ROLE_ID, 'ROLE_BF_SP_DASHBOARD', 1, now(), 1, now() FROM us_role r WHERE r.ROLE_ID IN ('ROLE_REALM_ADMIN', 'ROLE_INTERNAL_USER', 'ROLE_PROGRAM_ADMIN', 'ROLE_PROGRAM_USER', 'ROLE_TRAINER_ADMIN', 'ROLE_REPORT_USER');
+
 -- #########################################################################################################
 
 DROP TABLE IF EXISTS `fasp`.`temp_security`;
@@ -80,6 +84,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/applicationLev
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_REALM_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_REALM_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanReviewerLevel', 'ROLE_BF_SP_REVIEW_LEVEL_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanTop', 'ROLE_BF_SP_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dashboard/supplyPlanBottom', 'ROLE_BF_SP_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataSource', 'ROLE_BF_ADD_DATA_SOURCE');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataSource', 'ROLE_BF_LIST_DATA_SOURCE~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataSource', 'ROLE_BF_EDIT_DATA_SOURCE');
@@ -313,6 +319,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/loadDataset/**', 'ROLE_B
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/planningUnit/programId/**', 'ROLE_BF_EDIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/dataset/realm/*', 'ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/supplyPlan/realm/*', 'ROLE_BF_DROPDOWN_SP');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/all/expanded/realm/*', 'ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/sp/expanded/realm/*', 'ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/fc/expanded/realm/*', 'ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dropdown/program/sp/filter/healthAreaAndRealmCountry/realm/*', 'ROLE_BF_DROPDOWN_SP');

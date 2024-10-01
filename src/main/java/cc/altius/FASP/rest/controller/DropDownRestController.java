@@ -118,6 +118,24 @@ public class DropDownRestController {
      * @return 
      */
     @JsonView(Views.DropDown2View.class)
+    @GetMapping("/program/all/expanded/realm/{realmId}")
+    public ResponseEntity getProgramExpandedForAllDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, 0, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**Get Program list for Dropdown based on Realm and with additional details
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/sp/expanded/realm/{realmId}")
     public ResponseEntity getProgramExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
