@@ -25,7 +25,6 @@ public class UserListResultSetExtractor implements ResultSetExtractor<List<User>
     @Override
     public List<User> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<User> userList = new LinkedList<>();
-
         while (rs.next()) {
             User user = new User();
             user.setUserId(rs.getInt("USER_ID"));
