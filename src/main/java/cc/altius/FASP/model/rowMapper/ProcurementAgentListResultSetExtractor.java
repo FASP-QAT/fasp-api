@@ -29,9 +29,16 @@ public class ProcurementAgentListResultSetExtractor implements ResultSetExtracto
                     new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
                     new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_TYPE_ID"), new LabelRowMapper("PAT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_TYPE_CODE")),
                     new LabelRowMapper().mapRow(rs, 1),
-                    rs.getString("PROCUREMENT_AGENT_CODE"),
-                    rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
-                    rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
+                    rs.getString("PROCUREMENT_AGENT_CODE")
+            );
+            pa.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
+            if (rs.wasNull()) {
+                pa.setSubmittedToApprovedLeadTime(null);
+            }
+            pa.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
+            if (rs.wasNull()) {
+                pa.setApprovedToShippedLeadTime(null);
+            }
             pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
             pa.setColorHtmlDarkCode(rs.getString("COLOR_HTML_DARK_CODE"));
             pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
