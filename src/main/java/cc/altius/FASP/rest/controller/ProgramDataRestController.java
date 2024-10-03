@@ -224,21 +224,21 @@ public class ProgramDataRestController {
         }
     }
     
-    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
-    public ResponseEntity checkErpOrder(
-            @PathVariable(value = "orderNo", required = true) String orderNo,
-            @PathVariable(value = "primeLineNo", required = true) String primeLineNo,
-            @PathVariable(value = "realmCountryId", required = true) int realmCountryId,
-            @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
-            Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to update ProgramVersion", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
+//    public ResponseEntity checkErpOrder(
+//            @PathVariable(value = "orderNo", required = true) String orderNo,
+//            @PathVariable(value = "primeLineNo", required = true) String primeLineNo,
+//            @PathVariable(value = "realmCountryId", required = true) int realmCountryId,
+//            @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
+//            Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to update ProgramVersion", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
     public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "userId", required = true) int userId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
