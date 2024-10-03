@@ -169,7 +169,7 @@ BEGIN
     LEFT JOIN 
         (
         SELECT COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, s.SHIPMENT_ID, s.PROGRAM_ID, st.PLANNING_UNIT_ID, IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, st.SHIPMENT_QTY, 
-        IF(@varEquivalencyUnitId != 0, sma.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), st.SHIPMENT_QTY*@varRcpuMultiplier)
+        IF(@varEquivalencyUnitId != 0, st.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), st.SHIPMENT_QTY*@varRcpuMultiplier)
         ) `SHIPMENT_QTY` , st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.SHIPMENT_STATUS_ID, st.NOTES, st.ORDER_NO, st.PRIME_LINE_NO, st.DATA_SOURCE_ID
         FROM 
             (
