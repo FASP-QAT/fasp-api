@@ -306,10 +306,10 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/commit/getCommitRequest/
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/datasetData/*', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/programData/*', 'ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataset', 'ROLE_BF_LIST_DATASET');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataset/versions', 'ROLE_BF_LIST_DATASET');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset/versions**', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/datasetData', 'ROLE_BF_LIST_DATASET');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/dataset/api/dataset', 'ROLE_BF_ADD_DATASET');
-INSERT IGNORE INTO temp_security VALUES (null, 3, '/dataset/api/dataset', 'ROLE_BF_EDIT_DATASET');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset', 'ROLE_BF_ADD_DATASET');
+INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataset', 'ROLE_BF_EDIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/loadDataset', 'ROLE_BF_LOAD_DELETE_DATASET');
