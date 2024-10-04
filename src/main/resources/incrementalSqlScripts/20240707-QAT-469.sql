@@ -279,8 +279,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/tracerCategory/**', 'ROL
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/unit', 'ROLE_BF_ADD_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/unit', 'ROLE_BF_EDIT_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit', 'ROLE_BF_LIST_UNIT~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usagePeriod', 'ROLE_BF_LIST_USAGE_PERIOD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/usagePeriod', 'ROLE_BF_ADD_USAGE_PERIOD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usagePeriod/**', 'ROLE_BF_LIST_USAGE_PERIOD');
@@ -480,10 +479,10 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/report/updateProgramInfo
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/sync/language/*', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/allMasters/forPrograms/*', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/treeAnchor', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate', 'ROLE_BF_VIEW_TREE_TEMPLATES');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate', 'ROLE_BF_VIEW_TREE_TEMPLATES~ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/treeTemplate', 'ROLE_BF_ADD_TREE_TEMPLATE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/treeTemplate', 'ROLE_BF_EDIT_TREE_TEMPLATE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_BF_VIEW_TREE_TEMPLATES');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_BF_VIEW_TREE_TEMPLATES~ROLE_BF_LOGGED_IN');
 -- #########################################################################################################
 -- These queries should be run at the end
 -- #########################################################################################################
