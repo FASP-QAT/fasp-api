@@ -291,7 +291,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usageTemplate/**', 'ROLE
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user', 'ROLE_BF_ADD_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user', 'ROLE_BF_EDIT_USER');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/*', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/agreement', 'ROLE_BF_LOGGED_IN');
@@ -486,3 +485,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate', 'ROLE_BF_
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/treeTemplate', 'ROLE_BF_ADD_TREE_TEMPLATE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/treeTemplate', 'ROLE_BF_EDIT_TREE_TEMPLATE');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_BF_VIEW_TREE_TEMPLATES');
+-- #########################################################################################################
+-- These queries should be run at the end
+-- #########################################################################################################
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/*', 'ROLE_BF_LIST_USER');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/dataset/*', 'ROLE_BF_LIST_DATASET');
