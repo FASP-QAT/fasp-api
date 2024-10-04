@@ -385,9 +385,7 @@ public class ReportDaoImpl implements ReportDao {
                     + "FROM rm_program_planning_unit ppu "
                     + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
                     + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                    + "LEFT JOIN rm_realm_country_planning_unit rcpu ON p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID AND ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID "
-                    + "LEFT JOIN ap_label l ON rcpu.LABEL_ID=l.LABEL_ID "
-                    + "WHERE FIND_IN_SET(ppu.PROGRAM_ID, :programIds) AND FIND_IN_SET(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, :ruIds) AND ppu.ACTIVE AND pu.ACTIVE AND rcpu.ACTIVE "
+                    + "WHERE FIND_IN_SET(ppu.PROGRAM_ID, :programIds) AND FIND_IN_SET(ppu.PLANNING_UNIT_ID, (SELECT DISTINCT rcpu.PLANNING_UNIT_ID FROM rm_realm_country_planning_unit rcpu WHERE FIND_IN_SET(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, :ruIds))) AND ppu.ACTIVE AND pu.ACTIVE "
                     + "GROUP BY p.PROGRAM_ID, pu.PLANNING_UNIT_ID");
         }
         Map<String, Object> params = new HashMap<>();
