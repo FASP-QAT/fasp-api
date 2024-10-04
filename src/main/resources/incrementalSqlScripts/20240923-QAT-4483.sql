@@ -221,7 +221,6 @@ DROP procedure IF EXISTS `fasp`.`stockStatusReportVerticalAggregated`;
 DELIMITER $$
 USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16 Aggregated
