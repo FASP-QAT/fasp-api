@@ -88,6 +88,7 @@ public class LabelRestController {
             this.labelService.saveDatabaseLabels(labelArray, curUser);
             return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.labelFail"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
