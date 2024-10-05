@@ -19,8 +19,7 @@ public interface AclService {
 
     public boolean checkRealmAccessForUser(CustomUserDetails curUser, int realmId);
 
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
-
+//    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser);
 
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, CustomUserDetails curUser);
@@ -30,10 +29,12 @@ public interface AclService {
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, CustomUserDetails curUser);
 
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser);
-    
+
     public void addUserAclForHealthArea(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser);
 
     public void addUserAclForOrganisation(StringBuilder sb, Map<String, Object> params, String oAlias, CustomUserDetails curUser);
 
     public void addUserAclForRealmCountry(StringBuilder sb, Map<String, Object> params, String rcAlias, CustomUserDetails curUser);
+
+    public int buildSecurity();
 }

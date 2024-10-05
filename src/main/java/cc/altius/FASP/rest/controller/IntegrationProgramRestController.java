@@ -9,11 +9,8 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
-import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -35,6 +32,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -62,7 +61,7 @@ public class IntegrationProgramRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
     public ResponseEntity getIntegrationProgram(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationProgramService.getIntegrationProgramList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Integration Programs", e);
@@ -84,7 +83,7 @@ public class IntegrationProgramRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
     public ResponseEntity getIntegrationProgramForProgramId(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationProgramService.getIntegrationProgramListForProgramId(programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Integration Programs", e);
@@ -112,7 +111,7 @@ public class IntegrationProgramRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
     public ResponseEntity getIntegrationProgram(@PathVariable("integrationProgramId") int integrationProgramId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationProgramService.getIntegrationProgramById(integrationProgramId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get IntegrationProgram Id=" + integrationProgramId, ae);
@@ -126,37 +125,6 @@ public class IntegrationProgramRestController {
         }
     }
 
-//    /**
-//     * API used to add an Integration Program
-//     *
-//     * @param integrationProgram IntegrationProgram object that you want to add
-//     * @param auth
-//     * @return returns a Success code if the operation was successful
-//     */
-//    @PostMapping(value = "")
-//    @Operation(description = "API used to add an IntegrationProgram", summary = "Add IntegrationProgram", tags = ("integrationProgram"))
-//    @Parameters(
-//            @Parameter(name = "integrationProgram", description = "The Integration Program object that you want to add"))
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
-//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-//    public ResponseEntity addIntegration(@RequestBody IntegrationProgram integrationProgram, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            this.integrationProgramService.addIntegrationProgram(integrationProgram, curUser);
-//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-//        } catch (AccessDeniedException ae) {
-//            logger.error("Error while trying to add IntegrationProgram", ae);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-//        } catch (DuplicateKeyException d) {
-//            logger.error("Error while trying to add IntegrationProgram", d);
-//            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to add IntegrationProgram", e);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     /**
      * API used to update an IntegrationProgram
      *
@@ -176,7 +144,7 @@ public class IntegrationProgramRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity updateIntegrationProgram(@RequestBody IntegrationProgram integrationPrograms[], Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.integrationProgramService.updateIntegrationProgram(integrationPrograms, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -212,7 +180,7 @@ public class IntegrationProgramRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addManualJsonPush(@RequestBody ManualIntegration manualIntegrations[], Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.integrationProgramService.addManualJsonPush(manualIntegrations, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {

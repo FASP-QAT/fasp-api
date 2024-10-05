@@ -25,10 +25,6 @@ public class IntegrationProgramServiceImpl implements IntegrationProgramService 
     @Autowired
     private IntegrationProgramDao integrationProgramDao;
 
-//    @Override
-//    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser) {
-//        return this.integrationProgramDao.addIntegrationProgram(integrationProgram, curUser);
-//    }
     @Override
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser) {
         return this.integrationProgramDao.updateIntegrationProgram(integrationPrograms, curUser);

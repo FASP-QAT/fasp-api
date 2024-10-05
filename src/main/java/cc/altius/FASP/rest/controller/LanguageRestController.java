@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -41,15 +43,27 @@ public class LanguageRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get the entire list of Static labels for the Language
+     *
+     * @param languageCode
+     * @return
+     */
     @GetMapping("/locales/{languageCode}")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
         return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
     }
 
+    /**
+     * Get list of active Languages
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.languageService.getLanguageList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
@@ -57,10 +71,16 @@ public class LanguageRestController {
         }
     }
 
+    /**
+     * Get list of all Languages
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language/all")
     public ResponseEntity getLanguageListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.languageService.getLanguageList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
@@ -68,10 +88,17 @@ public class LanguageRestController {
         }
     }
 
+    /**
+     * Get Language by Id
+     *
+     * @param languageId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language/{languageId}")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting languageId=" + languageId, er);
@@ -82,10 +109,17 @@ public class LanguageRestController {
         }
     }
 
+    /**
+     * Add a Language
+     *
+     * @param language
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/language")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -103,10 +137,17 @@ public class LanguageRestController {
 
     }
 
+    /**
+     * Update a Language
+     *
+     * @param language
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "/language")
     public ResponseEntity editLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int updatedId = this.languageService.editLanguage(language, curUser);
             if (updatedId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);

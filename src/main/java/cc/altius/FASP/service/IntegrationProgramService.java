@@ -17,7 +17,6 @@ import java.util.List;
  */
 public interface IntegrationProgramService {
 
-//    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser);
 
     public List<IntegrationProgram> getIntegrationProgramList(CustomUserDetails curUser);

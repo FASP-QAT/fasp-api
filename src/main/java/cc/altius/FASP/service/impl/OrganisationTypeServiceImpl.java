@@ -36,11 +36,7 @@ public class OrganisationTypeServiceImpl implements OrganisationTypeService {
 
     @Override
     public int addOrganisationType(OrganisationType organisationType, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, organisationType.getRealm().getId())) {
-            return organisationTypeDao.addOrganisationType(organisationType, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return organisationTypeDao.addOrganisationType(organisationType, curUser);
     }
 
     @Override

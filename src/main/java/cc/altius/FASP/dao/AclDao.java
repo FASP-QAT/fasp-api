@@ -5,11 +5,13 @@
  */
 package cc.altius.FASP.dao;
 
+import java.util.List;
+
 /**
  *
  * @author akil
  */
-//public interface AclDao {
+public interface AclDao {
 
-//    public boolean checkAccessForUser(int userId, int realmId, int realmCountryId, int healthAreaId, int organisationId, int programId);
-//}
+    public int buildSecurity();
+}

@@ -169,9 +169,12 @@ public interface ReportDao {
 
     //Report no 30
     public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt, boolean useApprovedSupplyPlanOnly);
-    
+
+    // Report no 31
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
+
     // Report no 31 new 
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser);
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, boolean getREgionalData, CustomUserDetails curUser);
 
     // Mod 2 Report 1 -- Monthly Forecast
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser);

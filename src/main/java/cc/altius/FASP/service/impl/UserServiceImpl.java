@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
@@ -18,13 +19,17 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +48,8 @@ public class UserServiceImpl implements UserService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Value("${qat.urlHost}")
     private String HOST_URL;
@@ -114,8 +121,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser) {
-        return this.userDao.getUserListForProgram(programId, curUser);
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessDeniedException {
+        try {
+            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+            return this.userDao.getUserListForProgram(programId, curUser);
+        } catch (EmptyResultDataAccessException erda) {
+            throw new AccessDeniedException("Access denied");
+        }
+
     }
 
     @Override
@@ -220,6 +233,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserAcl> getAccessControls(CustomUserDetails curUser) {
+        return this.userDao.getAccessControls(curUser);
+    }
+
+    @Override
     public int mapAccessControls(User user, CustomUserDetails curUser) {
         return this.userDao.mapAccessControls(user, curUser);
     }
@@ -243,7 +261,7 @@ public class UserServiceImpl implements UserService {
     public int updateUserModule(int userId, int moduleId) throws CouldNotSaveException {
         return this.userDao.updateUserModule(userId, moduleId);
     }
-    
+
     @Override
     public int updateUserTheme(int userId, int themeId) throws CouldNotSaveException {
         return this.userDao.updateUserTheme(userId, themeId);
@@ -282,6 +300,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getEmailByUserId(int userId) {
         return this.userDao.getEmailByUserId(userId);
+    }
+
+    @Override
+    public List<SecurityRequestMatcher> getSecurityList() {
+        return this.userDao.getSecurityList();
+    }
+
+    @Override
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String methodStr, String apiUrl) {
+        int method = switch (methodStr) {
+            case "GET" ->
+                1;
+            case "POST" ->
+                2;
+            case "PUT" ->
+                3;
+            case "DELETE" ->
+                4;
+            default ->
+                -1;
+        };
+        return this.userDao.getCustomUserByUserIdForApi(userId, method, apiUrl);
+    }
+
+    @Override
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser) {
+        return this.userDao.getAclRoleBfList(userId, curUser);
     }
 
 }

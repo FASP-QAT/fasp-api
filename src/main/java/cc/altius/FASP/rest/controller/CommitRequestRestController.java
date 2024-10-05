@@ -50,13 +50,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/commit")
 public class CommitRequestRestController {
 
     @Autowired
@@ -70,31 +72,39 @@ public class CommitRequestRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // Part 1 of the Commit Request for Supply Plan
+    /**
+     * Part 1 of the Commit Request for Supply Plan
+     *
+     * @param comparedVersionId
+     * @param programDataCompressed
+     * @param auth
+     * @return
+     */
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
         try {
             String programDataBytes = CompressUtils.decompress(programDataCompressed);
             Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Integer.class, new EmptyStringToDefaultIntDeserializer())
-                .registerTypeAdapter(int.class, new EmptyStringToDefaultIntDeserializer())
-                .registerTypeAdapter(Double.class, new EmptyStringToDefaultDoubleDeserializer())
-                .registerTypeAdapter(double.class, new EmptyStringToDefaultDoubleDeserializer())
-                .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
-                .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
-                .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
-                .registerTypeAdapter(Boolean.class, new EmptyStringToDefaultBooleanDeserializer())
-                .registerTypeAdapter(boolean.class, new EmptyStringToDefaultBooleanDeserializer())
-                .serializeSpecialFloatingPointValues()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
-            Type type = new TypeToken<ProgramData>() {}.getType();
+                    .registerTypeAdapter(Integer.class, new EmptyStringToDefaultIntDeserializer())
+                    .registerTypeAdapter(int.class, new EmptyStringToDefaultIntDeserializer())
+                    .registerTypeAdapter(Double.class, new EmptyStringToDefaultDoubleDeserializer())
+                    .registerTypeAdapter(double.class, new EmptyStringToDefaultDoubleDeserializer())
+                    .registerTypeAdapter(Float.class, new EmptyStringToDefaultFloatDeserializer())
+                    .registerTypeAdapter(float.class, new EmptyStringToDefaultFloatDeserializer())
+                    .registerTypeAdapter(Date.class, new EmptyStringToDefaultDateDeserializer())
+                    .registerTypeAdapter(Boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                    .registerTypeAdapter(boolean.class, new EmptyStringToDefaultBooleanDeserializer())
+                    .serializeSpecialFloatingPointValues()
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .create();
+            Type type = new TypeToken<ProgramData>() {
+            }.getType();
             ProgramData programData = gson.fromJson(programDataBytes, type);
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
                 if (!checkIfRequestExists) {
-                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
                     int commitRequestId = this.commitRequestService.saveProgramData(programData, gson.toJson(programData), curUser);
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
                 } else {
@@ -121,7 +131,14 @@ public class CommitRequestRestController {
         }
     }
 
-    // Part 1 of the Commit Request for Dataset
+    /**
+     * Part 1 of the Commit Request for Dataset
+     *
+     * @param comparedVersionId
+     * @param request
+     * @param auth
+     * @return
+     */
     @PutMapping("/datasetData/{comparedVersionId}")
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
         String json = null;
@@ -174,7 +191,7 @@ public class CommitRequestRestController {
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(datasetData.getProgramId());
                 if (!checkIfRequestExists) {
-                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
                     int commitRequestId = this.commitRequestService.saveDatasetData(datasetData, json, curUser);
                     logger.info("Commit request received and stored in the db commitRequestId=" + commitRequestId);
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
@@ -208,7 +225,7 @@ public class CommitRequestRestController {
     @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
     public ResponseEntity processCommitRequest() {
         try {
-            String propertyFilePath = QAT_FILE_PATH+"/properties/scheduler.properties";
+            String propertyFilePath = QAT_FILE_PATH + "/properties/scheduler.properties";
             Properties props = new Properties();
             props.load(new FileInputStream(propertyFilePath));
             String propertyValue = props.getProperty("commitRequestSchedulerActive");
@@ -236,10 +253,18 @@ public class CommitRequestRestController {
         }
     }
 
+    /**
+     * Seems to return a list of the CommitRequests with status
+     *
+     * @param spcr
+     * @param requestStatus
+     * @param auth
+     * @return
+     */
     @PostMapping("/getCommitRequest/{requestStatus}")
     public ResponseEntity getProgramDataCommitRequest(@RequestBody CommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             List<CommitRequest> spcrList = this.commitRequestService.getCommitRequestList(spcr, requestStatus, curUser);
             return new ResponseEntity(spcrList, HttpStatus.OK);
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
@@ -252,6 +277,12 @@ public class CommitRequestRestController {
         }
     }
 
+    /**
+     * Gets the status of a CommitRequest based on Id
+     *
+     * @param commitRequestId
+     * @return
+     */
     @GetMapping("/sendNotification/{commitRequestId}")
     public ResponseEntity sendNotification(@PathVariable("commitRequestId") int commitRequestId) {
         try {

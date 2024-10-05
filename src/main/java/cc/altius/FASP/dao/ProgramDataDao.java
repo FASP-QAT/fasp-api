@@ -72,10 +72,6 @@ public interface ProgramDataDao {
 
     public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
-    public List<SimpleObject> getVersionTypeList();
-
-    public List<SimpleObject> getVersionStatusList();
-
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);

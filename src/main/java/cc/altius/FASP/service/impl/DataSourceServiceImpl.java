@@ -36,7 +36,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceTypeDao dataSourceTypeDao;
     @Autowired
     private RealmDao realmDao;
-    @Autowired 
+    @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
@@ -48,11 +48,7 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSource.getRealm().getId())) {
-            return this.dataSourceDao.addDataSource(dataSource, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.dataSourceDao.addDataSource(dataSource, curUser);
     }
 
     @Override
@@ -87,7 +83,7 @@ public class DataSourceServiceImpl implements DataSourceService {
             throw new EmptyResultDataAccessException(1);
         }
         SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkAccessForUser(curUser, realmId, p.getRealmCountry().getId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), programId)) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

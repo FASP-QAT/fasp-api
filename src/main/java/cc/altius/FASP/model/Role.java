@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,10 +16,14 @@ import java.util.Objects;
  */
 public class Role implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.UserListView.class})
     private String roleId;
+    @JsonView({Views.ReportView.class, Views.UserListView.class})
     private Label label;
+    @JsonView(Views.ReportView.class)
     private List<BusinessFunction> businessFunctionList;
     private String[] businessFunctions;
+    @JsonView(Views.ReportView.class)
     private List<CanCreateRole> canCreateRoleList;
     private String[] canCreateRoles;
 
@@ -99,7 +104,7 @@ public class Role implements Serializable {
     public void setCanCreateRoles(String[] canCreateRoles) {
         this.canCreateRoles = canCreateRoles;
         this.canCreateRoleList.clear();
-        for (String c: canCreateRoles) {
+        for (String c : canCreateRoles) {
             this.canCreateRoleList.add(new CanCreateRole(c));
         }
     }

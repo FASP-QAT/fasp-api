@@ -26,7 +26,6 @@ import cc.altius.FASP.model.rowMapper.ProcurementAgentTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -289,7 +288,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         Map<String, Object> params = new HashMap<>();
         params.put("procurementAgentId", procurementAgentId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
-        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
+//        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentResultSetExtractor());
     }
 

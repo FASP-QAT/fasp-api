@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -44,6 +45,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -62,12 +65,23 @@ public class ProgramDataRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get SupplyPlan Data for a ProgramId and VersionId
+     *
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false, false), HttpStatus.OK);
+        } catch (IncorrectAccessControlException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -80,11 +94,17 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get SupplyPlan Data for a list of ProgramId and VersionId
+     *
+     * @param loadProgramInputList
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
     @PostMapping("/programData")
     public ResponseEntity getLoadProgramData(@RequestBody List<LoadProgramInput> loadProgramInputList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             List<ProgramData> masters = this.programDataService.getProgramData(loadProgramInputList, curUser);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonString = objectMapper.writeValueAsString(masters);
@@ -105,63 +125,20 @@ public class ProgramDataRestController {
         }
     }
 
-//    @JsonView(Views.ArtmisView.class)
-//    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
-//    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @JsonView(Views.GfpVanView.class)
-//    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
-//    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, true, false), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-    @GetMapping("/versionType")
-    public ResponseEntity getVersionType(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getVersionTypeList(), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Version Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/versionStatus")
-    public ResponseEntity getVersionStatus(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getVersionStatusList(), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Version Status", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /**Get list of Program Versions filtered on various parameters
+     * 
+     * @param programId
+     * @param versionId
+     * @param realmCountryId
+     * @param healthAreaId
+     * @param organisationId
+     * @param versionTypeId
+     * @param versionStatusId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return 
+     */
     @GetMapping("/programVersion/programId/{programId}/versionId/{versionId}/realmCountryId/{realmCountryId}/healthAreaId/{healthAreaId}/organisationId/{organisationId}/versionTypeId/{versionTypeId}/versionStatusId/{versionStatusId}/dates/{startDate}/{stopDate}")
     public ResponseEntity getProgramVersionList(
             @PathVariable(value = "programId", required = true) int programId,
@@ -175,7 +152,7 @@ public class ProgramDataRestController {
             @PathVariable(value = "stopDate", required = true) String stopDate,
             Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
@@ -189,10 +166,19 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Update the status of a Program Version
+     *
+     * @param updateProgramVersion
+     * @param programId
+     * @param versionId
+     * @param versionStatusId
+     * @param auth
+     * @return
+     */
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
     public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
@@ -206,10 +192,16 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Resets the Problem Reports for all the list of ProgramIds provided
+     * 
+     * @param programIds
+     * @param auth
+     * @return 
+     */
     @PutMapping("/programVersion/resetProblem")
     public ResponseEntity resetProblemForProgramIds(@RequestBody int[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programDataService.resetProblemListForPrograms(programIds, curUser);
             return new ResponseEntity(HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -232,7 +224,7 @@ public class ProgramDataRestController {
 //            @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
 //            Authentication auth) {
 //        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
 //            return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
 //        } catch (Exception e) {
 //            logger.error("Error while trying to update ProgramVersion", e);
@@ -240,12 +232,21 @@ public class ProgramDataRestController {
 //        }
 //    }
 
+    /**Get Shipment list for Sync
+     *
+     * @param programId
+     * @param versionId
+     * @param userId
+     * @param lastSyncDate
+     * @param auth
+     * @return
+     */
     @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
     public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "userId", required = true) int userId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getShipmentListForSync(programId, versionId, userId, lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while getting Sync list for Shipments", p);
@@ -257,7 +258,8 @@ public class ProgramDataRestController {
     }
 
     /**
-     * Sample JSON
+     * Checks if newer versions are available for a list of ProgramId and
+     * VersionId s Sample JSON
      * [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
      *
      * @param programVersionList
@@ -267,7 +269,7 @@ public class ProgramDataRestController {
     @PostMapping("/programData/checkNewerVersions")
     public ResponseEntity checkNewerVersions(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.checkNewerVersions(programVersionList, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to check ProgramVersion", e);
@@ -324,7 +326,7 @@ public class ProgramDataRestController {
     @PostMapping(value = "/program/actualConsumptionReport")
     public ResponseEntity getProgramProductCatalog(@RequestBody ActualConsumptionDataInput acd, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getActualConsumptionDataInput(acd, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ade) {
             logger.error("/api/program/actualConsumptionReport", ade);
@@ -335,6 +337,11 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Get latest ProgramId and VersionId for a list of ProgramIds
+     * 
+     * @param programIds
+     * @return 
+     */
     @PostMapping("/programData/getLatestVersionForPrograms")
     public ResponseEntity getLatestVersionForProgram(@RequestBody String[] programIds) {
         try {
@@ -349,10 +356,19 @@ public class ProgramDataRestController {
         }
     }
 
+    /**Gets the list of Version trans notes for a Program Id includes all Versions //For (/program/data/version/trans/programId/{programId}) this URL
+     * 
+     * Gets the list of Version trans notes for a Program Id and VersionId //For (/program/data/version/trans/programId/{programId}/versionId/{versionId}) this URL
+     * 
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return 
+     */
     @JsonView(Views.ReportView.class)
     @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})
     public ResponseEntity getProgramVersionTrans(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = false) int versionId, Authentication auth) {
-        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         try {
             if (versionId == 0) {
                 versionId = -1;

@@ -25,13 +25,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/unit")
 public class UnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,10 +43,17 @@ public class UnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/unit")
+    /**
+     * Add Unit
+     *
+     * @param unit
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.unitService.addUnit(unit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
@@ -56,10 +65,17 @@ public class UnitRestController {
         }
     }
 
-    @PutMapping(path = "/unit")
+    /**
+     * Update Unit
+     *
+     * @param unit
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.unitService.updateUnit(unit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
@@ -71,7 +87,13 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit")
+    /**
+     * Get list of Units
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     public ResponseEntity getUnit(Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
@@ -81,7 +103,14 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit/dimension/{dimensionId}")
+    /**
+     * Get list of Units for a Dimension
+     *
+     * @param dimensionId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/dimension/{dimensionId}")
     public ResponseEntity getUnitByDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitListByDimensionId(dimensionId), HttpStatus.OK);
@@ -91,7 +120,14 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/unit/{unitId}")
+    /**
+     * Get Unit by Id
+     *
+     * @param unitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{unitId}")
     public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
@@ -104,18 +140,4 @@ public class UnitRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/unit/{lastSyncDate}")
-//    public ResponseEntity getUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            return new ResponseEntity(this.unitService.getUnitListForSync(lastSyncDate), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing unit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing unit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }
