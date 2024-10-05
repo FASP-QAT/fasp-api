@@ -209,8 +209,6 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN rm_realm r ON l.LABEL_ID=r.LABEL_ID " // -- 2
                 + "LEFT JOIN ap_currency c2 ON l.LABEL_ID=c2.LABEL_ID " //-- 3
                 + "LEFT JOIN ap_dimension d ON l.LABEL_ID=d.LABEL_ID " //-- 4 
-                + "LEFT JOIN ap_version_type vt ON l.LABEL_ID=vt.LABEL_ID " //-- 5
-                + "LEFT JOIN ap_version_status vs ON l.LABEL_ID=vs.LABEL_ID " //-- 6
                 + "LEFT JOIN ap_shipment_status ss ON l.LABEL_ID=ss.LABEL_ID " //-- 7
                 + "LEFT JOIN us_role r2 ON l.LABEL_ID=r2.LABEL_ID " //-- 8
                 + "LEFT JOIN rm_health_area ha ON l.LABEL_ID=ha.LABEL_ID " //-- 9
@@ -223,9 +221,6 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN rm_data_source_type dst ON l.LABEL_ID=dst.LABEL_ID " //-- 16
                 + "LEFT JOIN ap_unit u ON l.LABEL_ID=u.LABEL_ID " //-- 17 
                 + "LEFT JOIN rm_program p ON l.LABEL_ID=p.LABEL_ID " //-- 18 
-                + "LEFT JOIN ap_problem_type pt ON l.LABEL_ID=pt.LABEL_ID " //-- 19 
-                + "LEFT JOIN ap_problem_status ps ON l.LABEL_ID=ps.LABEL_ID " //-- 20
-                + "LEFT JOIN ap_problem_criticality pc ON l.LABEL_ID=pc.LABEL_ID " //-- 21 
                 + "LEFT JOIN ap_problem p2 ON l.LABEL_ID=p2.LABEL_ID " //-- 22 
                 + "LEFT JOIN ap_problem p3 ON l.LABEL_ID=p3.ACTION_LABEL_ID " //-- 23 
                 + "LEFT JOIN us_business_function bf ON l.LABEL_ID=bf.LABEL_ID " //-- 24 
@@ -237,7 +232,6 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN rm_procurement_unit pu2 ON l.LABEL_ID=pu2.LABEL_ID " //-- 31 
                 + "LEFT JOIN rm_realm_country_planning_unit rcpu ON l.LABEL_ID=rcpu.LABEL_ID " //-- 32 
                 + "LEFT JOIN rm_supplier s ON l.LABEL_ID=s.LABEL_ID " //-- 33 
-                + "LEFT JOIN ap_problem_category pc3 ON l.LABEL_ID=pc3.LABEL_ID " //-- 34 
                 + "LEFT JOIN ap_language l2 ON l.LABEL_ID=l2.LABEL_ID " //-- 35 
                 + "LEFT JOIN ap_notification_type nt ON l.LABEL_ID=nt.LABEL_ID " //-- 36 
                 + "LEFT JOIN rm_organisation_type ot ON l.LABEL_ID=ot.LABEL_ID " //-- 37 
@@ -250,45 +244,42 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN rm_equivalency_unit eu ON l.LABEL_ID=eu.LABEL_ID " // -- 44
                 + "LEFT JOIN rm_tree_template tt ON l.LABEL_ID=tt.LABEL_ID " // -- 45
                 + "LEFT JOIN rm_tree_template_node ttn ON l.LABEL_ID=ttn.LABEL_ID " // -- 46
-                + "LEFT JOIN rm_usage_template ut ON l.LABEL_ID=ut.LABEL_ID " // -- 47
+                + "LEFT JOIN rm_usage_template ut1 ON l.LABEL_ID=ut1.LABEL_ID " // -- 47
                 + "LEFT JOIN rm_forecast_tree ft ON l.LABEL_ID=ft.LABEL_ID " // -- 48
                 + "LEFT JOIN rm_forecast_tree_node ftn ON l.LABEL_ID=ftn.LABEL_ID " // -- 49
                 + "LEFT JOIN rm_scenario s2 ON l.LABEL_ID=s2.LABEL_ID " // -- 50
-                + "LEFT JOIN rm_dataset_planning_unit dpu ON dpu.OTHER_LABEL_ID=l.LABEL_ID " // -- 51
                 + "LEFT JOIN ap_extrapolation_method em ON em.LABEL_ID=l.LABEL_ID " // 52
-                + "LEFT JOIN rm_forecast_tree_level ftl ON ftl.LABEL_ID=l.LABEL_ID " // 53
-                + "LEFT JOIN rm_tree_template_level ttl ON ttl.LABEL_ID=l.LABEL_ID " // 54
                 + "LEFT JOIN rm_procurement_agent_type pat ON pat.LABEL_ID=l.LABEL_ID " // 55
                 + "LEFT JOIN rm_funding_source_type fst ON fst.LABEL_ID=l.LABEL_ID " // 56
                 + "set l.`LABEL_EN`=:labelEn,l.`LABEL_FR`=:labelFr,l.`LABEL_PR`=:labelPr,l.`LABEL_SP`=:labelSp,l.`LAST_MODIFIED_BY`=:curUser,l.`LAST_MODIFIED_DATE`=:curDate, "
                 + "c.`LAST_MODIFIED_DATE`=:curDate,r.`LAST_MODIFIED_DATE`=:curDate,c2.`LAST_MODIFIED_DATE`=:curDate,d.`LAST_MODIFIED_DATE`=:curDate, "
-                + "vt.`LAST_MODIFIED_DATE`=:curDate,vs.`LAST_MODIFIED_DATE`=:curDate,ss.`LAST_MODIFIED_DATE`=:curDate,r2.`LAST_MODIFIED_DATE`=:curDate, "
+                + "ss.`LAST_MODIFIED_DATE`=:curDate,r2.`LAST_MODIFIED_DATE`=:curDate, "
                 + "ha.`LAST_MODIFIED_DATE`=:curDate,o.`LAST_MODIFIED_DATE`=:curDate,r3.`LAST_MODIFIED_DATE`=:curDate,pa.`LAST_MODIFIED_DATE`=:curDate, "
                 + "fs.`LAST_MODIFIED_DATE`=:curDate,b.`LAST_MODIFIED_DATE`=:curDate,ds.`LAST_MODIFIED_DATE`=:curDate,dst.`LAST_MODIFIED_DATE`=:curDate, "
-                + "u.`LAST_MODIFIED_DATE`=:curDate,p.`LAST_MODIFIED_DATE`=:curDate,pt.`LAST_MODIFIED_DATE`=:curDate,ps.`LAST_MODIFIED_DATE`=:curDate, "
-                + "pc.`LAST_MODIFIED_DATE`=:curDate,p2.`LAST_MODIFIED_DATE`=:curDate,p3.`LAST_MODIFIED_DATE`=:curDate,bf.`LAST_MODIFIED_DATE`=:curDate, "
+                + "u.`LAST_MODIFIED_DATE`=:curDate,p.`LAST_MODIFIED_DATE`=:curDate, "
+                + "p2.`LAST_MODIFIED_DATE`=:curDate,p3.`LAST_MODIFIED_DATE`=:curDate,bf.`LAST_MODIFIED_DATE`=:curDate, "
                 + "pc2.`LAST_MODIFIED_DATE`=:curDate,tc.`LAST_MODIFIED_DATE`=:curDate,fu.`LAST_MODIFIED_DATE`=:curDate,fug.`LAST_MODIFIED_DATE`=:curDate, "
                 + "pu.`LAST_MODIFIED_DATE`=:curDate,pu2.`LAST_MODIFIED_DATE`=:curDate,rcpu.`LAST_MODIFIED_DATE`=:curDate,s.`LAST_MODIFIED_DATE`=:curDate, "
-                + "pc3.`LAST_MODIFIED_DATE`=:curDate,l2.`LAST_MODIFIED_DATE`=:curDate,nt.`LAST_MODIFIED_DATE`=:curDate,ot.`LAST_MODIFIED_DATE`=:curDate, "
+                + "l2.`LAST_MODIFIED_DATE`=:curDate,nt.`LAST_MODIFIED_DATE`=:curDate,ot.`LAST_MODIFIED_DATE`=:curDate, "
                 + "ut.`LAST_MODIFIED_DATE`=:curDate,nt2.`LAST_MODIFIED_DATE`=:curDate,up.`LAST_MODIFIED_DATE`=:curDate,mt.`LAST_MODIFIED_DATE`=:curDate, "
                 + "fmt.`LAST_MODIFIED_DATE`=:curDate,fm.`LAST_MODIFIED_DATE`=:curDate,eu.`LAST_MODIFIED_DATE`=:curDate,tt.`LAST_MODIFIED_DATE`=:curDate, "
-                + "ttn.`LAST_MODIFIED_DATE`=:curDate,ut.`LAST_MODIFIED_DATE`=:curDate,ft.`LAST_MODIFIED_DATE`=:curDate,ftn.`LAST_MODIFIED_DATE`=:curDate, "
-                + "s2.`LAST_MODIFIED_DATE`=:curDate,spu.`LAST_MODIFIED_DATE`=:curDate,em.`LAST_MODIFIED_DATE`=:curDate,ftl.`LAST_MODIFIED_DATE`=:curDate, "
-                + "ttl.`LAST_MODIFIED_DATE`=:curDate,pat.`LAST_MODIFIED_DATE`=:curDate,fst.`LAST_MODIFIED_DATE`=:curDate, "
+                + "ttn.`LAST_MODIFIED_DATE`=:curDate,ut1.`LAST_MODIFIED_DATE`=:curDate,ft.`LAST_MODIFIED_DATE`=:curDate,ftn.`LAST_MODIFIED_DATE`=:curDate, "
+                + "s2.`LAST_MODIFIED_DATE`=:curDate,em.`LAST_MODIFIED_DATE`=:curDate, "
+                + "pat.`LAST_MODIFIED_DATE`=:curDate,fst.`LAST_MODIFIED_DATE`=:curDate, "
                 + "c.`LAST_MODIFIED_BY`=:curUser,r.`LAST_MODIFIED_BY`=:curUser,c2.`LAST_MODIFIED_BY`=:curUser,d.`LAST_MODIFIED_BY`=:curUser, "
-                + "vt.`LAST_MODIFIED_BY`=:curUser,vs.`LAST_MODIFIED_BY`=:curUser,ss.`LAST_MODIFIED_BY`=:curUser,r2.`LAST_MODIFIED_BY`=:curUser, "
+                + "ss.`LAST_MODIFIED_BY`=:curUser,r2.`LAST_MODIFIED_BY`=:curUser, "
                 + "ha.`LAST_MODIFIED_BY`=:curUser,o.`LAST_MODIFIED_BY`=:curUser,r3.`LAST_MODIFIED_BY`=:curUser,pa.`LAST_MODIFIED_BY`=:curUser, "
                 + "fs.`LAST_MODIFIED_BY`=:curUser,b.`LAST_MODIFIED_BY`=:curUser,ds.`LAST_MODIFIED_BY`=:curUser,dst.`LAST_MODIFIED_BY`=:curUser, "
-                + "u.`LAST_MODIFIED_BY`=:curUser,p.`LAST_MODIFIED_BY`=:curUser,pt.`LAST_MODIFIED_BY`=:curUser,ps.`LAST_MODIFIED_BY`=:curUser, "
-                + "pc.`LAST_MODIFIED_BY`=:curUser,p2.`LAST_MODIFIED_BY`=:curUser,p3.`LAST_MODIFIED_BY`=:curUser,bf.`LAST_MODIFIED_BY`=:curUser, "
+                + "u.`LAST_MODIFIED_BY`=:curUser,p.`LAST_MODIFIED_BY`=:curUser, "
+                + "p2.`LAST_MODIFIED_BY`=:curUser,p3.`LAST_MODIFIED_BY`=:curUser,bf.`LAST_MODIFIED_BY`=:curUser, "
                 + "pc2.`LAST_MODIFIED_BY`=:curUser,tc.`LAST_MODIFIED_BY`=:curUser,fu.`LAST_MODIFIED_BY`=:curUser,fug.`LAST_MODIFIED_BY`=:curUser, "
                 + "pu.`LAST_MODIFIED_BY`=:curUser,pu2.`LAST_MODIFIED_BY`=:curUser,rcpu.`LAST_MODIFIED_BY`=:curUser,s.`LAST_MODIFIED_BY`=:curUser, "
-                + "pc3.`LAST_MODIFIED_BY`=:curUser,l2.`LAST_MODIFIED_BY`=:curUser,nt.`LAST_MODIFIED_BY`=:curUser,ot.`LAST_MODIFIED_BY`=:curUser, "
+                + "l2.`LAST_MODIFIED_BY`=:curUser,nt.`LAST_MODIFIED_BY`=:curUser,ot.`LAST_MODIFIED_BY`=:curUser, "
                 + "ut.`LAST_MODIFIED_BY`=:curUser,nt2.`LAST_MODIFIED_BY`=:curUser,up.`LAST_MODIFIED_BY`=:curUser,mt.`LAST_MODIFIED_BY`=:curUser, "
                 + "fmt.`LAST_MODIFIED_BY`=:curUser,fm.`LAST_MODIFIED_BY`=:curUser,eu.`LAST_MODIFIED_BY`=:curUser,tt.`LAST_MODIFIED_BY`=:curUser, "
-                + "ttn.`LAST_MODIFIED_BY`=:curUser,ut.`LAST_MODIFIED_BY`=:curUser,ft.`LAST_MODIFIED_BY`=:curUser,ftn.`LAST_MODIFIED_BY`=:curUser, "
-                + "s2.`LAST_MODIFIED_BY`=:curUser,spu.`LAST_MODIFIED_BY`=:curUser,em.`LAST_MODIFIED_BY`=:curUser,ftl.`LAST_MODIFIED_BY`=:curUser, "
-                + "ttl.`LAST_MODIFIED_BY`=:curUser,pat.`LAST_MODIFIED_BY`=:curUser,fst.`LAST_MODIFIED_BY`=:curUser "
+                + "ttn.`LAST_MODIFIED_BY`=:curUser,ut1.`LAST_MODIFIED_BY`=:curUser,ft.`LAST_MODIFIED_BY`=:curUser,ftn.`LAST_MODIFIED_BY`=:curUser, "
+                + "s2.`LAST_MODIFIED_BY`=:curUser,em.`LAST_MODIFIED_BY`=:curUser, "
+                + "pat.`LAST_MODIFIED_BY`=:curUser,fst.`LAST_MODIFIED_BY`=:curUser "
                 + " where l.`LABEL_ID`=:labelId ";
         int[] count = this.namedParameterJdbcTemplate.batchUpdate(sql, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         return true;
