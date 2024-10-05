@@ -467,7 +467,7 @@ DROP procedure IF EXISTS `getDashboardActualConsumptionListForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardActualConsumptionListForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_CUR_DATE DATE)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardActualConsumptionListForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_CUR_DATE DATE)
 BEGIN
 
     SET @stopDate = CONCAT(SUBSTRING(VAR_CUR_DATE,1,7),"-01");
