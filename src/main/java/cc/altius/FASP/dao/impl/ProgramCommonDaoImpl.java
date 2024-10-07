@@ -229,6 +229,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(stringBuilder, params, "p", curUser);
+        logger.info("Sql for simple supply plan program by Id "+stringBuilder.toString());
         return this.namedParameterJdbcTemplate.queryForObject(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 
