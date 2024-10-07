@@ -194,6 +194,7 @@ public class UserRestController {
         logger.info("getCustomUserByUserIdForApi==>" + ((CustomUserDetails) auth.getPrincipal()).getUserId() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
 
         CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+        logger.info("CustomUserDetails==>" + curUser);
         try {
             User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
             cc.altius.FASP.model.UserDetails ud = new cc.altius.FASP.model.UserDetails();
