@@ -96,8 +96,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/currency/*', 'ROLE_BF_LI
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/currency/*', 'ROLE_BF_LIST_CURRENCY~ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/applicationLevel**', 'ROLE_BF_APP_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/applicationLevel**', 'ROLE_BF_APP_LEVEL_DASHBOARD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_REALM_LEVEL_DASHBOARD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_REALM_LEVEL_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_APPLICATION_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_APPLICATION_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanReviewerLevel', 'ROLE_BF_SP_REVIEW_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanTop', 'ROLE_BF_SP_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dashboard/supplyPlanBottom', 'ROLE_BF_SP_DASHBOARD');
@@ -463,7 +463,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockAdjustmentRe
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/procurementAgentShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/programLeadTimes', 'ROLE_BF_PROCUREMENT_AGENT_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/fundingSourceShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT~ROLE_BF_FUNDER_REPORT');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical', 'ROLE_BF_SUPPLY_PLAN_REPORT');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical/**', 'ROLE_BF_SUPPLY_PLAN_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusOverTime', 'ROLE_BF_STOCK_STATUS_OVER_TIME_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusMatrix', 'ROLE_BF_STOCK_STATUS_MATRIX_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/shipmentDetails', 'ROLE_BF_SHIPMENT_DETAILS_REPORT');
