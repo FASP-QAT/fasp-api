@@ -62,6 +62,21 @@ ALTER TABLE `fasp`.`ap_security` ADD UNIQUE INDEX `index2` (`METHOD` ASC, `URL` 
 
 TRUNCATE TABLE temp_security;
 
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/logout', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/agreement', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/changePassword', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/details', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/language', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/module/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/theme/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/file/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/ticket/addIssue', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/ticket/addIssueAttachment/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/ticket/openIssues', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/locales/**', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/sync/language/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/allMasters/forPrograms/*', 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/treeAnchor', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/budget', 'ROLE_BF_ADD_BUDGET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/budget', 'ROLE_BF_EDIT_BUDGET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/budget', 'ROLE_BF_LIST_BUDGET~ROLE_BF_DROPDOWN_SP');
@@ -159,7 +174,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/integrationProgram', 'RO
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/integrationProgram/**', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/integrationProgram/**', 'ROLE_BF_MANUAL_INTEGRATION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/integrationProgram/**', 'ROLE_BF_ADD_INTEGRATION_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/logout', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/master/*', 'ROLE_BF_LIST_MASTER_DATA');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/master/*', 'ROLE_BF_LIST_MASTER_DATA');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/master/*', 'ROLE_BF_LIST_MASTER_DATA');
@@ -292,12 +306,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user', 'ROLE_BF_ADD_USER
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user', 'ROLE_BF_EDIT_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/agreement', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/changePassword', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/details', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/language', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/module/*', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user/theme/*', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/programId/*', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/realmId/*', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/commit/sendNotification/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
@@ -371,10 +379,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/erpLinking/**', 'ROLE_BF
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/erpLinking/**', 'ROLE_BF_MANUAL_TAGGING~ROLE_BF_DELINKING');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/export/dataset/**', 'ROLE_BF_COUNTRY_INTEGRATION_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/export/supplyPlan/**', 'ROLE_BF_COUNTRY_INTEGRATION_SP');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/file/*', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/ticket/addIssue', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/ticket/addIssueAttachment/*', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/ticket/openIssues', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/getDatabaseLabelsListAll', 'ROLE_BUSINESS_FUNCTION_EDIT_APPLICATION_LABELS~ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS~ROLE_BUSINESS_FUNCTION_EDIT_PROGRAM_LABELS');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/getStaticLabelsListAll', 'ROLE_BF_LABEL_TRANSLATIONS');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/saveDatabaseLabels', 'ROLE_BUSINESS_FUNCTION_EDIT_APPLICATION_LABELS~ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS~ROLE_BUSINESS_FUNCTION_EDIT_PROGRAM_LABELS');
@@ -384,7 +388,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/language', 'ROLE_BF_ADD_
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/language', 'ROLE_BF_EDIT_LANGUAGE');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/language/*', 'ROLE_BF_EDIT_LANGUAGE');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/language/*', 'ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/locales/**', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/pipeline/**', 'ROLE_BF_PIPELINE_PROGRAM_IMPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/pipeline', 'ROLE_BF_PIPELINE_PROGRAM_IMPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/pipeline/**', 'ROLE_BF_PIPELINE_PROGRAM_IMPORT');
@@ -476,9 +479,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/monthlyForecast',
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/forecastSummary', 'ROLE_BF_LIST_FORECAST_SUMMARY~ROLE_BF_VIEW_FORECAST_SUMMARY~ROLE_BF_COMPARE_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/manualJson', 'ROLE_BF_MANUAL_INTEGRATION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/report/updateProgramInfo/**', 'ROLE_BF_LIST_ALTERNATE_REPORTING_UNIT~ROLE_BF_LIST_DATASET~ROLE_BF_LIST_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/sync/language/*', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/allMasters/forPrograms/*', 'ROLE_BF_LOGGED_IN');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/sync/treeAnchor', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate', 'ROLE_BF_VIEW_TREE_TEMPLATES~ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/treeTemplate', 'ROLE_BF_ADD_TREE_TEMPLATE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/treeTemplate', 'ROLE_BF_EDIT_TREE_TEMPLATE');

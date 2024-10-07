@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.UserAcl;
 import java.util.List;
 
 /**
@@ -14,4 +16,6 @@ import java.util.List;
 public interface AclDao {
 
     public int buildSecurity();
+    
+    public List<UserAcl> expandUserAccess(UserAcl acl, CustomUserDetails curUser);
 }

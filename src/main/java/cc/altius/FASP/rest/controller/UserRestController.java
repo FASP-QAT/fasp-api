@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
@@ -238,7 +239,7 @@ public class UserRestController {
     @GetMapping(value = "/user")
     public ResponseEntity getUserList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Could not get User list", e);
@@ -332,8 +333,8 @@ public class UserRestController {
      * @return
      */
     @PostMapping(value = "/user")
-    public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
-        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+    public ResponseEntity addUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
             PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -360,6 +361,9 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
+        } catch (AccessControlFailedException acfe) {
+            auditLogger.error(acfe.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
         } catch (IncorrectAccessControlException iae) {
             auditLogger.error("Either add All access or specific access " + user);
             return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);

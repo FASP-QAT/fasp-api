@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
@@ -42,7 +43,7 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
