@@ -96,8 +96,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/currency/*', 'ROLE_BF_LI
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/currency/*', 'ROLE_BF_LIST_CURRENCY~ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/applicationLevel**', 'ROLE_BF_APP_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/applicationLevel**', 'ROLE_BF_APP_LEVEL_DASHBOARD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_APPLICATION_DASHBOARD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel**', 'ROLE_BF_APPLICATION_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel/**', 'ROLE_BF_APPLICATION_DASHBOARD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/realmLevel/userList', 'ROLE_BF_APPLICATION_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanReviewerLevel', 'ROLE_BF_SP_REVIEW_LEVEL_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dashboard/supplyPlanTop', 'ROLE_BF_SP_DASHBOARD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dashboard/supplyPlanBottom', 'ROLE_BF_SP_DASHBOARD');
@@ -358,6 +358,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/planningUnit/ba
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dropdown/fundingSource/programs', 'ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dropdown/fundingSourceType/programs', 'ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dropdown/program/versionStatus/**', 'ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/erpLinking/shipmentSync', 'ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/erpLinking/**', 'ROLE_BF_MANUAL_TAGGING~ROLE_BF_DELINKING');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/erpLinking/**', 'ROLE_BF_MANUAL_TAGGING~ROLE_BF_DELINKING');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/erpLinking/**', 'ROLE_BF_MANUAL_TAGGING~ROLE_BF_DELINKING');
