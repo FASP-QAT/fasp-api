@@ -136,6 +136,7 @@ public class AclServiceImpl implements AclService {
         int count = 1;
         StringBuilder localSb = new StringBuilder();
         localSb.append(" AND (FALSE ");
+        logger.info("cur user acl"+curUser.getAclList());
         for (UserAcl userAcl : curUser.getAclList()) {
             localSb.append(" OR (")
                     .append("(").append(programAlias).append(".PROGRAM_ID IS NULL OR :realmCountryId").append(count).append("=-1 OR ").append(programAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
