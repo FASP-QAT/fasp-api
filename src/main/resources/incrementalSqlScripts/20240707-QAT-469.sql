@@ -140,7 +140,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastingUnit/**', 'RO
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastingUnit/**', 'ROLE_BF_LIST_FORECASTING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/forecastMethod', 'ROLE_BF_LIST_FORECAST_METHOD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastMethod', 'ROLE_BF_ADD_FORECAST_METHOD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/forecastMethod/*', 'ROLE_BF_LIST_FORECAST_METHOD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/forecastMethod/*', 'ROLE_BF_LIST_FORECAST_METHOD~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastStats/*', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastStats/*', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/forecastStats/*', 'ROLE_BF_COMMIT_DATASET');
@@ -182,7 +182,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/master/*', 'ROLE_BF_LIST
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/master/*', 'ROLE_BF_LIST_MASTER_DATA');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/modelingType', 'ROLE_BF_LIST_MODELING_TYPE');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/modelingType', 'ROLE_BF_ADD_MODELING_TYPE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/modelingType/*', 'ROLE_BF_LIST_MODELING_TYPE');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/modelingType/*', 'ROLE_BF_LIST_MODELING_TYPE~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/organisation', 'ROLE_BF_ADD_ORGANIZATION');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/organisation', 'ROLE_BF_EDIT_ORGANIZATION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisation', 'ROLE_BF_LIST_ORGANIZATION~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
@@ -191,9 +191,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisation/**', 'ROLE_
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/organisationType', 'ROLE_BF_ADD_ORGANIZATION_TYPE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/organisationType', 'ROLE_BF_EDIT_ORGANIZATION_TYPE');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisationType', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/organisationType/**', 'ROLE_BF_LIST_ORGANIZATION_TYPE~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/planningUnit/**', 'ROLE_BF_LIST_PLANNING_UNIT~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/planningUnit', 'ROLE_BF_ADD_PLANNING_UNIT');
@@ -256,11 +254,11 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'RO
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realm', 'ROLE_BF_CREATE_REALM');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/realm', 'ROLE_BF_EDIT_REALM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realm', 'ROLE_BF_LIST_REALM');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realm', 'ROLE_BF_LIST_REALM~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realm/*', 'ROLE_BF_LIST_REALM');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realmCountry', 'ROLE_BF_MAP_REALM_COUNTRY');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/realmCountry', 'ROLE_BF_MAP_REALM_COUNTRY');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry', 'ROLE_BF_LIST_REALM_COUNTRY');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry', 'ROLE_BF_LIST_REALM_COUNTRY~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT~ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
@@ -270,9 +268,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/region', 'ROLE_BF_MAP_REGION');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region', 'ROLE_BF_MAP_REGION');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region', 'ROLE_BF_MAP_REGION~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region/**', 'ROLE_BF_MAP_REGION~ROLE_BF_EDIT_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/role', 'ROLE_BF_ADD_ROLE~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/role', 'ROLE_BF_ADD_ROLE');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/role', 'ROLE_BF_ADD_ROLE');
@@ -296,7 +293,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit', 'ROLE_BF_LIST_UNI
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/unit/**', 'ROLE_BF_LIST_UNIT~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usagePeriod', 'ROLE_BF_LIST_USAGE_PERIOD');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/usagePeriod', 'ROLE_BF_ADD_USAGE_PERIOD');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usagePeriod/**', 'ROLE_BF_LIST_USAGE_PERIOD');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usagePeriod/**', 'ROLE_BF_LIST_USAGE_PERIOD~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usageTemplate', 'ROLE_BF_LIST_USAGE_TEMPLATE');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/usageTemplate', 'ROLE_BF_EDIT_USAGE_TEMPLATE~ROLE_BF_EDIT_USAGE_TEMPLATE_ALL~ROLE_BF_EDIT_USAGE_TEMPLATE_OWN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/usageTemplate/**', 'ROLE_BF_LIST_USAGE_TEMPLATE');
@@ -306,7 +303,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/user', 'ROLE_BF_ADD_USER
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user', 'ROLE_BF_EDIT_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/programId/*', 'ROLE_BF_LIST_USER');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/programId/*', 'ROLE_BF_LIST_USER~ROLE_BF_EDIT_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/realmId/*', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/commit/sendNotification/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/commit/getCommitRequest/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
@@ -314,7 +311,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/datasetData/*', '
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/programData/*', 'ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset/versions**', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/datasetData', 'ROLE_BF_LIST_DATASET');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataset*', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset', 'ROLE_BF_ADD_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataset', 'ROLE_BF_EDIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET');
@@ -463,7 +459,8 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockAdjustmentRe
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/procurementAgentShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/programLeadTimes', 'ROLE_BF_PROCUREMENT_AGENT_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/fundingSourceShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT~ROLE_BF_FUNDER_REPORT');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical/**', 'ROLE_BF_SUPPLY_PLAN_REPORT');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical/dropdown', 'ROLE_BF_SUPPLY_PLAN_REPORT');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical', 'ROLE_BF_SUPPLY_PLAN_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusOverTime', 'ROLE_BF_STOCK_STATUS_OVER_TIME_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusMatrix', 'ROLE_BF_STOCK_STATUS_MATRIX_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/shipmentDetails', 'ROLE_BF_SHIPMENT_DETAILS_REPORT');
@@ -487,4 +484,4 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_B
 -- These queries should be run at the end
 -- #########################################################################################################
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/*', 'ROLE_BF_LIST_USER');
-INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/dataset/*', 'ROLE_BF_LIST_DATASET');
+INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/dataset*', 'ROLE_BF_LIST_DATASET~ROLE_BF_DROPDOWN_FC');
