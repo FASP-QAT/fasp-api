@@ -309,7 +309,6 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/commit/sendNotification/
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/commit/getCommitRequest/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/datasetData/*', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/programData/*', 'ROLE_BF_COMMIT_VERSION');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset/versions**', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/datasetData', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset', 'ROLE_BF_ADD_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataset', 'ROLE_BF_EDIT_DATASET');
@@ -460,7 +459,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockAdjustmentRe
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/procurementAgentShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/programLeadTimes', 'ROLE_BF_PROCUREMENT_AGENT_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/fundingSourceShipmentReport', 'ROLE_BF_SHIPMENT_COST_DETAILS_REPORT~ROLE_BF_FUNDER_REPORT');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical/dropdown', 'ROLE_BF_SUPPLY_PLAN_REPORT');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical/dropdowns', 'ROLE_BF_SUPPLY_PLAN_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusVertical', 'ROLE_BF_SUPPLY_PLAN_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusOverTime', 'ROLE_BF_STOCK_STATUS_OVER_TIME_REPORT');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/report/stockStatusMatrix', 'ROLE_BF_STOCK_STATUS_MATRIX_REPORT');
@@ -485,4 +484,4 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/treeTemplate/*', 'ROLE_B
 -- These queries should be run at the end
 -- #########################################################################################################
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/*', 'ROLE_BF_LIST_USER');
-INSERT IGNORE INTO ap_security VALUES (null, 1, '/api/dataset*', 'ROLE_BF_LIST_DATASET~ROLE_BF_DROPDOWN_FC');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataset/*', 'ROLE_BF_LIST_DATASET~ROLE_BF_DROPDOWN_FC');
