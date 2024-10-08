@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
-import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
@@ -58,7 +57,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -398,6 +396,15 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
+                + "WHERE     "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
                 + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
@@ -414,15 +421,10 @@ public class UserDaoImpl implements UserDao {
                 + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
                 + "LEFT JOIN us_role ro ON ur.`ROLE_ID`=ro.`ROLE_ID` "
                 + "LEFT JOIN ap_label rol ON ro.`LABEL_ID`=rol.`LABEL_ID` "
-                + "WHERE "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("curUser", curUser.getUserId());
-        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
-        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
-            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
-        }
-        sb.append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
+                + "WHERE u.USER_ID IN (")
+                .append(sb1)
+                .append(")")
+                .append("ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }
@@ -438,6 +440,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
+                + "WHERE     "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
                 + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
@@ -454,16 +466,12 @@ public class UserDaoImpl implements UserDao {
                 + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
                 + "LEFT JOIN us_role ro ON ur.`ROLE_ID`=ro.`ROLE_ID` "
                 + "LEFT JOIN ap_label rol ON ro.`LABEL_ID`=rol.`LABEL_ID` "
-                + "WHERE "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("curUser", curUser.getUserId());
-        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
-        sb.append(" AND u.REALM_ID=").append(realmId);
-        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
-            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
-        }
-        sb.append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
+                + "WHERE u.REALM_ID=:realmId AND u.USER_ID IN (")
+                .append(sb1).append(")")
+                //                if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
+                //            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
+                //        }
+                .append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }
@@ -853,6 +861,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<UserAcl> getAccessControls(CustomUserDetails curUser) {
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
+                + "WHERE     "
+                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
+
         StringBuilder sb = new StringBuilder("SELECT "
                 + "   acl.USER_ACL_ID, u.`USER_ID`, u.`USERNAME`, "
                 + "   acl.`ROLE_ID`, aclrl.`LABEL_ID` `ACL_ROLE_LABEL_ID`, aclrl.`LABEL_EN` `ACL_ROLE_LABEL_EN`, aclrl.`LABEL_FR` `ACL_ROLE_LABEL_FR`, aclrl.`LABEL_SP` `ACL_ROLE_LABEL_SP`, aclrl.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
@@ -872,16 +890,13 @@ public class UserDaoImpl implements UserDao {
                 + "LEFT JOIN vw_health_area aclha ON acl.`HEALTH_AREA_ID`=aclha.`HEALTH_AREA_ID` "
                 + "LEFT JOIN vw_organisation aclo ON acl.`ORGANISATION_ID`=aclo.`ORGANISATION_ID` "
                 + "LEFT JOIN vw_all_program aclp ON acl.`PROGRAM_ID`=aclp.`PROGRAM_ID` "
-                + "WHERE "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("curUser", curUser.getUserId());
-        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
-        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
-            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
-        }
+                + "WHERE u.USER_ID IN (")
+                .append(sb1)
+                .append(")");
+//        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
+//            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
+//        }
         sb.append(" ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
-//        sb.append(" LIMIT 10 ");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserAclRowMapper());
     }
@@ -1047,23 +1062,18 @@ public class UserDaoImpl implements UserDao {
     @Override
     public CustomUserDetails getCustomUserByUserIdForApi(int userId, int method, String apiUri) {
         logger.info("Method:" + method + ", apiUri=" + apiUri);
-//        String sqlString = "SELECT GROUP_CONCAT(DISTINCT(rbf.ROLE_ID)) `ROLE_ID` FROM us_role_business_function rbf LEFT JOIN (SELECT GROUP_CONCAT(REPLACE(s.BF_LIST,'~',',')) `BF_LIST` FROM ap_security s WHERE (s.METHOD=:method OR s.METHOD=0) AND IF (s.URL=:apiUri, TRUE, IF (s.URL LIKE '%**%', SUBSTRING(:apiUri,1, length(REPLACE(s.URL, '**', ''))) LIKE CONCAT(REPLACE(s.URL, '**', ''),'%'), IF (s.URL LIKE '%*%', SUBSTRING(:apiUri,1, length(REPLACE(s.URL, '*', ''))) LIKE CONCAT(REPLACE(s.URL, '*', ''),'%'), FALSE)))) bf1 ON FIND_IN_SET(rbf.BUSINESS_FUNCTION_ID, bf1.BF_LIST) WHERE bf1.BF_LIST IS NOT NULL";
         String sqlString = "SELECT GROUP_CONCAT(DISTINCT(rbf.ROLE_ID)) `ROLE_ID` FROM us_role_business_function rbf LEFT JOIN (SELECT GROUP_CONCAT(s.BF) `BF_LIST` FROM ap_security s WHERE (s.METHOD=:method OR s.METHOD=0) AND IF (s.URL=:apiUri, TRUE, IF (s.URL LIKE '%**%', SUBSTRING(:apiUri,1, length(REPLACE(s.URL, '**', ''))) LIKE CONCAT(REPLACE(s.URL, '**', ''),'%'), IF (s.URL LIKE '%*%', SUBSTRING(:apiUri,1, length(REPLACE(s.URL, '*', ''))) LIKE CONCAT(REPLACE(s.URL, '*', ''),'%'), FALSE)))) bf1 ON FIND_IN_SET(rbf.BUSINESS_FUNCTION_ID, bf1.BF_LIST) WHERE bf1.BF_LIST IS NOT NULL";
         Map<String, Object> params = new HashMap<>();
         params.put("method", method);
         params.put("apiUri", apiUri);
         params.put("userId", userId);
-//        logger.info(LogUtils.buildStringForLog(sqlString, params));
         String allowedRoleList = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         logger.info("allowedRoleList=" + allowedRoleList);
-
         sqlString = this.customUserStringWithAclCheck + " WHERE TRUE AND `user`.`USER_ID`=:userId " + this.customUserOrderBy;
-//         
         try {
             params.clear();
             params.put("userId", userId);
             params.put("allowedRoleList", allowedRoleList);
-//            logger.info(LogUtils.buildStringForLog(sqlString, params));
             CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractorFull());
             logger.info(user.getAclList().toString());
             return user;
@@ -1079,6 +1089,15 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new AclRoleBusinessFunctionResultSetExtractor(curUser.getBusinessFunction()));
+    }
+
+    @Override
+    public boolean checkCanCreateRole(String roleId, CustomUserDetails curUser) {
+        String sql = "SELECT COUNT(*) FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID WHERE ur.USER_ID=:curUser AND ccr.CAN_CREATE_ROLE=:newRoleId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        params.put("newRoleId", roleId);
+        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) >= 1);
     }
 
 }

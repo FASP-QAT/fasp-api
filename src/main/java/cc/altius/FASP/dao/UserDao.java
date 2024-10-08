@@ -73,6 +73,8 @@ public interface UserDao {
     public Role getRoleById(String roleId);
 
     public List<Role> getRoleList(CustomUserDetails curUser);
+    
+    public boolean checkCanCreateRole(String roleId, CustomUserDetails curUser);
 
     public String generateTokenForUserId(int userId);
 

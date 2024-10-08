@@ -63,6 +63,11 @@ public class AclServiceImpl implements AclService {
         return true;
     }
 
+    @Override
+    public List<UserAcl> expandUserAccess(UserAcl acl, CustomUserDetails curUser) {
+        return this.aclDao.expandUserAccess(acl, curUser);
+    }
+
 //    @Override
 //    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int programId, List<Integer> healthAreaIdList, int organisationId) {
 //        boolean hasAccess = false;
@@ -134,9 +139,9 @@ public class AclServiceImpl implements AclService {
         for (UserAcl userAcl : curUser.getAclList()) {
             localSb.append(" OR (")
                     .append("(").append(programAlias).append(".PROGRAM_ID IS NULL OR :realmCountryId").append(count).append("=-1 OR ").append(programAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
-                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR FIND_IN_SET(:healthAreaId").append(count).append(", ").append(programAlias).append(".HEALTH_AREA_ID))")
-                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
-                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :programId").append(count).append("=-1 OR ").append(programAlias).append(".PROGRAM_ID=:programId").append(count).append(")")
+                    .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR FIND_IN_SET(:healthAreaId").append(count).append(", ").append(programAlias).append(".HEALTH_AREA_ID))")
+                    .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
+                    .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :programId").append(count).append("=-1 OR ").append(programAlias).append(".PROGRAM_ID=:programId").append(count).append(")")
                     .append(")");
             params.put("realmCountryId" + count, userAcl.getRealmCountryId());
             params.put("healthAreaId" + count, userAcl.getHealthAreaId());
@@ -192,6 +197,31 @@ public class AclServiceImpl implements AclService {
             params.put("realmCountryIdRc" + count, userAcl.getRealmCountryId());
             count++;
         }
+        localSb.append(")");
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addFullAclAtUserLevel(StringBuilder sb, Map<String, Object> params, String userAclAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append(userAclAlias).append(".ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_can_create_role ccr WHERE ccr.ROLE_ID=:roleId").append(count).append(")")
+                    .append(" AND (:realmCountryId").append(count).append("=-1 OR ").append(userAclAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
+                    .append(" AND (:healthAreaId").append(count).append("=-1 OR ").append(userAclAlias).append(".HEALTH_AREA_ID=:healthAreaId").append(count).append(")")
+                    .append(" AND (:organisationId").append(count).append("=-1 OR ").append(userAclAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
+                    .append(" AND (:programId").append(count).append("=-1 OR ").append(userAclAlias).append(".PROGRAM_ID=:programId").append(count).append(")")
+                    .append(")");
+            params.put("roleId" + count, userAcl.getRoleId());
+            params.put("realmCountryId" + count, userAcl.getRealmCountryId());
+            params.put("healthAreaId" + count, userAcl.getHealthAreaId());
+            params.put("organisationId" + count, userAcl.getOrganisationId());
+            params.put("programId" + count, userAcl.getProgramId());
+            count++;
+        }
+
         localSb.append(")");
         sb.append(localSb);
     }
