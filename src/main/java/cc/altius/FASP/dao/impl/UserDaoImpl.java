@@ -315,9 +315,9 @@ public class UserDaoImpl implements UserDao {
         for (int i = 0; i < curUser.getRoles().size(); i++) {
             role[i] = curUser.getRoles().get(i).getRoleId();
         }
-        if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
-            sb.append("AND c.`ROLE_ID`=\"ROLE_REALM_ADMIN\"");
-        }
+//        if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
+        sb.append("AND FIND_IN_SET(c.`ROLE_ID`,'"+String.join(",", role)+"')");
+//        }
         sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
         return this.namedParameterJdbcTemplate.query(sb.toString(), new RoleListResultSetExtractor());
     }
