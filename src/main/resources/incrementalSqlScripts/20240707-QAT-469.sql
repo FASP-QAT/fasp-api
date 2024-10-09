@@ -40,6 +40,11 @@ INSERT INTO ap_label VALUES (null, 'Enhanced Supply Plan Dashboard', null, null,
 INSERT INTO us_business_function values ('ROLE_BF_SP_DASHBOARD', last_insert_id(), 1, now(), 1, now());
 INSERT INTO us_role_business_function SELECT null, r.ROLE_ID, 'ROLE_BF_SP_DASHBOARD', 1, now(), 1, now() FROM us_role r WHERE r.ROLE_ID IN ('ROLE_REALM_ADMIN', 'ROLE_INTERNAL_USER', 'ROLE_PROGRAM_ADMIN', 'ROLE_PROGRAM_USER', 'ROLE_TRAINER_ADMIN', 'ROLE_REPORT_USER');
 
+INSERT INTO ap_label VALUES (null, 'Update program', null, null, null, 1, now(), 1, now(), 1);
+INSERT INTO us_business_function values ('ROLE_BF_UPDATE_PROGRAM', last_insert_id(), 1, now(), 1, now());
+INSERT INTO `fasp`.`us_role_business_function` (`ROLE_ID`, `BUSINESS_FUNCTION_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES ('ROLE_INTERNAL_USER', 'ROLE_BF_UPDATE_PROGRAM', '1', now(), '1', now());
+INSERT INTO `fasp`.`us_role_business_function` (`ROLE_ID`, `BUSINESS_FUNCTION_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES ('ROLE_REALM_ADMIN', 'ROLE_BF_UPDATE_PROGRAM', '1', now(), '1', now());
+INSERT INTO `fasp`.`us_role_business_function` (`ROLE_ID`, `BUSINESS_FUNCTION_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES ('ROLE_PROGRAM_ADMIN', 'ROLE_BF_UPDATE_PROGRAM', '1', now(), '1', now());
 -- #########################################################################################################
 
 DROP TABLE IF EXISTS `fasp`.`temp_security`;
@@ -265,7 +270,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
-INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realmCountry/**', 'ROLE_BF_MANAGE_REALM_COUNTRY_PLANNING_UNIT~ROLE_BF_LIST_ALTERNATE_REPORTING_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/realmCountry/**', 'ROLE_BF_LIST_REALM_COUNTRY');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/region', 'ROLE_BF_MAP_REGION');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/region', 'ROLE_BF_MAP_REGION~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
@@ -304,11 +309,13 @@ INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user', 'ROLE_BF_EDIT_USE
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/user/accessControls', 'ROLE_BF_LIST_USER');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/programId/*', 'ROLE_BF_LIST_USER~ROLE_BF_EDIT_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/realmId/*', 'ROLE_BF_LIST_USER');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/user/realmId/*', 'ROLE_BF_LIST_USER~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/commit/sendNotification/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/commit/getCommitRequest/*', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/datasetData/*', 'ROLE_BF_COMMIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/commit/programData/*', 'ROLE_BF_COMMIT_VERSION');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/dataset', 'ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
+INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset/versions**', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/datasetData', 'ROLE_BF_LIST_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset', 'ROLE_BF_ADD_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataset', 'ROLE_BF_EDIT_DATASET');
@@ -425,9 +432,9 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/programData/getLatestVer
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/programData/getLastModifiedDateForProgram/**', 'ROLE_BF_COMMIT_VERSION');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/program/actualConsumptionReport', 'ROLE_BF_LIST_IMPORT_FROM_QAT_SUPPLY_PLAN');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/program', 'ROLE_BF_UPDATE_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program', 'ROLE_BF_LIST_PROGRAM');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program', 'ROLE_BF_LIST_PROGRAM~ROLE_BF_DROPDOWN_SP');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/all', 'ROLE_BF_LIST_PROGRAM');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/**', 'ROLE_BF_LIST_PROGRAM~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/program/**', 'ROLE_BF_LIST_PROGRAM');
