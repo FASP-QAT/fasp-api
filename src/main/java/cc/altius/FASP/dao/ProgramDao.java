@@ -36,7 +36,7 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser, boolean active);
     
     public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
