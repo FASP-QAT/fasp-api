@@ -107,10 +107,9 @@ public class JWTWebSecurityConfig {
                                 "/api/supplyPlanReviewerLevelDashboard",
                                 "/api/realmLevelDashboard",
                                 "/api/realmLevelDashboardUserList",
-                                "/api/dashboardTop",
                                 "/api/db/**", "/api/dt/**"
                         ).hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
-                        .requestMatchers(HttpMethod.POST, "/api/dashboardBottom").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
+                        .requestMatchers(HttpMethod.POST, "/api/dashboardTop", "/api/dashboardBottom").hasAnyAuthority("ROLE_BF_APPLICATION_DASHBOARD")
                         .requestMatchers(HttpMethod.POST, "/api/ticket/addIssue", "/api/ticket/addIssueAttachment/**", "/api/user/language").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers(HttpMethod.GET, "/api/dataset").hasAnyAuthority("ROLE_BF_COMPARE_VERSION", "ROLE_BF_SUPPLY_PLAN_IMPORT", "ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING", "ROLE_BF_LIST_USAGE_TEMPLATE", "ROLE_BF_MODELING_VALIDATION", "ROLE_BF_PRODUCT_VALIDATION")
                         .requestMatchers(HttpMethod.GET, "/api/loadDataset").hasAnyAuthority("ROLE_BF_LOAD_DELETE_DATASET")

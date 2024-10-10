@@ -78,8 +78,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<DashboardTop> getDashboardTop(CustomUserDetails curUser) {
-        return this.dashboardDao.getDashboardTop(curUser);
+    public List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) {
+        return this.dashboardDao.getDashboardTop(programIds, curUser);
     }
 
     @Override

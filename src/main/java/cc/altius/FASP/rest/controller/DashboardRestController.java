@@ -104,12 +104,12 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/dashboardTop")
+    @PostMapping(value = "/dashboardTop")
     @JsonView(Views.ReportView.class)
-    public ResponseEntity getDashboardTop(Authentication auth) {
+    public ResponseEntity getDashboardTop(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getDashboardTop(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getDashboardTop(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
