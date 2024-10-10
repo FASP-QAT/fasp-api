@@ -254,7 +254,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/procurementUnit/**', 'RO
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/procurementUnit/**', 'ROLE_BF_LIST_PROCUREMENT_UNIT');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/productCategory', 'ROLE_BF_MANAGE_PRODUCT_CATEGORY');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY~ROLE_BF_DROPDOWN_SP~ROLE_BF_DROPDOWN_FC');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY~ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/productCategory/**', 'ROLE_BF_LIST_PRODUCT_CATEGORY');
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/realm', 'ROLE_BF_CREATE_REALM');
@@ -320,7 +320,7 @@ INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/datasetData', 'ROLE_BF_L
 INSERT IGNORE INTO temp_security VALUES (null, 2, '/api/dataset', 'ROLE_BF_ADD_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 3, '/api/dataset', 'ROLE_BF_EDIT_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET');
-INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET');
+INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/datasetData/programId/**', 'ROLE_BF_COMMIT_DATASET~ROLE_BF_LOGGED_IN');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/loadDataset', 'ROLE_BF_LOAD_DELETE_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/loadDataset/**', 'ROLE_BF_LOAD_DELETE_DATASET');
 INSERT IGNORE INTO temp_security VALUES (null, 1, '/api/planningUnit/programId/**', 'ROLE_BF_EDIT_DATASET');
