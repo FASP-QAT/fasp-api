@@ -221,7 +221,7 @@ public class UserRestController {
                 if (role == null) {
                     role = "";
                 }
-                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser).stream().map(p -> p.getId()).toList());
+                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser, false).stream().map(p -> p.getId()).toList());
             }
             return new ResponseEntity(ud, HttpStatus.OK);
         } catch (Exception e) {

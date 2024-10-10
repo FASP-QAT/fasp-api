@@ -84,8 +84,8 @@ public class ProgramServiceImpl implements ProgramService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser, boolean active) {
+        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser, active);
     }
 
     @Override
