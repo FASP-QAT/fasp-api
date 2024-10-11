@@ -108,7 +108,6 @@ public class JWTWebSecurityConfig {
                                 "/exportShipmentLinkingData/**",
                                 "/jira/syncJiraAccountIds/**",
                                 "/api/processCommitRequest/**",
-                                "/api/rebuildSupplyPlans",
                                 "/api/programData/gfpvan/**",
                                 "/api/test/**"
                         ).permitAll()
