@@ -95,13 +95,13 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
             return null;
         }
         logger.info("p=" + p);
-        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
-            logger.info("Going to return the Program object");
-            return p;
-        } else {
-            logger.info("Going to return null");
-            return null;
-        }
+//        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
+//            logger.info("Going to return the Program object");
+//            return p;
+//        } else {
+//            logger.info("Going to return null");
+//            return null;
+//        }
     }
 
     @Override
