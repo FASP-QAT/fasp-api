@@ -93,6 +93,27 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @JsonView(Views.GfpVanView.class)
+    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getProgramDataGfpvan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false, false), HttpStatus.OK);
+        } catch (IncorrectAccessControlException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**Get SupplyPlan Data for a list of ProgramId and VersionId
      *
