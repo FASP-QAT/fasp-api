@@ -109,6 +109,7 @@ public class JWTWebSecurityConfig {
                                 "/jira/syncJiraAccountIds/**",
                                 "/api/processCommitRequest/**",
                                 "/api/rebuildSupplyPlans",
+                                "/api/programData/gfpvan/**",
                                 "/api/test/**"
                         ).permitAll()
                 );
