@@ -445,6 +445,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", programId);
         params.put("reportingUnitId", reportingUnitId);
         params.put("viewBy", viewBy);
+        logger.info("Sql "+sqlString);
+        logger.info("Result "+this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Boolean.class));
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Boolean.class);
     }
 
