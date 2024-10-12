@@ -434,7 +434,7 @@ public class ReportDaoImpl implements ReportDao {
         sqlString = "SELECT IF(COUNT(ppu.PROGRAM_PLANNING_UNIT_ID)>0,true,false) `check` "
                 + "FROM rm_program_planning_unit ppu "
                 + "LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID AND rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
                 + "WHERE "
                 + "    ppu.PROGRAM_ID=:programId "
                 + "    AND ("
