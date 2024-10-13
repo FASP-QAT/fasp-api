@@ -194,6 +194,7 @@ public class UserRestController {
         logger.info("getCustomUserByUserIdForApi==>" + ((CustomUserDetails) auth.getPrincipal()).getUserId() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
 
         CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+        logger.info("CustomUserDetails==>" + curUser);
         try {
             User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
             cc.altius.FASP.model.UserDetails ud = new cc.altius.FASP.model.UserDetails();
@@ -220,7 +221,7 @@ public class UserRestController {
                 if (role == null) {
                     role = "";
                 }
-                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser).stream().map(p -> p.getId()).toList());
+                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser, false).stream().map(p -> p.getId()).toList());
             }
             return new ResponseEntity(ud, HttpStatus.OK);
         } catch (Exception e) {
