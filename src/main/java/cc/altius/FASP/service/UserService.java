@@ -55,7 +55,7 @@ public interface UserService {
 
     public User getUserByUserId(int userId, CustomUserDetails curUser);
 
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException;
 
     public String checkIfUserExistsByEmailId(User user, int page);
 

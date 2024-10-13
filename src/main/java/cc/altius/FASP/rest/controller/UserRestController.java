@@ -404,6 +404,9 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
+        } catch (AccessControlFailedException acfe) {
+            auditLogger.error(acfe.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
         } catch (IncorrectAccessControlException iae) {
             auditLogger.error("Either add All access or specific access " + user);
             return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
