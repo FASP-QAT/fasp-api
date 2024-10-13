@@ -41,7 +41,7 @@ public interface DashboardDao {
 
     List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
 
-    List<DashboardTop> getDashboardTop(CustomUserDetails curUser);
+    List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser);
     
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
     

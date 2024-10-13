@@ -34,6 +34,7 @@ import cc.altius.FASP.model.report.DashboardTopStockOutForLoadProgramResultSetEx
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
@@ -163,7 +164,7 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public List<DashboardTop> getDashboardTop(CustomUserDetails curUser) {
+    public List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) {
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
                 + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `P_LABEL_ID`, p.LABEL_EN `P_LABEL_EN`, p.LABEL_FR `P_LABEL_FR`, p.LABEL_SP `P_LABEL_SP`, p.LABEL_PR `P_LABEL_PR`, "
                 + "    SUM(IF(ppu.ACTIVE && pu.ACTIVE, 1, 0)) `ACTIVE_PPU`, SUM(IF(ppu.ACTIVE && pu.ACTIVE, 0, 1)) `DISABLED_PPU`, "
@@ -186,7 +187,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 .append("LEFT JOIN (")
                 .append(innerString)
                 .append(") pr ON p.PROGRAM_ID=pr.PROGRAM_ID ")
-                .append(" WHERE p.ACTIVE ");
+                .append(" WHERE p.ACTIVE AND FIND_IN_SET(p.PROGRAM_ID, :programIds) ");
+        params.put("programIds", ArrayUtils.convertArrayToString(programIds));
         this.aclService.addFullAclForProgram(sqlBuilder, params, "p", curUser);
         sqlBuilder.append(" GROUP BY p.PROGRAM_ID");
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
