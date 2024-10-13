@@ -116,20 +116,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserList(CustomUserDetails curUser
-    ) {
+    public List<User> getUserList(CustomUserDetails curUser) {
         return this.userDao.getUserList(curUser);
     }
 
     @Override
-    public List<BasicUser> getUserDropDownList(CustomUserDetails curUser
-    ) {
+    public List<BasicUser> getUserDropDownList(CustomUserDetails curUser) {
         return this.userDao.getUserDropDownList(curUser);
     }
 
     @Override
-    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser
-    ) {
+    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.userDao.getUserListForRealm(realmId, curUser);
@@ -150,25 +147,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUserId(int userId, CustomUserDetails curUser
-    ) {
+    public User getUserByUserId(int userId, CustomUserDetails curUser) {
         return this.userDao.getUserByUserId(userId, curUser);
     }
 
     @Override
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
+    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException {
+        List<UserAcl> expandedUserAcl = new LinkedList<>();
+        for (UserAcl acl : user.getUserAclList()) {
+            if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
+                throw new AccessControlFailedException("You do not have the rights to create a User with - " + acl.getRoleId());
+            }
+            List<UserAcl> tmpUserAcl = aclService.expandUserAccess(acl, curUser);
+            if (tmpUserAcl == null || tmpUserAcl.isEmpty()) {
+                throw new AccessControlFailedException("You do not have the rights to create " + acl);
+            } else {
+                expandedUserAcl.addAll(tmpUserAcl);
+            }
+        }
+        user.setUserAclList(expandedUserAcl);
         return this.userDao.updateUser(user, curUser);
     }
 
     @Override
-    public String checkIfUserExistsByEmailId(User user, int page
-    ) {
+    public String checkIfUserExistsByEmailId(User user, int page) {
         return this.userDao.checkIfUserExistsByEmail(user, page);
     }
 
     @Override
-    public int unlockAccount(int userId, String password
-    ) {
+    public int unlockAccount(int userId, String password) {
         return this.userDao.unlockAccount(userId, password);
     }
 
@@ -178,42 +185,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updatePassword(int userId, String newPassword,
-            int offset
-    ) {
+    public int updatePassword(int userId, String newPassword, int offset) {
         return this.userDao.updatePassword(userId, newPassword, offset);
     }
 
     @Override
-    public int updatePassword(String emailId, String token,
-            String newPassword, int offset
-    ) {
+    public int updatePassword(String emailId, String token, String newPassword, int offset) {
         int r = this.userDao.updatePassword(emailId, token, newPassword, offset);
         this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
         return r;
     }
 
     @Override
-    public boolean confirmPassword(String username, String password
-    ) {
+    public boolean confirmPassword(String username, String password) {
         return this.userDao.confirmPassword(username, password);
     }
 
     @Override
-    public int addRole(Role role, CustomUserDetails curUser
-    ) {
+    public int addRole(Role role, CustomUserDetails curUser) {
         return this.userDao.addRole(role, curUser);
     }
 
     @Override
-    public int updateRole(Role role, CustomUserDetails curUser
-    ) {
+    public int updateRole(Role role, CustomUserDetails curUser) {
         return this.userDao.updateRole(role, curUser);
     }
 
     @Override
-    public String generateTokenForEmailId(String emailId, int emailTemplateId
-    ) {
+    public String generateTokenForEmailId(String emailId, int emailTemplateId) {
         EmailUser user = this.userDao.getEmailUserByEmailId(emailId);
         if (user == null) {
             return null;
@@ -237,62 +236,52 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token
-    ) {
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
         return this.userDao.getForgotPasswordToken(emailId, token);
     }
 
     @Override
-    public void updateTriggeredDateForForgotPasswordToken(String username, String token
-    ) {
+    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
         this.userDao.updateTriggeredDateForForgotPasswordToken(username, token);
     }
 
     @Override
-    public void updateCompletionDateForForgotPasswordToken(String emailId, String token
-    ) {
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
         this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
     }
 
     @Override
-    public boolean isTokenLogout(String token
-    ) {
+    public boolean isTokenLogout(String token) {
         return this.userDao.isTokenLogout(token);
     }
 
     @Override
-    public void addTokenToLogout(String token
-    ) {
+    public void addTokenToLogout(String token) {
         this.userDao.addTokenToLogout(token);
     }
 
     @Override
-    public List<UserAcl> getAccessControls(CustomUserDetails curUser
-    ) {
+    public List<UserAcl> getAccessControls(CustomUserDetails curUser) {
         return this.userDao.getAccessControls(curUser);
     }
 
     @Override
-    public int mapAccessControls(User user, CustomUserDetails curUser
-    ) {
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
         return this.userDao.mapAccessControls(user, curUser);
     }
 
     @Override
-    public int updateSuncExpiresOn(String emailId
-    ) {
+    public int updateSuncExpiresOn(String emailId) {
         return this.userDao.updateSuncExpiresOn(emailId);
     }
 
     @Override
-    public int updateUserLanguage(int userId, String languageCode
-    ) {
+    public int updateUserLanguage(int userId, String languageCode) {
         return this.userDao.updateUserLanguage(userId, languageCode);
     }
 
     @Override
-    public int updateUserLanguageByEmailId(String emailId, String languageCode
-    ) {
+    public int updateUserLanguageByEmailId(String emailId, String languageCode) {
         return this.userDao.updateUserLanguageByEmailId(emailId, languageCode);
     }
 
@@ -317,14 +306,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId
-    ) {
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {
         return this.userDao.addUserJiraAccountId(userId, jiraCustomerAccountId);
     }
 
     @Override
-    public String getUserJiraAccountId(int userId
-    ) {
+    public String getUserJiraAccountId(int userId) {
         return this.userDao.getUserJiraAccountId(userId);
     }
 
@@ -334,14 +321,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId
-    ) {
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
         this.userDao.updateUserJiraAccountId(emailAddress, jiraAccountId);
     }
 
     @Override
-    public String getEmailByUserId(int userId
-    ) {
+    public String getEmailByUserId(int userId) {
         return this.userDao.getEmailByUserId(userId);
     }
 
@@ -351,9 +336,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String methodStr,
-            String apiUrl
-    ) {
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, String methodStr, String apiUrl) {
         int method = switch (methodStr) {
             case "GET" ->
                 1;
@@ -370,8 +353,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser
-    ) {
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser) {
         return this.userDao.getAclRoleBfList(userId, curUser);
     }
 
