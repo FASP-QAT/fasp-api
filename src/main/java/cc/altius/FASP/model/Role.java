@@ -22,9 +22,11 @@ public class Role implements Serializable {
     private Label label;
     @JsonView(Views.ReportView.class)
     private List<BusinessFunction> businessFunctionList;
+    @JsonView(Views.ReportView.class)
     private String[] businessFunctions;
     @JsonView(Views.ReportView.class)
     private List<CanCreateRole> canCreateRoleList;
+    @JsonView(Views.ReportView.class)
     private String[] canCreateRoles;
 
     public Role() {
