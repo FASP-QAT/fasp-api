@@ -1,3 +1,8 @@
+APP Version: 2.88.4951
+Front End Version: 12852
+Date: 2024-10-14
+QAT-5295
+
 APP Version: 2.88.4946
 Front End Version: 12736
 Date: 2024-10-10
