@@ -48,6 +48,7 @@ import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
+import cc.altius.FASP.model.report.RealmCountryIdsAndHealthAreaIds;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.TreeAnchorOutputRowMapper;
@@ -2939,6 +2940,17 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIds));
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN vw_health_area ha on FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) WHERE FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) AND FIND_IN_SET(ha.HEALTH_AREA_ID, :healthAreaIds) AND p.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIdsAndHealthAreaIds.getRealmCountryIds()));
+        params.put("healthAreaIds", ArrayUtils.convertArrayToString(realmCountryIdsAndHealthAreaIds.getHealthAreaIds()));
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.PROGRAM_CODE");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 

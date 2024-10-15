@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.info("Inside loadUserByUsername" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
         try {
             CustomUserDetails user = this.userDao.getCustomUserByEmailId(emailId);
-            if (!user.isPresent()) {
+            if (user == null || !user.isPresent()) {
                 throw new UsernameNotFoundException("User not found");
             }
             return user;

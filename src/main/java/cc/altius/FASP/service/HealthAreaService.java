@@ -25,6 +25,8 @@ public interface HealthAreaService {
     public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getHealthAreaListByRealmCountryIds(String[] realmCountryIds, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser);
 
@@ -33,7 +35,7 @@ public interface HealthAreaService {
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListForProgramByRealmId(int realmId, CustomUserDetails curUser);
-
+    
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser);
