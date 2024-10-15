@@ -15,6 +15,7 @@ import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.ArrayUtils;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -182,6 +183,17 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         sqlStringBuilder.append(" AND hac.ACTIVE AND ha.ACTIVE AND hac.REALM_COUNTRY_ID=:realmCountryId");
         params.put("realmCountryId", realmCountryId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
+    }
+
+    @Override
+    public List<SimpleCodeObject> getHealthAreaListByRealmCountryIds(String[] realmCountryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR` FROM vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID LEFT JOIN vw_health_area ha on FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) WHERE FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) AND p.ACTIVE");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY ha.HEALTH_AREA_ID ORDER BY ha.HEALTH_AREA_CODE ");
+        params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIds));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper("HEALTH_AREA_"));
     }
 
     @Override

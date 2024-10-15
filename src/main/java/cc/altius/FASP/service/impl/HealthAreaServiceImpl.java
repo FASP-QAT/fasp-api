@@ -76,6 +76,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
+    public List<SimpleCodeObject> getHealthAreaListByRealmCountryIds(String[] realmCountryIds, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaListByRealmCountryIds(realmCountryIds, curUser);
+    }
+
+    @Override
     public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
