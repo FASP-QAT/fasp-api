@@ -110,7 +110,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("programTypeId", programTypeId);
-        this.aclService.addFullAclAtUserLevel(sqlStringBuilder, params, "p", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         SimpleProgram sp = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramResultSetExtractor());
         if (sp == null) {
