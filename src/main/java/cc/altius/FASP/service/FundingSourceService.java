@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
@@ -18,9 +19,9 @@ import java.util.List;
  */
 public interface FundingSourceService {
 
-    public int addFundingSource(FundingSource f, CustomUserDetails curUser);
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateFundingSource(FundingSource f, CustomUserDetails CurUser);
+    public int updateFundingSource(FundingSource f, CustomUserDetails CurUser) throws AccessControlFailedException;
 
     public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
 

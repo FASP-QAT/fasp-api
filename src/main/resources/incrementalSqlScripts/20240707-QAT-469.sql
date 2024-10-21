@@ -17,7 +17,8 @@ INSERT INTO us_role_business_function VALUES
     (null, 'ROLE_DATASET_ADMIN', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now()),
     (null, 'ROLE_DATASET_USER', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now()),
     (null, 'ROLE_FORECAST_VIEWER', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now()),
-    (null, 'ROLE_GUEST_USER', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now());
+    (null, 'ROLE_GUEST_USER', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now()),
+    (null, 'ROLE_SUPPLY_PLAN_REVIEWER', 'ROLE_BF_LIST_MASTER_DATA', 1, now(), 1, now());
 
 INSERT INTO us_role_business_function VALUES (null, 'ROLE_INTERNAL_USER', 'ROLE_BF_ADD_MODELING_TYPE', 1, now(), 1, now()), (null, 'ROLE_REALM_ADMIN', 'ROLE_BF_ADD_MODELING_TYPE', 1, now(), 1, now());
 UPDATE us_user u set u.REALM_ID=null where u.USER_ID=36;

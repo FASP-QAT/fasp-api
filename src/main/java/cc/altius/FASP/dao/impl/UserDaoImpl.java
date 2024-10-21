@@ -145,10 +145,10 @@ public class UserDaoImpl implements UserDao {
             + " LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
             + " LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + " LEFT JOIN ap_label acl_program_lb ON acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` ";
-//            + " WHERE TRUE ";
+    private final static String whereClauseAclCheck = " WHERE (FIND_IN_SET(user_role.ROLE_ID, :allowedRoleList) OR user_role.ROLE_ID IS NULL) ";
 
     private final static String customUserString = customUserString1 + customUserString2WithoutAclCheck + customUserString3;
-    private final static String customUserStringWithAclCheck = customUserString1 + customUserString2WithAclCheck + customUserString3;
+    private final static String customUserStringWithAclCheck = customUserString1 + customUserString2WithAclCheck + customUserString3 + whereClauseAclCheck;
     private static final String customUserOrderBy = "  ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,bf.`BUSINESS_FUNCTION_ID`,acl.`USER_ACL_ID`";
 
     private static final String userCommonString = "SELECT "
@@ -1069,7 +1069,7 @@ public class UserDaoImpl implements UserDao {
         params.put("userId", userId);
         String allowedRoleList = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         logger.info("allowedRoleList=" + allowedRoleList);
-        sqlString = this.customUserStringWithAclCheck + " WHERE TRUE AND `user`.`USER_ID`=:userId " + this.customUserOrderBy;
+        sqlString = this.customUserStringWithAclCheck + " AND `user`.`USER_ID`=:userId " + this.customUserOrderBy;
         try {
             params.clear();
             params.put("userId", userId);

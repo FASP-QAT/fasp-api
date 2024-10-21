@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
@@ -47,14 +48,26 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
+    public int addDataSource(DataSource dataSource, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (dataSource.getProgram() != null && dataSource.getProgram().getId() != null && dataSource.getProgram().getId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(dataSource.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.dataSourceDao.addDataSource(dataSource, curUser);
     }
 
     @Override
-    public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) {
+    public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) throws AccessControlFailedException {
         DataSource ds = this.dataSourceDao.getDataSourceById(dataSource.getDataSourceId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
+            try {
+                this.programCommonDao.getSimpleProgramById(dataSource.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
             return this.dataSourceDao.updateDataSource(dataSource, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

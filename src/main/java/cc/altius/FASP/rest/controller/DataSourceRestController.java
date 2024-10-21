@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.ResponseCode;
@@ -57,6 +58,9 @@ public class DataSourceRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dataSourceService.addDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add DataSource", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add DataSource", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -189,6 +193,9 @@ public class DataSourceRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dataSourceService.updateDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add DataSource", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update DataSource", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
