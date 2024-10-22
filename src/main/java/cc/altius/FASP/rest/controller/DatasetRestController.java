@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetData;
@@ -226,6 +227,9 @@ public class DatasetRestController {
             dataset.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_DATASET); // Dataset Program
             this.programService.addProgram(dataset, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (DuplicateKeyException d) {
             logger.error("Error while trying to add Program", d);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
@@ -252,6 +256,9 @@ public class DatasetRestController {
             dataset.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_DATASET); // Dataset Program
             this.programService.updateProgram(dataset, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);

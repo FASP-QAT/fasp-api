@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseCode;
@@ -57,6 +58,9 @@ public class HealthAreaRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.healthAreaService.addHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Health Area", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -82,6 +86,9 @@ public class HealthAreaRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.healthAreaService.updateHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Health Area", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);

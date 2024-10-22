@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
@@ -47,9 +48,9 @@ public interface ProgramService {
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
-    public int addProgram(ProgramInitialize p, CustomUserDetails curUser);
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser);
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
@@ -73,11 +74,11 @@ public interface ProgramService {
 
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser);
 
-    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser);
+    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 
@@ -85,7 +86,7 @@ public interface ProgramService {
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser);
 
-    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser);
+    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public Program getProgramList(int realmId, int programId, int versionId);
 
@@ -141,8 +142,8 @@ public interface ProgramService {
 
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
 
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
-    
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException;
+
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
 
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);

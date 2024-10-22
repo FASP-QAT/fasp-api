@@ -217,6 +217,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         try {
             return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
         } catch (EmptyResultDataAccessException erda) {
@@ -239,6 +240,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }

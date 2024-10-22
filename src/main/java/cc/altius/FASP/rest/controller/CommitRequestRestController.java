@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -116,6 +117,9 @@ public class CommitRequestRestController {
                 return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -204,6 +208,9 @@ public class CommitRequestRestController {
                 return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);

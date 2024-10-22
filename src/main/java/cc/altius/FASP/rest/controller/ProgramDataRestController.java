@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
@@ -94,7 +95,8 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Get SupplyPlan Data for a list of ProgramId and VersionId
+    /**
+     * Get SupplyPlan Data for a list of ProgramId and VersionId
      *
      * @param loadProgramInputList
      * @param auth
@@ -125,8 +127,9 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Get list of Program Versions filtered on various parameters
-     * 
+    /**
+     * Get list of Program Versions filtered on various parameters
+     *
      * @param programId
      * @param versionId
      * @param realmCountryId
@@ -137,7 +140,7 @@ public class ProgramDataRestController {
      * @param startDate
      * @param stopDate
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/programVersion/programId/{programId}/versionId/{versionId}/realmCountryId/{realmCountryId}/healthAreaId/{healthAreaId}/organisationId/{organisationId}/versionTypeId/{versionTypeId}/versionStatusId/{versionStatusId}/dates/{startDate}/{stopDate}")
     public ResponseEntity getProgramVersionList(
@@ -166,7 +169,8 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Update the status of a Program Version
+    /**
+     * Update the status of a Program Version
      *
      * @param updateProgramVersion
      * @param programId
@@ -180,6 +184,9 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -192,11 +199,12 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Resets the Problem Reports for all the list of ProgramIds provided
-     * 
+    /**
+     * Resets the Problem Reports for all the list of ProgramIds provided
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping("/programVersion/resetProblem")
     public ResponseEntity resetProblemForProgramIds(@RequestBody int[] programIds, Authentication auth) {
@@ -204,6 +212,9 @@ public class ProgramDataRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programDataService.resetProblemListForPrograms(programIds, curUser);
             return new ResponseEntity(HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to reset problem", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -215,7 +226,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 //    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
 //    public ResponseEntity checkErpOrder(
 //            @PathVariable(value = "orderNo", required = true) String orderNo,
@@ -231,8 +242,8 @@ public class ProgramDataRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
-    /**Get Shipment list for Sync
+    /**
+     * Get Shipment list for Sync
      *
      * @param programId
      * @param versionId
@@ -337,10 +348,11 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Get latest ProgramId and VersionId for a list of ProgramIds
-     * 
+    /**
+     * Get latest ProgramId and VersionId for a list of ProgramIds
+     *
      * @param programIds
-     * @return 
+     * @return
      */
     @PostMapping("/programData/getLatestVersionForPrograms")
     public ResponseEntity getLatestVersionForProgram(@RequestBody String[] programIds) {
@@ -356,14 +368,19 @@ public class ProgramDataRestController {
         }
     }
 
-    /**Gets the list of Version trans notes for a Program Id includes all Versions //For (/program/data/version/trans/programId/{programId}) this URL
-     * 
-     * Gets the list of Version trans notes for a Program Id and VersionId //For (/program/data/version/trans/programId/{programId}/versionId/{versionId}) this URL
-     * 
+    /**
+     * Gets the list of Version trans notes for a Program Id includes all
+     * Versions //For (/program/data/version/trans/programId/{programId}) this
+     * URL
+     *
+     * Gets the list of Version trans notes for a Program Id and VersionId //For
+     * (/program/data/version/trans/programId/{programId}/versionId/{versionId})
+     * this URL
+     *
      * @param programId
      * @param versionId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.ReportView.class)
     @GetMapping({"/program/data/version/trans/programId/{programId}", "/program/data/version/trans/programId/{programId}/versionId/{versionId}"})

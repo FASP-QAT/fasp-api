@@ -5,12 +5,17 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.UsageTemplateDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.UsageTemplate;
 import cc.altius.FASP.service.UsageTemplateService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +27,8 @@ public class UsageTemplateServiceImpl implements UsageTemplateService {
 
     @Autowired
     private UsageTemplateDao usageTemplateDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<UsageTemplate> getUsageTemplateList(boolean active, CustomUserDetails curUser) {
@@ -34,7 +41,16 @@ public class UsageTemplateServiceImpl implements UsageTemplateService {
     }
 
     @Override
-    public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser) {
+    public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (UsageTemplate usageTemplate : usageTemplateList) {
+            if (usageTemplate.getProgram() != null && usageTemplate.getProgram().getId() != null && usageTemplate.getProgram().getId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(usageTemplate.getProgram().getId(), 0, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.usageTemplateDao.addAndUpdateUsageTemplate(usageTemplateList, curUser);
     }
 

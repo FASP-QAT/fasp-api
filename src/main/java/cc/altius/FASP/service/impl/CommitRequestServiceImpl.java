@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.CommitRequestDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CommitRequest;
@@ -30,6 +31,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +57,16 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
         Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
+            if (programData.getProgramId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
             programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
             programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveProgramData(programData, json, curUser);
@@ -67,9 +76,16 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     }
 
     @Override
-    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
         Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
+            if (programData.getProgramId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
             int requestedVersionId = programData.getCurrentVersion().getVersionId();
 //            programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveDatasetData(programData, requestedVersionId, json, curUser);

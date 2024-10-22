@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -19,17 +20,17 @@ import java.util.List;
  */
 public interface CommitRequestService {
 
-    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException;
 
-    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException;
 
     public void processCommitRequest(CustomUserDetails curUser);
 
     public List<CommitRequest> getCommitRequestList(CommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 
     public CommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
-    
+
     public boolean checkIfCommitRequestExistsForProgram(int programId);
-    
+
     public CommitRequest getCommitRequestStatusByCommitRequestId(int commitRequestId);
 }

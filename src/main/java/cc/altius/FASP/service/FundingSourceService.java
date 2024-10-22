@@ -34,9 +34,9 @@ public interface FundingSourceService {
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 
     public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser);
-    
+
     public List<SimpleFundingSourceObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
 
     public int addFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser);
@@ -48,6 +48,6 @@ public interface FundingSourceService {
     public List<FundingSourceType> getFundingSourceTypeByRealm(int realmId, CustomUserDetails curUser);
 
     public FundingSourceType getFundingSourceTypeById(int fundingSourceTypeId, CustomUserDetails curUser);
-    
+
     public List<FundingSourceType> getFundingSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public interface RealmCountryService {
 
-    public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser);
+    public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int updateRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser);
 
@@ -35,7 +36,7 @@ public interface RealmCountryService {
 
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForProgramList(String[] programIds, CustomUserDetails curUser);
 
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException;
 
     public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, int programTypeId, CustomUserDetails curUser);
 

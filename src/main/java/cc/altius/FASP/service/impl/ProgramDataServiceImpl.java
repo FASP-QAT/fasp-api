@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -192,17 +193,24 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (programId != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser);
     }
 
     @Override
-    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
         for (int programId : programIds) {
             try {
-                SimpleCodeObject p = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
-            } catch (EmptyResultDataAccessException erda) {
-                throw new AccessDeniedException("Access denied");
+                this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
             }
         }
         this.programDataDao.resetProblemListForPrograms(programIds, curUser);

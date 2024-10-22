@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -47,13 +48,13 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     }
 
     @Override
-    public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser) {
+    public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser) throws AccessControlFailedException {
         for (EquivalencyUnit eu : equivalencyUnitList) {
             if (eu.getProgram() != null && eu.getProgram().getId() != null && eu.getProgram().getId() != 0) {
                 try {
                     SimpleProgram p = this.programCommonDao.getSimpleProgramById(eu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
                 } catch (EmptyResultDataAccessException erda) {
-                    throw new AccessDeniedException("You do not have the rights to Program " + eu.getProgram().getId());
+                    throw new AccessControlFailedException();
                 }
             }
         }

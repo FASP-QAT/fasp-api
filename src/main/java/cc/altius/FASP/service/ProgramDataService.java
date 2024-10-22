@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -47,9 +48,9 @@ public interface ProgramDataService {
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser);
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 

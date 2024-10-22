@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
@@ -61,11 +62,12 @@ public class ProgramRestController {
     @Autowired
     private RealmCountryService realmCountryService;
 
-    /**Update Program
-     * 
+    /**
+     * Update Program
+     *
      * @param program
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping(path = "/program")
     public ResponseEntity putProgram(@RequestBody ProgramInitialize program, Authentication auth) {
@@ -74,6 +76,9 @@ public class ProgramRestController {
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
             this.programService.updateProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -96,11 +101,11 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
-    /**Get list of active SP Programs
-     * 
+    /**
+     * Get list of active SP Programs
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program")
     public ResponseEntity getProgram(Authentication auth) {
@@ -113,10 +118,11 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of all SP Programs
-     * 
+    /**
+     * Get list of all SP Programs
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/all")
     public ResponseEntity getProgramAll(Authentication auth) {
@@ -129,11 +135,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of active PU’s mapped to a SP Program
-     * 
+    /**
+     * Get list of active PU’s mapped to a SP Program
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/{programId}/planningUnit")
     public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, Authentication auth) {
@@ -152,12 +159,13 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of PU’s mapped to a SP Program filtered by TracerCateogryIds
-     * 
+    /**
+     * Get list of PU’s mapped to a SP Program filtered by TracerCateogryIds
+     *
      * @param programId
      * @param tracerCategoryIds
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/program/{programId}/tracerCategory/planningUnit")
     public ResponseEntity getPlanningUnitForProgramTracerCategory(@PathVariable("programId") int programId, @RequestBody String[] tracerCategoryIds, Authentication auth) {
@@ -176,12 +184,14 @@ public class ProgramRestController {
         }
     }
 
-    /**Get Simple list of PU’s mapped to a SP Program filtered by TracerCateogryIds
-     * 
+    /**
+     * Get Simple list of PU’s mapped to a SP Program filtered by
+     * TracerCateogryIds
+     *
      * @param programId
      * @param tracerCategoryIds
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/program/{programId}/tracerCategory/simple/planningUnit")
     public ResponseEntity getSimplePlanningUnitForProgramTracerCategory(@PathVariable("programId") int programId, @RequestBody String[] tracerCategoryIds, Authentication auth) {
@@ -200,11 +210,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of all PU’s mapped to a SP Program
-     * 
+    /**
+     * Get list of all PU’s mapped to a SP Program
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/{programId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAll(@PathVariable("programId") int programId, Authentication auth) {
@@ -223,11 +234,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Add and Update Planning Units for a Program
-     * 
+    /**
+     * Add and Update Planning Units for a Program
+     *
      * @param ppu
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping("/program/planningUnit")
     public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit[] ppu, Authentication auth) {
@@ -235,6 +247,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programService.saveProgramPlanningUnit(ppu, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             e.printStackTrace();
             logger.error("Error while trying to update PlanningUnit for Program", e);
@@ -246,11 +261,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get Procurement Agent specific data for Program Planning Unit
-     * 
+    /**
+     * Get Procurement Agent specific data for Program Planning Unit
+     *
      * @param ppupa
      * @param auth
-     * @return 
+     * @return
      */
     // List of Programs and List of PlanningUnitIds instead of single select
     @PostMapping("/program/planningUnit/procurementAgent/")
@@ -267,11 +283,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Update Procurement Agent specific data for Program Planning Unit
-     * 
+    /**
+     * Update Procurement Agent specific data for Program Planning Unit
+     *
      * @param programPlanningUnitProcurementAgentPrices
      * @param auth
-     * @return 
+     * @return
      */
 //    Allow for -1 in PlanningUnit
     @PutMapping("/program/planningUnit/procurementAgent")
@@ -280,6 +297,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programService.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update ProgramPlanningUnit ProcurementAgent Prices", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update ProgramPlanningUnit ProcurementAgent Prices", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -290,11 +310,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get Simple list of PU’s mapped to a list of SP Programs 
-     * 
+    /**
+     * Get Simple list of PU’s mapped to a list of SP Programs
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/planningUnit/programs")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody Integer[] programIds, Authentication auth) {
@@ -329,11 +350,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of SP Programs for a RealmId
-     * 
+    /**
+     * Get list of SP Programs for a RealmId
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/realmId/{realmId}")
     public ResponseEntity getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -352,11 +374,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get SP Program based on ID
-     * 
+    /**
+     * Get SP Program based on ID
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/{programId}")
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
@@ -379,12 +402,13 @@ public class ProgramRestController {
         }
     }
 
-    /**Get list of all PU’s mapped to a SP Program filtered by Product Category
-     * 
+    /**
+     * Get list of all PU’s mapped to a SP Program filtered by Product Category
+     *
      * @param programId
      * @param productCategoryId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId, @PathVariable("productCategory") int productCategoryId, Authentication auth) {
@@ -403,11 +427,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Setup a new SP program
-     * 
+    /**
+     * Setup a new SP program
+     *
      * @param program
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping(path = "/program/initialize")
     public ResponseEntity postProgramInitialize(@RequestBody ProgramInitialize program, Authentication auth) {
@@ -415,6 +440,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programService.addProgramInitialize(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (DuplicateKeyException d) {
             logger.error("Error while trying to add Program", d);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
@@ -427,10 +455,11 @@ public class ProgramRestController {
         }
     }
 
-    /**Gets the list of all SP Programs for the Load Program page
-     * 
+    /**
+     * Gets the list of all SP Programs for the Load Program page
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/loadProgram")
     @JsonView(Views.InternalView.class)
@@ -453,12 +482,13 @@ public class ProgramRestController {
         }
     }
 
-    /**Gets the Version list for a specific Program for the Loan Program page
-     * 
+    /**
+     * Gets the Version list for a specific Program for the Loan Program page
+     *
      * @param programId
      * @param page
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/loadProgram/programId/{programId}/page/{page}")
     @JsonView(Views.InternalView.class)
@@ -477,13 +507,14 @@ public class ProgramRestController {
         }
     }
 
-    /**Used to confirm if the ProgarmCode is not a duplicate for this Realm
-     * 
+    /**
+     * Used to confirm if the ProgarmCode is not a duplicate for this Realm
+     *
      * @param realmId
      * @param programId
      * @param programCode
      * @param auth
-     * @return 
+     * @return
      */
     /*
     * returns true if the ProgramCode is not present and is a valid entry
@@ -504,7 +535,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("program/supplyPlanReviewer/programId/{programId}")
 //    public ResponseEntity getSupplyPlanReviewerListForProgram(@PathVariable("programId") int programId, Authentication auth) {
 //        try {
@@ -518,12 +548,12 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
-    /**Get Simple list of Programs for list fo a RealmCountries
-     * 
+    /**
+     * Get Simple list of Programs for list fo a RealmCountries
+     *
      * @param realmCountryIds
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/program/realmCountryList")
     public ResponseEntity getProgramListByRealmCountryIdList(@RequestBody String[] realmCountryIds, Authentication auth) {
@@ -539,11 +569,12 @@ public class ProgramRestController {
         }
     }
 
-    /**Get Simple list of Programs for list fo a ProductCategories
-     * 
+    /**
+     * Get Simple list of Programs for list fo a ProductCategories
+     *
      * @param productCategoryIds
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/program/productCategoryList")
     public ResponseEntity getProgramListByProductCategoryIdList(@RequestBody String[] productCategoryIds, Authentication auth) {

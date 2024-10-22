@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -16,9 +17,9 @@ import java.util.List;
  */
 public interface HealthAreaService {
 
-    public int addHealthArea(HealthArea h, CustomUserDetails curUser);
+    public int addHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
+    public int updateHealthArea(HealthArea h, CustomUserDetails CurUser) throws AccessControlFailedException;
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
 
