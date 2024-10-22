@@ -102,6 +102,7 @@ INSERT INTO ap_node_type_rule VALUES (null, 2, 6);
 INSERT INTO ap_node_type_rule VALUES (null, 3, 6);
 INSERT INTO ap_node_type_rule VALUES (null, 6, 3);
 INSERT INTO ap_node_type_rule VALUES (null, 6, 4);
+INSERT INTO ap_node_type_rule VALUES (null, 1, 6);
 
 
 
