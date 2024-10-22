@@ -527,12 +527,6 @@ public class ReportServiceImpl implements ReportService {
         return finalList;
     }
 
-    // Report no 31
-    @Override
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
-        return this.reportDao.getForecastError(fei, curUser);
-    }
-
     // Report no 31 new
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) throws AccessControlFailedException {
