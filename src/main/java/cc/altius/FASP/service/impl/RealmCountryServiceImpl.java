@@ -8,7 +8,9 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
@@ -47,7 +49,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
      */
     @Override
     @Transactional
-    public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser) {
+    public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser) throws AccessControlFailedException {
         int rows = 0;
         for (RealmCountry realmCountry : realmCountryList) {
             RealmCountry rc = null;
@@ -59,6 +61,11 @@ public class RealmCountryServiceImpl implements RealmCountryService {
             if (rc != null) {
                 if (this.aclService.checkRealmAccessForUser(curUser, realmCountry.getRealm().getRealmId())) {
                     realmCountry.setRealmCountryId(rc.getRealmCountryId());
+                    try {
+                        this.realmCountryDao.getRealmCountryById(rc.getRealmCountryId(), curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
                     rows += this.realmCountryDao.updateRealmCountry(realmCountry, curUser);
                 } else {
                     throw new AccessDeniedException("Access denied");
@@ -136,7 +143,16 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
+        for (RealmCountryPlanningUnit realmCountryPlanningUnit : realmCountryPlanningUnits) {
+            if (realmCountryPlanningUnit != null && realmCountryPlanningUnit.getRealmCountry().getId() != null && realmCountryPlanningUnit.getRealmCountry().getId() != 0) {
+                try {
+                    this.realmCountryDao.getRealmCountryById(realmCountryPlanningUnit.getRealmCountry().getId(), curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
     }
 

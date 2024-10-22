@@ -8,6 +8,9 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.BudgetDao;
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
@@ -45,14 +48,25 @@ public class BudgetServiceImpl implements BudgetService {
     private ProgramService programService;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
-    public int addBudget(Budget b, CustomUserDetails curUser) {
+    public int addBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(b.getFundingSource().getFundingSourceId(), curUser);
         b.setFundingSource(fs);
         Currency c = this.currencyDao.getCurrencyById(b.getCurrency().getCurrencyId(), curUser);
         b.setCurrency(c);
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
+            for (SimpleCodeObject program : b.getPrograms()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.budgetDao.addBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -60,9 +74,18 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public int updateBudget(Budget b, CustomUserDetails curUser) {
+    public int updateBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         Budget bt = this.budgetDao.getBudgetById(b.getBudgetId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, bt.getFundingSource().getRealm().getId())) {
+            for (SimpleCodeObject program : b.getPrograms()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.budgetDao.updateBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

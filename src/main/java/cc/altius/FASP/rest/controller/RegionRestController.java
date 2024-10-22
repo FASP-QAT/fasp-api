@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.ResponseCode;
@@ -44,11 +45,12 @@ public class RegionRestController {
     @Autowired
     private UserService userService;
 
-    /**Add or Update Regions
-     * 
+    /**
+     * Add or Update Regions
+     *
      * @param regions
      * @param auth
-     * @return 
+     * @return
      */
     @PutMapping(path = "")
     public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
@@ -56,6 +58,9 @@ public class RegionRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.regionService.saveRegions(regions, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Region", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -68,10 +73,11 @@ public class RegionRestController {
         }
     }
 
-    /**Get list of Regions
-     * 
+    /**
+     * Get list of Regions
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("")
     public ResponseEntity getRegion(Authentication auth) {
@@ -87,11 +93,12 @@ public class RegionRestController {
         }
     }
 
-    /**Get Region by Id
-     * 
+    /**
+     * Get Region by Id
+     *
      * @param regionId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/{regionId}")
     public ResponseEntity getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
@@ -110,11 +117,12 @@ public class RegionRestController {
         }
     }
 
-    /**Get Regions for a RealmCountry
-     * 
+    /**
+     * Get Regions for a RealmCountry
+     *
      * @param realmCountryId
      * @param auth
-     * @return 
+     * @return
      */
     @GetMapping("/realmCountryId/{realmCountryId}")
     public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
@@ -132,5 +140,5 @@ public class RegionRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

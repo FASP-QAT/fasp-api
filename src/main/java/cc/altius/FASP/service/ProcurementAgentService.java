@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentForecastingUnit;
@@ -33,11 +34,11 @@ public interface ProcurementAgentService {
 
     public List<ProcurementAgentType> getProcurementAgentTypeByRealm(int realmId, CustomUserDetails curUser);
 
-    public int addProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser);
+    public int addProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int addProcurementAgentType(ProcurementAgentType procurementAgentType, CustomUserDetails curUser);
 
-    public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser);
+    public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int updateProcurementAgentType(ProcurementAgentType procurementAgentType, CustomUserDetails curUser);
 
@@ -46,13 +47,13 @@ public interface ProcurementAgentService {
     public ProcurementAgentType getProcurementAgentTypeById(int procurementAgentTypeId, CustomUserDetails curUser);
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser);
 
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser);
-    
+
     public int saveProcurementAgentForecastingUnit(ProcurementAgentForecastingUnit[] procurementAgentForecastingUnits, CustomUserDetails curUser);
-    
+
     public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser);
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser);
@@ -64,7 +65,7 @@ public interface ProcurementAgentService {
     public List<ProcurementAgentType> getProcurementAgentTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
@@ -72,7 +73,7 @@ public interface ProcurementAgentService {
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
-    
+
     public List<ProcurementAgentForecastingUnit> getProcurementAgentForecastingUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);

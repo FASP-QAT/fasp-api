@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
@@ -17,6 +18,7 @@ import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import java.util.LinkedList;
@@ -44,7 +46,16 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     private AclService aclService;
 
     @Override
-    public int addProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) {
+    public int addProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (SimpleObject program : procurementAgent.getProgramList()) {
+            if (program != null && program.getId() != null && program.getId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.procurementAgentDao.addProcurementAgent(procurementAgent, curUser);
     }
 
@@ -54,9 +65,18 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
-    public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) {
+    public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) throws AccessControlFailedException {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgent.getProcurementAgentId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+            for (SimpleObject program : procurementAgent.getProgramList()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.procurementAgentDao.updateProcurementAgent(procurementAgent, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

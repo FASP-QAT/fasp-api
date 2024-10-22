@@ -13,12 +13,10 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
@@ -45,10 +43,10 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException {
-        for (SimpleObject item : f.getProgramList()) {
-            if (item != null && item.getId() != null && item.getId() != 0) {
+        for (SimpleObject program : f.getProgramList()) {
+            if (program != null && program.getId() != null && program.getId() != 0) {
                 try {
-                    this.programCommonDao.getSimpleProgramById(item.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }
@@ -61,10 +59,10 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     public int updateFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(f.getFundingSourceId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
-            for (SimpleObject item : f.getProgramList()) {
-                if (item != null && item.getId() != null && item.getId() != 0) {
+            for (SimpleObject program : f.getProgramList()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
                     try {
-                        this.programCommonDao.getSimpleProgramById(item.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                     } catch (EmptyResultDataAccessException e) {
                         throw new AccessControlFailedException();
                     }

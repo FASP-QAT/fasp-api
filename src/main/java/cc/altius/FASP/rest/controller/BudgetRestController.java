@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
@@ -58,9 +59,12 @@ public class BudgetRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.budgetService.addBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add Budget", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailedDuplicate"), HttpStatus.CONFLICT); //409
+            return new ResponseEntity(new ResponseCode("static.message.addFailedDuplicate"), HttpStatus.NOT_ACCEPTABLE); //406
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -86,9 +90,12 @@ public class BudgetRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rows = this.budgetService.updateBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to update Budget", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailedDuplicate"), HttpStatus.CONFLICT);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailedDuplicate"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -128,8 +135,8 @@ public class BudgetRestController {
     public ResponseEntity getBudget(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
-                    ((CustomUserDetails) auth.getPrincipal()).getUserId(), 
-                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), 
+                    ((CustomUserDetails) auth.getPrincipal()).getUserId(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {

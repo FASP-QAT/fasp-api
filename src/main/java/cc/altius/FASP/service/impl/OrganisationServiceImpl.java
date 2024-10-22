@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
@@ -39,14 +40,32 @@ public class OrganisationServiceImpl implements OrganisationService {
     private AclService aclService;
 
     @Override
-    public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {
+    public int addOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
+            if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+                try {
+                    this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return organisationDao.addOrganisation(organisation, curUser);
     }
 
     @Override
-    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) {
+    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
         Organisation o = this.getOrganisationById(organisation.getOrganisationId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, o.getRealm().getId())) {
+            for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
+                if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+                    try {
+                        this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return organisationDao.updateOrganisation(organisation, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

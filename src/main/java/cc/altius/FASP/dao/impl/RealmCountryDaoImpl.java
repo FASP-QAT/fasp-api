@@ -213,6 +213,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         try {
             return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
         } catch (EmptyResultDataAccessException erda) {
@@ -235,6 +236,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
@@ -293,7 +295,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     @Override
     @Transactional
     public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) throws CouldNotSaveException {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("PLANNING_UNIT_ID","REALM_COUNTRY_ID","SKU_CODE","LABEL_ID","CONVERSION_NUMBER","CONVERSION_METHOD","UNIT_ID","CREATED_DATE","CREATED_BY","LAST_MODIFIED_DATE","LAST_MODIFIED_BY","ACTIVE");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("PLANNING_UNIT_ID", "REALM_COUNTRY_ID", "SKU_CODE", "LABEL_ID", "CONVERSION_NUMBER", "CONVERSION_METHOD", "UNIT_ID", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
         int rowsEffected = 0;

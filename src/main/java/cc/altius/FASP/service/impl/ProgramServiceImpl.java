@@ -14,6 +14,7 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -263,11 +264,11 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             if (!this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
-                throw new AccessDeniedException("Access denied");
+                throw new AccessControlFailedException();
             }
         }
         return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
@@ -279,11 +280,18 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnitProcurementAgentPrice papup : programPlanningUnitProcurementAgentPrices) {
             ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papup.getProcurementAgent().getId(), curUser);
             if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
                 throw new AccessDeniedException("Access denied");
+            }
+            if (papup != null && papup.getProgram().getId() != null && papup.getProgram().getId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(papup.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
             }
         }
         return this.programDao.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);

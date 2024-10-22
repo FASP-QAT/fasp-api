@@ -6,6 +6,9 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.IntegrationProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.ManualIntegration;
@@ -13,6 +16,7 @@ import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,6 +28,8 @@ public class IntegrationProgramServiceImpl implements IntegrationProgramService 
 
     @Autowired
     private IntegrationProgramDao integrationProgramDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser) {
@@ -46,7 +52,16 @@ public class IntegrationProgramServiceImpl implements IntegrationProgramService 
     }
 
     @Override
-    public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser) {
+    public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (ManualIntegration manualIntegartion : manualIntegrations) {
+            if (manualIntegartion != null && manualIntegartion.getProgram().getId() != null && manualIntegartion.getProgram().getId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(manualIntegartion.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.integrationProgramDao.addManualJsonPush(manualIntegrations, curUser);
     }
 

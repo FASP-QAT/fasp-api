@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.UsageTemplate;
 import java.util.List;
@@ -16,10 +17,10 @@ import java.util.List;
 public interface UsageTemplateService {
 
     public List<UsageTemplate> getUsageTemplateList(boolean active, CustomUserDetails curUser);
-    
+
     public List<UsageTemplate> getUsageTemplateList(int tracerCategoryId, CustomUserDetails curUser);
 
-    public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser);
-    
+    public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser) throws AccessControlFailedException;
+
     public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser);
 }

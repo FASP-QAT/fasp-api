@@ -5,8 +5,10 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.TracerCategoryDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
@@ -32,16 +34,32 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private HealthAreaDao healthAreaDao;
 
     @Override
-    public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
+    public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (m.getHealthArea() != null && m.getHealthArea().getId() != null && m.getHealthArea().getId() != 0) {
+            try {
+                this.healthAreaDao.getHealthAreaById(m.getHealthArea().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.tracerCategoryDao.addTracerCategory(m, curUser);
     }
 
     @Override
-    public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) {
+    public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) throws AccessControlFailedException {
         TracerCategory tracerCategory = this.tracerCategoryDao.getTracerCategoryById(m.getTracerCategoryId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, tracerCategory.getRealm().getId())) {
+            if (m.getHealthArea() != null && m.getHealthArea().getId() != null && m.getHealthArea().getId() != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(m.getHealthArea().getId(), curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
             return this.tracerCategoryDao.updateTracerCategory(m, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
