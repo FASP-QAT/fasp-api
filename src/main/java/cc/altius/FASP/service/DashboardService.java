@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.report.DashboardInput;
@@ -31,9 +32,9 @@ public interface DashboardService {
 
     List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
 
-    List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser);
+    List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
-    
+    DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
+
     DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
 }

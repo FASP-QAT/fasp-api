@@ -13,6 +13,7 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
@@ -82,6 +83,8 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private RealmCountryDao realmCountryDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -106,7 +109,30 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) {
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : p.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (p.getOrganisation() != null && p.getOrganisation().getId() != null && p.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         p.setRealmCountry(this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser));
         if (this.aclService.checkAccessForUser(
                 curUser,
@@ -132,7 +158,37 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) {
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (p.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(p.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : p.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (p.getOrganisation() != null && p.getOrganisation().getId() != null && p.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
         if (curProg == null) {
             throw new EmptyResultDataAccessException(1);
@@ -320,7 +376,30 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     @Transactional
-    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
+    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (program.getRealmCountry() != null && program.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                this.realmCountryDao.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : program.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (program.getOrganisation() != null && program.getOrganisation().getId() != null && program.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
         StringBuilder healthAreaCode = new StringBuilder();
         for (int haId : program.getHealthAreaIdList()) {
@@ -458,7 +537,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser) {
         return this.programDao.getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(realmCountryIdsAndHealthAreaIds, curUser);
     }
-    
+
     @Override
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
         return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
@@ -500,7 +579,14 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (realmCountryId != 0) {
+            try {
+                this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 

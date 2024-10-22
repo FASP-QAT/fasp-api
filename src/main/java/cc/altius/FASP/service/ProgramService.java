@@ -48,9 +48,9 @@ public interface ProgramService {
 
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser);
 
-    public int addProgram(ProgramInitialize p, CustomUserDetails curUser);
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser);
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
@@ -86,7 +86,7 @@ public interface ProgramService {
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser);
 
-    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser);
+    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public Program getProgramList(int realmId, int programId, int versionId);
 
@@ -134,7 +134,7 @@ public interface ProgramService {
 
     public Map<Integer, List<Version>> getVersionListForPrograms(int programTypeId, String[] programIds, CustomUserDetails curUser);
 
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser);
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
 

@@ -6,6 +6,8 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
@@ -23,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,6 +38,8 @@ public class DashboardServiceImpl implements DashboardService {
     private DashboardDao dashboardDao;
     @Autowired
     ProgramService programService;
+    @Autowired
+    ProgramCommonDao programCommonDao;
 
     @Override
     public Map<String, Object> getApplicationLevelDashboard(CustomUserDetails curUser) {
@@ -78,19 +81,26 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) {
+    public List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (String program : programIds) {
+            try {
+                this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.dashboardDao.getDashboardTop(programIds, curUser);
     }
 
     @Override
-    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException {
+    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         try {
             SimpleProgram p = this.programService.getSimpleProgramById(ei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             DashboardBottom db = this.dashboardDao.getDashboardBottom(ei, curUser);
             db.setProgram(p);
             return db;
         } catch (EmptyResultDataAccessException erda) {
-            throw new AccessDeniedException("Access denied");
+            throw new AccessControlFailedException();
         }
     }
 

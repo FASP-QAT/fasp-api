@@ -76,6 +76,9 @@ public class ProgramRestController {
             program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
             this.programService.updateProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -437,6 +440,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.programService.addProgramInitialize(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (DuplicateKeyException d) {
             logger.error("Error while trying to add Program", d);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
@@ -102,6 +103,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/programProductCatalog", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/programProductCatalog", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -131,6 +135,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/consumptionForecastVsActual", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/consumptionForecastVsActual", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -162,6 +169,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getGlobalConsumption(gci, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/globalConsumption", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/globalConsumption", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -194,6 +204,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/forecastMetricsMonthly", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/forecastMetricsMonthly", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,6 +241,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastMetricsComparision(fmi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/forecastMetricsComparision", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/forecastMetricsComparision", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -256,6 +272,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/warehouseCapacityReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/warehouseCapacityReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -272,6 +291,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getWarehouseByCountryReport(wbc, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to get warehouseByCountry", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -308,6 +330,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getCostOfInventory(cii, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/costOfInventory", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/costOfInventory", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -339,6 +364,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/inventoryTurns", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/inventoryTurns", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -368,6 +396,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getExpiredStock(esi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/expiredStock", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/expiredStock", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -395,6 +426,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockAdjustmentReport(si, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockAdjustmentReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockAdjustmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -428,6 +462,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getProcurementAgentShipmentReport(pari, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/procurementAgentShipmentReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/procurementAgentShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -456,6 +493,9 @@ public class ReportRestController {
 //            System.out.println("parameters ---" + plt);
 //            System.out.println("program lead times ---" + this.reportService.getProgramLeadTimes(plt, curUser));
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/programLeadTimes", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/programLeadTimes", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -488,6 +528,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getFundingSourceShipmentReport(fsri, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/fundingSourceShipmentReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/fundingSourceShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -523,6 +566,9 @@ public class ReportRestController {
                 // Map where Key is ProgramId~ReportingUnitId
                 return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
             }
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusVertical", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -539,6 +585,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusVertical/dropdowns", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical/dropdowns", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -570,6 +619,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusOverTime", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusOverTime", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -600,7 +652,10 @@ public class ReportRestController {
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusMatrix", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusMatrix", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -631,6 +686,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/shipmentDetails", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/shipmentDetails", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -655,6 +713,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/shipmentOverview", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/shipmentOverview", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -679,6 +740,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/shipmentGlobalDemand", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/shipmentGlobalDemand", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -707,6 +771,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/annualShipmentCost", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/annualShipmentCost", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -738,6 +805,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getAggregateShipmentByProduct(fsri, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/aggregateShipmentByProduct", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/aggregateShipmentByProduct", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -771,6 +841,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusForProgram(sspi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusForProgram", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusForProgram", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -792,6 +865,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getBudgetReport(br, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/budgetReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/budgetReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -825,6 +901,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusAcrossProducts", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusAcrossProducts", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -860,6 +939,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/forecastError", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/forecastError", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -885,6 +967,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getMonthlyForecast(mf, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/monthlyForecast", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/monthlyForecast", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -906,6 +991,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastSummary(fs, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/forecastSummary", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/forecastSummary", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -941,6 +1029,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationProgramService.getManualJsonPushReport(mi, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("Error while trying to get report", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -965,6 +1056,9 @@ public class ReportRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("Error while trying to get report", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

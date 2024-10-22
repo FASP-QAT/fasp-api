@@ -28,7 +28,7 @@ public interface IntegrationProgramService {
 
     public int addManualJsonPush(ManualIntegration[] manualIntegrations, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser);
+    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ManualIntegration> getManualJsonPushForScheduler();
 

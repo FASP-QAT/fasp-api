@@ -66,7 +66,16 @@ public class IntegrationProgramServiceImpl implements IntegrationProgramService 
     }
 
     @Override
-    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser) {
+    public List<ManualIntegration> getManualJsonPushReport(ManualJsonPushReportInput mi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (mi.getProgramIds() != null) {
+            for (String program : mi.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.integrationProgramDao.getManualJsonPushReport(mi, curUser);
     }
 

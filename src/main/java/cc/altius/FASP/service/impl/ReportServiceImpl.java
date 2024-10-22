@@ -10,6 +10,8 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.ReportDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
@@ -82,6 +84,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -103,108 +106,260 @@ public class ReportServiceImpl implements ReportService {
     private EquivalencyUnitDao equivalencyUnitDao;
 
     @Override
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
+    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssm.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(ssm.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getStockStatusMatrix(ssm);
     }
 
     // Report no 1
     @Override
-    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
+    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ppc.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(ppc.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getProgramProductCatalog(ppc, curUser);
     }
 
     //Report no 2
     @Override
-    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
+    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (cfa.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(cfa.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getConsumptionForecastVsActual(cfa, curUser);
     }
 
     // Report no 3
     @Override
-    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
+    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (gci.getProgramIds() != null) {
+            for (String program : gci.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getGlobalConsumption(gci, curUser);
     }
 
     // Report no 4
     @Override
-    public List<ForecastMetricsMonthlyOutput> getForecastMetricsMonthly(ForecastMetricsMonthlyInput fmi, CustomUserDetails curUser) {
+    public List<ForecastMetricsMonthlyOutput> getForecastMetricsMonthly(ForecastMetricsMonthlyInput fmi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (fmi.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(fmi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getForecastMetricsMonthly(fmi, curUser);
     }
 
     // Report no 5
     @Override
-    public List<ForecastMetricsComparisionOutput> getForecastMetricsComparision(ForecastMetricsComparisionInput fmi, CustomUserDetails curUser) {
+    public List<ForecastMetricsComparisionOutput> getForecastMetricsComparision(ForecastMetricsComparisionInput fmi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (fmi.getProgramIds() != null) {
+            for (String program : fmi.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getForecastMetricsComparision(fmi, curUser);
     }
 
     @Override
-    public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) {
+    public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssot.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(ssot.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getStockStatusOverTime(ssot, curUser);
     }
 
     @Override
-    public List<AnnualShipmentCostOutput> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+    public List<AnnualShipmentCostOutput> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (asci.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(asci.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getAnnualShipmentCost(asci, curUser);
     }
 
     @Override
-    public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser) {
+    public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (cii.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(cii.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getCostOfInventory(cii, curUser);
     }
 
     @Override
-    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) {
+    public List<InventoryTurnsOutput> getInventoryTurns(InventoryTurnsInput it, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (it.getProgramIds() != null) {
+            for (String program : it.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getInventoryTurns(it, curUser);
     }
 
     @Override
-    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput esi, CustomUserDetails curUser) {
+    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput esi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (esi.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(esi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getExpiredStock(esi, curUser);
     }
 
     @Override
-    public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser) {
+    public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (si.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(si.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getStockAdjustmentReport(si, curUser);
     }
 
     @Override
-    public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser) {
+    public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (pari.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(pari.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getProcurementAgentShipmentReport(pari, curUser);
     }
 
     @Override
-    public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser) {
+    public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (fsri.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(fsri.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getFundingSourceShipmentReport(fsri, curUser);
     }
 
     @Override
-    public List<ShipmentReportOutput> getAggregateShipmentByProduct(ShipmentReportInput sri, CustomUserDetails curUser) {
+    public List<ShipmentReportOutput> getAggregateShipmentByProduct(ShipmentReportInput sri, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (sri.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(sri.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getAggregateShipmentByProduct(sri, curUser);
     }
 
     @Override
-    public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
+    public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (wci.getProgramIds() != null) {
+            for (String program : wci.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getWarehouseCapacityReport(wci, curUser);
     }
 
     @Override
-    public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser) {
+    public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (wci.getRealmCountryIds() != null) {
+            for (String realmCountry : wci.getRealmCountryIds()) {
+                try {
+                    this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getWarehouseByCountryReport(wci, curUser);
     }
 
     @Override
-    public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) {
+    public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (sspi.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(sspi.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getStockStatusForProgram(sspi, curUser);
     }
 
     @Override
-    public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) {
+    public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (plt.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(plt.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getProgramLeadTimes(plt, curUser);
     }
 
     @Override
-    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException {
         Map<String, StockStatusVerticalIndividualOutput> map = new HashMap<>();
+        for (int programId : ssv.getProgramIds()) {
+            if (programId != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         for (int programId : ssv.getProgramIds()) {
             for (int reportingUnitId : ssv.getReportingUnitIds()) {
                 if (this.reportDao.checkIfExistsRuForProgram(programId, reportingUnitId, ssv.getViewBy())) {
@@ -235,7 +390,16 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+    public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssv.getProgramIds() != null) {
+            for (int program : ssv.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(program, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         List<StockStatusVerticalAggregateOutput> ssvoList = this.reportDao.getStockStatusVerticalAggregate(ssv, curUser);
         List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
         cList.forEach(c -> {
@@ -256,7 +420,16 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser) {
+    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssvdi.getProgramIds() != null) {
+            for (String program : ssvdi.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
         dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ssvdi, curUser));
         dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ssvdi, curUser));
@@ -274,28 +447,71 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (sd.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(sd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getShipmentDetails(sd, curUser);
     }
 
     @Override
-    public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser) {
+    public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (so.getProgramIds() != null) {
+            for (String program : so.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getShipmentOverview(so, curUser);
     }
 
     @Override
-    public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser) {
+    public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (sgd.getRealmCountryIds() != null) {
+            for (String realmCountry : sgd.getRealmCountryIds()) {
+                try {
+                    this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getShipmentGlobalDemand(sgd, curUser);
     }
 
     @Override
-    public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) {
+    public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (br.getProgramIds() != null) {
+            for (String program : br.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.reportDao.getBudgetReport(br, curUser);
     }
 
     // Report no 30
     @Override
-    public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
+    public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssap.getProgramIds() != null) {
+            for (String program : ssap.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         List<StockStatusAcrossProductsOutput> ssapList = this.reportDao.getStockStatusAcrossProductsBasicInfo(ssap, curUser);
         List<StockStatusAcrossProductsOutput> finalList = new LinkedList<>();
         for (StockStatusAcrossProductsOutput s : ssapList) {
@@ -312,19 +528,40 @@ public class ReportServiceImpl implements ReportService {
 
     // Report no 31 new
     @Override
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (fei.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(fei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getForecastError(fei, true, curUser);
     }
 
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
-    public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
+    public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (mf.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(mf.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getMonthlyForecast(mf, curUser);
     }
 
     // Mod 2 Report 2 -- Forecast Summary
     @Override
-    public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser) {
+    public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (fs.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(fs.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.reportDao.getForecastSummary(fs, curUser);
     }
 
