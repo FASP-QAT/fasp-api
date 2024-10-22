@@ -15,6 +15,7 @@ import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.RealmCountryIdsAndHealthAreaIds;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import cc.altius.FASP.service.ForecastingUnitService;
@@ -81,11 +82,12 @@ public class DropDownRestController {
     @Autowired
     private BudgetService budgetService;
 
-    /**Get Program list for Dropdown based on Realm
-     * 
+    /**
+     * Get Program list for Dropdown based on Realm
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/supplyPlan/program/realm/{realmId}")
@@ -98,7 +100,7 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.DropDownView.class)
     @GetMapping("/dataset/program/realm/{realmId}")
     public ResponseEntity getProgramForDropdownDataset(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
@@ -111,11 +113,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Program list for Dropdown based on Realm and with additional details
-     * 
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/all/expanded/realm/{realmId}")
@@ -128,12 +131,13 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Program list for Dropdown based on Realm and with additional details
-     * 
+
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/sp/expanded/realm/{realmId}")
@@ -146,12 +150,13 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Program list for Dropdown based on Realm and with additional details
-     * 
+
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/fc/expanded/realm/{realmId}")
@@ -165,12 +170,14 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Program list for Dropdown based on Realm and RealmCountry and HealthArea
-     * 
+    /**
+     * Get Program list for Dropdown based on Realm and RealmCountry and
+     * HealthArea
+     *
      * @param input
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/sp/filter/healthAreaAndRealmCountry/realm/{realmId}")
@@ -183,13 +190,15 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Program list for Dropdown based on Realm and RealmCountry and HealthArea
-     * 
+
+    /**
+     * Get Program list for Dropdown based on Realm and RealmCountry and
+     * HealthArea
+     *
      * @param input
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/fc/filter/healthAreaAndRealmCountry/realm/{realmId}")
@@ -203,11 +212,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Program list for Dropdown based on list of RealmCountryIds
-     * 
+    /**
+     * Get Program list for Dropdown based on list of RealmCountryIds
+     *
      * @param realmCountryIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/sp/filter/multipleRealmCountry")
@@ -220,12 +230,13 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Program list for Dropdown based on list of RealmCountryIds
-     * 
+
+    /**
+     * Get Program list for Dropdown based on list of RealmCountryIds
+     *
      * @param realmCountryIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/fc/filter/multipleRealmCountry")
@@ -239,11 +250,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Used to find the Planning Unit based on partial name
-     * 
+    /**
+     * Used to find the Planning Unit based on partial name
+     *
      * @param autoCompleteInput
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/autocomplete")
@@ -257,13 +269,15 @@ public class DropDownRestController {
         }
     }
 
-    /**Used to find the Planning Unit based on partial name and additional filters. Only returns list of Id’s
-     * 
+    /**
+     * Used to find the Planning Unit based on partial name and additional
+     * filters. Only returns list of Id’s
+     *
      * @param searchText
      * @param language
      * @param productCategorySortOrder
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDown3View.class)
     @GetMapping("/planningUnit/autocomplete/filter/productCategory/{searchText}/{language}/{productCategorySortOrder}")
@@ -281,10 +295,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of all Planning Units for Dropdown 
-     * 
+    /**
+     * Get list of all Planning Units for Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/planningUnit")
@@ -298,11 +313,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Used to find the Forecasting Unit based on partial name
-     * 
+    /**
+     * Used to find the Forecasting Unit based on partial name
+     *
      * @param autoCompleteInput
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/autocomplete")
@@ -316,13 +332,15 @@ public class DropDownRestController {
         }
     }
 
-    /**Used to find the Forecasting Unit based on partial name and additional filters. Only returns list of Id’s
-     * 
+    /**
+     * Used to find the Forecasting Unit based on partial name and additional
+     * filters. Only returns list of Id’s
+     *
      * @param searchText
      * @param language
      * @param tracerCategoryId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDown3View.class)
     @GetMapping("/forecastingUnit/autocomplete/filter/tracerCategory/{searchText}/{language}/{tracerCategoryId}")
@@ -340,10 +358,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of all Forecasting Units for Dropdown 
-     * 
+    /**
+     * Get list of all Forecasting Units for Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/forecastingUnit")
@@ -357,11 +376,13 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of all Forecasting Units for Dropdown filtered on ProductCategory and TracerCategory
-     * 
+    /**
+     * Get list of all Forecasting Units for Dropdown filtered on
+     * ProductCategory and TracerCategory
+     *
      * @param input
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/forecastingUnit/filter/pcAndTc")
@@ -375,11 +396,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of RealmCountries based on Realm
-     * 
+    /**
+     * Gets the list of RealmCountries based on Realm
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/realmCountry/realm/{realmId}")
@@ -393,11 +415,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of HealthAreas based on Realm
-     * 
+    /**
+     * Gets the list of HealthAreas based on Realm
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/healthArea/realm/{realmId}")
@@ -411,11 +434,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of Organisations based on Realm
-     * 
+    /**
+     * Gets the list of Organisations based on Realm
+     *
      * @param realmId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realm/{realmId}")
@@ -429,11 +453,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of Organisations based on RealmCountry
-     * 
+    /**
+     * Gets the list of Organisations based on RealmCountry
+     *
      * @param realmCountryId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
@@ -447,10 +472,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of TracerCategories for a Dropdown
-     * 
+    /**
+     * Gets the list of TracerCategories for a Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/tracerCategory")
@@ -464,11 +490,13 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of TracerCategories based on a list of Programs for a Dropdown
-     * 
+    /**
+     * Gets the list of TracerCategories based on a list of Programs for a
+     * Dropdown
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/tracerCategory/filter/multiplePrograms")
@@ -482,10 +510,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of FundingSources for a Dropdown
-     * 
+    /**
+     * Gets the list of FundingSources for a Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/fundingSource")
@@ -523,10 +552,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of ProcurementAgents for a Dropdown
-     * 
+    /**
+     * Gets the list of ProcurementAgents for a Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/procurementAgent")
@@ -540,11 +570,13 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of ProcurementAgents based on a list of Programs for a Dropdown
-     * 
+    /**
+     * Gets the list of ProcurementAgents based on a list of Programs for a
+     * Dropdown
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/procurementAgent/filter/multiplePrograms")
@@ -558,10 +590,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of EquivalencyUnits for a Dropdown
-     * 
+    /**
+     * Gets the list of EquivalencyUnits for a Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/equivalencyUnit")
@@ -575,10 +608,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Gets the list of Users for a Dropdown
-     * 
+    /**
+     * Gets the list of Users for a Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/user")
@@ -592,11 +626,13 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of all Planning Units for Dropdown filtered on Multiple ProductCategories and TracerCategories
-     * 
+    /**
+     * Get list of all Planning Units for Dropdown filtered on Multiple
+     * ProductCategories and TracerCategories
+     *
      * @param input
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/program/filter/multipleProgramAndTracerCategory")
@@ -610,11 +646,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Planning Unit list for Dataset Program for Dropdown
-     * 
+    /**
+     * Get Planning Unit list for Dataset Program for Dropdown
+     *
      * @param input
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/planningUnit/dataset/filter/programAndVersion")
@@ -628,11 +665,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of Budgets filtered by FundingSources
-     * 
+    /**
+     * Get list of Budgets filtered by FundingSources
+     *
      * @param fundingSources
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/budget/filter/multipleFundingSources")
@@ -646,11 +684,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of Budgets for a Program
-     * 
+    /**
+     * Get list of Budgets for a Program
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/budget/program/{programId}")
@@ -664,11 +703,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Version list for Program
-     * 
+    /**
+     * Get Version list for Program
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/version/filter/fc/programId/{programId}")
@@ -681,12 +721,13 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Version list for Program for SupplyPlan
-     * 
+
+    /**
+     * Get Version list for Program for SupplyPlan
+     *
      * @param programId
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/version/filter/sp/programId/{programId}")
@@ -700,11 +741,12 @@ public class DropDownRestController {
         }
     }
 
-    /**Get Version list for multiple Programs for Dataset
-     * 
+    /**
+     * Get Version list for multiple Programs for Dataset
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/fc/programs")
@@ -717,12 +759,13 @@ public class DropDownRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    /**Get Version list for multiple Programs for Supply Plan
-     * 
+
+    /**
+     * Get Version list for multiple Programs for Supply Plan
+     *
      * @param programIds
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/sp/programs")
@@ -736,10 +779,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of Tree templates for Dropdown
-     * 
+    /**
+     * Get list of Tree templates for Dropdown
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/treeTemplate")
@@ -753,12 +797,14 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of SP Programs for Dropdown based on Current Program Version and Current Program Status
-     * 
+    /**
+     * Get list of SP Programs for Dropdown based on Current Program Version and
+     * Current Program Status
+     *
      * @param versionStatusIdList
      * @param versionTypeIdList
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/program/versionStatus/{versionStatusIdList}/versionType/{versionTypeIdList}")
@@ -772,10 +818,11 @@ public class DropDownRestController {
         }
     }
 
-    /**Get list of active SimpleObject of PU with FU
-     * 
+    /**
+     * Get list of active SimpleObject of PU with FU
+     *
      * @param auth
-     * @return 
+     * @return
      */
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit/basic")
@@ -785,6 +832,30 @@ public class DropDownRestController {
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListBasic(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/healthArea/realmCountryIds")
+    public ResponseEntity getHealthAreaListByRealmCountryIds(@RequestBody String[] realmCountryIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmCountryIds(realmCountryIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list of HealthAreas", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.DropDownView.class)
+    @PostMapping("/program/realmCountryIds/healthAreaIds")
+    public ResponseEntity getSupplyPlanProgramListByRealmCountryIdsAndHealthAreaIds(@RequestBody RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(realmCountryIdsAndHealthAreaIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list of HealthAreas", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

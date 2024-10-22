@@ -40,6 +40,7 @@ import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.RealmCountryIdsAndHealthAreaIds;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
@@ -453,6 +454,11 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
     }
 
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(realmCountryIdsAndHealthAreaIds, curUser);
+    }
+    
     @Override
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
         return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
