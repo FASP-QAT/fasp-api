@@ -23,26 +23,26 @@ import java.util.Objects;
  *
  * @author akil
  */
-public class StockStatusVerticalOutput implements Serializable {
+public class StockStatusVerticalAggregateOutput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date dt;
     @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
+    private SimpleObject reportingUnit; // PU, ARU or EU
     @JsonView(Views.ReportView.class)
-    private Long openingBalance;
+    private Double openingBalance;
     @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
     @JsonView(Views.ReportView.class)
-    private Long actualConsumptionQty;
+    private Double actualConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long forecastedConsumptionQty;
+    private Double forecastedConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long finalConsumptionQty;
+    private Double finalConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long shipmentQty;
+    private Double shipmentQty;
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
     @JsonView(Views.ReportView.class)
@@ -50,43 +50,43 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private List<InventoryInfo> inventoryInfo;
     @JsonView(Views.ReportView.class)
-    private Long adjustment;
+    private Double adjustment;
     @JsonView(Views.ReportView.class)
-    private Long expiredStock;
+    private Double expiredStock;
     @JsonView(Views.ReportView.class)
-    private Long closingBalance;
+    private Double closingBalance;
     @JsonView(Views.ReportView.class)
     private Double amc;
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
-    private Double minMos;
+    private Double minStockMos;
     @JsonView(Views.ReportView.class)
-    private Double maxMos;
+    private Double maxStockMos;
     @JsonView(Views.ReportView.class)
-    private Long unmetDemand;
+    private Double minStockQty;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockQty;
+    @JsonView(Views.ReportView.class)
+    private Double unmetDemand;
     @JsonView(Views.ReportView.class)
     private int regionCount;
     @JsonView(Views.ReportView.class)
     private int regionCountForStock;
     @JsonView(Views.ReportView.class)
-    private Long nationalAdjustment;
+    private Double nationalAdjustment;
     @JsonView(Views.ReportView.class)
-    private Double minStock;
+    private int planBasedOn;
     @JsonView(Views.ReportView.class)
-    private Double maxStock;
-    @JsonView(Views.ReportView.class)
-    private int planBasedOn; //1- MoS , 2- Qty
-    @JsonView(Views.ReportView.class)
-    private int distributionLeadTime;
+    private String ppuNotes;
 
-    public StockStatusVerticalOutput() {
+    public StockStatusVerticalAggregateOutput() {
         this.shipmentInfo = new LinkedList<>();
         this.consumptionInfo = new LinkedList<>();
         this.inventoryInfo = new LinkedList<>();
     }
 
-    public StockStatusVerticalOutput(Date dt) {
+    public StockStatusVerticalAggregateOutput(Date dt) {
         this.dt = dt;
         this.shipmentInfo = new LinkedList<>();
         this.consumptionInfo = new LinkedList<>();
@@ -101,19 +101,19 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public SimpleObject getReportingUnit() {
+        return reportingUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setReportingUnit(SimpleObject reportingUnit) {
+        this.reportingUnit = reportingUnit;
     }
 
-    public Long getOpeningBalance() {
+    public Double getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(Long openingBalance) {
+    public void setOpeningBalance(Double openingBalance) {
         this.openingBalance = openingBalance;
     }
 
@@ -125,59 +125,59 @@ public class StockStatusVerticalOutput implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public Long getActualConsumptionQty() {
+    public Double getActualConsumptionQty() {
         return actualConsumptionQty;
     }
 
-    public void setActualConsumptionQty(Long actualConsumptionQty) {
+    public void setActualConsumptionQty(Double actualConsumptionQty) {
         this.actualConsumptionQty = actualConsumptionQty;
     }
 
-    public Long getForecastedConsumptionQty() {
+    public Double getForecastedConsumptionQty() {
         return forecastedConsumptionQty;
     }
 
-    public void setForecastedConsumptionQty(Long forecastedConsumptionQty) {
+    public void setForecastedConsumptionQty(Double forecastedConsumptionQty) {
         this.forecastedConsumptionQty = forecastedConsumptionQty;
     }
 
-    public Long getFinalConsumptionQty() {
+    public Double getFinalConsumptionQty() {
         return finalConsumptionQty;
     }
 
-    public void setFinalConsumptionQty(Long finalConsumptionQty) {
+    public void setFinalConsumptionQty(Double finalConsumptionQty) {
         this.finalConsumptionQty = finalConsumptionQty;
     }
 
-    public Long getShipmentQty() {
+    public Double getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(Long shipmentQty) {
+    public void setShipmentQty(Double shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
-    public Long getAdjustment() {
+    public Double getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Long adjustment) {
+    public void setAdjustment(Double adjustment) {
         this.adjustment = adjustment;
     }
 
-    public Long getExpiredStock() {
+    public Double getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(Long expiredStock) {
+    public void setExpiredStock(Double expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public Long getClosingBalance() {
+    public Double getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(Long closingBalance) {
+    public void setClosingBalance(Double closingBalance) {
         this.closingBalance = closingBalance;
     }
 
@@ -197,27 +197,43 @@ public class StockStatusVerticalOutput implements Serializable {
         this.mos = mos;
     }
 
-    public Double getMinMos() {
-        return minMos;
+    public Double getMinStockMos() {
+        return minStockMos;
     }
 
-    public void setMinMos(Double minMos) {
-        this.minMos = minMos;
+    public void setMinStockMos(Double minStockMos) {
+        this.minStockMos = minStockMos;
     }
 
-    public Double getMaxMos() {
-        return maxMos;
+    public Double getMaxStockMos() {
+        return maxStockMos;
     }
 
-    public void setMaxMos(Double maxMos) {
-        this.maxMos = maxMos;
+    public void setMaxStockMos(Double maxStockMos) {
+        this.maxStockMos = maxStockMos;
     }
 
-    public Long getUnmetDemand() {
+    public Double getMinStockQty() {
+        return minStockQty;
+    }
+
+    public void setMinStockQty(Double minStockQty) {
+        this.minStockQty = minStockQty;
+    }
+
+    public Double getMaxStockQty() {
+        return maxStockQty;
+    }
+
+    public void setMaxStockQty(Double maxStockQty) {
+        this.maxStockQty = maxStockQty;
+    }
+
+    public Double getUnmetDemand() {
         return unmetDemand;
     }
 
-    public void setUnmetDemand(Long unmetDemand) {
+    public void setUnmetDemand(Double unmetDemand) {
         this.unmetDemand = unmetDemand;
     }
 
@@ -237,11 +253,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.regionCountForStock = regionCountForStock;
     }
 
-    public Long getNationalAdjustment() {
+    public Double getNationalAdjustment() {
         return nationalAdjustment;
     }
 
-    public void setNationalAdjustment(Long nationalAdjustment) {
+    public void setNationalAdjustment(Double nationalAdjustment) {
         this.nationalAdjustment = nationalAdjustment;
     }
 
@@ -269,22 +285,6 @@ public class StockStatusVerticalOutput implements Serializable {
         this.inventoryInfo = inventoryInfo;
     }
 
-    public Double getMinStock() {
-        return minStock;
-    }
-
-    public void setMinStock(Double minStock) {
-        this.minStock = minStock;
-    }
-
-    public Double getMaxStock() {
-        return maxStock;
-    }
-
-    public void setMaxStock(Double maxStock) {
-        this.maxStock = maxStock;
-    }
-
     public int getPlanBasedOn() {
         return planBasedOn;
     }
@@ -293,12 +293,12 @@ public class StockStatusVerticalOutput implements Serializable {
         this.planBasedOn = planBasedOn;
     }
 
-    public int getDistributionLeadTime() {
-        return distributionLeadTime;
+    public String getPpuNotes() {
+        return ppuNotes;
     }
 
-    public void setDistributionLeadTime(int distributionLeadTime) {
-        this.distributionLeadTime = distributionLeadTime;
+    public void setPpuNotes(String ppuNotes) {
+        this.ppuNotes = ppuNotes;
     }
 
     @Override
@@ -308,9 +308,8 @@ public class StockStatusVerticalOutput implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 67 * hash + Objects.hashCode(this.dt);
-        hash = 67 * hash + Objects.hashCode(this.planningUnit);
+        int hash = 3;
+        hash = 61 * hash + Objects.hashCode(this.dt);
         return hash;
     }
 
@@ -326,8 +325,8 @@ public class StockStatusVerticalOutput implements Serializable {
             return false;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-        final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
-        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.dt))) {
+        final StockStatusVerticalAggregateOutput other = (StockStatusVerticalAggregateOutput) obj;
+        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.getDt()))) {
             return false;
         }
         return true;

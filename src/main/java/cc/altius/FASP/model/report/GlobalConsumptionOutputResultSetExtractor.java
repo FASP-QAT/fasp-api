@@ -38,8 +38,8 @@ public class GlobalConsumptionOutputResultSetExtractor implements ResultSetExtra
             gc.getCountryConsumption().put(rs.getString("COUNTRY_CODE"),
                     new CountryConsumptionData(
                             new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1), rs.getString("COUNTRY_CODE")),
-                            rs.getLong("FORECASTED_CONSUMPTION"),
-                            rs.getLong("ACTUAL_CONSUMPTION")
+                            rs.getDouble("FORECASTED_CONSUMPTION"),
+                            rs.getDouble("ACTUAL_CONSUMPTION")
                     )
             );
         }

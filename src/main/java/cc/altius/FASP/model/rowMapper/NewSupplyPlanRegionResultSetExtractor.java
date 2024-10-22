@@ -34,46 +34,46 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
             RegionData rd = new RegionData();
             rd.setRegionId(rs.getInt("REGION_ID"));
             if (rs.wasNull()) {
-                nsp.addPlannedShipmentsTotalData(rs.getLong("MANUAL_PLANNED_SHIPMENT"));
-                nsp.addSubmittedShipmentsTotalData(rs.getLong("MANUAL_SUBMITTED_SHIPMENT"));
-                nsp.addApprovedShipmentsTotalData(rs.getLong("MANUAL_APPROVED_SHIPMENT"));
-                nsp.addShippedShipmentsTotalData(rs.getLong("MANUAL_SHIPPED_SHIPMENT"));
-                nsp.addReceivedShipmentsTotalData(rs.getLong("MANUAL_RECEIVED_SHIPMENT"));
-                nsp.addOnholdShipmentsTotalData(rs.getLong("MANUAL_ONHOLD_SHIPMENT"));
-                nsp.addPlannedErpShipmentsTotalData(rs.getLong("ERP_PLANNED_SHIPMENT"));
-                nsp.addSubmittedErpShipmentsTotalData(rs.getLong("ERP_SUBMITTED_SHIPMENT"));
-                nsp.addApprovedErpShipmentsTotalData(rs.getLong("ERP_APPROVED_SHIPMENT"));
-                nsp.addShippedErpShipmentsTotalData(rs.getLong("ERP_SHIPPED_SHIPMENT"));
-                nsp.addReceivedErpShipmentsTotalData(rs.getLong("ERP_RECEIVED_SHIPMENT"));
-                nsp.addOnholdErpShipmentsTotalData(rs.getLong("ERP_ONHOLD_SHIPMENT"));
+                nsp.addPlannedShipmentsTotalData(rs.getDouble("MANUAL_PLANNED_SHIPMENT"));
+                nsp.addSubmittedShipmentsTotalData(rs.getDouble("MANUAL_SUBMITTED_SHIPMENT"));
+                nsp.addApprovedShipmentsTotalData(rs.getDouble("MANUAL_APPROVED_SHIPMENT"));
+                nsp.addShippedShipmentsTotalData(rs.getDouble("MANUAL_SHIPPED_SHIPMENT"));
+                nsp.addReceivedShipmentsTotalData(rs.getDouble("MANUAL_RECEIVED_SHIPMENT"));
+                nsp.addOnholdShipmentsTotalData(rs.getDouble("MANUAL_ONHOLD_SHIPMENT"));
+                nsp.addPlannedErpShipmentsTotalData(rs.getDouble("ERP_PLANNED_SHIPMENT"));
+                nsp.addSubmittedErpShipmentsTotalData(rs.getDouble("ERP_SUBMITTED_SHIPMENT"));
+                nsp.addApprovedErpShipmentsTotalData(rs.getDouble("ERP_APPROVED_SHIPMENT"));
+                nsp.addShippedErpShipmentsTotalData(rs.getDouble("ERP_SHIPPED_SHIPMENT"));
+                nsp.addReceivedErpShipmentsTotalData(rs.getDouble("ERP_RECEIVED_SHIPMENT"));
+                nsp.addOnholdErpShipmentsTotalData(rs.getDouble("ERP_ONHOLD_SHIPMENT"));
                 nsp.setRegionCountForStock(rs.getInt("REGION_STOCK_COUNT"));
                 nsp.setRegionCount(rs.getInt("REGION_COUNT"));
             } else {
                 nsp.setActualConsumptionFlag(rs.getBoolean("USE_ACTUAL_CONSUMPTION"));
                 nsp.setRegionCountForStock(rs.getInt("REGION_STOCK_COUNT"));
                 nsp.setRegionCount(rs.getInt("REGION_COUNT"));
-                rd.setForecastedConsumption(rs.getLong("FORECASTED_CONSUMPTION"));
+                rd.setForecastedConsumption(rs.getDouble("FORECASTED_CONSUMPTION"));
                 if (rs.wasNull()) {
                     rd.setForecastedConsumption(null);
                 }
                 nsp.addForecastedConsumptionQty(rd.getForecastedConsumption());
-                rd.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
+                rd.setActualConsumption(rs.getDouble("ACTUAL_CONSUMPTION"));
                 if (rs.wasNull()) {
                     rd.setActualConsumption(null);
                 }
                 nsp.addActualConsumptionQty(rd.getActualConsumption());
-                rd.setAdjustedConsumption(rs.getLong("ADJUSTED_CONSUMPTION"));
+                rd.setAdjustedConsumption(rs.getDouble("ADJUSTED_CONSUMPTION"));
                 if (rs.wasNull()) {
                     rd.setAdjustedConsumption(null);
                 }
                 nsp.addAdjustedConsumptionQty(rd.getAdjustedConsumption());
                 nsp.addFinalConsumptionQty(nsp.isActualConsumptionFlag() ? rd.getActualConsumption() : rd.getForecastedConsumption());
-                rd.setStock(rs.getLong("STOCK"));
+                rd.setStock(rs.getDouble("STOCK"));
                 if (rs.wasNull()) {
                     rd.setStock(null);
                 }
                 nsp.addStockQty(rd.getStock());
-                rd.setAdjustment(rs.getLong("ADJUSTMENT"));
+                rd.setAdjustment(rs.getDouble("ADJUSTMENT"));
                 if (rs.wasNull()) {
                     rd.setAdjustment(null);
                 }

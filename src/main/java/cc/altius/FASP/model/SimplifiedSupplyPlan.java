@@ -37,36 +37,36 @@ public class SimplifiedSupplyPlan implements Serializable {
     private Boolean actualFlag;
     // Is null if there is no Consumption reported
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private Long consumptionQty;
+    private Double consumptionQty;
     // Is 0 if there is no Shipment in that period
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long receivedShipmentsTotalData;
+    private double receivedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long shippedShipmentsTotalData;
+    private double shippedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long approvedShipmentsTotalData;
+    private double approvedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long submittedShipmentsTotalData;
+    private double submittedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long plannedShipmentsTotalData;
+    private double plannedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long onholdShipmentsTotalData;
+    private double onholdShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long receivedErpShipmentsTotalData;
+    private double receivedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long shippedErpShipmentsTotalData;
+    private double shippedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long approvedErpShipmentsTotalData;
+    private double approvedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long submittedErpShipmentsTotalData;
+    private double submittedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long plannedErpShipmentsTotalData;
+    private double plannedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long onholdErpShipmentsTotalData;
+    private double onholdErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private Long stockQty;
+    private Double stockQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private Long adjustmentQty;
+    private Double adjustmentQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int regionCount;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -86,25 +86,25 @@ public class SimplifiedSupplyPlan implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<SimpleBatchQuantity> batchDetails;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long expiredStock;
+    private double expiredStock;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long expiredStockWps;
+    private double expiredStockWps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long unmetDemand;
+    private double unmetDemand;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long unmetDemandWps;
+    private double unmetDemandWps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long openingBalance;
+    private double openingBalance;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long openingBalanceWps;
+    private double openingBalanceWps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long closingBalance;
+    private double closingBalance;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long closingBalanceWps;
+    private double closingBalanceWps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long nationalAdjustment;
+    private double nationalAdjustment;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long nationalAdjustmentWps;
+    private double nationalAdjustmentWps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mos;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -175,138 +175,138 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.actualFlag = actualFlag;
     }
 
-    public Long getConsumptionQty() {
+    public Double getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(Long consumptionQty) {
+    public void setConsumptionQty(Double consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
     @JsonView({Views.InternalView.class})
-    public long getShipmentTotalQty() {
+    public double getShipmentTotalQty() {
         return getManualTotalQty() + getErpTotalQty();
     }
 
     @JsonView({Views.InternalView.class})
-    public long getManualTotalQty() {
+    public double getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
-    public long getReceivedShipmentsTotalData() {
+    public double getReceivedShipmentsTotalData() {
         return receivedShipmentsTotalData;
     }
 
-    public void setReceivedShipmentsTotalData(long receivedShipmentsTotalData) {
+    public void setReceivedShipmentsTotalData(double receivedShipmentsTotalData) {
         this.receivedShipmentsTotalData = receivedShipmentsTotalData;
     }
 
-    public long getShippedShipmentsTotalData() {
+    public double getShippedShipmentsTotalData() {
         return shippedShipmentsTotalData;
     }
 
-    public void setShippedShipmentsTotalData(long shippedShipmentsTotalData) {
+    public void setShippedShipmentsTotalData(double shippedShipmentsTotalData) {
         this.shippedShipmentsTotalData = shippedShipmentsTotalData;
     }
 
-    public long getApprovedShipmentsTotalData() {
+    public double getApprovedShipmentsTotalData() {
         return approvedShipmentsTotalData;
     }
 
-    public void setApprovedShipmentsTotalData(long approvedShipmentsTotalData) {
+    public void setApprovedShipmentsTotalData(double approvedShipmentsTotalData) {
         this.approvedShipmentsTotalData = approvedShipmentsTotalData;
     }
 
-    public long getSubmittedShipmentsTotalData() {
+    public double getSubmittedShipmentsTotalData() {
         return submittedShipmentsTotalData;
     }
 
-    public void setSubmittedShipmentsTotalData(long submittedShipmentsTotalData) {
+    public void setSubmittedShipmentsTotalData(double submittedShipmentsTotalData) {
         this.submittedShipmentsTotalData = submittedShipmentsTotalData;
     }
 
-    public long getPlannedShipmentsTotalData() {
+    public double getPlannedShipmentsTotalData() {
         return plannedShipmentsTotalData;
     }
 
-    public void setPlannedShipmentsTotalData(long plannedShipmentsTotalData) {
+    public void setPlannedShipmentsTotalData(double plannedShipmentsTotalData) {
         this.plannedShipmentsTotalData = plannedShipmentsTotalData;
     }
 
-    public long getOnholdShipmentsTotalData() {
+    public double getOnholdShipmentsTotalData() {
         return onholdShipmentsTotalData;
     }
 
-    public void setOnholdShipmentsTotalData(long onholdShipmentsTotalData) {
+    public void setOnholdShipmentsTotalData(double onholdShipmentsTotalData) {
         this.onholdShipmentsTotalData = onholdShipmentsTotalData;
     }
 
     @JsonView({Views.InternalView.class})
-    public long getErpTotalQty() {
+    public double getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
-    public long getReceivedErpShipmentsTotalData() {
+    public double getReceivedErpShipmentsTotalData() {
         return receivedErpShipmentsTotalData;
     }
 
-    public void setReceivedErpShipmentsTotalData(long receivedErpShipmentsTotalData) {
+    public void setReceivedErpShipmentsTotalData(double receivedErpShipmentsTotalData) {
         this.receivedErpShipmentsTotalData = receivedErpShipmentsTotalData;
     }
 
-    public long getShippedErpShipmentsTotalData() {
+    public double getShippedErpShipmentsTotalData() {
         return shippedErpShipmentsTotalData;
     }
 
-    public void setShippedErpShipmentsTotalData(long shippedErpShipmentsTotalData) {
+    public void setShippedErpShipmentsTotalData(double shippedErpShipmentsTotalData) {
         this.shippedErpShipmentsTotalData = shippedErpShipmentsTotalData;
     }
 
-    public long getApprovedErpShipmentsTotalData() {
+    public double getApprovedErpShipmentsTotalData() {
         return approvedErpShipmentsTotalData;
     }
 
-    public void setApprovedErpShipmentsTotalData(long approvedErpShipmentsTotalData) {
+    public void setApprovedErpShipmentsTotalData(double approvedErpShipmentsTotalData) {
         this.approvedErpShipmentsTotalData = approvedErpShipmentsTotalData;
     }
 
-    public long getSubmittedErpShipmentsTotalData() {
+    public double getSubmittedErpShipmentsTotalData() {
         return submittedErpShipmentsTotalData;
     }
 
-    public void setSubmittedErpShipmentsTotalData(long submittedErpShipmentsTotalData) {
+    public void setSubmittedErpShipmentsTotalData(double submittedErpShipmentsTotalData) {
         this.submittedErpShipmentsTotalData = submittedErpShipmentsTotalData;
     }
 
-    public long getPlannedErpShipmentsTotalData() {
+    public double getPlannedErpShipmentsTotalData() {
         return plannedErpShipmentsTotalData;
     }
 
-    public void setPlannedErpShipmentsTotalData(long plannedErpShipmentsTotalData) {
+    public void setPlannedErpShipmentsTotalData(double plannedErpShipmentsTotalData) {
         this.plannedErpShipmentsTotalData = plannedErpShipmentsTotalData;
     }
 
-    public long getOnholdErpShipmentsTotalData() {
+    public double getOnholdErpShipmentsTotalData() {
         return onholdErpShipmentsTotalData;
     }
 
-    public void setOnholdErpShipmentsTotalData(long onholdErpShipmentsTotalData) {
+    public void setOnholdErpShipmentsTotalData(double onholdErpShipmentsTotalData) {
         this.onholdErpShipmentsTotalData = onholdErpShipmentsTotalData;
     }
 
-    public Long getStockQty() {
+    public Double getStockQty() {
         return stockQty;
     }
 
-    public void setStockQty(Long stockQty) {
+    public void setStockQty(Double stockQty) {
         this.stockQty = stockQty;
     }
 
-    public Long getAdjustmentQty() {
+    public Double getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(Long adjustmentQty) {
+    public void setAdjustmentQty(Double adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 
@@ -382,83 +382,83 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.batchDetails = batchDetails;
     }
 
-    public long getExpiredStock() {
+    public double getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(long expiredStock) {
+    public void setExpiredStock(double expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public long getExpiredStockWps() {
+    public double getExpiredStockWps() {
         return expiredStockWps;
     }
 
-    public void setExpiredStockWps(long expiredStockWps) {
+    public void setExpiredStockWps(double expiredStockWps) {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public long getUnmetDemand() {
+    public double getUnmetDemand() {
         return unmetDemand;
     }
 
-    public void setUnmetDemand(long unmetDemand) {
+    public void setUnmetDemand(double unmetDemand) {
         this.unmetDemand = unmetDemand;
     }
 
-    public long getUnmetDemandWps() {
+    public double getUnmetDemandWps() {
         return unmetDemandWps;
     }
 
-    public void setUnmetDemandWps(long unmetDemandWps) {
+    public void setUnmetDemandWps(double unmetDemandWps) {
         this.unmetDemandWps = unmetDemandWps;
     }
 
-    public long getOpeningBalance() {
+    public double getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(long openingBalance) {
+    public void setOpeningBalance(double openingBalance) {
         this.openingBalance = openingBalance;
     }
 
-    public long getOpeningBalanceWps() {
+    public double getOpeningBalanceWps() {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(long openingBalanceWps) {
+    public void setOpeningBalanceWps(double openingBalanceWps) {
         this.openingBalanceWps = openingBalanceWps;
     }
 
-    public long getClosingBalance() {
+    public double getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(long closingBalance) {
+    public void setClosingBalance(double closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public long getClosingBalanceWps() {
+    public double getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
-    public void setClosingBalanceWps(long closingBalanceWps) {
+    public void setClosingBalanceWps(double closingBalanceWps) {
         this.closingBalanceWps = closingBalanceWps;
     }
 
-    public long getNationalAdjustment() {
+    public double getNationalAdjustment() {
         return nationalAdjustment;
     }
 
-    public void setNationalAdjustment(long nationalAdjustment) {
+    public void setNationalAdjustment(double nationalAdjustment) {
         this.nationalAdjustment = nationalAdjustment;
     }
 
-    public long getNationalAdjustmentWps() {
+    public double getNationalAdjustmentWps() {
         return nationalAdjustmentWps;
     }
 
-    public void setNationalAdjustmentWps(long nationalAdjustmentWps) {
+    public void setNationalAdjustmentWps(double nationalAdjustmentWps) {
         this.nationalAdjustmentWps = nationalAdjustmentWps;
     }
 

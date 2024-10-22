@@ -22,7 +22,7 @@ public class ProcurementAgentShipmentReportOutputRowMapper implements RowMapper<
     public ProcurementAgentShipmentReportOutput mapRow(ResultSet rs, int i) throws SQLException {
         ProcurementAgentShipmentReportOutput paro = new ProcurementAgentShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
-                rs.getLong("QTY"),
+                rs.getDouble("QTY"),
                 rs.getDouble("PRODUCT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
                 rs.getDouble("FREIGHT_COST"));

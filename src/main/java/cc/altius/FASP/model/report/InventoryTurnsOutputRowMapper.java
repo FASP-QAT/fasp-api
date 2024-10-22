@@ -25,7 +25,7 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
                 new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("P_").mapRow(rs, i), rs.getString("PROGRAM_CODE")),
                 new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, i)),
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, i)),
-                rs.getLong("TOTAL_CONSUMPTION"),
+                rs.getDouble("TOTAL_CONSUMPTION"),
                 rs.getDouble("AVG_STOCK"),
                 rs.getInt("NO_OF_MONTHS"),
                 rs.getInt("REORDER_FREQUENCY_IN_MONTHS"),

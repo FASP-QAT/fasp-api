@@ -43,6 +43,8 @@ public class User extends BaseModel implements Serializable {
     @JsonView(Views.UserListView.class)
     private int defaultThemeId;
     @JsonView(Views.UserListView.class)
+    private boolean showDecimals;
+    @JsonView(Views.UserListView.class)
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -185,6 +187,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setDefaultThemeId(int defaultThemeId) {
         this.defaultThemeId = defaultThemeId;
+    }
+
+    public boolean isShowDecimals() {
+        return showDecimals;
+    }
+
+    public void setShowDecimals(boolean showDecimals) {
+        this.showDecimals = showDecimals;
     }
 
     public int getFaildAttempts() {

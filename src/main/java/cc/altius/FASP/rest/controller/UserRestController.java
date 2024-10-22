@@ -730,6 +730,20 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.themeChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @PostMapping("/user/decimalPreference/{showDecimals}")
+    public ResponseEntity updateUserDecimalPreference(@PathVariable boolean showDecimals, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
+            this.userService.updateUserDecimalPreference(curUser.getUserId(), showDecimals);
+            auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            auditLogger.info("Could not update default theme", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.decimalPreferenceChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * Updates the I agree field for a User

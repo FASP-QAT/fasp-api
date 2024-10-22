@@ -42,6 +42,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), new LabelRowMapper("LANGUAGE_").mapRow(rs, 1), rs.getString("LANGUAGE_CODE"), rs.getString("COUNTRY_CODE")));
                 user.setDefaultModuleId(rs.getInt("DEFAULT_MODULE_ID"));
                 user.setDefaultThemeId(rs.getInt("DEFAULT_THEME_ID"));
+                user.setShowDecimals(rs.getBoolean("SHOW_DECIMALS"));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));

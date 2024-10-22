@@ -41,11 +41,13 @@ import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.TreeAnchorOutputRowMapper;
@@ -61,6 +63,7 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimpleObjectWithFutRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectWithTypeRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleProgramListResultSetExtractor;
@@ -2989,6 +2992,26 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT "
+                + "    pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                + "    pu.FORECASTING_UNIT_ID "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID " 
+                + "WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) AND pu.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", ArrayUtils.convertArrayToString(ssvdi.getProgramIds()));
+
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID");
+        if (ssvdi.isOnlyAllowPuPresentAcrossAllPrograms()) {
+            sqlStringBuilder.append(" HAVING COUNT(pu.PLANNING_UNIT_ID)=:programCount");
+            params.put("programCount", ssvdi.getProgramIds().length);
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectWithFutRowMapper());
+    }
+
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT ppa.`PROCUREMENT_AGENT_ID` FROM vw_program p LEFT JOIN rm_program_procurement_agent ppa ON p.PROGRAM_ID=ppa.PROGRAM_ID WHERE p.PROGRAM_ID=:programId ");
         Map<String, Object> params = new HashMap<>();

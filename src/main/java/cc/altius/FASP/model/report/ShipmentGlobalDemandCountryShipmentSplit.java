@@ -19,9 +19,9 @@ public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
     @JsonView(Views.ReportView.class)
-    private int plannedShipmentAmt;
+    private double plannedShipmentAmt;
     @JsonView(Views.ReportView.class)
-    private int orderedShipmentAmt;
+    private double orderedShipmentAmt;
 
     public SimpleCodeObject getCountry() {
         return country;
@@ -31,19 +31,19 @@ public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
         this.country = country;
     }
 
-    public int getPlannedShipmentAmt() {
+    public double getPlannedShipmentAmt() {
         return plannedShipmentAmt;
     }
 
-    public void setPlannedShipmentAmt(int plannedShipmentAmt) {
+    public void setPlannedShipmentAmt(double plannedShipmentAmt) {
         this.plannedShipmentAmt = plannedShipmentAmt;
     }
 
-    public int getOrderedShipmentAmt() {
+    public double getOrderedShipmentAmt() {
         return orderedShipmentAmt;
     }
 
-    public void setOrderedShipmentAmt(int orderedShipmentAmt) {
+    public void setOrderedShipmentAmt(double orderedShipmentAmt) {
         this.orderedShipmentAmt = orderedShipmentAmt;
     }
 

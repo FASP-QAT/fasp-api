@@ -296,6 +296,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int updateUserDecimalPreference(int userId, boolean showDecimals) {
+        return this.userDao.updateUserDecimalPreference(userId, showDecimals);
+    }
+    
+    @Override
     public int acceptUserAgreement(int userId) {
         return this.userDao.acceptUserAgreement(userId);
     }
