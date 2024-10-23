@@ -115,18 +115,18 @@ BEGIN
     FROM (
         SELECT 
             s2.`TRANS_DATE`, s2.`PPU_NOTES`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_OPENING_BALANCE`, s2.`FINAL_OPENING_BALANCE`*@varRcpuMultiplier) `FINAL_OPENING_BALANCE`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ACTUAL_CONSUMPTION_QTY`, s2.`ACTUAL_CONSUMPTION_QTY`*@varRcpuMultiplier) `ACTUAL_CONSUMPTION_QTY`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FORECASTED_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`*@varRcpuMultiplier) `FORECASTED_CONSUMPTION_QTY`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_CONSUMPTION_QTY`, s2.`FINAL_CONSUMPTION_QTY`*@varRcpuMultiplier) `FINAL_CONSUMPTION_QTY`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_OPENING_BALANCE`, s2.`FINAL_OPENING_BALANCE`/@varRcpuMultiplier) `FINAL_OPENING_BALANCE`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ACTUAL_CONSUMPTION_QTY`, s2.`ACTUAL_CONSUMPTION_QTY`/@varRcpuMultiplier) `ACTUAL_CONSUMPTION_QTY`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FORECASTED_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`/@varRcpuMultiplier) `FORECASTED_CONSUMPTION_QTY`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_CONSUMPTION_QTY`, s2.`FINAL_CONSUMPTION_QTY`/@varRcpuMultiplier) `FINAL_CONSUMPTION_QTY`,
             s2.`ACTUAL`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`SQTY`, s2.`SQTY`*@varRcpuMultiplier) `SQTY`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ADJUSTMENT`, s2.`ADJUSTMENT`*@varRcpuMultiplier) `ADJUSTMENT`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`NATIONAL_ADJUSTMENT`, s2.`NATIONAL_ADJUSTMENT`*@varRcpuMultiplier) `NATIONAL_ADJUSTMENT`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`EXPIRED_STOCK`, s2.`EXPIRED_STOCK`*@varRcpuMultiplier) `EXPIRED_STOCK`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_CLOSING_BALANCE`, s2.`FINAL_CLOSING_BALANCE`*@varRcpuMultiplier) `FINAL_CLOSING_BALANCE`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`AMC`, s2.`AMC`*@varRcpuMultiplier) `AMC`,
-            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`UNMET_DEMAND`, s2.`UNMET_DEMAND`*@varRcpuMultiplier) `UNMET_DEMAND`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`SQTY`, s2.`SQTY`/@varRcpuMultiplier) `SQTY`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`ADJUSTMENT`, s2.`ADJUSTMENT`/@varRcpuMultiplier) `ADJUSTMENT`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`NATIONAL_ADJUSTMENT`, s2.`NATIONAL_ADJUSTMENT`/@varRcpuMultiplier) `NATIONAL_ADJUSTMENT`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`EXPIRED_STOCK`, s2.`EXPIRED_STOCK`/@varRcpuMultiplier) `EXPIRED_STOCK`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`FINAL_CLOSING_BALANCE`, s2.`FINAL_CLOSING_BALANCE`/@varRcpuMultiplier) `FINAL_CLOSING_BALANCE`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`AMC`, s2.`AMC`/@varRcpuMultiplier) `AMC`,
+            IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, s2.`UNMET_DEMAND`, s2.`UNMET_DEMAND`/@varRcpuMultiplier) `UNMET_DEMAND`,
             s2.`REGION_COUNT`, s2.`REGION_COUNT_FOR_STOCK`, s2.`PLAN_BASED_ON`, 
             s2.`MIN_STOCK_QTY`, s2.`MIN_STOCK_MOS`, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_MOS`
         FROM (
@@ -165,7 +165,7 @@ BEGIN
     LEFT JOIN 
         (
         SELECT COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, s.SHIPMENT_ID, s.PROGRAM_ID, st.PLANNING_UNIT_ID,IF(@varEquivalencyUnitId = 0 && @varViewBy = 1, st.SHIPMENT_QTY, 
-        IF(@varEquivalencyUnitId != 0, st.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), st.SHIPMENT_QTY*@varRcpuMultiplier)
+        IF(@varEquivalencyUnitId != 0, st.`SHIPMENT_QTY`*pu.`MULTIPLIER`*COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), st.SHIPMENT_QTY/@varRcpuMultiplier)
         ) `SHIPMENT_QTY` , st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.SHIPMENT_STATUS_ID, st.NOTES, st.ORDER_NO, st.PRIME_LINE_NO, st.DATA_SOURCE_ID
         FROM 
             (
