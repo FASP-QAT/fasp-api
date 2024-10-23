@@ -1,11 +1,11 @@
-INSERT INTO ap_label VALUES (null, 'Funnel node', 'Nœud d\'entonnoir', 'Nodo de embudo', 'Nó de funil', 1, now(), 1, now(), 39);
+INSERT INTO ap_label VALUES (null, 'Funnel node', 'Nœud d\`entonnoir', 'Nodo de embudo', 'Nó de funil', 1, now(), 1, now(), 39);
 INSERT INTO ap_node_type VALUES (null, LAST_INSERT_ID(), 0, 0, 1, 1, 1, 1, now(), 1, now());
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.sourceNodeDesc','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Source Node (available to be aggregated by Funnel Nodes)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nœud source (disponible pour être agrégé par des nœuds d\'entonnoir)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nœud source (disponible pour être agrégé par des nœuds d`entonnoir)');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nodo de origen (disponible para ser agregado por nodos de embudo)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nó de origem (disponível para ser agregado por nós de funil)');-- pr
 
@@ -29,7 +29,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Aggregated by the following funnel nodes');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégé par les nœuds d\'entonnoir suivants');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégé par les nœuds d\`entonnoir suivants');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregado por los siguientes nodos de embudo');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agregado pelos seguintes nós de funil');-- pr
 
@@ -45,7 +45,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Hide Funnel node connections');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Masquer les connexions des nœuds d\'entonnoir');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Masquer les connexions des nœuds d\`entonnoir');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocultar conexiones de nodos de embudo');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocultar conexões do nó do funil');-- pr
 
@@ -53,7 +53,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Funnel Node');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nœud d\'entonnoir');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nœud d\`entonnoir');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nodo de embudo');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nó Funil');-- pr
 
@@ -69,7 +69,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Available to be aggregated by funnel nodes');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Disponible pour être agrégé par nœuds d\'entonnoir');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Disponible pour être agrégé par nœuds d\`entonnoir');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Disponible para ser agregada por nodos de embudo.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Disponível para ser agregado por nós de funil');-- pr
  
@@ -109,7 +109,7 @@ UPDATE rm_forecast_tree_node tn SET tn.DOWNWARD_AGGREGATION_ALLOWED=0;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_forecast_tree_node` AS
     SELECT 
@@ -142,7 +142,7 @@ UPDATE rm_tree_template_node tn SET tn.DOWNWARD_AGGREGATION_ALLOWED=0;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_tree_template_node` AS
     SELECT 
