@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,13 +14,18 @@ import java.io.Serializable;
  */
 public class EquivalencyUnitMapping extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int equivalencyUnitMappingId;
+    @JsonView(Views.ReportView.class)
     private EquivalencyUnit equivalencyUnit;
+    @JsonView(Views.ReportView.class)
     private SimpleObject forecastingUnit;
     private SimpleCodeObject unit;
     private SimpleObject tracerCategory;
+    @JsonView(Views.ReportView.class)
     private double convertToEu;
     private String notes;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
 
     public int getEquivalencyUnitMappingId() {

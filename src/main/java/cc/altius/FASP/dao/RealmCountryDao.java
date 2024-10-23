@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObjectWithFu;
 import java.util.List;
 
 /**
@@ -48,5 +49,7 @@ public interface RealmCountryDao {
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+    
+    public List<SimpleObjectWithFu> getSimpleRealmCountryPlanningUnits(String programIds, CustomUserDetails curUser);
 
 }

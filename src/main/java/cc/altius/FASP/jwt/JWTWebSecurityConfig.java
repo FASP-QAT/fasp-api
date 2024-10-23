@@ -200,7 +200,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/report/stockStatusOverTime").hasAnyAuthority("ROLE_BF_STOCK_STATUS_OVER_TIME_REPORT")
                         .requestMatchers(HttpMethod.GET, "/api/programVersion/programId/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.POST, "/api/report/costOfInventory").hasAnyAuthority("ROLE_BF_COST_OF_INVENTORY_REPORT")
-                        .requestMatchers(HttpMethod.POST, "/api/report/stockStatusVertical").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_REPORT")
+                        .requestMatchers(HttpMethod.POST,"/api/report/stockStatusVertical", "/api/report/stockStatusVertical/dropdowns").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/inventoryTurns").hasAnyAuthority("ROLE_BF_INVENTORY_TURNS_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/stockAdjustmentReport").hasAnyAuthority("ROLE_BF_STOCK_ADJUSTMENT_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/procurementAgentShipmentReport").hasAnyAuthority("ROLE_BF_SHIPMENT_COST_DETAILS_REPORT")
@@ -359,6 +359,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/realmCountry/**").hasAnyAuthority("ROLE_BF_MAP_REGION", "ROLE_BF_PIPELINE_PROGRAM_IMPORT")
                         .requestMatchers(HttpMethod.POST, "/api/forecastStats/**").hasAnyAuthority("ROLE_BF_EXTRAPOLATION")
                         .requestMatchers("/api/dropdown/**").hasAnyAuthority("ROLE_BF_TICKETING")
+                        .requestMatchers(HttpMethod.POST, "/api/report/stockStatusVertical/dropdowns").hasAnyAuthority("ROLE_BF_TICKETING")
                         .requestMatchers("/api/export/supplyPlan/**").hasAnyAuthority("ROLE_BF_COUNTRY_INTEGRATION_SP")
                         .requestMatchers("/api/export/dataset/**").hasAnyAuthority("ROLE_BF_COUNTRY_INTEGRATION_FC")
                 );

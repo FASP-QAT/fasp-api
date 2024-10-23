@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,12 +14,19 @@ import java.io.Serializable;
  */
 public class RealmCountryPlanningUnit extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int realmCountryPlanningUnitId;
+    @JsonView(Views.ReportView.class)
     private SimpleObject realmCountry;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private String skuCode;
+    @JsonView(Views.ReportView.class)
     private Label label;
+    @JsonView(Views.ReportView.class)
     private int conversionMethod; // 1 for Multiply and 2 for Divide
+    @JsonView(Views.ReportView.class)
     private double conversionNumber;
     private Unit unit;
 
