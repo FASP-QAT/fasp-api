@@ -10,7 +10,6 @@ import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
@@ -21,8 +20,6 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -45,7 +42,6 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     private AclService aclService;
     @Autowired
     private ProgramDataDao programDataDao;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /*
     * 
@@ -65,7 +61,9 @@ public class RealmCountryServiceImpl implements RealmCountryService {
                 if (this.aclService.checkRealmAccessForUser(curUser, realmCountry.getRealm().getRealmId())) {
                     realmCountry.setRealmCountryId(rc.getRealmCountryId());
                     try {
-                        this.realmCountryDao.getRealmCountryById(rc.getRealmCountryId(), curUser);
+                        if (this.realmCountryDao.getRealmCountryById(rc.getRealmCountryId(), curUser) == null) {
+                            throw new AccessControlFailedException();
+                        }
                     } catch (EmptyResultDataAccessException e) {
                         throw new AccessControlFailedException();
                     }
@@ -150,10 +148,9 @@ public class RealmCountryServiceImpl implements RealmCountryService {
         for (RealmCountryPlanningUnit realmCountryPlanningUnit : realmCountryPlanningUnits) {
             if (realmCountryPlanningUnit != null && realmCountryPlanningUnit.getRealmCountry().getId() != null && realmCountryPlanningUnit.getRealmCountry().getId() != 0) {
                 try {
-                    logger.info("realmCountryPlanningUnit.getRealmCountry().getId()"+realmCountryPlanningUnit.getRealmCountry().getId());
-                    logger.info("CurUser "+curUser);
-                    RealmCountry r=this.realmCountryDao.getRealmCountryById(realmCountryPlanningUnit.getRealmCountry().getId(), curUser);
-                    logger.info("r"+r);
+                    if (this.realmCountryDao.getRealmCountryById(realmCountryPlanningUnit.getRealmCountry().getId(), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }

@@ -44,7 +44,9 @@ public class OrganisationServiceImpl implements OrganisationService {
         for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
             if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
                 try {
-                    this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser);
+                    if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }
@@ -60,7 +62,9 @@ public class OrganisationServiceImpl implements OrganisationService {
             for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
                 if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
                     try {
-                        this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser);
+                        if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                            throw new AccessControlFailedException();
+                        }
                     } catch (EmptyResultDataAccessException e) {
                         throw new AccessControlFailedException();
                     }

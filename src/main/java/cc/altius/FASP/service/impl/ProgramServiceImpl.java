@@ -112,7 +112,9 @@ public class ProgramServiceImpl implements ProgramService {
     public int addProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
         if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
             try {
-                this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+                if (this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+                }
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
@@ -168,7 +170,10 @@ public class ProgramServiceImpl implements ProgramService {
         }
         if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
             try {
-                this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+                if (this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+
+                }
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
@@ -379,7 +384,9 @@ public class ProgramServiceImpl implements ProgramService {
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException {
         if (program.getRealmCountry() != null && program.getRealmCountry().getRealmCountryId() != 0) {
             try {
-                this.realmCountryDao.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
+                if (this.realmCountryDao.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+                }
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
@@ -592,7 +599,9 @@ public class ProgramServiceImpl implements ProgramService {
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException {
         if (realmCountryId != 0) {
             try {
-                this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+                if (this.realmCountryDao.getRealmCountryById(realmCountryId, curUser) == null) {
+                    throw new AccessControlFailedException();
+                }
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
