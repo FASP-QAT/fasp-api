@@ -222,7 +222,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         params.put("haId", healthAreaId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "ha", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaResultSetExtractor());
     }
 
