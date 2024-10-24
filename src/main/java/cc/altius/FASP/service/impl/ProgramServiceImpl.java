@@ -328,8 +328,12 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
-            SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (!this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
+            try {
+                SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                if (!this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
+                    throw new AccessControlFailedException();
+                }
+            } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
         }
