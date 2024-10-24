@@ -109,7 +109,7 @@ UPDATE rm_forecast_tree_node tn SET tn.DOWNWARD_AGGREGATION_ALLOWED=0;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_forecast_tree_node` AS
     SELECT 
@@ -142,7 +142,7 @@ UPDATE rm_tree_template_node tn SET tn.DOWNWARD_AGGREGATION_ALLOWED=0;
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_tree_template_node` AS
     SELECT 
