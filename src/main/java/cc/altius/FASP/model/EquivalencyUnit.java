@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 public class EquivalencyUnit extends BaseModel implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int equivalencyUnitId;
     private SimpleCodeObject realm;
     private SimpleCodeObject program;

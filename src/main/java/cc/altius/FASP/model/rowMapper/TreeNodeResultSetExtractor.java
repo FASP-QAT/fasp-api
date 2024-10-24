@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.DownwardAggregation;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeType;
@@ -75,6 +76,38 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         tn = n.getPayload();
                     }
                 }
+                if (tn.getNodeType().getId() == GlobalConstants.NODE_TYPE_DOWNWARD_AGGREGATION) {
+                    Integer sourceNodeId = rs.getInt("SOURCE_NODE_ID");
+                    if (rs.wasNull()) {
+                        sourceNodeId = null;
+                    }
+                    Integer sourceTreeId = rs.getInt("SOURCE_TREE_ID");
+                    if (rs.wasNull()) {
+                        sourceTreeId = null;
+                    }
+                    if (!isTemplate) {
+                        Integer sourceScenarioId = rs.getInt("SOURCE_SCENARIO_ID");
+                        if (rs.wasNull()) {
+                            sourceScenarioId = null;
+                        }
+                        if (sourceTreeId != null && sourceScenarioId != null && sourceNodeId != null) {
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId);
+                            int idx = tn.getDownwardAggregationList().indexOf(da);
+                            if (idx == -1) {
+                                tn.getDownwardAggregationList().add(da);
+                            }
+                        }
+                    } else {
+                        if (sourceTreeId != null && sourceNodeId != null) {
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, 0, sourceNodeId);
+                            int idx = tn.getDownwardAggregationList().indexOf(da);
+                            if (idx == -1) {
+                                tn.getDownwardAggregationList().add(da);
+                            }
+                        }
+                    }
+
+                }
                 // Load other data into Payload
                 int scenarioId = rs.getInt("SCENARIO_ID");
                 List<TreeNodeData> tndList = tn.getNodeDataMap().get(scenarioId);
@@ -108,7 +141,8 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 new NodeType(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("EXTRAPOLATION_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED")),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
                 new LabelRowMapper().mapRow(rs, count),
-                rs.getBoolean("COLLAPSED")
+                rs.getBoolean("COLLAPSED"),
+                rs.getBoolean("DOWNWARD_AGGREGATION_ALLOWED")
         );
         return tn;
     }

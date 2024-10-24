@@ -21,6 +21,7 @@ public class GlobalConstants {
     public static final int NODE_TYPE_PERCENTAGE = 3;
     public static final int NODE_TYPE_FU = 4;
     public static final int NODE_TYPE_PU = 5;
+    public static final int NODE_TYPE_DOWNWARD_AGGREGATION = 6;
 
     public static final int VERSION_TYPE_DRAFT = 1;
     public static final int VERSION_TYPE_FINAL = 2;
