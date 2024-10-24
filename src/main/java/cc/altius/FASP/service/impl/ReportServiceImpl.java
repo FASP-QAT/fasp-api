@@ -26,6 +26,7 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
+import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -315,7 +316,9 @@ public class ReportServiceImpl implements ReportService {
         if (wci.getRealmCountryIds() != null) {
             for (String realmCountry : wci.getRealmCountryIds()) {
                 try {
-                    this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser);
+                    if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }
@@ -477,7 +480,9 @@ public class ReportServiceImpl implements ReportService {
         if (sgd.getRealmCountryIds() != null) {
             for (String realmCountry : sgd.getRealmCountryIds()) {
                 try {
-                    this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser);
+                    if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }
