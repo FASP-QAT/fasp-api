@@ -259,6 +259,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rowsEffected = this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
+            logger.info("row "+rowsEffected);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
