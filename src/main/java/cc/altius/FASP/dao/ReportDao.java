@@ -60,9 +60,8 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
@@ -119,19 +118,13 @@ public interface ReportDao {
     public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser);
 
     // Report no 16
-    public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser);
-    
-    // Report no 16
-    public StockStatusVerticalIndividualOutput getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16a
     public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16b
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
-    
-    // Report no 16c
-    public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy);
 
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);
