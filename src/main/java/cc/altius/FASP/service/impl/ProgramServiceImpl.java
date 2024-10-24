@@ -599,9 +599,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException {
         if (realmCountryId != 0) {
             try {
-                if (this.realmCountryDao.getRealmCountryById(realmCountryId, curUser) == null) {
-                    throw new AccessControlFailedException();
-                }
+                this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
