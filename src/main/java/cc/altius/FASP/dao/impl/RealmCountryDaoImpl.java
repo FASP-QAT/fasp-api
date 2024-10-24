@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,6 +62,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     private AclService aclService;
     @Autowired
     private ProgramDataDao programDataDao;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -218,6 +221,8 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
+        logger.info("Sql String "+sqlStringBuilder);
+        logger.info("Params "+params);
         try {
             return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
         } catch (EmptyResultDataAccessException erda) {

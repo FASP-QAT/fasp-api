@@ -21,6 +21,8 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -43,6 +45,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     private AclService aclService;
     @Autowired
     private ProgramDataDao programDataDao;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /*
     * 
@@ -147,7 +150,10 @@ public class RealmCountryServiceImpl implements RealmCountryService {
         for (RealmCountryPlanningUnit realmCountryPlanningUnit : realmCountryPlanningUnits) {
             if (realmCountryPlanningUnit != null && realmCountryPlanningUnit.getRealmCountry().getId() != null && realmCountryPlanningUnit.getRealmCountry().getId() != 0) {
                 try {
-                    this.realmCountryDao.getRealmCountryById(realmCountryPlanningUnit.getRealmCountry().getId(), curUser);
+                    logger.info("realmCountryPlanningUnit.getRealmCountry().getId()"+realmCountryPlanningUnit.getRealmCountry().getId());
+                    logger.info("CurUser "+curUser);
+                    RealmCountry r=this.realmCountryDao.getRealmCountryById(realmCountryPlanningUnit.getRealmCountry().getId(), curUser);
+                    logger.info("r"+r);
                 } catch (EmptyResultDataAccessException e) {
                     throw new AccessControlFailedException();
                 }
