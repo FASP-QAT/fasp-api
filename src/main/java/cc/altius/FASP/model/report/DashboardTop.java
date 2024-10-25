@@ -51,6 +51,7 @@ public class DashboardTop implements Serializable {
     private SimpleObject latestFinalVersionStatus;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date latestFinalVersionLastModifiedDate;
 
     public DashboardTop() {
