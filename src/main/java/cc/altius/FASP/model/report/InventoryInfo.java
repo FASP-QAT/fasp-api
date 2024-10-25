@@ -7,7 +7,6 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -29,26 +28,26 @@ public class InventoryInfo implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date inventoryDate;
     @JsonView(Views.ReportView.class)
-    private SimpleCodeObject program;
-    @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
-    @JsonView(Views.ReportView.class)
     private SimpleObject region;
     @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
+    @JsonView(Views.ReportView.class)
+    private Double actualQty;
+    @JsonView(Views.ReportView.class)
+    private Double adjustmentQty;
     @JsonView(Views.ReportView.class)
     private String notes;
 
     public InventoryInfo() {
     }
 
-    public InventoryInfo(int inventoryId, Date inventoryDate, SimpleCodeObject program, SimpleObject planningUnit, SimpleObject dataSource, SimpleObject region, String notes) {
+    public InventoryInfo(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject dataSource, Double actualQty, Double adjustmentQty, String notes) {
         this.inventoryId = inventoryId;
         this.inventoryDate = inventoryDate;
-        this.program = program;
-        this.planningUnit = planningUnit;
-        this.dataSource = dataSource;
         this.region = region;
+        this.dataSource = dataSource;
+        this.actualQty = actualQty;
+        this.adjustmentQty = adjustmentQty;
         this.notes = notes;
     }
 
@@ -68,20 +67,12 @@ public class InventoryInfo implements Serializable {
         this.inventoryDate = inventoryDate;
     }
 
-    public SimpleCodeObject getProgram() {
-        return program;
+    public SimpleObject getRegion() {
+        return region;
     }
 
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
-    }
-
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
-    }
-
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setRegion(SimpleObject region) {
+        this.region = region;
     }
 
     public SimpleObject getDataSource() {
@@ -91,12 +82,21 @@ public class InventoryInfo implements Serializable {
     public void setDataSource(SimpleObject dataSource) {
         this.dataSource = dataSource;
     }
-    public SimpleObject getRegion() {
-        return region;
+
+    public Double getActualQty() {
+        return actualQty;
     }
 
-    public void setRegion(SimpleObject region) {
-        this.region = region;
+    public void setActualQty(Double actualQty) {
+        this.actualQty = actualQty;
+    }
+
+    public Double getAdjustmentQty() {
+        return adjustmentQty;
+    }
+
+    public void setAdjustmentQty(Double adjustmentQty) {
+        this.adjustmentQty = adjustmentQty;
     }
 
     public String getNotes() {
