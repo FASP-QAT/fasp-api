@@ -171,13 +171,17 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "    p.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
                 + "    vt.VERSION_TYPE_ID, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`, "
+                + "    vs1.VERSION_STATUS_ID AS FINAL_VERSION_STATUS_ID, vs.LABEL_ID `FINAL_VS_LABEL_ID`, vs.LABEL_EN `FINAL_VS_LABEL_EN`, vs.LABEL_FR `FINAL_VS_LABEL_FR`, vs.LABEL_SP `FINAL_VS_LABEL_SP`, vs.LABEL_PR `FINAL_VS_LABEL_PR`,p.CURRENT_VERSION_ID AS VERSION_ID,pv2.LAST_MODIFIED_DATE AS FINAL_VERSION_LAST_MODIFIED_DATE,  "
                 + "    IFNULL(pr.`COUNT_OF_OPEN_PROBLEM`,0) `COUNT_OF_OPEN_PROBLEM` "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND p.CURRENT_VERSION_ID=pv.VERSION_ID "
+                + "LEFT JOIN (SELECT MAX(pv.VERSION_ID) AS VERSION_ID,pv.PROGRAM_ID FROM rm_program_version pv WHERE pv.VERSION_TYPE_ID=2  GROUP BY pv.PROGRAM_ID) AS pv1 ON p.PROGRAM_ID=pv1.PROGRAM_ID "
+                + "LEFT JOIN rm_program_version pv2 ON pv1.PROGRAM_ID=pv2.PROGRAM_ID AND pv2.VERSION_ID=pv1.VERSION_ID "
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID ");
+                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN vw_version_status vs1 ON pv2.VERSION_STATUS_ID=vs1.VERSION_STATUS_ID ");
 
         Map<String, Object> params = new HashMap<>();
         StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND p.CURRENT_VERSION_ID=pr.VERSION_ID WHERE pr.PROBLEM_STATUS_ID=1");
