@@ -31,10 +31,6 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
-    private SimpleCodeObject program;
-    @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
-    @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
     @JsonView(Views.ReportView.class)
     private String notes;
@@ -56,13 +52,11 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleCodeObject program, SimpleObject planningUnit, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, String roNo, String roPrimeLineNo, Date receivedDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String orderNo, String primeLineNo, String roNo, String roPrimeLineNo, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
-        this.program = program;
-        this.planningUnit = planningUnit;
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
         this.orderNo = orderNo;
@@ -95,22 +89,6 @@ public class ShipmentInfo implements Serializable {
 
     public void setFundingSource(SimpleCodeObject fundingSource) {
         this.fundingSource = fundingSource;
-    }
-
-    public SimpleCodeObject getProgram() {
-        return program;
-    }
-
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
-    }
-
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
-    }
-
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
     }
 
     public SimpleObject getShipmentStatus() {

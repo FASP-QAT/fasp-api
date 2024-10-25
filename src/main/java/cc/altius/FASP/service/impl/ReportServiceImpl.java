@@ -5,13 +5,8 @@
  */
 package cc.altius.FASP.service.impl;
 
-import cc.altius.FASP.dao.EquivalencyUnitDao;
-import cc.altius.FASP.dao.ProgramCommonDao;
-import cc.altius.FASP.dao.ProgramDao;
-import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.BudgetReportInput;
@@ -21,7 +16,6 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.ConsumptionInfo;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
-import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -67,20 +61,15 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
-import cc.altius.FASP.model.report.StockStatusVertical;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
-import cc.altius.FASP.utils.ArrayUtils;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,15 +81,7 @@ import org.springframework.stereotype.Service;
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
-    private ReportDao reportDao;
-    @Autowired
-    private ProgramCommonDao programCommonDao;
-    @Autowired
-    private ProgramDao programDao;
-    @Autowired
-    private RealmCountryDao realmCountryDao;
-    @Autowired
-    private EquivalencyUnitDao equivalencyUnitDao;
+    ReportDao reportDao;
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
@@ -203,69 +184,24 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
-        Map<String, StockStatusVerticalIndividualOutput> map = new HashMap<>();
-        for (int programId : ssv.getProgramIds()) {
-            for (int reportingUnitId : ssv.getReportingUnitIds()) {
-                if (this.reportDao.checkIfExistsRuForProgram(programId, reportingUnitId, ssv.getViewBy())) {
-                    SimpleCodeObject program = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
-                    ssv.setProgramId(programId);
-                    ssv.setReportingUnitId(reportingUnitId);
-                    StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVertical(ssv, curUser);
-                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
-                    cList.forEach(c -> {
-                        int idx = ssvo.getConsumptionInfo().indexOf(c);
-                        if (idx == -1) {
-                            ssvo.getConsumptionInfo().add(c);
-                        }
-                    });
-
-                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
-                    iList.forEach(i -> {
-                        int idx = ssvo.getInventoryInfo().indexOf(i);
-                        if (idx == -1) {
-                            ssvo.getInventoryInfo().add(i);
-                        }
-                    });
-                    map.put(program.getId() + "~" + reportingUnitId, ssvo);
-                }
-            }
-        }
-        return map;
-    }
-
-    @Override
-    public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
-        List<StockStatusVerticalAggregateOutput> ssvoList = this.reportDao.getStockStatusVerticalAggregate(ssv, curUser);
+    public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        List<StockStatusVerticalOutput> ssvoList = this.reportDao.getStockStatusVertical(ssv, curUser);
         List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
+        List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
         cList.forEach(c -> {
-            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
+            int idx = ssvoList.indexOf(new StockStatusVerticalOutput(c.getConsumptionDate()));
             if (idx != -1) {
                 ssvoList.get(idx).getConsumptionInfo().add(c);
             }
         });
 
-        List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
         iList.forEach(i -> {
-            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
+            int idx = ssvoList.indexOf(new StockStatusVerticalOutput(i.getInventoryDate()));
             if (idx != -1) {
                 ssvoList.get(idx).getInventoryInfo().add(i);
             }
         });
         return ssvoList;
-    }
-
-    @Override
-    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(String[] programIds, CustomUserDetails curUser) {
-        DropdownsForStockStatusVerticalOutput dd = new DropdownsForStockStatusVerticalOutput();
-        dd.setPlanningUnitList(this.programDao.getSimplePlanningUnitAndForecastingUnits(ArrayUtils.convertArrayToString(programIds), curUser));
-        dd.setRealmCountryPlanningUnitList(this.realmCountryDao.getSimpleRealmCountryPlanningUnits(ArrayUtils.convertArrayToString(programIds), curUser));
-        if (programIds != null && programIds.length == 1) {
-            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), false, curUser));
-        } else {
-            dd.setEquivalencyUnitList(this.equivalencyUnitDao.getSimpleEquivalencyUnits(ArrayUtils.convertArrayToString(programIds), true, curUser));
-        }
-        return dd;
     }
 
     @Override
@@ -310,13 +246,13 @@ public class ReportServiceImpl implements ReportService {
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         return this.reportDao.getForecastError(fei, curUser);
     }
-
+    
     // Report no 31 new
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) {
         return this.reportDao.getForecastError(fei, curUser);
     }
-
+    
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
