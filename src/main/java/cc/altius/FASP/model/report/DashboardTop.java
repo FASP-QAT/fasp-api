@@ -48,14 +48,15 @@ public class DashboardTop implements Serializable {
     @JsonView(Views.ReportView.class)
     private int versionId;
     @JsonView(Views.ReportView.class)
-    private SimpleObject finalVersionStatus;
-    @JsonView(Views.ReportView.class)
-    private Date finalVersionLastModifiedDate;
+    private SimpleObject latestFinalVersionStatus;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date latestFinalVersionLastModifiedDate;
 
     public DashboardTop() {
     }
 
-    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int versionId, SimpleObject finalVersionStatus, Date finalVersionLastModifiedDate) {
+    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int versionId, SimpleObject latestFinalVersionStatus, Date latestFinalVersionLastModifiedDate) {
         this.program = program;
         this.activePlanningUnits = activePlanningUnits;
         this.disabledPlanningUnits = disabledPlanningUnits;
@@ -64,9 +65,9 @@ public class DashboardTop implements Serializable {
         this.versionType = versionType;
         this.versionStatus = versionStatus;
         this.countOfOpenProblem = countOfOpenProblem;
-        this.versionId=versionId;
-        this.finalVersionStatus=finalVersionStatus;
-        this.finalVersionLastModifiedDate=finalVersionLastModifiedDate;
+        this.versionId = versionId;
+        this.latestFinalVersionStatus = latestFinalVersionStatus;
+        this.latestFinalVersionLastModifiedDate = latestFinalVersionLastModifiedDate;
     }
 
     public SimpleCodeObject getProgram() {
@@ -157,20 +158,20 @@ public class DashboardTop implements Serializable {
         this.versionId = versionId;
     }
 
-    public SimpleObject getFinalVersionStatus() {
-        return finalVersionStatus;
+    public SimpleObject getLatestFinalVersionStatus() {
+        return latestFinalVersionStatus;
     }
 
-    public void setFinalVersionStatus(SimpleObject finalVersionStatus) {
-        this.finalVersionStatus = finalVersionStatus;
+    public void setLatestFinalVersionStatus(SimpleObject latestFinalVersionStatus) {
+        this.latestFinalVersionStatus = latestFinalVersionStatus;
     }
 
-    public Date getFinalVersionLastModifiedDate() {
-        return finalVersionLastModifiedDate;
+    public Date getLatestFinalVersionLastModifiedDate() {
+        return latestFinalVersionLastModifiedDate;
     }
 
-    public void setFinalVersionLastModifiedDate(Date finalVersionLastModifiedDate) {
-        this.finalVersionLastModifiedDate = finalVersionLastModifiedDate;
+    public void setLatestFinalVersionLastModifiedDate(Date latestFinalVersionLastModifiedDate) {
+        this.latestFinalVersionLastModifiedDate = latestFinalVersionLastModifiedDate;
     }
 
 }
