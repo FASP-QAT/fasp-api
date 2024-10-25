@@ -46,7 +46,7 @@ public class DashboardTop implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject versionStatus;
     @JsonView(Views.ReportView.class)
-    private int version;
+    private int versionId;
     @JsonView(Views.ReportView.class)
     private SimpleObject finalVersionStatus;
     @JsonView(Views.ReportView.class)
@@ -55,7 +55,7 @@ public class DashboardTop implements Serializable {
     public DashboardTop() {
     }
 
-    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int version, SimpleObject finalVersionStatus, Date finalVersionLastModifiedDate) {
+    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int versionId, SimpleObject finalVersionStatus, Date finalVersionLastModifiedDate) {
         this.program = program;
         this.activePlanningUnits = activePlanningUnits;
         this.disabledPlanningUnits = disabledPlanningUnits;
@@ -64,7 +64,7 @@ public class DashboardTop implements Serializable {
         this.versionType = versionType;
         this.versionStatus = versionStatus;
         this.countOfOpenProblem = countOfOpenProblem;
-        this.version=version;
+        this.versionId=versionId;
         this.finalVersionStatus=finalVersionStatus;
         this.finalVersionLastModifiedDate=finalVersionLastModifiedDate;
     }
@@ -149,12 +149,12 @@ public class DashboardTop implements Serializable {
         this.versionStatus = versionStatus;
     }
 
-    public int getVersion() {
-        return version;
+    public int getVersionId() {
+        return versionId;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public void setVersion(int versionId) {
+        this.versionId = versionId;
     }
 
     public SimpleObject getFinalVersionStatus() {
