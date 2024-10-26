@@ -197,6 +197,7 @@ BEGIN
             AND st.SHIPMENT_STATUS_ID != 8 
             AND st.ACCOUNT_FLAG
             AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @varStartDate AND @varStopDate 
+        GROUP BY s.SHIPMENT_ID
     ) sh ON LEFT(s3.TRANS_DATE,7)=LEFT(sh.EDD,7)
     LEFT JOIN rm_shipment_linking sl ON sh.SHIPMENT_ID=sl.CHILD_SHIPMENT_ID AND sl.ACTIVE
     LEFT JOIN vw_funding_source fs ON sh.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
@@ -406,6 +407,7 @@ BEGIN
             AND st.SHIPMENT_STATUS_ID != 8 
             AND st.ACCOUNT_FLAG
             AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @varStartDate AND @varStopDate 
+        GROUP BY s.SHIPMENT_ID    
     ) sh ON LEFT(s3.TRANS_DATE,7)=LEFT(sh.EDD,7)
     LEFT JOIN rm_shipment_linking sl ON sh.SHIPMENT_ID=sl.CHILD_SHIPMENT_ID AND sl.ACTIVE
     LEFT JOIN vw_funding_source fs ON sh.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
