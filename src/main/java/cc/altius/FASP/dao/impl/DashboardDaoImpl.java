@@ -7,8 +7,10 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
 import cc.altius.FASP.dao.ReportDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.model.report.DashboardActualConsumptionDetails;
 import cc.altius.FASP.model.report.DashboardActualConsumptionResultSetExtractor;
@@ -198,7 +200,9 @@ public class DashboardDaoImpl implements DashboardDao {
         sqlBuilder.append(" GROUP BY p.PROGRAM_ID");
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
         Date curMonth = DateUtils.getStartOfMonthObject();
-        Date endMonth = DateUtils.addMonths(curMonth, 17);
+        Date endMonth = DateUtils.addMonths(curMonth, curUser.getRealm().getNoOfMonthsInFutureForTopDashboard());
+        logger.info("curMonth "+curMonth);
+        logger.info("endMonth "+endMonth);
         edList.forEach(ed -> {
             String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth AND sma.MOS=0 group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
