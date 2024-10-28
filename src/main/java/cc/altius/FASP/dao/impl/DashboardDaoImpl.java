@@ -201,8 +201,6 @@ public class DashboardDaoImpl implements DashboardDao {
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
         Date curMonth = DateUtils.getStartOfMonthObject();
         Date endMonth = DateUtils.addMonths(curMonth, curUser.getRealm().getNoOfMonthsInFutureForTopDashboard());
-        logger.info("curMonth "+curMonth);
-        logger.info("endMonth "+endMonth);
         edList.forEach(ed -> {
             String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth AND sma.MOS=0 group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
@@ -222,8 +220,10 @@ public class DashboardDaoImpl implements DashboardDao {
                     + "        WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :curMonth and :endMonth AND spb.EXPIRED_STOCK>0 "
                     + "        GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID "
                     + "    ) p1 "
-                    + "    LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
-                    + "    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.CURRENT_VERSION_ID GROUP BY stbi.BATCH_ID ";
+                    + "    LEFT JOIN rm_shipment s on s.PROGRAM_ID=p1.PROGRAM_ID "
+                    + "    LEFT JOIN rm_shipment_trans st ON st.SHIPMENT_ID=s.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                    + "    LEFT JOIN rm_shipment_trans_batch_info stbi ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID and stbi.BATCH_ID=p1.BATCH_ID "
+                    + "	   WHERE stbi.BATCH_ID IS NOT NULL ";
             try {
                 ed.setCountOfStockOutPU(this.namedParameterJdbcTemplate.queryForObject(sql1, eParams, Integer.class));
             } catch (Exception e) {
@@ -357,7 +357,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDateBottom and :stopDateBottom AND spb.EXPIRED_STOCK>0 "
                 + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
                 + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
-                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID";
+                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID GROUP BY stbi.BATCH_ID ";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiriesForLoadProgramResultSetExtractor(db));
 
         sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId, 1)";
