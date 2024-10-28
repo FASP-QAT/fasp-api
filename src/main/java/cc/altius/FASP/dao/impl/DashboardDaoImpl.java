@@ -187,7 +187,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "LEFT JOIN vw_version_status vs1 ON pv2.VERSION_STATUS_ID=vs1.VERSION_STATUS_ID ");
 
         Map<String, Object> params = new HashMap<>();
-        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND p.CURRENT_VERSION_ID=pr.VERSION_ID WHERE pr.PROBLEM_STATUS_ID=1");
+        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID WHERE pr.PROBLEM_STATUS_ID=1");
         this.aclService.addFullAclForProgram(innerString, params, "p", curUser);
         innerString.append(" GROUP BY p.PROGRAM_ID");
         sqlBuilder
