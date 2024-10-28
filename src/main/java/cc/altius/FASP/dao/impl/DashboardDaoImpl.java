@@ -170,7 +170,7 @@ public class DashboardDaoImpl implements DashboardDao {
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
                 + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `P_LABEL_ID`, p.LABEL_EN `P_LABEL_EN`, p.LABEL_FR `P_LABEL_FR`, p.LABEL_SP `P_LABEL_SP`, p.LABEL_PR `P_LABEL_PR`, "
                 + "    SUM(IF(ppu.ACTIVE && pu.ACTIVE, 1, 0)) `ACTIVE_PPU`, SUM(IF(ppu.ACTIVE && pu.ACTIVE, 0, 1)) `DISABLED_PPU`, "
-                + "    p.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
+                + "    pv.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
                 + "    vt.VERSION_TYPE_ID, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`, "
                 + "    vs1.VERSION_STATUS_ID AS LATEST_FINAL_VERSION_STATUS_ID, vs.LABEL_ID `LATEST_FINAL_VS_LABEL_ID`, vs.LABEL_EN `LATEST_FINAL_VS_LABEL_EN`, vs.LABEL_FR `LATEST_FINAL_VS_LABEL_FR`, vs.LABEL_SP `LATEST_FINAL_VS_LABEL_SP`, vs.LABEL_PR `LATEST_FINAL_VS_LABEL_PR`, "
