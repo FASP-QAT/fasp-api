@@ -7,7 +7,6 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -29,10 +28,6 @@ public class ConsumptionInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date consumptionDate;
     @JsonView(Views.ReportView.class)
-    private SimpleCodeObject program;
-    @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
-    @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
     @JsonView(Views.ReportView.class)
     private SimpleObject region;
@@ -44,11 +39,9 @@ public class ConsumptionInfo implements Serializable {
     public ConsumptionInfo() {
     }
 
-    public ConsumptionInfo(int consumptionId, Date consumptionDate, SimpleCodeObject program, SimpleObject planningUnit, SimpleObject dataSource, SimpleObject region, String notes, boolean actualFlag) {
+    public ConsumptionInfo(int consumptionId, Date consumptionDate, SimpleObject dataSource, SimpleObject region, String notes, boolean actualFlag) {
         this.consumptionId = consumptionId;
         this.consumptionDate = consumptionDate;
-        this.program = program;
-        this.planningUnit = planningUnit;
         this.dataSource = dataSource;
         this.region = region;
         this.notes = notes;
@@ -69,22 +62,6 @@ public class ConsumptionInfo implements Serializable {
 
     public void setConsumptionDate(Date consumptionDate) {
         this.consumptionDate = consumptionDate;
-    }
-
-    public SimpleCodeObject getProgram() {
-        return program;
-    }
-
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
-    }
-
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
-    }
-
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
     }
 
     public SimpleObject getDataSource() {
