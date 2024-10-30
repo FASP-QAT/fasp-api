@@ -24,7 +24,7 @@ public class DashboardTopRowMapper implements RowMapper<DashboardTop> {
                 rs.getInt("ACTIVE_PPU"), rs.getInt("DISABLED_PPU"), rs.getDate("LAST_MODIFIED_DATE"), rs.getDate("COMMIT_DATE"),
                 new SimpleObject(rs.getInt("VERSION_TYPE_ID"), new LabelRowMapper("VT_").mapRow(rs, rowNum)),
                 new SimpleObject(rs.getInt("VERSION_STATUS_ID"), new LabelRowMapper("VS_").mapRow(rs, rowNum)),
-                rs.getInt("COUNT_OF_OPEN_PROBLEM")
+                rs.getInt("COUNT_OF_OPEN_PROBLEM"), rs.getInt("VERSION_ID"), new SimpleObject(rs.getInt("LATEST_FINAL_VERSION_STATUS_ID"), new LabelRowMapper("LATEST_FINAL_VS_").mapRow(rs, rowNum)), rs.getDate("LATEST_FINAL_VERSION_LAST_MODIFIED_DATE")
         );
 
     }

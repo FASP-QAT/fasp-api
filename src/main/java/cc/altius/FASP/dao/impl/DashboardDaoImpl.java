@@ -7,8 +7,10 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
 import cc.altius.FASP.dao.ReportDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramCount;
 import cc.altius.FASP.model.report.DashboardActualConsumptionDetails;
 import cc.altius.FASP.model.report.DashboardActualConsumptionResultSetExtractor;
@@ -168,19 +170,24 @@ public class DashboardDaoImpl implements DashboardDao {
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
                 + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `P_LABEL_ID`, p.LABEL_EN `P_LABEL_EN`, p.LABEL_FR `P_LABEL_FR`, p.LABEL_SP `P_LABEL_SP`, p.LABEL_PR `P_LABEL_PR`, "
                 + "    SUM(IF(ppu.ACTIVE && pu.ACTIVE, 1, 0)) `ACTIVE_PPU`, SUM(IF(ppu.ACTIVE && pu.ACTIVE, 0, 1)) `DISABLED_PPU`, "
-                + "    p.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
+                + "    pv.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
                 + "    vt.VERSION_TYPE_ID, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`, "
+                + "    vs1.VERSION_STATUS_ID AS LATEST_FINAL_VERSION_STATUS_ID, vs.LABEL_ID `LATEST_FINAL_VS_LABEL_ID`, vs.LABEL_EN `LATEST_FINAL_VS_LABEL_EN`, vs.LABEL_FR `LATEST_FINAL_VS_LABEL_FR`, vs.LABEL_SP `LATEST_FINAL_VS_LABEL_SP`, vs.LABEL_PR `LATEST_FINAL_VS_LABEL_PR`, "
+                + "    p.CURRENT_VERSION_ID AS VERSION_ID,pv2.LAST_MODIFIED_DATE AS LATEST_FINAL_VERSION_LAST_MODIFIED_DATE,  "
                 + "    IFNULL(pr.`COUNT_OF_OPEN_PROBLEM`,0) `COUNT_OF_OPEN_PROBLEM` "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID AND p.CURRENT_VERSION_ID=pv.VERSION_ID "
+                + "LEFT JOIN (SELECT MAX(pv.VERSION_ID) AS VERSION_ID,pv.PROGRAM_ID FROM rm_program_version pv WHERE pv.VERSION_TYPE_ID=2  GROUP BY pv.PROGRAM_ID) AS pv1 ON p.PROGRAM_ID=pv1.PROGRAM_ID "
+                + "LEFT JOIN rm_program_version pv2 ON pv1.PROGRAM_ID=pv2.PROGRAM_ID AND pv2.VERSION_ID=pv1.VERSION_ID "
                 + "LEFT JOIN vw_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID ");
+                + "LEFT JOIN vw_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN vw_version_status vs1 ON pv2.VERSION_STATUS_ID=vs1.VERSION_STATUS_ID ");
 
         Map<String, Object> params = new HashMap<>();
-        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND p.CURRENT_VERSION_ID=pr.VERSION_ID WHERE pr.PROBLEM_STATUS_ID=1");
+        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID WHERE pr.PROBLEM_STATUS_ID=1");
         this.aclService.addFullAclForProgram(innerString, params, "p", curUser);
         innerString.append(" GROUP BY p.PROGRAM_ID");
         sqlBuilder
@@ -193,7 +200,7 @@ public class DashboardDaoImpl implements DashboardDao {
         sqlBuilder.append(" GROUP BY p.PROGRAM_ID");
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
         Date curMonth = DateUtils.getStartOfMonthObject();
-        Date endMonth = DateUtils.addMonths(curMonth, 17);
+        Date endMonth = DateUtils.addMonths(curMonth, curUser.getRealm().getNoOfMonthsInFutureForTopDashboard());
         edList.forEach(ed -> {
             String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth AND sma.MOS=0 group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
@@ -213,8 +220,10 @@ public class DashboardDaoImpl implements DashboardDao {
                     + "        WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :curMonth and :endMonth AND spb.EXPIRED_STOCK>0 "
                     + "        GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID "
                     + "    ) p1 "
-                    + "    LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
-                    + "    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.CURRENT_VERSION_ID";
+                    + "    LEFT JOIN rm_shipment s on s.PROGRAM_ID=p1.PROGRAM_ID "
+                    + "    LEFT JOIN rm_shipment_trans st ON st.SHIPMENT_ID=s.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                    + "    LEFT JOIN rm_shipment_trans_batch_info stbi ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID and stbi.BATCH_ID=p1.BATCH_ID "
+                    + "	   WHERE stbi.BATCH_ID IS NOT NULL ";
             try {
                 ed.setCountOfStockOutPU(this.namedParameterJdbcTemplate.queryForObject(sql1, eParams, Integer.class));
             } catch (Exception e) {
@@ -348,7 +357,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "WHERE p.PROGRAM_ID=:programId AND spb.TRANS_DATE BETWEEN :startDateBottom and :stopDateBottom AND spb.EXPIRED_STOCK>0 "
                 + "GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID) p1 "
                 + "LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID "
-                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID";
+                + "LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=p1.VERSION_ID GROUP BY stbi.BATCH_ID ";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiriesForLoadProgramResultSetExtractor(db));
 
         sqlString = "CALL getDashboardShipmentDetailsReportByForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId, 1)";

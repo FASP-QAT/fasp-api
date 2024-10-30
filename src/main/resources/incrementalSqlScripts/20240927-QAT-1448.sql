@@ -69,7 +69,7 @@ BEGIN
         GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID
     ) p1 
     LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID 
-    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=@versionId;
+    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=@versionId GROUP BY stbi.BATCH_ID ;
 END$$
 
 DELIMITER ;
