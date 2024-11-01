@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,8 +15,15 @@ import java.io.Serializable;
  */
 public class ProgramAndPlanningUnit implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int programId;
+    @JsonView(Views.ReportView.class)
     private int planningUnitId;
+
+    public ProgramAndPlanningUnit(int programId, int planningUnitId) {
+        this.programId = programId;
+        this.planningUnitId = planningUnitId;
+    }
 
     public int getProgramId() {
         return programId;

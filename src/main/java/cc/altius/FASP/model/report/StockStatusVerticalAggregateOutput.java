@@ -60,6 +60,14 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
+    private Double minStockMos;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockMos;
+    @JsonView(Views.ReportView.class)
+    private Double minStockQty;
+    @JsonView(Views.ReportView.class)
+    private Double maxStockQty;
+    @JsonView(Views.ReportView.class)
     private Long unmetDemand;
     @JsonView(Views.ReportView.class)
     private int regionCount;
@@ -69,6 +77,8 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
     private Long nationalAdjustment;
     @JsonView(Views.ReportView.class)
     private int planBasedOn;
+    @JsonView(Views.ReportView.class)
+    private String ppuNotes;
 
     public StockStatusVerticalAggregateOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -187,6 +197,38 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
         this.mos = mos;
     }
 
+    public Double getMinStockMos() {
+        return minStockMos;
+    }
+
+    public void setMinStockMos(Double minStockMos) {
+        this.minStockMos = minStockMos;
+    }
+
+    public Double getMaxStockMos() {
+        return maxStockMos;
+    }
+
+    public void setMaxStockMos(Double maxStockMos) {
+        this.maxStockMos = maxStockMos;
+    }
+
+    public Double getMinStockQty() {
+        return minStockQty;
+    }
+
+    public void setMinStockQty(Double minStockQty) {
+        this.minStockQty = minStockQty;
+    }
+
+    public Double getMaxStockQty() {
+        return maxStockQty;
+    }
+
+    public void setMaxStockQty(Double maxStockQty) {
+        this.maxStockQty = maxStockQty;
+    }
+
     public Long getUnmetDemand() {
         return unmetDemand;
     }
@@ -249,6 +291,14 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
 
     public void setPlanBasedOn(int planBasedOn) {
         this.planBasedOn = planBasedOn;
+    }
+
+    public String getPpuNotes() {
+        return ppuNotes;
+    }
+
+    public void setPpuNotes(String ppuNotes) {
+        this.ppuNotes = ppuNotes;
     }
 
     @Override
