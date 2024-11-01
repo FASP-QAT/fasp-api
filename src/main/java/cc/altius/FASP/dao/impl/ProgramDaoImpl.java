@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -532,16 +533,18 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser, boolean active) {
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
         if (active) {
             sqlStringBuilder.append(" AND p.ACTIVE ");
         }
         params.put("realmId", realmId);
         params.put("programTypeId", programTypeId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        if (aclFilter) {
+            this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        }
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
@@ -549,7 +552,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
         params.put("realmId", realmId);
         params.put("programTypeId", programTypeId);
         if (input.getHealthAreaId() != null) {
@@ -569,7 +572,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
         params.put("programTypeId", programTypeId);
         if (realmCountryIdsStr.length() > 0) {
             sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
@@ -693,7 +696,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     @Transactional
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit").usingColumns("PLANNING_UNIT_ID", "PROGRAM_ID", "REORDER_FREQUENCY_IN_MONTHS", "MIN_MONTHS_OF_STOCK", "LOCAL_PROCUREMENT_LEAD_TIME", "SHELF_LIFE", "CATALOG_PRICE", "MONTHS_IN_PAST_FOR_AMC", "MONTHS_IN_FUTURE_FOR_AMC", "PLAN_BASED_ON", "MIN_QTY", "DISTRIBUTION_LEAD_TIME", "FORECAST_ERROR_THRESHOLD", "NOTES", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
         SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("REALM_COUNTRY_PLANNING_UNIT_ID", "PLANNING_UNIT_ID", "REALM_COUNTRY_ID", "LABEL_ID", "SKU_CODE", "UNIT_ID", "CONVERSION_METHOD", "CONVERSION_NUMBER", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE");
         List<SqlParameterSource> updateList = new ArrayList<>();
@@ -2750,7 +2753,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "

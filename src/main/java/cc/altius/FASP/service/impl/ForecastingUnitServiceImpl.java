@@ -16,6 +16,7 @@ import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
@@ -111,13 +112,13 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
-            return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
-        } else {
-            throw new AccessDeniedException("You do not have access to this Program");
-        }
+//        if (sp != null) {
+        return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
+//        } else {
+//            throw new AccessDeniedException("You do not have access to this Program");
+//        }
     }
 
     @Override

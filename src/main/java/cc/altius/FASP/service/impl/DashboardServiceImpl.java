@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,15 +33,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DashboardServiceImpl implements DashboardService {
-    
+
     @Autowired
     private DashboardDao dashboardDao;
     @Autowired
-    ProgramService programService;
+    private ProgramService programService;
+    @Autowired
+    private RealmService realmService;
     @Autowired
     ProgramCommonDao programCommonDao;
-    @Autowired
-    RealmService realmService;
     
     @Override
     public Map<String, Object> getApplicationLevelDashboard(CustomUserDetails curUser) {
@@ -51,7 +50,7 @@ public class DashboardServiceImpl implements DashboardService {
         map.put("LANGUAGE_COUNT", this.dashboardDao.getLanguageCount(curUser));
         return map;
     }
-    
+
     @Override
     public Map<String, Object> getRealmLevelDashboard(CustomUserDetails curUser) {
         Map<String, Object> map = new HashMap<>();
@@ -65,55 +64,47 @@ public class DashboardServiceImpl implements DashboardService {
         map.put("SUPPLY_PLAN_COUNT", this.dashboardDao.getSupplyPlanPendingCount(curUser));
         return map;
     }
-    
+
     @Override
     public Map<String, Object> getSupplyPlanReviewerLevelDashboard(CustomUserDetails curUser) {
         Map<String, Object> map = new HashMap<>();
         map.put("SUPPLY_PLAN_COUNT", this.dashboardDao.getSupplyPlanPendingCount(curUser));
         return map;
     }
-    
+
     @Override
     public List<DashboardUser> getUserListForApplicationLevelAdmin(CustomUserDetails curUser) {
         return this.dashboardDao.getUserListForApplicationLevelAdmin(curUser);
     }
-    
+
     @Override
     public List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser) {
         return this.dashboardDao.getUserListForRealmLevelAdmin(curUser);
     }
-    
+
     @Override
     public List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
         curUser.setRealm(this.realmService.getRealmById(curUser.getRealm().getRealmId(), curUser));
         for (String program : programIds) {
-            try {
-                this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            } catch (EmptyResultDataAccessException e) {
-                throw new AccessControlFailedException();
-            }
+            this.programCommonDao.getSimpleProgramById(Integer.parseInt(program), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         }
         return this.dashboardDao.getDashboardTop(programIds, curUser);
     }
-    
+
     @Override
     public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
-        try {
-            SimpleProgram p = this.programService.getSimpleProgramById(ei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            DashboardBottom db = this.dashboardDao.getDashboardBottom(ei, curUser);
-            db.setProgram(p);
-            return db;
-        } catch (EmptyResultDataAccessException erda) {
-            throw new AccessControlFailedException();
-        }
+        SimpleProgram p = this.programService.getSimpleProgramById(ei.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        DashboardBottom db = this.dashboardDao.getDashboardBottom(ei, curUser);
+        db.setProgram(p);
+        return db;
     }
-    
+
     @Override
-    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser);
         db.setProgram(p);
         return db;
     }
-    
+
 }

@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -48,7 +50,7 @@ public class LabelRestController {
     @GetMapping(value = "/getDatabaseLabelsListAll")
     public ResponseEntity getDatabaseLabelsList(Authentication auth) {
         try {
-            CustomUserDetails curUser = userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.labelService.getDatabaseLabelsList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +84,7 @@ public class LabelRestController {
     @PutMapping(path = "/saveDatabaseLabels")
     public ResponseEntity putDatabaseLabels(@RequestBody String json, Authentication auth) {
         try {
-            CustomUserDetails curUser = userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             Gson gson = new Gson();
             List<String> labelArray = gson.fromJson(json, LinkedList.class);
             this.labelService.saveDatabaseLabels(labelArray, curUser);
@@ -103,7 +105,7 @@ public class LabelRestController {
     @PutMapping(path = "/saveStaticLabels")
     public ResponseEntity putStaticLabels(@RequestBody List<StaticLabelDTO> staticLabelList, Authentication auth) {
         try {
-            CustomUserDetails curUser = userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.labelService.saveStaticLabels(staticLabelList, curUser);
             return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
         } catch (Exception e) {

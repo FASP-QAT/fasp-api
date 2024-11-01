@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -142,11 +143,17 @@ public class DashboardRestController {
     @JsonView(Views.ReportView.class)
     public ResponseEntity getDashboardTop(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getDashboardTop(programIds, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to get dashboard supply plan top", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get dashboard supply plan top", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get dashboard supply plan top", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -157,16 +164,19 @@ public class DashboardRestController {
     @JsonView(Views.ReportView.class)
     public ResponseEntity getDashboardBottom(@RequestBody DashboardInput ei, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getDashboardBottom(ei, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to get dashboard supply plan bottom", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get dashboard supply plan bottom", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
-            logger.error("Error while getting Dashboard", ae);
+            logger.error("Error while trying to get dashboard supply plan bottom", ae);
             return new ResponseEntity(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while getting Dashboard", e);
+            logger.error("Error while trying to get dashboard supply plan bottom", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -175,7 +185,7 @@ public class DashboardRestController {
     @JsonView(Views.ReportView.class)
     public ResponseEntity getDashboardForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             Realm r = this.realmService.getRealmById(curUser.getRealm().getRealmId(), curUser);
             int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = r.getNoOfMonthsInFutureForTopDashboard();
@@ -185,6 +195,12 @@ public class DashboardRestController {
                 noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
             }
             return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException ae) {
+            logger.error("Error while getting Dashboard", ae);
+            return new ResponseEntity(HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while getting Dashboard", ae);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while getting Dashboard", ae);
             return new ResponseEntity(HttpStatus.FORBIDDEN);

@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,14 +6,20 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.SimpleProgram;
+import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,12 +61,12 @@ public class TestRestController {
         System.out.println(url.toString());
         StringBuilder sb = new StringBuilder();
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             for (int p : programIdList) {
                 sb.append("\nChecking for access to " + p + "\n");
                 try {
                     SimpleProgram prog = this.programService.getSimpleProgramById(p, curUser);
-                    boolean access = this.aclService.checkAccessForUser(
+                    boolean access = this.aclService.userHasAccessToResources(
                             curUser,
                             prog.getRealmId(),
                             prog.getRealmCountry().getId(),
@@ -87,7 +94,7 @@ public class TestRestController {
     public ResponseEntity postCheckAccessViaQuery(@RequestBody String[] programIdList, Authentication auth) {
         StringBuilder sb = new StringBuilder();
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListForProgramIds(programIdList, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Supplier", ae);
@@ -128,6 +135,25 @@ public class TestRestController {
                 .append("URI=").append(uri).append("<br/>")
                 .append("METHOD=").append(method).append("<br/>")
                 .append("var=").append(var).toString();
+    }
+
+    @GetMapping(path = "/canEdit/{userId}")
+    public String canEdit(@PathVariable("userId") int userId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/user");
+            User user = this.userService.getUserByUserId(userId, curUser);
+            Map<String, List<String>> canCreateRoleMap = new HashMap<>();
+            for (Role role : curUser.getRoles()) {
+                if (!canCreateRoleMap.containsKey(role.getRoleId())) {
+                    canCreateRoleMap.put(role.getRoleId(), this.userService.getRoleById(role.getRoleId()).getCanCreateRoleList().stream().map(r1 -> r1.getRoleId()).toList());
+                }
+            }
+            boolean result = this.aclService.canEditUser(user, curUser, canCreateRoleMap);
+            return "The user " + curUser.getEmailId() + " can edit the user " + user.getEmailId() + " check - " + result;
+        } catch (AccessControlFailedException ex) {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/user");
+            return "The user " + curUser.getEmailId() + " can edit the user Id " + userId + " check - " + false;
+        }
     }
 
 }

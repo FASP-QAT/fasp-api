@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public interface ProgramService {
 
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser, boolean active);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active);
 
     public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
@@ -58,21 +58,21 @@ public interface ProgramService {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser);
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
+    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
+    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException;
 
@@ -84,7 +84,7 @@ public interface ProgramService {
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser);
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException;
 
@@ -114,7 +114,7 @@ public interface ProgramService {
 
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
 
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
 
@@ -122,7 +122,7 @@ public interface ProgramService {
 
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
 
-    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 

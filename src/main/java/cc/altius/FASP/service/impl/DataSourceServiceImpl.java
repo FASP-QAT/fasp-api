@@ -90,17 +90,17 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException{
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkAccessForUser(curUser, realmId, p.getRealmCountry().getId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), programId)) {
+//        if (p != null) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override

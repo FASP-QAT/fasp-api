@@ -94,7 +94,7 @@ public class DropDownRestController {
     public ResponseEntity getProgramForDropdownSupplyPlan(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,7 +106,7 @@ public class DropDownRestController {
     public ResponseEntity getProgramForDropdownDataset(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -125,7 +125,7 @@ public class DropDownRestController {
     public ResponseEntity getProgramExpandedForAllDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, 0, curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, 0, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -144,7 +144,7 @@ public class DropDownRestController {
     public ResponseEntity getProgramExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -163,7 +163,64 @@ public class DropDownRestController {
     public ResponseEntity getProgramExpandedForFcDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, true, curUser, true), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details without ACL Filter
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDown2View.class)
+    @GetMapping("/program/all/nofilter/expanded/realm/{realmId}")
+    public ResponseEntity getProgramNoFilterExpandedForAllDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, 0, false, curUser, true), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details without ACL Filter
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDown2View.class)
+    @GetMapping("/program/sp/nofilter/expanded/realm/{realmId}")
+    public ResponseEntity getProgramNoFilterExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, false, curUser, true), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get Program list for Dropdown based on Realm and with additional details without ACL Filter
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDown2View.class)
+    @GetMapping("/program/fc/nofilter/expanded/realm/{realmId}")
+    public ResponseEntity getProgramNoFilterExpandedForFcDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, false, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -408,7 +465,26 @@ public class DropDownRestController {
     public ResponseEntity getRealmCountryDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(realmId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(realmId, true, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * Gets the list of RealmCountries based on Realm wihtout ACL Filter
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/realmCountry/nofilter/realm/{realmId}")
+    public ResponseEntity getRealmCountryNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.realmCountryService.getRealmCountryDropdownList(realmId, false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -427,7 +503,26 @@ public class DropDownRestController {
     public ResponseEntity getHealthAreaDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(realmId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(realmId, true, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list HealthArea", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Gets the list of HealthAreas based on Realm but without ACL Filtering
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/healthArea/nofilter/realm/{realmId}")
+    public ResponseEntity getHealthAreaNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.healthAreaService.getHealthAreaDropdownList(realmId, false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list HealthArea", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -446,7 +541,26 @@ public class DropDownRestController {
     public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.organisationService.getOrganisationDropdownList(realmId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.organisationService.getOrganisationDropdownList(realmId, true, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Organisation", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Gets the list of Organisations based on Realm wihtout ACL filtering
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.DropDownView.class)
+    @GetMapping("/organisation/nofilter/realm/{realmId}")
+    public ResponseEntity getOrganisationNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.organisationService.getOrganisationDropdownList(realmId, false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Organisation", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -839,7 +953,7 @@ public class DropDownRestController {
     @PostMapping("/healthArea/realmCountryIds")
     public ResponseEntity getHealthAreaListByRealmCountryIds(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmCountryIds(realmCountryIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list of HealthAreas", e);
@@ -851,7 +965,7 @@ public class DropDownRestController {
     @PostMapping("/program/realmCountryIds/healthAreaIds")
     public ResponseEntity getSupplyPlanProgramListByRealmCountryIdsAndHealthAreaIds(@RequestBody RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(realmCountryIdsAndHealthAreaIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list of HealthAreas", e);

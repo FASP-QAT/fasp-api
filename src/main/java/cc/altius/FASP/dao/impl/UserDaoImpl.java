@@ -7,8 +7,8 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -37,7 +37,6 @@ import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -316,15 +315,15 @@ public class UserDaoImpl implements UserDao {
             role[i] = curUser.getRoles().get(i).getRoleId();
         }
 //        if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
-        sb.append("AND FIND_IN_SET(c.`ROLE_ID`,'"+String.join(",", role)+"')");
+        sb.append("AND FIND_IN_SET(c.`ROLE_ID`,'" + String.join(",", role) + "')");
 //        }
         sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
         return this.namedParameterJdbcTemplate.query(sb.toString(), new RoleListResultSetExtractor());
     }
 
     @Override
-    @Transactional(rollbackFor = IncorrectAccessControlException.class)
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
+    @Transactional(rollbackFor = AccessControlFailedException.class)
+    public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
         String sqlString = "INSERT INTO us_user (`REALM_ID`, `AGREEMENT_ACCEPTED`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `ORG_AND_COUNTRY`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_ID, :AGREEMENT_ACCEPTED, :USERNAME, :PASSWORD, :EMAIL_ID, :ORG_AND_COUNTRY, :LANGUAGE_ID, :ACTIVE, :FAILED_ATTEMPTS, :EXPIRES_ON, :SYNC_EXPIRES_ON, :LAST_LOGIN_DATE, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
@@ -389,21 +388,36 @@ public class UserDaoImpl implements UserDao {
         }
         row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
         if (row == 0) {
-            throw new IncorrectAccessControlException();
+            throw new AccessControlFailedException();
         }
         return userId;
     }
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
-        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
-                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
-                + "WHERE     "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        String showInternalUsersString = "SELECT IF(COUNT(*)>0,1,0) `showInternalUsers` FROM us_user_role ur WHERE ur.ROLE_ID IN ('ROLE_INTERNAL_USER', 'ROLE_APPLICATION_ADMIN', 'ROLE_REALM_ADMIN') AND ur.USER_ID=:curUser ";
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        boolean showInternalUsers = this.namedParameterJdbcTemplate.queryForObject(showInternalUsersString, params, Boolean.class);
+        params.put("showInternalUsers", showInternalUsers);
+
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(ul.USER_ID) FROM "
+                + "    ("
+                + "        SELECT u.`USER_ID`, u.`REALM_ID`, GROUP_CONCAT(ur.`ROLE_ID`) `ROLE_LIST`"
+                + "        FROM us_user u "
+                + "        LEFT JOIN us_user_role ur ON u.`USER_ID`=ur.`USER_ID` "
+                + "        GROUP BY u.`USER_ID` "
+                + "    ) ul"
+                + "    LEFT JOIN us_user_role ur ON ul.`USER_ID`=ur.`USER_ID` "
+                + "    LEFT JOIN us_user_acl acl ON ul.`USER_ID`=acl.`USER_ID` AND ur.`ROLE_ID`=acl.`ROLE_ID` "
+                + "    WHERE "
+                + "        (("
+                + "            :showInternalUsers = 0"
+                + "            AND NOT FIND_IN_SET('ROLE_INTERNAL_USER', ul.`ROLE_LIST`) "
+                + "            AND NOT FIND_IN_SET('ROLE_APPLICATION_ADMIN', ul.`ROLE_LIST`) "
+                + "        ) OR "
+                + "        (:showInternalUsers)) ");
+        this.aclService.addUserAclForRealm(sb1, params, "ul", curUser);
         this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
@@ -440,15 +454,29 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
-                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
-                + "WHERE     "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        String showInternalUsersString = "SELECT IF(COUNT(*)>0,1,0) `showInternalUsers` FROM us_user_role ur WHERE ur.ROLE_ID IN ('ROLE_INTERNAL_USER', 'ROLE_APPLICATION_ADMIN', 'ROLE_REALM_ADMIN') AND ur.USER_ID=:curUser ";
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        params.put("realmId", realmId);
-        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        boolean showInternalUsers = this.namedParameterJdbcTemplate.queryForObject(showInternalUsersString, params, Boolean.class);
+        params.put("showInternalUsers", showInternalUsers);
+
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(ul.USER_ID) FROM "
+                + "    ("
+                + "        SELECT u.`USER_ID`, u.`REALM_ID`, GROUP_CONCAT(ur.`ROLE_ID`) `ROLE_LIST`"
+                + "        FROM us_user u "
+                + "        LEFT JOIN us_user_role ur ON u.`USER_ID`=ur.`USER_ID` "
+                + "        GROUP BY u.`USER_ID` "
+                + "    ) ul"
+                + "    LEFT JOIN us_user_role ur ON ul.`USER_ID`=ur.`USER_ID` "
+                + "    LEFT JOIN us_user_acl acl ON ul.`USER_ID`=acl.`USER_ID` AND ur.`ROLE_ID`=acl.`ROLE_ID` "
+                + "    WHERE "
+                + "        (("
+                + "            :showInternalUsers = 0"
+                + "            AND NOT FIND_IN_SET('ROLE_INTERNAL_USER', ul.`ROLE_LIST`) "
+                + "            AND NOT FIND_IN_SET('ROLE_APPLICATION_ADMIN', ul.`ROLE_LIST`) "
+                + "        ) OR "
+                + "        (:showInternalUsers)) ");
+        this.aclService.addUserAclForRealm(sb1, params, "ul", curUser);
         this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
         StringBuilder sb = new StringBuilder("SELECT "
                 + "    u.`USER_ID`, u.`USERNAME`, u.`EMAIL_ID`, u.`ORG_AND_COUNTRY`, u.`PASSWORD`, "
@@ -488,23 +516,33 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getUserByUserId(int userId, CustomUserDetails curUser) {
-        String sql = this.userCommonString + this.userByUserId + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
+    public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("curUser", curUser.getUserId());
-        logger.info(LogUtils.buildStringForLog(sql, params));
-        User u = this.namedParameterJdbcTemplate.query(sql, params, new UserResultSetExtractor());
-        if (u == null) {
+        StringBuilder sb = new StringBuilder(this.userCommonString)
+                .append(this.userByUserId);
+        this.aclService.addUserAclForRealm(sb, params, "realm", curUser);
+        this.aclService.addFullAclAtUserLevel(sb, params, "acl", curUser);
+        sb.append(this.userOrderBy);
+        logger.info(LogUtils.buildStringForLog(sb.toString(), params));
+        String sql = "SELECT USER_ID FROM us_user u WHERE u.USER_ID=:userId";
+        Integer uId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+        if (uId == null) {
             throw new EmptyResultDataAccessException(1);
         } else {
-            return u;
+            User u = this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserResultSetExtractor());
+            if (u == null) {
+                throw new AccessControlFailedException("You do not have access to this resource");
+            } else {
+                return u;
+            }
         }
     }
 
     @Override
-    @Transactional(rollbackFor = IncorrectAccessControlException.class)
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException {
+    @Transactional(rollbackFor = AccessControlFailedException.class)
+    public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
@@ -572,7 +610,7 @@ public class UserDaoImpl implements UserDao {
         row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
 
         if (row == 0) {
-            throw new IncorrectAccessControlException();
+            throw new AccessControlFailedException();
         }
         return row;
     }
@@ -861,14 +899,29 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<UserAcl> getAccessControls(CustomUserDetails curUser) {
-        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(u.`USER_ID`) `USER_ID` FROM us_user u  "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
-                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID AND ur.ROLE_ID=acl.ROLE_ID "
-                + "WHERE     "
-                + "    ur.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser)  ");
+        String showInternalUsersString = "SELECT IF(COUNT(*)>0,1,0) `showInternalUsers` FROM us_user_role ur WHERE ur.ROLE_ID IN ('ROLE_INTERNAL_USER', 'ROLE_APPLICATION_ADMIN', 'ROLE_REALM_ADMIN') AND ur.USER_ID=:curUser ";
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        this.aclService.addUserAclForRealm(sb1, params, "u", curUser);
+        boolean showInternalUsers = this.namedParameterJdbcTemplate.queryForObject(showInternalUsersString, params, Boolean.class);
+        params.put("showInternalUsers", showInternalUsers);
+
+        StringBuilder sb1 = new StringBuilder("SELECT DISTINCT(ul.USER_ID) FROM "
+                + "    ("
+                + "        SELECT u.`USER_ID`, u.`REALM_ID`, GROUP_CONCAT(ur.`ROLE_ID`) `ROLE_LIST`"
+                + "        FROM us_user u "
+                + "        LEFT JOIN us_user_role ur ON u.`USER_ID`=ur.`USER_ID` "
+                + "        GROUP BY u.`USER_ID` "
+                + "    ) ul"
+                + "    LEFT JOIN us_user_role ur ON ul.`USER_ID`=ur.`USER_ID` "
+                + "    LEFT JOIN us_user_acl acl ON ul.`USER_ID`=acl.`USER_ID` AND ur.`ROLE_ID`=acl.`ROLE_ID` "
+                + "    WHERE "
+                + "        ("
+                + "            :showInternalUsers = 0"
+                + "            AND NOT FIND_IN_SET('ROLE_INTERNAL_USER', ul.`ROLE_LIST`) "
+                + "            AND NOT FIND_IN_SET('ROLE_APPLICATION_ADMIN', ul.`ROLE_LIST`) "
+                + "        ) OR "
+                + "        (:showInternalUsers) ");
+        this.aclService.addUserAclForRealm(sb1, params, "ul", curUser);
         this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
 
         StringBuilder sb = new StringBuilder("SELECT "
@@ -1000,7 +1053,7 @@ public class UserDaoImpl implements UserDao {
         sql = "UPDATE us_user u SET u.`DEFAULT_THEME_ID`=?, u.`LAST_MODIFIED_DATE`=?, u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, themeId, curDate, userId, userId);
     }
-    
+
     @Override
     public int updateUserDecimalPreference(int userId, boolean showDecimals) {
         String sql;

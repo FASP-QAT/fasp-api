@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.BfAndProgramId;
@@ -213,7 +212,6 @@ public class UserRestController {
             }
 
             for (UserAcl acl : loggedInUser.getUserAclList()) {
-                curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), "GET", "/api/program/supplyPlan/list");
                 curUser.getAclList().clear();
                 curUser.getAclList().add(acl);
                 HashSet<Integer> programSet;
@@ -221,7 +219,7 @@ public class UserRestController {
                 if (role == null) {
                     role = "";
                 }
-                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, curUser, false).stream().map(p -> p.getId()).toList());
+                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, true, curUser, false).stream().map(p -> p.getId()).toList());
             }
             return new ResponseEntity(ud, HttpStatus.OK);
         } catch (Exception e) {
@@ -307,19 +305,23 @@ public class UserRestController {
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("userId " + userId);
             return new ResponseEntity(this.userService.getUserByUserId(userId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (AccessControlFailedException e) {
+            logger.error(("Could not get User for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.info("Could not get User list for UserId=" + e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -365,9 +367,6 @@ public class UserRestController {
         } catch (AccessControlFailedException acfe) {
             auditLogger.error(acfe.getMessage());
             return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
-        } catch (IncorrectAccessControlException iae) {
-            auditLogger.error("Either add All access or specific access " + user);
-            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (DuplicateKeyException e) {
             auditLogger.error("Duplicate Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -387,8 +386,8 @@ public class UserRestController {
      * @return
      */
     @PutMapping(value = "/user")
-    public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
-        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+    public ResponseEntity editUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
             String msg = this.userService.checkIfUserExistsByEmailId(user, 2);
@@ -408,9 +407,6 @@ public class UserRestController {
         } catch (AccessControlFailedException acfe) {
             auditLogger.error(acfe.getMessage());
             return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
-        } catch (IncorrectAccessControlException iae) {
-            auditLogger.error("Either add All access or specific access " + user);
-            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -463,7 +459,7 @@ public class UserRestController {
     @PostMapping(value = "/user/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             User user = this.userService.getUserByUserId(password.getUserId(), curUser);
             if (curUser.getUserId() != password.getUserId() || !this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED);
@@ -730,11 +726,11 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.themeChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/user/decimalPreference/{showDecimals}")
     public ResponseEntity updateUserDecimalPreference(@PathVariable boolean showDecimals, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserDecimalPreference(curUser.getUserId(), showDecimals);
             auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
@@ -754,9 +750,6 @@ public class UserRestController {
     @PostMapping(value = "/user/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
-            auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
-            auditLogger.info("auth 2: " + auth);
-            auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.userService.acceptUserAgreement(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity("", HttpStatus.OK);
         } catch (Exception e) {

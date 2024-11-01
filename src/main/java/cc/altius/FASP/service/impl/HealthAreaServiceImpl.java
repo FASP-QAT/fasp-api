@@ -81,8 +81,8 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
-    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser) {
-        return this.healthAreaDao.getHealthAreaDropdownList(realmId, curUser);
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaDropdownList(realmId, aclFilter, curUser);
     }
 
     @Override

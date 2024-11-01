@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
@@ -37,7 +38,7 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser, boolean active);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active);
     
     public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
@@ -65,7 +66,7 @@ public interface ProgramDao {
     
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
 
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(ProgramPlanningUnitProcurementAgentInput ppupa, boolean active, CustomUserDetails curUser);
 
@@ -107,7 +108,7 @@ public interface ProgramDao {
 
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
 
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 

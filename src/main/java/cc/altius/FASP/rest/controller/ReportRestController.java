@@ -583,7 +583,7 @@ public class ReportRestController {
     @PostMapping(value = "/stockStatusVertical/dropdowns")
     public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("/api/report/stockStatusVertical/dropdowns", e);
@@ -1058,6 +1058,9 @@ public class ReportRestController {
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to get report", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get report", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to get report", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AnnualTargetCalculator;
@@ -96,7 +97,6 @@ import cc.altius.FASP.model.rowMapper.ShipmentBudgetAmtRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionTransRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitForSupplyPlanObjectResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
@@ -161,14 +161,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException {
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
         Map<String, Object> params = new HashMap<>();
         params.clear();
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, commitUser);
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         ProgramData pd = spcr.getProgramData();
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -1618,12 +1618,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser) {
+    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws AccessControlFailedException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Get the Dataset that needs to be committed
         DatasetData dd = spcr.getDatasetData();
         Map<String, Map<String, Integer>> oldAndNewIdMap = new HashMap<>();
-
+        SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         // Mark the CommitRequest as Started
         String sqlString = "UPDATE ct_commit_request cr SET cr.STARTED_DATE=:curDate WHERE cr.COMMIT_REQUEST_ID=:commitRequestId";
         Map<String, Object> params = new HashMap<>();
@@ -2352,7 +2352,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) throws AccessControlFailedException {
         String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, "
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";

@@ -79,11 +79,11 @@ public class BudgetServiceImpl implements BudgetService {
         if (this.aclService.checkRealmAccessForUser(curUser, bt.getFundingSource().getRealm().getId())) {
             for (SimpleCodeObject program : b.getPrograms()) {
                 if (program != null && program.getId() != null && program.getId() != 0) {
-                    try {
+//                    try {
                         this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                    } catch (EmptyResultDataAccessException e) {
-                        throw new AccessControlFailedException();
-                    }
+//                    } catch (EmptyResultDataAccessException e) {
+//                        throw new AccessControlFailedException();
+//                    }
                 }
             }
             return this.budgetDao.updateBudget(b, curUser);
@@ -119,7 +119,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) {
+    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) throws AccessControlFailedException {
         Budget b = this.budgetDao.getBudgetById(BudgetId, curUser);
         this.updateProgramsWithAccess(b, curUser);
         return b;
@@ -136,14 +136,14 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) throws AccessControlFailedException {
         List<Budget> bList = this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
         updateProgramsWithAccess(bList, curUser);
         return bList;
     }
 
     @Override
-    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) throws AccessControlFailedException {
         if (programIdsString.length() > 0) {
             List<Budget> bList = this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
             updateProgramsWithAccess(bList, curUser);
@@ -153,13 +153,13 @@ public class BudgetServiceImpl implements BudgetService {
         }
     }
 
-    private void updateProgramsWithAccess(List<Budget> budgetList, CustomUserDetails curUser) {
+    private void updateProgramsWithAccess(List<Budget> budgetList, CustomUserDetails curUser) throws AccessControlFailedException {
         for (Budget b : budgetList) {
             this.updateProgramsWithAccess(b, curUser);
         }
     }
 
-    private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) {
+    private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         if (b != null) {
             b.setProgramsWithAccess(new LinkedList<>());
             for (SimpleCodeObject p : b.getPrograms()) {

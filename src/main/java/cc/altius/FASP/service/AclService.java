@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,8 @@ import java.util.Map;
  */
 public interface AclService {
 
-    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
+//    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
+    public boolean userHasAccessToResources(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
 
     public boolean checkRealmAccessForUser(CustomUserDetails curUser, int realmId);
 
@@ -43,4 +45,6 @@ public interface AclService {
     public void addFullAclAtUserLevel(StringBuilder sb, Map<String, Object> params, String userAclAlias, CustomUserDetails curUser);
 
     public int buildSecurity();
+    
+    public boolean canEditUser(User user, CustomUserDetails curUser, Map<String, List<String>> canCreateRoleMap);
 }

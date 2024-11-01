@@ -5,8 +5,8 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -40,7 +40,7 @@ public interface UserDao {
 
     public int updateFailedAttemptsByUserId(String emailId);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<User> getUserList(CustomUserDetails curUser);
     
@@ -50,9 +50,9 @@ public interface UserDao {
     
     public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser);
 
-    public User getUserByUserId(int userId, CustomUserDetails curUser);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 

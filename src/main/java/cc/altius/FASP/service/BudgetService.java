@@ -27,13 +27,13 @@ public interface BudgetService {
 
     public List<Budget> getBudgetListForRealm(int realmId, CustomUserDetails curUser);
 
-    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
+    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser);
 
-    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) throws AccessControlFailedException;
 }
