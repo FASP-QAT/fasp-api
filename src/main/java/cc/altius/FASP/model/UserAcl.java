@@ -48,6 +48,8 @@ public class UserAcl implements Serializable {
     private Label programName;
     @JsonView(Views.UserListView.class)
     private String programCode;
+    @JsonView(Views.UserListView.class)
+    private int programTypeId;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.UserListView.class)
@@ -66,7 +68,7 @@ public class UserAcl implements Serializable {
         this.lastModifiedDate = this.lastModifiedDate;
     }
 
-    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String programCode, Date lastModifiedDate) {
+    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String programCode, int programTypeId, Date lastModifiedDate) {
         this.userId = userId;
         this.roleId = roleId;
         this.setRealmCountryId(realmCountryId);
@@ -79,6 +81,7 @@ public class UserAcl implements Serializable {
         this.organisationName = organisationName;
         this.programName = programName;
         this.programCode = programCode;
+        this.programTypeId = programTypeId;
         this.lastModifiedDate = lastModifiedDate;
     }
 
@@ -192,6 +195,14 @@ public class UserAcl implements Serializable {
 
     public void setProgramCode(String programCode) {
         this.programCode = programCode;
+    }
+
+    public int getProgramTypeId() {
+        return programTypeId;
+    }
+
+    public void setProgramTypeId(int programTypeId) {
+        this.programTypeId = programTypeId;
     }
 
     public Date getLastModifiedDate() {
