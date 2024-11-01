@@ -24,7 +24,7 @@ public interface CommitRequestService {
 
     public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException;
 
-    public void processCommitRequest(CustomUserDetails curUser);
+    public void processCommitRequest(CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<CommitRequest> getCommitRequestList(CommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 

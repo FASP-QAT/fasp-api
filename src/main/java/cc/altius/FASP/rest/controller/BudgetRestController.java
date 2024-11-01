@@ -99,6 +99,9 @@ public class BudgetRestController {
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to update Budget", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to update Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -134,10 +137,7 @@ public class BudgetRestController {
     @JsonView(Views.ReportView.class)
     public ResponseEntity getBudget(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
-                    ((CustomUserDetails) auth.getPrincipal()).getUserId(),
-                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
-                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Budget list", e);
@@ -157,6 +157,9 @@ public class BudgetRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.budgetService.getBudgetById(budgetId, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException ae) {
+            logger.error("Error while trying to get Budget Id=" + budgetId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get Budget Id=" + budgetId, erda);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

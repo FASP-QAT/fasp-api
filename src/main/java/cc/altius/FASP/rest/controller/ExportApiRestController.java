@@ -4,6 +4,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.InvalidDataException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
@@ -88,6 +89,9 @@ public class ExportApiRestController {
         } catch (ParseException pe) {
             logger.error("Incorrect format for startDate provided", pe);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to get Export of Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Export of Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

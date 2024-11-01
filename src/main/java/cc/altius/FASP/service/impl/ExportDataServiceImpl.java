@@ -5,6 +5,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ExportDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.InvalidDataException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -18,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,7 +34,7 @@ public class ExportDataServiceImpl implements ExportDataService {
     private ProgramService programService;
 
     @Override
-    public SupplyPlanExportDTO getSupplyPlanForProgramId(int programId, int versionId, String startDate, CustomUserDetails curUser) throws EmptyResultDataAccessException, ParseException, AccessDeniedException, InvalidDataException {
+    public SupplyPlanExportDTO getSupplyPlanForProgramId(int programId, int versionId, String startDate, CustomUserDetails curUser) throws EmptyResultDataAccessException, ParseException, AccessControlFailedException, InvalidDataException {
         SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (p != null) {
             if (startDate == null || startDate.equals("")) {

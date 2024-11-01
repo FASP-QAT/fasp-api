@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -115,6 +116,9 @@ public class EquivalencyUnitRestController {
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to add EquivalencyUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -227,6 +231,12 @@ public class EquivalencyUnitRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.equivalencyUnitService.getEquivalencyUnitMappingForForecastingUnit(forecastingUnitId, programId, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add EquivalencyUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to add EquivalencyUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

@@ -63,6 +63,9 @@ public class FundingSourceRestController {
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to add Funding source", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to add Funding source", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);

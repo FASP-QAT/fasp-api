@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -74,9 +73,9 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false, false), HttpStatus.OK);
-        } catch (IncorrectAccessControlException e) {
+        } catch (AccessControlFailedException e) {
             logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -109,6 +108,9 @@ public class ProgramDataRestController {
             } else {
                 return new ResponseEntity(masters, HttpStatus.OK);
             }
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -276,6 +278,12 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.checkNewerVersions(programVersionList, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to check ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to check ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to check ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -333,6 +341,12 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getActualConsumptionDataInput(acd, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException ade) {
+            logger.error("/api/program/actualConsumptionReport", ade);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException ade) {
+            logger.error("/api/program/actualConsumptionReport", ade);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ade) {
             logger.error("/api/program/actualConsumptionReport", ade);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.FORBIDDEN);

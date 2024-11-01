@@ -6,7 +6,6 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetData;
@@ -36,15 +35,15 @@ import java.util.Map;
  */
 public interface ProgramDataService {
 
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) throws IncorrectAccessControlException;
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) throws AccessControlFailedException;
 
-    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException;
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
 
-    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser);
+    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser);
+    public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
@@ -64,7 +63,7 @@ public interface ProgramDataService {
 
     public ShipmentSync getShipmentListForSync(int programId, int versionId, int userId, String lastSyncDate, CustomUserDetails curUser);
 
-    public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+    public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
@@ -74,7 +73,7 @@ public interface ProgramDataService {
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
-    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 

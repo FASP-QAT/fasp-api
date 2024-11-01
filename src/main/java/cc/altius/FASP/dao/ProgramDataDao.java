@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.AnnualTargetCalculator;
 import cc.altius.FASP.model.Batch;
@@ -19,7 +20,6 @@ import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
-import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
@@ -67,13 +67,13 @@ public interface ProgramDataDao {
     
     public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive, String cutOffDate);
 
-    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException;
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException;
 
-    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
+    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) throws AccessControlFailedException;
     
     public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser);
 

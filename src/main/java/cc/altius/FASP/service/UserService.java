@@ -7,7 +7,6 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -18,7 +17,6 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import java.util.List;
 import java.util.Map;
-import org.springframework.security.access.AccessDeniedException;
 
 /**
  *
@@ -43,7 +41,7 @@ public interface UserService {
 
     public List<Role> getRoleList(CustomUserDetails curUser);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<User> getUserList(CustomUserDetails curUser);
 
@@ -51,11 +49,11 @@ public interface UserService {
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
-    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessDeniedException;
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public User getUserByUserId(int userId, CustomUserDetails curUser);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException;
+    public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public String checkIfUserExistsByEmailId(User user, int page);
 

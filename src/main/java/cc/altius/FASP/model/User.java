@@ -53,6 +53,7 @@ public class User extends BaseModel implements Serializable {
     private List<UserAcl> userAclList;
     private UserAcl[] userAcls;
     private List<String> businessFunctionList;
+    private boolean editable;
 
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -240,6 +241,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setBusinessFunctionList(List<String> businessFunctionList) {
         this.businessFunctionList = businessFunctionList;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 
     @Override

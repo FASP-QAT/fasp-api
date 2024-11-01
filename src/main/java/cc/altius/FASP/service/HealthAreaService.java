@@ -23,7 +23,7 @@ public interface HealthAreaService {
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
     

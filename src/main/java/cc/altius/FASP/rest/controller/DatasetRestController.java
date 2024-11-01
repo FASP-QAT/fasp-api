@@ -122,6 +122,9 @@ public class DatasetRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetData(programId, versionId, false, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to list Dataset", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -148,6 +151,9 @@ public class DatasetRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetData(programId, versionId, true, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException er) {
+            logger.error("Error while trying to list Dataset", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -173,6 +179,9 @@ public class DatasetRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetPlanningUnit(programId, versionId, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException er) {
+            logger.error("Error while trying to list PlanningUnit", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list PlanningUnit", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -201,6 +210,9 @@ public class DatasetRestController {
                 return new ResponseEntity(compress(jsonString), HttpStatus.OK);
             }
             return new ResponseEntity(masters, HttpStatus.OK);
+        } catch (AccessControlFailedException er) {
+            logger.error("Error while trying to list Dataset", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

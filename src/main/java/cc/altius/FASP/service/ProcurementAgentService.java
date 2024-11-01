@@ -80,5 +80,5 @@ public interface ProcurementAgentService {
 
     public Map<Integer, List<ProcurementAgentPlanningUnit>> getProcurementAgentPlanningUnitListByPlanningUnitList(int[] planningUnitIds, CustomUserDetails curUser);
 
-    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser);
+//    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessControlFailedException;
 }

@@ -288,9 +288,9 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         return this.procurementAgentDao.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser);
     }
 
-    @Override
-    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessDeniedException {
-        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        return this.procurementAgentDao.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser);
-    }
+//    @Override
+//    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser) throws AccessControlFailedException {
+//        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//        return this.procurementAgentDao.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser);
+//    }
 }

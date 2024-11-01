@@ -10,7 +10,6 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -26,6 +25,7 @@ import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException {
+    public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
         List<UserAcl> expandedUserAcl = new LinkedList<>();
         for (UserAcl acl : user.getUserAclList()) {
             if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessDeniedException {
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         try {
             this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
             return this.userDao.getUserListForProgram(programId, curUser);
@@ -147,12 +147,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUserId(int userId, CustomUserDetails curUser) {
-        return this.userDao.getUserByUserId(userId, curUser);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException {
+        User user = this.userDao.getUserByUserId(userId, curUser);
+        Map<String, List<String>> canCreateRoleMap = new HashMap<>();
+        for (Role role : curUser.getRoles()) {
+            if (!canCreateRoleMap.containsKey(role.getRoleId())) {
+                canCreateRoleMap.put(role.getRoleId(), this.userDao.getRoleById(role.getRoleId()).getCanCreateRoleList().stream().map(r1 -> r1.getRoleId()).toList());
+            }
+        }
+        user.setEditable(this.aclService.canEditUser(user, curUser, canCreateRoleMap));
+        return user;
     }
 
     @Override
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException, AccessControlFailedException {
+    public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
         List<UserAcl> expandedUserAcl = new LinkedList<>();
         for (UserAcl acl : user.getUserAclList()) {
             if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
@@ -299,7 +307,7 @@ public class UserServiceImpl implements UserService {
     public int updateUserDecimalPreference(int userId, boolean showDecimals) {
         return this.userDao.updateUserDecimalPreference(userId, showDecimals);
     }
-    
+
     @Override
     public int acceptUserAgreement(int userId) {
         return this.userDao.acceptUserAgreement(userId);
