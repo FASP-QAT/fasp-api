@@ -69,9 +69,9 @@ import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
+import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
@@ -310,12 +310,6 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return finalList;
-    }
-
-    // Report no 31
-    @Override
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
-        return this.reportDao.getForecastError(fei, curUser);
     }
     
     // Report no 31 new

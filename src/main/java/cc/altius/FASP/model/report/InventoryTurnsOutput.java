@@ -26,7 +26,7 @@ public class InventoryTurnsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private long totalConsumption;
+    private double totalConsumption;
     @JsonView(Views.ReportView.class)
     private double avergeStock;
     @JsonView(Views.ReportView.class)
@@ -45,7 +45,7 @@ public class InventoryTurnsOutput implements Serializable {
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject realmCountry, SimpleCodeObject program, SimpleObject productCategory, SimpleObject planningUnit, double totalConsumption, double avergeStock, int noOfMonths, int reorderFrequencyInMonths, int minMonthsOfStock, int totalMonthsOfPlannedConsumption, double plannedInventoryTurns) {
         this.realmCountry = realmCountry;
         this.program = program;
         this.productCategory = productCategory;
@@ -91,11 +91,11 @@ public class InventoryTurnsOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public long getTotalConsumption() {
+    public double getTotalConsumption() {
         return totalConsumption;
     }
 
-    public void setTotalConsumption(long totalConsumption) {
+    public void setTotalConsumption(double totalConsumption) {
         this.totalConsumption = totalConsumption;
     }
 

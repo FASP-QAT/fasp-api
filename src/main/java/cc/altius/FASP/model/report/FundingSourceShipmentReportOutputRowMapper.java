@@ -22,7 +22,7 @@ public class FundingSourceShipmentReportOutputRowMapper implements RowMapper<Fun
     public FundingSourceShipmentReportOutput mapRow(ResultSet rs, int i) throws SQLException {
         FundingSourceShipmentReportOutput fsro = new FundingSourceShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
-                rs.getLong("QTY"),
+                rs.getDouble("QTY"),
                 rs.getDouble("PRODUCT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
                 rs.getDouble("FREIGHT_COST")

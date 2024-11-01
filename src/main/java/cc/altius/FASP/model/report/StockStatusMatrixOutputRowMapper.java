@@ -77,18 +77,18 @@ public class StockStatusMatrixOutputRowMapper implements RowMapper<StockStatusMa
             ssmo.setDec(null);
         }
         ssmo.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
-        ssmo.setJanStock(rs.getLong("Jan Stock"));
-        ssmo.setFebStock(rs.getLong("Feb Stock"));
-        ssmo.setMarStock(rs.getLong("Mar Stock"));
-        ssmo.setAprStock(rs.getLong("Apr Stock"));
-        ssmo.setMayStock(rs.getLong("May Stock"));
-        ssmo.setJunStock(rs.getLong("Jun Stock"));
-        ssmo.setJulStock(rs.getLong("Jul Stock"));
-        ssmo.setAugStock(rs.getLong("Aug Stock"));
-        ssmo.setSepStock(rs.getLong("Sep Stock"));
-        ssmo.setOctStock(rs.getLong("Oct Stock"));
-        ssmo.setNovStock(rs.getLong("Nov Stock"));
-        ssmo.setDecStock(rs.getLong("Dec Stock"));
+        ssmo.setJanStock(rs.getDouble("Jan Stock"));
+        ssmo.setFebStock(rs.getDouble("Feb Stock"));
+        ssmo.setMarStock(rs.getDouble("Mar Stock"));
+        ssmo.setAprStock(rs.getDouble("Apr Stock"));
+        ssmo.setMayStock(rs.getDouble("May Stock"));
+        ssmo.setJunStock(rs.getDouble("Jun Stock"));
+        ssmo.setJulStock(rs.getDouble("Jul Stock"));
+        ssmo.setAugStock(rs.getDouble("Aug Stock"));
+        ssmo.setSepStock(rs.getDouble("Sep Stock"));
+        ssmo.setOctStock(rs.getDouble("Oct Stock"));
+        ssmo.setNovStock(rs.getDouble("Nov Stock"));
+        ssmo.setDecStock(rs.getDouble("Dec Stock"));
         ssmo.setMaxStock(rs.getDouble("MAX_STOCK_QTY"));
         if (rs.wasNull()) {
             ssmo.setMaxStock(null);

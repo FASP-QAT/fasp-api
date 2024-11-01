@@ -38,6 +38,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private Date syncExpiresOn;
     private boolean agreementAccepted;
     private int defaultThemeId;
+    private boolean showDecimals;
 
     public Realm getRealm() {
         return realm;
@@ -184,6 +185,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     public void setDefaultThemeId(int defaultThemeId) {
         this.defaultThemeId = defaultThemeId;
+    }
+
+    public boolean isShowDecimals() {
+        return showDecimals;
+    }
+
+    public void setShowDecimals(boolean showDecimals) {
+        this.showDecimals = showDecimals;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class StockStatusForProgramOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double maxMos;
     @JsonView(Views.ReportView.class)
-    private Long stock;
+    private Double stock;
     @JsonView(Views.ReportView.class)
     private Double amc;
     @JsonView(Views.ReportView.class)
@@ -74,11 +74,11 @@ public class StockStatusForProgramOutput implements Serializable {
         this.maxMos = maxMos;
     }
 
-    public Long getStock() {
+    public Double getStock() {
         return stock;
     }
 
-    public void setStock(Long stock) {
+    public void setStock(Double stock) {
         this.stock = stock;
     }
 
