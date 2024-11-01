@@ -523,7 +523,7 @@ public class UserDaoImpl implements UserDao {
         StringBuilder sb = new StringBuilder(this.userCommonString)
                 .append(this.userByUserId);
         this.aclService.addUserAclForRealm(sb, params, "realm", curUser);
-        this.aclService.addFullAclAtUserLevel(sb, params, "acl", curUser);
+//        this.aclService.addFullAclAtUserLevel(sb, params, "acl", curUser);
         sb.append(this.userOrderBy);
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         String sql = "SELECT USER_ID FROM us_user u WHERE u.USER_ID=:userId";
