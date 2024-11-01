@@ -264,13 +264,9 @@ public class AclServiceImpl implements AclService {
         pendingAclList.addAll(user.getUserAclList());
         for (UserAcl curUserAcl : curUser.getAclList()) {
             for (UserAcl checkUserAcl : startingAclList) {
-                logger.info("curUserAcl"+curUserAcl);
-                logger.info("check User ACL "+checkUserAcl);
-                logger.info("check User ACL "+canCreateRoleMap);
                 if (canCreateRoleMap.get(curUserAcl.getRoleId()).indexOf(checkUserAcl.getRoleId()) >= 0) {
-                    logger.info("In If condition 1"+(curUserAcl.getRealmCountryId() == -1 || curUserAcl.getRealmCountryId() == checkUserAcl.getRealmCountryId())+" Condition 2"+(curUserAcl.getHealthAreaId() == -1 || curUserAcl.getHealthAreaId() == checkUserAcl.getRealmCountryId())+" Condition 3"+(curUserAcl.getOrganisationId() == -1 || curUserAcl.getOrganisationId() == checkUserAcl.getOrganisationId())+" Condition 4 "+(curUserAcl.getProgramId() == -1 || curUserAcl.getProgramId() == checkUserAcl.getProgramId()));
                     if ((curUserAcl.getRealmCountryId() == -1 || curUserAcl.getRealmCountryId() == checkUserAcl.getRealmCountryId())
-                            && (curUserAcl.getHealthAreaId() == -1 || curUserAcl.getHealthAreaId() == checkUserAcl.getRealmCountryId())
+                            && (curUserAcl.getHealthAreaId() == -1 || curUserAcl.getHealthAreaId() == checkUserAcl.getHealthAreaId())
                             && (curUserAcl.getOrganisationId() == -1 || curUserAcl.getOrganisationId() == checkUserAcl.getOrganisationId())
                             && (curUserAcl.getProgramId() == -1 || curUserAcl.getProgramId() == checkUserAcl.getProgramId())) {
                         pendingAclList.remove(checkUserAcl);
