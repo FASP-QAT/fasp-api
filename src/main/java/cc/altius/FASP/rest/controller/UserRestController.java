@@ -223,6 +223,7 @@ public class UserRestController {
             }
             return new ResponseEntity(ud, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Error while trying to get User details", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
