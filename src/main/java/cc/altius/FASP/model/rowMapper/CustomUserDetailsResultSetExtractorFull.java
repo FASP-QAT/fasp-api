@@ -53,7 +53,7 @@ public class CustomUserDetailsResultSetExtractorFull implements ResultSetExtract
                         rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
                         rs.getInt("ACL_HEALTH_AREA_ID"), new LabelRowMapper("ACL_HEALTH_AREA_").mapRow(rs, 1),
                         rs.getInt("ACL_ORGANISATION_ID"), new LabelRowMapper("ACL_ORGANISATION_").mapRow(rs, 1),
-                        rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1),rs.getString("PROGRAM_CODE"),
+                        rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1),rs.getString("ACL_PROGRAM_CODE"),
                         rs.getDate("ACL_LAST_MODIFIED_DATE"));
                 if (user.getAclList().indexOf(acl) == -1) {
                     user.getAclList().add(acl);
