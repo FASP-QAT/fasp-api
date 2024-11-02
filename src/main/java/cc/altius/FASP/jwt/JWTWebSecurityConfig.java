@@ -74,7 +74,7 @@ public class JWTWebSecurityConfig {
 
         return authProvider;
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -200,7 +200,9 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/report/stockStatusOverTime").hasAnyAuthority("ROLE_BF_STOCK_STATUS_OVER_TIME_REPORT")
                         .requestMatchers(HttpMethod.GET, "/api/programVersion/programId/**").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_VERSION_AND_REVIEW")
                         .requestMatchers(HttpMethod.POST, "/api/report/costOfInventory").hasAnyAuthority("ROLE_BF_COST_OF_INVENTORY_REPORT")
-                        .requestMatchers(HttpMethod.POST, "/api/report/stockStatusVertical").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_REPORT")                        .requestMatchers(HttpMethod.POST, "/api/report/inventoryTurns").hasAnyAuthority("ROLE_BF_INVENTORY_TURNS_REPORT")
+                        .requestMatchers(HttpMethod.POST, "/api/report/stockStatusVertical/dropdowns").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_REPORT")
+                        .requestMatchers(HttpMethod.POST, "/api/report/stockStatusVertical").hasAnyAuthority("ROLE_BF_SUPPLY_PLAN_REPORT")
+                        .requestMatchers(HttpMethod.POST, "/api/report/inventoryTurns").hasAnyAuthority("ROLE_BF_INVENTORY_TURNS_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/stockAdjustmentReport").hasAnyAuthority("ROLE_BF_STOCK_ADJUSTMENT_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/procurementAgentShipmentReport").hasAnyAuthority("ROLE_BF_SHIPMENT_COST_DETAILS_REPORT")
                         .requestMatchers(HttpMethod.POST, "/api/report/fundingSourceShipmentReport").hasAnyAuthority("ROLE_BF_FUNDER_REPORT", "ROLE_BF_SHIPMENT_COST_DETAILS_REPORT")
