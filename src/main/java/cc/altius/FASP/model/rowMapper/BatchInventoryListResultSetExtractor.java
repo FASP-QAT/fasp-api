@@ -54,7 +54,7 @@ public class BatchInventoryListResultSetExtractor implements ResultSetExtractor<
                                     rs.getBoolean("AUTO_GENERATED"),
                                     rs.getDate("EXPIRY_DATE"),
                                     rs.getTimestamp("BATCH_CREATED_DATE")),
-                            rs.getInt("QTY")
+                            rs.getDouble("QTY")
                     )
             );
         }

@@ -30,23 +30,23 @@ public class StockStatusVertical implements Serializable {
     private Date dt;
 
     @JsonView(Views.ReportView.class)
-    private Long openingBalance;
+    private Double openingBalance;
     @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
     @JsonView(Views.ReportView.class)
-    private Long actualConsumptionQty;
+    private Double actualConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long forecastedConsumptionQty;
+    private Double forecastedConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long finalConsumptionQty;
+    private Double finalConsumptionQty;
     @JsonView(Views.ReportView.class)
-    private Long shipmentQty;
+    private Double shipmentQty;
     @JsonView(Views.ReportView.class)
-    private Long adjustment;
+    private Double adjustment;
     @JsonView(Views.ReportView.class)
-    private Long expiredStock;
+    private Double expiredStock;
     @JsonView(Views.ReportView.class)
-    private Long closingBalance;
+    private Double closingBalance;
     @JsonView(Views.ReportView.class)
     private Double amc;
     @JsonView(Views.ReportView.class)
@@ -56,19 +56,21 @@ public class StockStatusVertical implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double maxMos;
     @JsonView(Views.ReportView.class)
-    private Long unmetDemand;
+    private Double unmetDemand;
     @JsonView(Views.ReportView.class)
     private int regionCount;
     @JsonView(Views.ReportView.class)
     private int regionCountForStock;
     @JsonView(Views.ReportView.class)
-    private Long nationalAdjustment;
+    private Double nationalAdjustment;
     @JsonView(Views.ReportView.class)
     private Double minStock;
     @JsonView(Views.ReportView.class)
     private Double maxStock;
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
+    //TODO Add PPU notes
+    private String ppuNotes;
 
     public StockStatusVertical() {
         this.shipmentInfo = new LinkedList<>();
@@ -87,11 +89,11 @@ public class StockStatusVertical implements Serializable {
         this.dt = dt;
     }
 
-    public Long getOpeningBalance() {
+    public Double getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(Long openingBalance) {
+    public void setOpeningBalance(Double openingBalance) {
         this.openingBalance = openingBalance;
     }
 
@@ -103,59 +105,59 @@ public class StockStatusVertical implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public Long getActualConsumptionQty() {
+    public Double getActualConsumptionQty() {
         return actualConsumptionQty;
     }
 
-    public void setActualConsumptionQty(Long actualConsumptionQty) {
+    public void setActualConsumptionQty(Double actualConsumptionQty) {
         this.actualConsumptionQty = actualConsumptionQty;
     }
 
-    public Long getForecastedConsumptionQty() {
+    public Double getForecastedConsumptionQty() {
         return forecastedConsumptionQty;
     }
 
-    public void setForecastedConsumptionQty(Long forecastedConsumptionQty) {
+    public void setForecastedConsumptionQty(Double forecastedConsumptionQty) {
         this.forecastedConsumptionQty = forecastedConsumptionQty;
     }
 
-    public Long getFinalConsumptionQty() {
+    public Double getFinalConsumptionQty() {
         return finalConsumptionQty;
     }
 
-    public void setFinalConsumptionQty(Long finalConsumptionQty) {
+    public void setFinalConsumptionQty(Double finalConsumptionQty) {
         this.finalConsumptionQty = finalConsumptionQty;
     }
 
-    public Long getShipmentQty() {
+    public Double getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(Long shipmentQty) {
+    public void setShipmentQty(Double shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
-    public Long getAdjustment() {
+    public Double getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Long adjustment) {
+    public void setAdjustment(Double adjustment) {
         this.adjustment = adjustment;
     }
 
-    public Long getExpiredStock() {
+    public Double getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(Long expiredStock) {
+    public void setExpiredStock(Double expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public Long getClosingBalance() {
+    public Double getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(Long closingBalance) {
+    public void setClosingBalance(Double closingBalance) {
         this.closingBalance = closingBalance;
     }
 
@@ -191,11 +193,11 @@ public class StockStatusVertical implements Serializable {
         this.maxMos = maxMos;
     }
 
-    public Long getUnmetDemand() {
+    public Double getUnmetDemand() {
         return unmetDemand;
     }
 
-    public void setUnmetDemand(Long unmetDemand) {
+    public void setUnmetDemand(Double unmetDemand) {
         this.unmetDemand = unmetDemand;
     }
 
@@ -215,11 +217,11 @@ public class StockStatusVertical implements Serializable {
         this.regionCountForStock = regionCountForStock;
     }
 
-    public Long getNationalAdjustment() {
+    public Double getNationalAdjustment() {
         return nationalAdjustment;
     }
 
-    public void setNationalAdjustment(Long nationalAdjustment) {
+    public void setNationalAdjustment(Double nationalAdjustment) {
         this.nationalAdjustment = nationalAdjustment;
     }
 

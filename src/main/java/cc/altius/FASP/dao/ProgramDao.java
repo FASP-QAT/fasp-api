@@ -25,6 +25,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithFu;
 import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import java.util.List;
@@ -129,7 +130,7 @@ public interface ProgramDao {
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
     
-    public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(String programIds, CustomUserDetails curUser);
+    public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser);
     
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
     

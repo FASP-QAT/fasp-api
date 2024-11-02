@@ -26,7 +26,7 @@ public class ShipmentGlobalDemandDateSplitRowMapper implements RowMapper<Shipmen
         for (int x=1 ; x<=md.getColumnCount(); x++) {
             String colName = md.getColumnName(x);
             if (colName.startsWith("FSPA_")) {
-                sgd.getAmount().put(colName.substring(5), rs.getLong(x));
+                sgd.getAmount().put(colName.substring(5), rs.getDouble(x));
             }
         }
         return sgd;

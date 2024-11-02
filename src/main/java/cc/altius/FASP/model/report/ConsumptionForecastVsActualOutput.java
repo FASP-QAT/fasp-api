@@ -25,9 +25,9 @@ public class ConsumptionForecastVsActualOutput implements Serializable {
     @JsonView({Views.ReportView.class})
     private Date transDate;
     @JsonView({Views.ReportView.class})
-    private Long actualConsumption;
+    private Double actualConsumption;
     @JsonView({Views.ReportView.class})
-    private Long forecastedConsumption;
+    private Double forecastedConsumption;
 
     public Date getTransDate() {
         return transDate;
@@ -37,19 +37,19 @@ public class ConsumptionForecastVsActualOutput implements Serializable {
         this.transDate = transDate;
     }
 
-    public Long getActualConsumption() {
+    public Double getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Long actualConsumption) {
+    public void setActualConsumption(Double actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public Long getForecastedConsumption() {
+    public Double getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(Long forecastedConsumption) {
+    public void setForecastedConsumption(Double forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 

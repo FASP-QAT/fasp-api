@@ -23,7 +23,7 @@ public class ShipmentGlobalDemandShipmentListRowMapper implements RowMapper<Ship
         ShipmentGlobalDemandShipmentList sl = new ShipmentGlobalDemandShipmentList();
         sl.setCountry(new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, i), rs.getString("COUNTRY_CODE")));
         sl.setTransDate(rs.getDate("TRANS_DATE"));
-        sl.setAmount(rs.getLong("AMOUNT"));
+        sl.setAmount(rs.getDouble("AMOUNT"));
         sl.setFundingSourceProcurementAgent(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_PROCUREMENT_AGENT_ID"), new LabelRowMapper("FUNDING_SOURCE_PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_PROCUREMENT_AGENT_CODE")));
         sl.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, i)));
         return sl;

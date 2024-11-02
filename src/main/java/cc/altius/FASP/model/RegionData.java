@@ -12,11 +12,11 @@ package cc.altius.FASP.model;
 public class RegionData {
 
     private int regionId;
-    private Long forecastedConsumption;
-    private Long actualConsumption;
-    private Long adjustedConsumption;
-    private Long stock;
-    private Long adjustment;
+    private Double forecastedConsumption;
+    private Double actualConsumption;
+    private Double adjustedConsumption;
+    private Double stock;
+    private Double adjustment;
 
     public RegionData() {
     }
@@ -29,43 +29,43 @@ public class RegionData {
         this.regionId = regionId;
     }
 
-    public Long getForecastedConsumption() {
+    public Double getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(Long forecastedConsumption) {
+    public void setForecastedConsumption(Double forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 
-    public Long getActualConsumption() {
+    public Double getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Long actualConsumption) {
+    public void setActualConsumption(Double actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public Long getAdjustedConsumption() {
+    public Double getAdjustedConsumption() {
         return adjustedConsumption;
     }
 
-    public void setAdjustedConsumption(Long adjustedConsumption) {
+    public void setAdjustedConsumption(Double adjustedConsumption) {
         this.adjustedConsumption = adjustedConsumption;
     }
 
-    public Long getStock() {
+    public Double getStock() {
         return stock;
     }
 
-    public void setStock(Long stock) {
+    public void setStock(Double stock) {
         this.stock = stock;
     }
 
-    public Long getAdjustment() {
+    public Double getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Long adjustment) {
+    public void setAdjustment(Double adjustment) {
         this.adjustment = adjustment;
     }
 

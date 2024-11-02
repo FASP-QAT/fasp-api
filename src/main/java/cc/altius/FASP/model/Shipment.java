@@ -46,7 +46,7 @@ public class Shipment implements Serializable {
     @JsonView(Views.InternalView.class)
     private SimpleObject supplier;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long shipmentQty;
+    private double shipmentQty;
     @JsonView({Views.InternalView.class})
     private long shipmentRcpuQty;
     @JsonView({Views.GfpVanView.class})
@@ -210,11 +210,11 @@ public class Shipment implements Serializable {
         this.supplier = supplier;
     }
 
-    public long getShipmentQty() {
+    public double getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(long shipmentQty) {
+    public void setShipmentQty(double shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
