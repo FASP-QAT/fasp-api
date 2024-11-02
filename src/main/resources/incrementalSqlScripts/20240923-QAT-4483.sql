@@ -421,3 +421,238 @@ END$$
 DELIMITER ;
 ;
 
+ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` CHANGE `CONVERT_TO_EU` `CONVERT_TO_EU` DECIMAL(22,8) UNSIGNED NOT NULL; 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.openingBalanceTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Equal to the previous month’s Ending Balance. Bolded if there is an actual inventory count in the previous month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Égal au solde final du mois précédent. En gras s`il y a un inventaire réel au cours du mois précédent');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Equivale al saldo final del mes anterior. En negrita si hay un recuento de inventario real en el mes anterior');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Igual ao saldo final do mês anterior. Em negrito se houver uma contagem de inventário real no mês anterior');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.openingBalanceTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ opening balances each month. Bolded if all programs have an actual inventory count in the previous month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des soldes d`ouverture des programmes sélectionnés chaque mois. En gras si tous les programmes ont un inventaire réel au cours du mois précédent');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los saldos iniciales de los programas seleccionados cada mes. En negrita si todos los programas tienen un recuento de inventario real en el mes anterior');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos saldos de abertura dos programas selecionados a cada mês. Em negrito se todos os programas tiverem uma contagem de inventário real no mês anterior');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.openingBalanceTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ opening balances after converting to EU. Bolded if all programs have an actual inventory count in the previous month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des soldes d`ouverture des programmes sélectionnés et des unités de planification après conversion vers l`UE. En gras si tous les programmes ont un inventaire réel au cours du mois précédent');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los saldos iniciales de los programas y unidades de planificación seleccionados después de la conversión a la UE. En negrita si todos los programas tienen un recuento de inventario real en el mes anterior');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos saldos iniciais dos programas selecionados e das unidades de planejamento após a conversão para a UE. Em negrito se todos os programas tiverem uma contagem de inventário real no mês anterior');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.forecastedTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly estimate of the quantities expected to be consumed or dispensed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Estimation mensuelle des quantités prévues à consommer ou à distribuer');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estimación mensual de las cantidades que se espera consumir o dispensar');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estimativa mensal das quantidades que se espera que sejam consumidas ou dispensadas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.forecastedTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected program’s forecasted consumption values each month, when available.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation prévues du programme sélectionné chaque mois, lorsqu`elles sont disponibles.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo previstos del programa seleccionado cada mes, cuando estén disponibles.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de consumo previstos do programa selecionado a cada mês, quando disponível.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.forecastedTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ forecasted consumption values after converting to EU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation prévues des programmes sélectionnés et des unités de planification après conversion aux normes européennes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo previstos de los programas y unidades de planificación seleccionados después de la conversión a la UE');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de consumo previstos dos programas selecionados e das unidades de planeamento após a conversão para a UE');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.actualTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly reported quantity that was actually consumed or dispensed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité mensuelle déclarée qui a été réellement consommée ou distribuée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mensual reportada que realmente fue consumida o dispensada');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mensal relatada que foi realmente consumida ou dispensada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.actualTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ actual consumption values each month, when available.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation réelles des programmes sélectionnés chaque mois, lorsqu`elles sont disponibles.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo reales de los programas seleccionados cada mes, cuando esté disponible.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores reais de consumo dos programas selecionados a cada mês, quando disponível.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.actualTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ actual consumption values after converting to EU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation réelles des programmes sélectionnés après conversion en UE');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo reales de los programas seleccionados después de la conversión a la UE');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de consumo real dos programas selecionados após a conversão para a UE');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.consensusTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly reported quantity that was actually consumed or dispensed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité mensuelle déclarée qui a été réellement consommée ou distribuée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad mensual reportada que realmente fue consumida o dispensada');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade mensal relatada que foi realmente consumida ou dispensada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.consensusTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ actual consumption values each month (if available); otherwise, forecasted consumption values. May include both forecasted and actual values.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation réelles des programmes sélectionnés chaque mois (si disponibles) ; sinon, valeurs de consommation prévues. Peut inclure à la fois les valeurs prévues et réelles.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo reales de los programas seleccionados cada mes (si están disponibles); de lo contrario, valores de consumo previstos. Puede incluir valores previstos y reales.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de consumo real dos programas selecionados a cada mês (se disponível); caso contrário, valores de consumo previstos. Pode incluir valores previstos e reais.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.consensusTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ actual consumption values after converting to EU (if available); otherwise forecasted consumption values. May include both forecasted and actual values');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de consommation réelles des programmes sélectionnés et des unités de planification après conversion en UE (si disponible) ; sinon, valeurs de consommation prévues. Peut inclure à la fois les valeurs prévues et réelles');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de consumo reales de los programas y unidades de planificación seleccionados después de la conversión a la UE (si está disponible); de lo contrario, valores de consumo previstos. Puede incluir valores previstos y reales');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de consumo real dos programas selecionados e das unidades de planejamento após a conversão para a UE (se disponível); caso contrário, valores de consumo previstos. Pode incluir valores previstos e reais');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.shipmentQtyTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ shipment quantities after converting to EU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des quantités expédiées des programmes sélectionnés et des unités de planification après conversion vers l`UE');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de las cantidades de envío de los programas y unidades de planificación seleccionados después de la conversión a la UE');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma das quantidades de remessas de programas selecionados e unidades de planejamento após a conversão para a UE');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.adjustmentQtyTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modifications to inventory quantities for the month, either positive or negative');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modifications des quantités de stock pour le mois, qu`elles soient positives ou négatives');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Modificaciones en las cantidades de inventario del mes, ya sean positivas o negativas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modificações nas quantidades de estoque do mês, positivas ou negativas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.adjustmentQtyTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ adjustment values each month, manual or automatic');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs de réglage des programmes sélectionnés chaque mois, manuel ou automatique');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de ajuste de los programas seleccionados cada mes, manual o automático');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de ajuste dos programas selecionados a cada mês, manual ou automático');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.adjustmentQtyTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ adjustment values each month after converting to EU, manual or automatic');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs d`ajustement des programmes sélectionnés et des unités de planification chaque mois après conversion vers l`UE, manuelle ou automatique');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de ajuste de los programas seleccionados y de las unidades de planificación cada mes después de la conversión a UE, manual o automática');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores de ajuste dos programas selecionados e das unidades de planejamento a cada mês após a conversão para UE, manual ou automático');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.expiredStockTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Estimated quantity of stock expected to expire or become unusable by the end of the month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité estimée de stock qui devrait expirer ou devenir inutilisable d`ici la fin du mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad estimada de existencias que se espera que caduquen o se vuelvan inutilizables a finales de mes');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade estimada de estoque que deverá expirar ou se tornar inutilizável até o final do mês');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.expiredStockTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ expired stock');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme du stock expiré des programmes sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma del stock vencido de los programas seleccionados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma do estoque expirado dos programas selecionados');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.expiredStockTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ expired stock after converting to EU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des stocks expirés des programmes sélectionnés et des unités de planification après conversion à l`UE');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma del stock vencido de programas seleccionados y unidades de planificación después de la conversión a la UE');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma do estoque expirado de programas selecionados e unidades de planejamento após a conversão para a UE');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.endingBalanceTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Quantity of stock at the end of the month. Actual inventory count is bolded');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité de stock à la fin du mois. Le nombre réel de stocks est indiqué en gras');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de existencias al final del mes. El recuento real del inventario está en negrita.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade de estoque no final do mês. A contagem real do estoque está em negrito');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.endingBalanceTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ ending balances each month. Bolded if all programs have an actual inventory count in the current month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des soldes de fin de mois des programmes sélectionnés. En gras si tous les programmes ont un inventaire réel au cours du mois en cours');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los saldos finales de los programas seleccionados cada mes. En negrita si todos los programas tienen un recuento de inventario real en el mes actual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos saldos finais dos programas selecionados a cada mês. Em negrito se todos os programas tiverem uma contagem de inventário real no mês atual');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.endingBalanceTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of selected programs’ & planning units’ ending balances each month after converting to EU. Bolded if all programs have an actual inventory count in the current month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des soldes de clôture des programmes sélectionnés et des unités de planification chaque mois après la conversion vers l`UE. En gras si tous les programmes ont un inventaire réel au cours du mois en cours');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los saldos finales de los programas y unidades de planificación seleccionados cada mes después de la conversión a la UE. En negrita si todos los programas tienen un recuento de inventario real en el mes actual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos saldos finais dos programas selecionados e das unidades de planejamento a cada mês após a conversão para UE. Em negrito se todos os programas tiverem uma contagem de inventário real no mês atual');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.amcTooltipSingleProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dynamic value based on user-entered number of months past & future in the Update PU screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur dynamique basée sur le nombre de mois passés et futurs saisi par l`utilisateur dans l`écran de mise à jour du PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor dinámico basado en el número de meses pasados y futuros ingresados por el usuario en la pantalla Actualizar PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor dinâmico com base no número de meses passados e futuros inserido pelo usuário na tela Atualizar PU');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.amcTooltipMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of the individually calculated AMC values for selected programs each month');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs AMC calculées individuellement pour les programmes sélectionnés chaque mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores de AMC calculados individualmente para programas seleccionados cada mes');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores AMC calculados individualmente para programas selecionados a cada mês');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.amcTooltipEU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Sum of the individually calculated AMC values for selected programs & planning units each month after converting to EU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Somme des valeurs AMC calculées individuellement pour les programmes et unités de planification sélectionnés chaque mois après conversion vers l`UE');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suma de los valores AMC calculados individualmente para programas y unidades de planificación seleccionados cada mes después de la conversión a la UE');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Soma dos valores AMC calculados individualmente para programas e unidades de planejamento selecionados a cada mês após a conversão para a UE');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.onlyShowPUsThatArePartOfAllPrograms','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only show PUs/ARUs that are available in ALL selected programs');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher uniquement les PU/ARU disponibles dans TOUS les programmes sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar solo las PU/ARU que estén disponibles en TODOS los programas seleccionados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar apenas PUs/ARUs que estão disponíveis em TODOS os programas selecionados');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.doYouWantToAggregate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Do you want to aggregate selected programs');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Voulez-vous regrouper les programmes sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Quieres agregar programas seleccionados?');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você deseja agregar programas selecionados');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.shipmemtTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Hover over each shipment box to see its assigned PU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Passez la souris sur chaque boîte d`expédition pour voir son PU attribué');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pase el cursor sobre cada casilla de envío para ver su PU asignado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Passe o mouse sobre cada caixa de remessa para ver sua PU atribuída');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.graphAggregatedBy','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View Graph Disaggregated By');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher le graphique désagrégé par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver gráfico desagregado por');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver gráfico desagregado por');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.programPlanningUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program-Planning Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de planification des programmes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de Planificación de Programas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Planejamento de Programas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.consensus','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consensus');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consensus');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consenso');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consenso');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.consensusConsumption','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consensus Consumption');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consensus de consommation');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo por consenso');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consenso de Consumo');-- pr
+
+update rm_consumption_trans ct 
+left join rm_realm_country_planning_unit rcpu on ct.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID
+set ct.CONSUMPTION_QTY=ct.CONSUMPTION_RCPU_QTY*IF(rcpu.CONVERSION_METHOD=1,rcpu.CONVERSION_NUMBER,1/rcpu.CONVERSION_NUMBER);
+
+update rm_shipment_trans st 
+left join rm_realm_country_planning_unit rcpu on st.REALM_COUNTRY_PLANNING_UNIT_ID=rcpu.REALM_COUNTRY_PLANNING_UNIT_ID
+set st.SHIPMENT_QTY=st.SHIPMENT_RCPU_QTY*IF(rcpu.CONVERSION_METHOD=1,rcpu.CONVERSION_NUMBER,1/rcpu.CONVERSION_NUMBER) 
+where st.ERP_FLAG=0;

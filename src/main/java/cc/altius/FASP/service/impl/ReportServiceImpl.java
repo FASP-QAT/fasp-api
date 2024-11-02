@@ -96,15 +96,16 @@ import org.springframework.stereotype.Service;
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
-    private ReportDao reportDao;
+    ReportDao reportDao;
     @Autowired
-    private ProgramCommonDao programCommonDao;
+    ProgramCommonDao programCommonDao;
     @Autowired
-    private ProgramDao programDao;
+    RealmCountryDao realmCountryDao;
     @Autowired
-    private RealmCountryDao realmCountryDao;
+    ProgramDao programDao;
     @Autowired
-    private EquivalencyUnitDao equivalencyUnitDao;
+    EquivalencyUnitDao equivalencyUnitDao;
+          
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -530,7 +531,7 @@ public class ReportServiceImpl implements ReportService {
         }
         return finalList;
     }
-
+    
     // Report no 31 new
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -543,7 +544,7 @@ public class ReportServiceImpl implements ReportService {
         }
         return this.reportDao.getForecastError(fei, true, curUser);
     }
-
+    
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) throws AccessControlFailedException {

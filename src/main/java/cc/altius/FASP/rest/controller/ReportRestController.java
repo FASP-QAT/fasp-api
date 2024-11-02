@@ -38,6 +38,7 @@ import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.IntegrationProgramService;
@@ -48,6 +49,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.LinkedList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -537,7 +540,7 @@ public class ReportRestController {
         }
     }
 
-//     Report no 16 | Supply Planning -> Supply Plan Report
+    //     Report no 16 | Supply Planning -> Supply Plan Report
     /**
      * <pre>
      * Sample JSON
@@ -593,8 +596,9 @@ public class ReportRestController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    // Report no 17 | Reports -> Stock Status -> Stock Status Over Time
+    
+    // Report no 17
+    // Reports -> Stock Status -> Stock Status Over Time
     /**
      * <pre>
      * Sample JSON
