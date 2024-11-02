@@ -74,7 +74,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             ));
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
-            s.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
+            s.setShipmentQty(rs.getDouble("SHIPMENT_QTY"));
             s.setShipmentRcpuQty(rs.getLong("SHIPMENT_RCPU_QTY"));
             s.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             s.setRate(rs.getDouble("RATE"));

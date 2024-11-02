@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 public class CountryConsumptionData implements Serializable {
 
-    public CountryConsumptionData(SimpleCodeObject country, long forecastedConsumption, long actualConsumption) {
+    public CountryConsumptionData(SimpleCodeObject country, double forecastedConsumption, double actualConsumption) {
         this.country = country;
         this.forecastedConsumption = forecastedConsumption;
         this.actualConsumption = actualConsumption;
@@ -25,23 +25,23 @@ public class CountryConsumptionData implements Serializable {
     @JsonView(Views.ReportView.class)
     SimpleCodeObject country;
     @JsonView(Views.ReportView.class)
-    long forecastedConsumption;
+    double forecastedConsumption;
     @JsonView(Views.ReportView.class)
-    long actualConsumption;
+    double actualConsumption;
 
-    public long getForecastedConsumption() {
+    public double getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(long forecastedConsumption) {
+    public void setForecastedConsumption(double forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 
-    public long getActualConsumption() {
+    public double getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(long actualConsumption) {
+    public void setActualConsumption(double actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 

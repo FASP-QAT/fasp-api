@@ -7,6 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.utils.ArrayUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -19,17 +20,29 @@ import java.util.Date;
  */
 public class StockStatusVerticalInput implements Serializable {
 
-    private int programId;
-    private int versionId;
+    private boolean aggregate; // True if you want the results to be aggregated and False if you want Individual Supply Plans for the Multi-Select information
+    private int[] programIds; // Will be used when singleProgram is false
+    @JsonIgnore
+    private int programId; // Will be used only if aggregate is false
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private int[] planningUnitIds;
+    private int viewBy; // 1 for PU, 2 for ARU
+    private int[] reportingUnitIds;
     @JsonIgnore
-    private int planningUnitId;
+    private int reportingUnitId; // Will be used only if aggregate is false
+    private int equivalencyUnitId; // actual equivalencyUnitId if the output should be in equivalencyUnit or 0 if it is PU or ARU
+
+    public boolean isAggregate() {
+        return aggregate;
+    }
+
+    public void setAggregate(boolean aggregate) {
+        this.aggregate = aggregate;
+    }
 
     public int getProgramId() {
         return programId;
@@ -39,12 +52,12 @@ public class StockStatusVerticalInput implements Serializable {
         this.programId = programId;
     }
 
-    public int getVersionId() {
-        return versionId;
+    public int[] getProgramIds() {
+        return programIds;
     }
 
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
+    public void setProgramIds(int[] programIds) {
+        this.programIds = programIds;
     }
 
     public Date getStartDate() {
@@ -63,20 +76,43 @@ public class StockStatusVerticalInput implements Serializable {
         this.stopDate = stopDate;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public int getViewBy() {
+        return viewBy;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setViewBy(int viewBy) {
+        this.viewBy = viewBy;
     }
 
-    public int[] getPlanningUnitIds() {
-        return planningUnitIds;
+    public int[] getReportingUnitIds() {
+        return reportingUnitIds;
     }
 
-    public void setPlanningUnitIds(int[] planningUnitIds) {
-        this.planningUnitIds = planningUnitIds;
+    public void setReportingUnitIds(int[] reportingUnitIds) {
+        this.reportingUnitIds = reportingUnitIds;
     }
 
+    public int getReportingUnitId() {
+        return reportingUnitId;
+    }
+
+    public void setReportingUnitId(int reportingUnitId) {
+        this.reportingUnitId = reportingUnitId;
+    }
+
+    public int getEquivalencyUnitId() {
+        return equivalencyUnitId;
+    }
+
+    public void setEquivalencyUnitId(int equivalencyUnitId) {
+        this.equivalencyUnitId = equivalencyUnitId;
+    }
+
+    public String getReportingUnitIdsString() {
+        return ArrayUtils.convertArrayToString(reportingUnitIds);
+    }
+
+    public String getProgramIdsString() {
+        return ArrayUtils.convertArrayToString(programIds);
+    }
 }

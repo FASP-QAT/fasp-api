@@ -193,11 +193,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
-//        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
-                //        sqlString = "CREATE TABLE `tmp_consumption` ( "
+//                        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
@@ -699,7 +699,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
-                //        sqlString = "CREATE TABLE `tmp_shipment` ( "
+//                        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `TEMP_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
@@ -722,7 +722,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `EXPECTED_DELIVERY_DATE` DATE NOT NULL, "
                 + "  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUPPLIER_ID` INT(10) UNSIGNED NULL, "
-                + "  `SHIPMENT_QTY` BIGINT(20) UNSIGNED NULL, "
+                + "  `SHIPMENT_QTY` DOUBLE UNSIGNED NULL, "
                 + "  `SHIPMENT_RCPU_QTY` BIGINT(20) UNSIGNED NULL, "
                 + "  `RATE` DECIMAL(12,4) NOT NULL, "
                 + "  `PRODUCT_COST` DECIMAL(24,4) UNSIGNED NOT NULL, "
@@ -1264,7 +1264,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `BATCH_INVENTORY_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, "
                 + "  `BATCH_ID` INT(10) NOT NULL, "
-                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `QTY` DECIMAL(24,8) UNSIGNED NOT NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_batch_inventory_trans_1_idx` (`BATCH_INVENTORY_ID` ASC), "
@@ -2899,23 +2899,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         cleanedBatchDataList.add(bd);
                     } else {
                         BatchData tmpBd = cleanedBatchDataList.get(idx);
-                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0L)+Optional.ofNullable(bd.getActualConsumption()).orElse(0L));
+                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0.0)+Optional.ofNullable(bd.getActualConsumption()).orElse(0.0));
                         tmpBd.setUseActualConsumption(tmpBd.isUseActualConsumption() || bd.isUseActualConsumption());
-                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0L)+Optional.ofNullable(bd.getShipment()).orElse(0L));
-                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0L)+Optional.ofNullable(bd.getShipmentWps()).orElse(0L));
-                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0L)+Optional.ofNullable(bd.getAdjustment()).orElse(0L));
-                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0L)+Optional.ofNullable(bd.getStock()).orElse(0L));
+                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0.0)+Optional.ofNullable(bd.getShipment()).orElse(0.0));
+                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0.0)+Optional.ofNullable(bd.getShipmentWps()).orElse(0.0));
+                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0.0)+Optional.ofNullable(bd.getAdjustment()).orElse(0.0));
+                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0.0)+Optional.ofNullable(bd.getStock()).orElse(0.0));
                         tmpBd.setAllRegionsReportedStock(tmpBd.isAllRegionsReportedStock() || bd.isAllRegionsReportedStock());
-                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0L));
-                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0L));
-                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0L)+Optional.ofNullable(bd.getExpiredStock()).orElse(0L));
-                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0L)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0L));
-                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0L));
-                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0L));
-                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0L));
-                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0L)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0L));
-                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0L)+Optional.ofNullable(bd.getClosingBalance()).orElse(0L));
-                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0L)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0L));
+                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0.0));
+                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0.0));
+                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStock()).orElse(0.0));
+                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0.0));
+                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0.0));
+                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0));
+                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0.0));
+                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0));
+                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalance()).orElse(0.0));
+                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0));
                         cleanedBatchDataList.set(idx, tmpBd);
                     }
                 });
@@ -2956,26 +2956,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
-                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
-                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `STOCK_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
 
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
                     + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` bigint DEFAULT NULL, `OPENING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` bigint DEFAULT NULL, "
-                    + "  `ERP_RECEIVED_SHIPMENT_QTY` bigint DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` bigint DEFAULT NULL, `SHIPMENT_QTY` bigint DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` bigint DEFAULT NULL, "
-                    + "  `ADJUSTED_CONSUMPTION_QTY` bigint DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` bigint DEFAULT NULL, `STOCK_MULTIPLIED_QTY` bigint DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
-                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` bigint DEFAULT NULL, `EXPIRED_STOCK_WPS` bigint DEFAULT NULL, `CLOSING_BALANCE` bigint DEFAULT NULL, `CLOSING_BALANCE_WPS` bigint DEFAULT NULL, "
-                    + "  `UNMET_DEMAND` bigint DEFAULT NULL, `UNMET_DEMAND_WPS` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT` bigint DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` bigint DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `ERP_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `ADJUSTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `STOCK_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
 

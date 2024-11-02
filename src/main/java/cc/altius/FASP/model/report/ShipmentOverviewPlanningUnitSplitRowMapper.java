@@ -22,8 +22,8 @@ public class ShipmentOverviewPlanningUnitSplitRowMapper implements RowMapper<Shi
         ShipmentOverviewPlanningUnitSplit sopu = new ShipmentOverviewPlanningUnitSplit();
         sopu.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         sopu.setMultiplier(rs.getInt("MULTIPLIER"));
-        sopu.setPlannedShipmentQty(rs.getLong("PLANNED_SHIPMENT_QTY"));
-        sopu.setOrderedShipmentQty(rs.getLong("ORDERED_SHIPMENT_QTY"));
+        sopu.setPlannedShipmentQty(rs.getDouble("PLANNED_SHIPMENT_QTY"));
+        sopu.setOrderedShipmentQty(rs.getDouble("ORDERED_SHIPMENT_QTY"));
         return sopu;
     }
 

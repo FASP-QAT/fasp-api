@@ -18,12 +18,12 @@ public class BatchQty implements Serializable {
     @JsonView({Views.InternalView.class})
     private Batch batch;
     @JsonView({Views.InternalView.class})
-    private Integer qty;
+    private Double qty;
 
     public BatchQty() {
     }
 
-    public BatchQty(int batchInventoryTransId, Batch batch, Integer qty) {
+    public BatchQty(int batchInventoryTransId, Batch batch, Double qty) {
         this.batchInventoryTransId = batchInventoryTransId;
         this.batch = batch;
         this.qty = qty;
@@ -45,11 +45,11 @@ public class BatchQty implements Serializable {
         this.batch = batch;
     }
 
-    public Integer getQty() {
+    public Double getQty() {
         return qty;
     }
 
-    public void setQty(Integer qty) {
+    public void setQty(Double qty) {
         this.qty = qty;
     }
 

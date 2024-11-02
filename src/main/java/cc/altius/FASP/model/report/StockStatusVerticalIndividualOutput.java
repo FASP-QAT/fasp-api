@@ -45,6 +45,8 @@ public class StockStatusVerticalIndividualOutput implements Serializable {
     private List<InventoryInfo> inventoryInfo;
     @JsonView(Views.ReportView.class)
     List<StockStatusVertical> stockStatusVertical;
+    @JsonView(Views.ReportView.class)
+    private String ppuNotes;
 
     public StockStatusVerticalIndividualOutput() {
         this.stockStatusVertical = new LinkedList<>();
@@ -179,6 +181,14 @@ public class StockStatusVerticalIndividualOutput implements Serializable {
 
     public void setStockStatusVertical(List<StockStatusVertical> stockStatusVertical) {
         this.stockStatusVertical = stockStatusVertical;
+    }
+
+    public String getPpuNotes() {
+        return ppuNotes;
+    }
+
+    public void setPpuNotes(String ppuNotes) {
+        this.ppuNotes = ppuNotes;
     }
 
 }

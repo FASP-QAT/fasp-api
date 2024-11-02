@@ -14,6 +14,7 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -35,6 +36,7 @@ import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.MonthlyForecastOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
@@ -57,13 +59,16 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
+import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
+import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
-import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -114,8 +119,17 @@ public interface ReportService {
     public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser);
 
     // Report no 16
-    public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    
+    // Report no 16
+    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    
+    // Report no 16 Dropdown lists
+    public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser);
 
+    // Report no 16 PU list
+    public List<ProgramAndPlanningUnit> getPlanningUnitListForStockStatusVerticalAggregate(StockStatusVerticalInput ssvi, CustomUserDetails curUser);
+    
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);
 
@@ -145,9 +159,6 @@ public interface ReportService {
 
     // Report no 30
     public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser);
-    
-    // Report no 31
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
     
     // Report no 31 new
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser);

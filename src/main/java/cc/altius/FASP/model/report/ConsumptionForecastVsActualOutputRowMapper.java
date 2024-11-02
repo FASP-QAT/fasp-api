@@ -19,11 +19,11 @@ public class ConsumptionForecastVsActualOutputRowMapper implements RowMapper<Con
     public ConsumptionForecastVsActualOutput mapRow(ResultSet rs, int i) throws SQLException {
         ConsumptionForecastVsActualOutput cfa = new ConsumptionForecastVsActualOutput();
         cfa.setTransDate(rs.getDate("MONTH"));
-        cfa.setForecastedConsumption(rs.getLong("FORECASTED_CONSUMPTION"));
+        cfa.setForecastedConsumption(rs.getDouble("FORECASTED_CONSUMPTION"));
         if (rs.wasNull()) {
             cfa.setForecastedConsumption(null);
         }
-        cfa.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
+        cfa.setActualConsumption(rs.getDouble("ACTUAL_CONSUMPTION"));
         if (rs.wasNull()) {
             cfa.setActualConsumption(null);
         }

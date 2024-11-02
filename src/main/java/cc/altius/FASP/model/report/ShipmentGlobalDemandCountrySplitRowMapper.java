@@ -28,7 +28,7 @@ public class ShipmentGlobalDemandCountrySplitRowMapper implements RowMapper<Ship
         for (int x = 1; x <= md.getColumnCount(); x++) {
             String colName = md.getColumnName(x);
             if (colName.startsWith("FSPA_")) {
-                sgd.getAmount().put(colName.substring(5), rs.getInt(x));
+                sgd.getAmount().put(colName.substring(5), rs.getDouble(x));
             }
         }
         return sgd;

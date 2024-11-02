@@ -26,7 +26,7 @@ public class StockStatusAcrossProductsForProgramRowMapper implements RowMapper<S
             ssap.setAmc(null);
         }
         ssap.setAmcCount(rs.getInt("AMC_COUNT"));
-        ssap.setFinalClosingBalance(rs.getLong("CLOSING_BALANCE"));
+        ssap.setFinalClosingBalance(rs.getDouble("CLOSING_BALANCE"));
         if (rs.wasNull()) {
             ssap.setFinalClosingBalance(null);
         }

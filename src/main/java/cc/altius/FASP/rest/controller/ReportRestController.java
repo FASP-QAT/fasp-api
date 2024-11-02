@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
@@ -35,6 +35,8 @@ import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
+import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
@@ -70,7 +72,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/report/")
-public class ReportController {
+public class ReportRestController {
 
     @Autowired
     private ReportService reportService;
@@ -81,7 +83,7 @@ public class ReportController {
     @Autowired
     private IntegrationProgramService integrationProgramService;
 
-    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportRestController.class);
 
     // Report no 1
     // Reports -> Program Catalog
@@ -508,15 +510,15 @@ public class ReportController {
         }
     }
 
-    // Report no 16
-    // Supply Planning -> Supply Plan Report
+    //     Report no 16 | Supply Planning -> Supply Plan Report
     /**
      * <pre>
      * Sample JSON
+     * {"programId":2164, "versionId":1, "startDate":"2019-10-01", "stopDate":"2020-07-01", "unitIds":["152"], viewBy:1}
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
      * </pre>
      *
-     * @param ssv
+     * @param ssvi
      * @param auth
      * @return
      */
@@ -525,21 +527,40 @@ public class ReportController {
     // ActualConsumption = null -- No consumption data
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
-    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
-        List<List<StockStatusVerticalOutput>> ssvoMultiList = new LinkedList<>();
+    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            for (int planningUnitId : ssv.getPlanningUnitIds()) {
-                ssv.setPlanningUnitId(planningUnitId);
-                ssvoMultiList.add(this.reportService.getStockStatusVertical(ssv, curUser));
+            if (ssvi.isAggregate()) {
+                StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
+                ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
+                ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
+                return new ResponseEntity(ssv, HttpStatus.OK);
+            } else {
+                // Map where Key is ProgramId~ReportingUnitId
+                return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
             }
-            return new ResponseEntity(ssvoMultiList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // Dropdowns for Report no 16
+    // Supply Planning -> Supply Plan Report
+    // Based on a list of ProgramIds send back the list of PlannningUnits, ARU's and EU's for those ProgramIds
+    // If onlyAllowPuPresentAcrossAllPrograms=true then only include those PU's that exist in all of the selected Programs
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/stockStatusVertical/dropdowns")
+    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/stockStatusVertical/dropdowns", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     // Report no 17
     // Reports -> Stock Status -> Stock Status Over Time
     /**
@@ -605,6 +626,7 @@ public class ReportController {
     }
 
     // Report no 19
+    // Report -> Shipment Reports -> Shipment Details
     /**
      * <pre>
      * Sample JSON
@@ -621,7 +643,7 @@ public class ReportController {
      * @param auth
      * @return
      */
-    // Report -> Shipment Reports -> Shipment Details
+    
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
@@ -714,6 +736,7 @@ public class ReportController {
     }
 
     // Report no 24
+    // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
     /**
      * <pre>
      * Sample JSON
@@ -732,7 +755,7 @@ public class ReportController {
      * @param auth
      * @return
      */
-    // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
+    
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
@@ -832,39 +855,6 @@ public class ReportController {
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusAcrossProducts", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    // Report no 31
-    // Reports -> Consumption Reports -> Forecast Error Report
-    /**
-     * <pre>
-     * Sample JSON
-     * {    "programId":2175,    "versionId":50,    "viewBy":1,    "unitId":1353,    "startDate":"2022-12-01",    "stopDate":"2024-06-01",    "equivalencyUnitId":0,    "regionIds":[    ],    "daysOfStockOut":1,     "previousMonths":5}
-     * -- programId must be a valid single Supply Plan Program
-     * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-     * -- viewBy 1 for PU, 2 for FU
-     * -- unitId Either the PU or FU that you want the report for based on the viewBy
-     * -- startDate and stopDate that you want to run the report for
-     * -- equivalencyUnitId 0 if you do not want to display the report in EquivalencyUnits, or the value of the EquivalencyUnitId
-     * -- regionIds list of region ids that the report should run for or blank for all
-     * -- daysOfStockOut 1 if you want to consider the daysOfStockOut, 0 if you do not want to consider the daysOfStockOut
-     * -- previousMonths the value of the previousMonths that you want to consider while calculating WAPE. Current month is always included. So if you want only for current month then pass 0
-     * </pre>
-     *
-     * @param sspi
-     * @param auth
-     * @return
-     */
-    @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastError")
-    public ResponseEntity getForecastError(@RequestBody ForecastErrorInput fei, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("/api/report/forecastError", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
