@@ -196,7 +196,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.showDecimals = showDecimals;
     }
 
-    public int isDefaultModuleId() {
+    public int getDefaultModuleId() {
         return defaultModuleId;
     }
 
