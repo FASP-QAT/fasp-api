@@ -39,6 +39,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private boolean agreementAccepted;
     private int defaultThemeId;
     private boolean showDecimals;
+    private int defaultModuleId;
 
     public Realm getRealm() {
         return realm;
@@ -193,6 +194,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     public void setShowDecimals(boolean showDecimals) {
         this.showDecimals = showDecimals;
+    }
+
+    public int isDefaultModuleId() {
+        return defaultModuleId;
+    }
+
+    public void setDefaultModuleId(int defaultModuleId) {
+        this.defaultModuleId = defaultModuleId;
     }
 
     @Override

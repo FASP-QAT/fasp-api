@@ -112,7 +112,7 @@ public class UserDaoImpl implements UserDao {
             + " `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
             + " realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + " lang.`LANGUAGE_ID`, langLabel.`LABEL_ID` AS LANGUAGE_LABEL_ID,langLabel.`LABEL_EN` AS LANGUAGE_LABEL_EN,langLabel.`LABEL_FR` AS LANGUAGE_LABEL_FR,langLabel.`LABEL_PR` LANGUAGE_LABEL_PR,langLabel.`LABEL_SP` AS LANGUAGE_LABEL_SP , lang.`LANGUAGE_CODE`,lang.`COUNTRY_CODE`, "
-            + " `user`.`ACTIVE`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, `user`.`DEFAULT_THEME_ID`, `user`.`SHOW_DECIMALS`, "
+            + " `user`.`ACTIVE`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, `user`.`DEFAULT_THEME_ID`, `user`.`SHOW_DECIMALS`,`user`.`DEFAULT_MODULE_ID`, "
             + " role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
             + " bf.`BUSINESS_FUNCTION_ID`, "
             + " acl.USER_ACL_ID, acl.`ROLE_ID` `ACL_ROLE_ID`, acl_role_lb.`LABEL_ID` `ACL_ROLE_LABEL_ID`, acl_role_lb.`LABEL_EN` `ACL_ROLE_LABEL_EN`, acl_role_lb.`LABEL_FR` `ACL_ROLE_LABEL_FR`, acl_role_lb.`LABEL_SP` `ACL_ROLE_LABEL_SP`, acl_role_lb.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
