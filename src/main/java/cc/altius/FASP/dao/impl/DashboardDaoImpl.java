@@ -173,7 +173,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "    pv.LAST_MODIFIED_DATE, pv.CREATED_DATE `COMMIT_DATE`, "
                 + "    vt.VERSION_TYPE_ID, vt.LABEL_ID `VT_LABEL_ID`, vt.LABEL_EN `VT_LABEL_EN`, vt.LABEL_FR `VT_LABEL_FR`, vt.LABEL_SP `VT_LABEL_SP`, vt.LABEL_PR `VT_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vs.LABEL_ID `VS_LABEL_ID`, vs.LABEL_EN `VS_LABEL_EN`, vs.LABEL_FR `VS_LABEL_FR`, vs.LABEL_SP `VS_LABEL_SP`, vs.LABEL_PR `VS_LABEL_PR`, "
-                + "    vs1.VERSION_STATUS_ID AS LATEST_FINAL_VERSION_STATUS_ID, vs.LABEL_ID `LATEST_FINAL_VS_LABEL_ID`, vs.LABEL_EN `LATEST_FINAL_VS_LABEL_EN`, vs.LABEL_FR `LATEST_FINAL_VS_LABEL_FR`, vs.LABEL_SP `LATEST_FINAL_VS_LABEL_SP`, vs.LABEL_PR `LATEST_FINAL_VS_LABEL_PR`, "
+                + "    vs1.VERSION_STATUS_ID AS LATEST_FINAL_VERSION_STATUS_ID, vs1.LABEL_ID `LATEST_FINAL_VS_LABEL_ID`, vs1.LABEL_EN `LATEST_FINAL_VS_LABEL_EN`, vs1.LABEL_FR `LATEST_FINAL_VS_LABEL_FR`, vs1.LABEL_SP `LATEST_FINAL_VS_LABEL_SP`, vs1.LABEL_PR `LATEST_FINAL_VS_LABEL_PR`, "
                 + "    p.CURRENT_VERSION_ID AS VERSION_ID,pv2.LAST_MODIFIED_DATE AS LATEST_FINAL_VERSION_LAST_MODIFIED_DATE,  "
                 + "    IFNULL(pr.`COUNT_OF_OPEN_PROBLEM`,0) `COUNT_OF_OPEN_PROBLEM` "
                 + "FROM vw_program p "
@@ -187,7 +187,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "LEFT JOIN vw_version_status vs1 ON pv2.VERSION_STATUS_ID=vs1.VERSION_STATUS_ID ");
 
         Map<String, Object> params = new HashMap<>();
-        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID WHERE pr.PROBLEM_STATUS_ID=1");
+        StringBuilder innerString = new StringBuilder("SELECT p.`PROGRAM_ID`, COUNT(pr.`PROBLEM_REPORT_ID`) `COUNT_OF_OPEN_PROBLEM` FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID AND ppu.ACTIVE LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE LEFT JOIN rm_problem_report pr ON p.PROGRAM_ID=pr.PROGRAM_ID AND pr.DATA3=pu.PLANNING_UNIT_ID WHERE pr.PROBLEM_STATUS_ID=1");
         this.aclService.addFullAclForProgram(innerString, params, "p", curUser);
         innerString.append(" GROUP BY p.PROGRAM_ID");
         sqlBuilder
@@ -202,7 +202,7 @@ public class DashboardDaoImpl implements DashboardDao {
         Date curMonth = DateUtils.getStartOfMonthObject();
         Date endMonth = DateUtils.addMonths(curMonth, curUser.getRealm().getNoOfMonthsInFutureForTopDashboard());
         edList.forEach(ed -> {
-            String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth AND sma.MOS=0 group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
+            String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID AND pu.PLANNING_UNIT_ID=sma.PLANNING_UNIT_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
             eParams.put("programId", ed.getProgram().getId());
             eParams.put("curMonth", curMonth);
