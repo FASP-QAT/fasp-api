@@ -39,6 +39,7 @@ public class CustomUserDetailsResultSetExtractorBasic implements ResultSetExtrac
                 user.setAgreementAccepted(rs.getBoolean("AGREEMENT_ACCEPTED"));
                 user.setDefaultThemeId(rs.getInt("DEFAULT_THEME_ID"));
                 user.setShowDecimals(rs.getBoolean("SHOW_DECIMALS"));
+                user.setDefaultModuleId(rs.getInt("DEFAULT_MODULE_ID"));
                 user.setRoles(new LinkedList<>());
                 user.setAclList(new LinkedList<>());
             }
