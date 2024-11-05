@@ -279,7 +279,7 @@ public class JWTWebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/procurementAgent/**").hasAnyAuthority("ROLE_BF_LIST_PROCUREMENT_AGENT", "ROLE_BF_MAP_PLANNING_UNIT", "ROLE_BF_MAP_PROCUREMENT_UNIT", "ROLE_BF_MAP_COUNTRY_SPECIFIC_PRICES", "ROLE_BF_EDIT_PROCUREMENT_AGENT")
                         .requestMatchers(HttpMethod.POST, "/api/program/planningUnit/procurementAgent/**").hasAnyAuthority("ROLE_BF_MAP_COUNTRY_SPECIFIC_PRICES")
                         .requestMatchers(HttpMethod.PUT, "/api/procurementAgent/planningUnit/**").hasAnyAuthority("ROLE_BF_MAP_PLANNING_UNIT")
-                        .requestMatchers(HttpMethod.PUT, "/api/program/planningingUnit/procurementAgent/**").hasAnyAuthority("ROLE_BF_MAP_COUNTRY_SPECIFIC_PRICES")
+                        .requestMatchers(HttpMethod.PUT, "/api/program/planningUnit/procurementAgent").hasAnyAuthority("ROLE_BF_MAP_COUNTRY_SPECIFIC_PRICES")
                         .requestMatchers(HttpMethod.PUT, "/api/procurementAgent/procurementUnit/**").hasAnyAuthority("ROLE_BF_MAP_PROCUREMENT_UNIT")
                         .requestMatchers("/api/procurementAgent/getDisplayName/realmId/**").hasAnyAuthority("ROLE_BF_ADD_PROCUREMENT_AGENT")
                         .requestMatchers(HttpMethod.POST, "/api/procurementAgentType/**").hasAnyAuthority("ROLE_BF_ADD_PROCUREMENT_AGENT")
