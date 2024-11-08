@@ -155,7 +155,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         if (pId == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        StringBuilder sqlStringBuilder = new StringBuilder(SQL_SIMPLE_PROGRAM_STRING).append(" AND p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=-1)");
+        StringBuilder sqlStringBuilder = new StringBuilder(SQL_SIMPLE_PROGRAM_STRING).append(" AND p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0)");
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         logger.info("sqlStringBuilder.toString() "+sqlStringBuilder.toString());
