@@ -249,7 +249,7 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
-        return this.programCommonDao.getSimpleProgramById(programId, -1, curUser);
+        return this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
     }
 
     @Override
