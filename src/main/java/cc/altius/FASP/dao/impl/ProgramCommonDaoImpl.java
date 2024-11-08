@@ -147,7 +147,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
      */
     @Override
     public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException {
-        String sql = "SELECT PROGRAM_ID FROM vw_all_program p WHERE p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=-1)";
+        String sql = "SELECT PROGRAM_ID FROM vw_all_program p WHERE p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("programTypeId", programTypeId);
