@@ -46,9 +46,13 @@ public class Realm extends BaseModel implements Serializable {
     @JsonView(Views.InternalView.class)
     private int noOfMonthsInPastForBottomDashboard;
     @JsonView(Views.InternalView.class)
+    private int noOfMonthsInFutureForBottomDashboard;
+    @JsonView(Views.InternalView.class)
+    private int noOfMonthsInPastForTopDashboard;
+    @JsonView(Views.InternalView.class)
     private int noOfMonthsInFutureForTopDashboard;
 
-    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode, int noOfMonthsInPastForBottomDashboard, int noOfMonthsInFutureForTopDashboard) {
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode, int noOfMonthsInPastForBottomDashboard, int noOfMonthsInFutureForBottomDashboard, int noOfMonthsInPastForTopDashboard, int noOfMonthsInFutureForTopDashboard) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
         }
@@ -65,6 +69,8 @@ public class Realm extends BaseModel implements Serializable {
         this.forecastConsumptionMonthsInPast = forecastConsumtionMonthsInPast;
         this.inventoryMonthsInPast = inventoryMonthsInPast;
         this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
+        this.noOfMonthsInFutureForBottomDashboard = noOfMonthsInFutureForBottomDashboard;
+        this.noOfMonthsInPastForTopDashboard = noOfMonthsInPastForTopDashboard;
         this.noOfMonthsInFutureForTopDashboard = noOfMonthsInFutureForTopDashboard;
     }
 
@@ -216,6 +222,22 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setNoOfMonthsInPastForBottomDashboard(int noOfMonthsInPastForBottomDashboard) {
         this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
+    }
+
+    public int getNoOfMonthsInFutureForBottomDashboard() {
+        return noOfMonthsInFutureForBottomDashboard;
+    }
+
+    public void setNoOfMonthsInFutureForBottomDashboard(int noOfMonthsInFutureForBottomDashboard) {
+        this.noOfMonthsInFutureForBottomDashboard = noOfMonthsInFutureForBottomDashboard;
+    }
+
+    public int getNoOfMonthsInPastForTopDashboard() {
+        return noOfMonthsInPastForTopDashboard;
+    }
+
+    public void setNoOfMonthsInPastForTopDashboard(int noOfMonthsInPastForTopDashboard) {
+        this.noOfMonthsInPastForTopDashboard = noOfMonthsInPastForTopDashboard;
     }
 
     public int getNoOfMonthsInFutureForTopDashboard() {

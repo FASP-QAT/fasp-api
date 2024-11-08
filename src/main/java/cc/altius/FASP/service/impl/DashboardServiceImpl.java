@@ -42,7 +42,7 @@ public class DashboardServiceImpl implements DashboardService {
     private RealmService realmService;
     @Autowired
     ProgramCommonDao programCommonDao;
-    
+
     @Override
     public Map<String, Object> getApplicationLevelDashboard(CustomUserDetails curUser) {
         Map<String, Object> map = new HashMap<>();
@@ -100,9 +100,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser);
+        DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser);
         db.setProgram(p);
         return db;
     }
