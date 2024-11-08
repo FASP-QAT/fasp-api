@@ -158,6 +158,8 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         StringBuilder sqlStringBuilder = new StringBuilder(SQL_SIMPLE_PROGRAM_STRING).append(" AND p.PROGRAM_ID=:programId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=-1)");
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        logger.info("sqlStringBuilder.toString() "+sqlStringBuilder.toString());
+        logger.info("params "+params);
         SimpleProgram sp = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramResultSetExtractor());
         if (sp == null) {
             throw new AccessControlFailedException("You do not have access to this resource");
