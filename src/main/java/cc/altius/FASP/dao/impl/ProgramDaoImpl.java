@@ -124,7 +124,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static String sqlListString1 = "SELECT   "
-            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.ROAD_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, p.`NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD` `PROG_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.ROAD_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, p.`NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD` `PROG_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, p.`NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD` `PROG_NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD`, "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vt.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`,  "
             + "     cpv.FORECAST_START_DATE `CV_FORECAST_START_DATE`, cpv.FORECAST_STOP_DATE `CV_FORECAST_STOP_DATE`, cpv.`DAYS_IN_MONTH`, cpv.`FREIGHT_PERC`, cpv.`FORECAST_THRESHOLD_HIGH_PERC`, cpv.`FORECAST_THRESHOLD_LOW_PERC`, "
@@ -132,7 +132,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`,  "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, r.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD `REALM_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, r.NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD `REALM_NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD`, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, r.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD `REALM_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, r.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD `REALM_NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD`, r.NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD `REALM_NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD`, r.NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD `REALM_NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD`, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -301,6 +301,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME", p.getShippedToArrivedByRoadLeadTime());
             params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
             params.put("NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD", p.getNoOfMonthsInPastForBottomDashboard());
+            params.put("NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD", p.getNoOfMonthsInFutureForBottomDashboard());
         }
         params.put("PROGRAM_TYPE_ID", p.getProgramTypeId());
         params.put("CURRENT_VERSION_ID", null);
@@ -415,6 +416,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("shippedToArrivedByRoadLeadTime", p.getShippedToArrivedByRoadLeadTime());
             params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
             params.put("noOfMonthsInPastForBottomDashboard", p.getNoOfMonthsInPastForBottomDashboard());
+            params.put("noOfMonthsInFutureForBottomDashboard", p.getNoOfMonthsInFutureForBottomDashboard());
         }
         params.put("active", p.isActive());
         params.put("curUser", curUser.getUserId());
@@ -438,7 +440,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME=:shippedToArrivedByRoadLeadTime, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
-                    + "p.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD=:noOfMonthsInPastForBottomDashboard, ";
+                    + "p.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD=:noOfMonthsInPastForBottomDashboard, "
+                    + "p.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD=:noOfMonthsInFutureForBottomDashboard, ";
         }
         sqlString
                 += "p.ACTIVE=:active,"

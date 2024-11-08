@@ -35,5 +35,5 @@ public interface DashboardService {
 
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
     
-    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
+    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
 }

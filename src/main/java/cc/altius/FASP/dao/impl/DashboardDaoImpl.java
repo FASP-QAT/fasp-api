@@ -199,8 +199,8 @@ public class DashboardDaoImpl implements DashboardDao {
         this.aclService.addFullAclForProgram(sqlBuilder, params, "p", curUser);
         sqlBuilder.append(" GROUP BY p.PROGRAM_ID");
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
-        Date curMonth = DateUtils.getStartOfMonthObject();
-        Date endMonth = DateUtils.addMonths(curMonth, curUser.getRealm().getNoOfMonthsInFutureForTopDashboard());
+        Date curMonth = DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * curUser.getRealm().getNoOfMonthsInPastForTopDashboard()));
+        Date endMonth = DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), curUser.getRealm().getNoOfMonthsInFutureForTopDashboard()));
         edList.forEach(ed -> {
             String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID AND pu.PLANNING_UNIT_ID=sma.PLANNING_UNIT_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
@@ -246,9 +246,9 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("programId", ei.getProgramId());
         params.put("startDate", ei.getStartDate());
         params.put("stopDate", DateUtils.getEndOfMonthVariable(ei.getStopDate()));
-        params.put("curDate", DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD));
-        params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
-        params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
+        params.put("curDate", DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * curUser.getRealm().getNoOfMonthsInPastForTopDashboard())));
+        params.put("curStartOfMonth", DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * curUser.getRealm().getNoOfMonthsInPastForTopDashboard())));
+        params.put("curEndOfMonth", DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), curUser.getRealm().getNoOfMonthsInFutureForTopDashboard())));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
 
         sqlString = "CALL getDashboardStockOutCount(:startDate, :stopDate, :programId, -1)";
@@ -325,12 +325,12 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
         DashboardForLoadProgram db = new DashboardForLoadProgram();
         db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.EST));
         db.setStartDateBottom(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * noOfMonthsInPastForBottom)));
-        db.setStopDateBottom(DateUtils.getEndOfMonthObject());
-        db.setStartDateTop(DateUtils.getStartOfMonthObject());
+        db.setStopDateBottom(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), noOfMonthsInFutureForBottom)));
+        db.setStartDateTop(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * noOfMonthsInPastForTop)));
         db.setStopDateTop(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), noOfMonthsInFutureForTop)));
 
         String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId)";

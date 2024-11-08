@@ -98,7 +98,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException {
         List<ProgramData> programDataList = new LinkedList<>();
-                lpInputList.forEach(pv -> {
+        lpInputList.forEach(pv -> {
             Program p = this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             ProgramData pd = new ProgramData(p);
             pd.setCutOffDate(pv.getCutOffDate());
@@ -115,14 +115,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false, pv.getCutOffDate()));
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
-            int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop = p.getRealmCountry().getRealm().getNoOfMonthsInPastForTopDashboard(), noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
             if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
                 noOfMonthsInPastForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInPastForBottomDashboard();
             } else {
                 noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
             }
+            if (p.getNoOfMonthsInFutureForBottomDashboard() == null) {
+                noOfMonthsInFutureForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForBottomDashboard();
+            } else {
+                noOfMonthsInFutureForBottom = p.getNoOfMonthsInFutureForBottomDashboard();
+            }
             try {
-                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser));
+                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser));
             } catch (ParseException ex) {
                 logger.error("Error occurred getting the dates for Dashboard", ex);
             }
