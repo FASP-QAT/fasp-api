@@ -112,6 +112,8 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         params.put("programTypeId", programTypeId);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        logger.info("sqlStringBuilder.toString() "+sqlStringBuilder.toString());
+        logger.info("params "+params);
         SimpleProgram sp = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramResultSetExtractor());
         if (sp == null) {
             throw new EmptyResultDataAccessException(1);
