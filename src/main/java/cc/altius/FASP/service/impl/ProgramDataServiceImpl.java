@@ -114,14 +114,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             pd.setShipmentBudgetList(this.programDataDao.getShipmentBudgetList(pv.getProgramId(), pv.getVersionId(), curUser));
-            int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop = p.getRealmCountry().getRealm().getNoOfMonthsInPastForTopDashboard(), noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
             if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
                 noOfMonthsInPastForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInPastForBottomDashboard();
             } else {
                 noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
             }
+            if (p.getNoOfMonthsInFutureForBottomDashboard() == null) {
+                noOfMonthsInFutureForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForBottomDashboard();
+            } else {
+                noOfMonthsInFutureForBottom = p.getNoOfMonthsInFutureForBottomDashboard();
+            }
             try {
-                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser));
+                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser));
             } catch (ParseException ex) {
                 logger.error("Error occurred getting the dates for Dashboard", ex);
             }

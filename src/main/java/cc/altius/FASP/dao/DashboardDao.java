@@ -42,9 +42,13 @@ public interface DashboardDao {
     List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
 
     List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser);
-    
+
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
+
+    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
+
+    public int getUserCount(CustomUserDetails curUser);
     
-    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
+    public int getLinkedErpShipmentsCount(CustomUserDetails curUser);
 
 }

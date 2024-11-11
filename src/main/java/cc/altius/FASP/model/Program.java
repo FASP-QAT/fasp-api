@@ -35,7 +35,8 @@ public class Program extends BaseModel implements Serializable {
     private double shippedToArrivedByRoadLeadTime;
     private double arrivedToDeliveredLeadTime;
     private Integer noOfMonthsInPastForBottomDashboard;
-    
+    private Integer noOfMonthsInFutureForBottomDashboard;
+
     private int programTypeId;
 
     private List<Region> regionList;
@@ -271,6 +272,14 @@ public class Program extends BaseModel implements Serializable {
 
     public void setNoOfMonthsInPastForBottomDashboard(Integer noOfMonthsInPastForBottomDashboard) {
         this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
+    }
+
+    public Integer getNoOfMonthsInFutureForBottomDashboard() {
+        return noOfMonthsInFutureForBottomDashboard;
+    }
+
+    public void setNoOfMonthsInFutureForBottomDashboard(Integer noOfMonthsInFutureForBottomDashboard) {
+        this.noOfMonthsInFutureForBottomDashboard = noOfMonthsInFutureForBottomDashboard;
     }
 
     @Override

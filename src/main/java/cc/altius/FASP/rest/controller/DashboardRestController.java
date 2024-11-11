@@ -188,13 +188,18 @@ public class DashboardRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             Realm r = this.realmService.getRealmById(curUser.getRealm().getRealmId(), curUser);
-            int noOfMonthsInPastForBottom, noOfMonthsInFutureForTop = r.getNoOfMonthsInFutureForTopDashboard();
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop = r.getNoOfMonthsInPastForTopDashboard(), noOfMonthsInFutureForTop = r.getNoOfMonthsInFutureForTopDashboard();
             if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
                 noOfMonthsInPastForBottom = r.getNoOfMonthsInPastForBottomDashboard();
             } else {
                 noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
             }
-            return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
+            if (p.getNoOfMonthsInFutureForBottomDashboard() == null) {
+                noOfMonthsInFutureForBottom = r.getNoOfMonthsInFutureForBottomDashboard();
+            } else {
+                noOfMonthsInFutureForBottom = p.getNoOfMonthsInFutureForBottomDashboard();
+            }
+            return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException ae) {
             logger.error("Error while getting Dashboard", ae);
             return new ResponseEntity(HttpStatus.CONFLICT);

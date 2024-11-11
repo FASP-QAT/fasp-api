@@ -62,6 +62,8 @@ public class DashboardServiceImpl implements DashboardService {
         map.put("PROGRAM_COUNT", programCount.getProgramCount()); // ProgramType = 1 
         map.put("DATASET_COUNT", programCount.getDatasetCount()); // ProgramType = 2
         map.put("SUPPLY_PLAN_COUNT", this.dashboardDao.getSupplyPlanPendingCount(curUser));
+        map.put("USER_COUNT", this.dashboardDao);
+        map.put("LINKED_ERP_SHIPMENTS_COUNT", this.dashboardDao);
         return map;
     }
 
@@ -100,9 +102,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
+    public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         SimpleProgram p = this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForTop, curUser);
+        DashboardForLoadProgram db = this.dashboardDao.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser);
         db.setProgram(p);
         return db;
     }

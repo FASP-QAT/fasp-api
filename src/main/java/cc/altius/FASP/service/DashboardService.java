@@ -35,6 +35,6 @@ public interface DashboardService {
     List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
 
     DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
-
-    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
+    
+    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
 }
