@@ -393,5 +393,12 @@ public class DashboardDaoImpl implements DashboardDao {
     public int getLinkedErpShipmentsCount(CustomUserDetails curUser) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    
+    @Override
+    public ProgramCount getFullProgramCount(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sb = new StringBuilder("SELECT SUM(IF(p.PROGRAM_TYPE_ID=1, 1, 0)) PROGRAM_COUNT, SUM(IF(p.PROGRAM_TYPE_ID=2, 1, 0)) DATASET_COUNT FROM rm_program p WHERE p.`ACTIVE`");
+        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new ProgramCountRowMapper());
+    }
 
 }

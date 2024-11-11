@@ -50,5 +50,7 @@ public interface DashboardDao {
     public int getUserCount(CustomUserDetails curUser);
     
     public int getLinkedErpShipmentsCount(CustomUserDetails curUser);
+    
+    public ProgramCount getFullProgramCount(CustomUserDetails curUser);
 
 }
