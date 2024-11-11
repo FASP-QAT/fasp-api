@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
  * @author akil
  */
 public class DashboardForecastErrorRowMapper implements RowMapper<DashboardForecastError> {
-    
+
     @Override
     public DashboardForecastError mapRow(ResultSet rs, int rowNum) throws SQLException {
         DashboardForecastError fe = new DashboardForecastError();
@@ -25,7 +25,11 @@ public class DashboardForecastErrorRowMapper implements RowMapper<DashboardForec
         if (rs.wasNull()) {
             fe.setErrorPerc(null);
         }
+        fe.setForecastErrorThreshold(rs.getDouble("FORECAST_ERROR_THRESHOLD"));
+        if (rs.wasNull()) {
+            fe.setForecastErrorThreshold(null);
+        }
         return fe;
     }
-    
+
 }
