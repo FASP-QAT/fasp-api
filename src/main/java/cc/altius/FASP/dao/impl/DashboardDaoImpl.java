@@ -109,7 +109,7 @@ public class DashboardDaoImpl implements DashboardDao {
     public ProgramCount getProgramCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT SUM(IF(p.PROGRAM_TYPE_ID=1, 1, 0)) PROGRAM_COUNT, SUM(IF(p.PROGRAM_TYPE_ID=2, 1, 0)) DATASET_COUNT FROM rm_program p LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID` WHERE p.`ACTIVE`");
-        this.aclService.addUserAclForRealm(sb, params, "p", curUser);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new ProgramCountRowMapper());
     }
 
@@ -382,6 +382,16 @@ public class DashboardDaoImpl implements DashboardDao {
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardTopExpiriesForLoadProgramResultSetExtractor(db));
 
         return db;
+    }
+
+    @Override
+    public int getUserCount(CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public int getLinkedErpShipmentsCount(CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }
