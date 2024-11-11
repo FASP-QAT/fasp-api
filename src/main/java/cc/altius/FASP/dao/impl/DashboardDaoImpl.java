@@ -425,5 +425,12 @@ public class DashboardDaoImpl implements DashboardDao {
         this.aclService.addFullAclForProgram(sb1, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb1.toString(), params, Integer.class);
     }
+    
+    @Override
+    public ProgramCount getFullProgramCount(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sb = new StringBuilder("SELECT SUM(IF(p.PROGRAM_TYPE_ID=1, 1, 0)) PROGRAM_COUNT, SUM(IF(p.PROGRAM_TYPE_ID=2, 1, 0)) DATASET_COUNT FROM rm_program p WHERE p.`ACTIVE`");
+        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new ProgramCountRowMapper());
+    }
 
 }
