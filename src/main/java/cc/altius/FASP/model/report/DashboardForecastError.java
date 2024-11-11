@@ -48,11 +48,7 @@ public class DashboardForecastError extends DashboardPuWithCount implements Seri
     }
 
     public boolean isAboveForecastThreshold() {
-        if (this.errorPerc * 100 > this.forecastErrorThreshold) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.errorPerc!=null && this.forecastErrorThreshold!=null && this.errorPerc * 100 > this.forecastErrorThreshold;
     }
 
 }
