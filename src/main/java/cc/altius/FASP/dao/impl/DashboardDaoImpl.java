@@ -386,12 +386,44 @@ public class DashboardDaoImpl implements DashboardDao {
 
     @Override
     public int getUserCount(CustomUserDetails curUser) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String showInternalUsersString = "SELECT IF(COUNT(*)>0,1,0) `showInternalUsers` FROM us_user_role ur WHERE ur.ROLE_ID IN ('ROLE_INTERNAL_USER', 'ROLE_APPLICATION_ADMIN', 'ROLE_REALM_ADMIN') AND ur.USER_ID=:curUser ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        boolean showInternalUsers = this.namedParameterJdbcTemplate.queryForObject(showInternalUsersString, params, Boolean.class);
+        params.put("showInternalUsers", showInternalUsers);
+
+        StringBuilder sb1 = new StringBuilder("SELECT COUNT(DISTINCT(ul.USER_ID)) FROM "
+                + "    ("
+                + "        SELECT u.`USER_ID`, u.`REALM_ID`, GROUP_CONCAT(ur.`ROLE_ID`) `ROLE_LIST`"
+                + "        FROM us_user u "
+                + "        LEFT JOIN us_user_role ur ON u.`USER_ID`=ur.`USER_ID` "
+                + "        GROUP BY u.`USER_ID` "
+                + "    ) ul"
+                + "    LEFT JOIN us_user_role ur ON ul.`USER_ID`=ur.`USER_ID` "
+                + "    LEFT JOIN us_user_acl acl ON ul.`USER_ID`=acl.`USER_ID` AND ur.`ROLE_ID`=acl.`ROLE_ID` "
+                + "    WHERE "
+                + "        (("
+                + "            :showInternalUsers = 0"
+                + "            AND NOT FIND_IN_SET('ROLE_INTERNAL_USER', ul.`ROLE_LIST`) "
+                + "            AND NOT FIND_IN_SET('ROLE_APPLICATION_ADMIN', ul.`ROLE_LIST`) "
+                + "        ) OR "
+                + "        (:showInternalUsers)) ");
+        this.aclService.addUserAclForRealm(sb1, params, "ul", curUser);
+        this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sb1.toString(), params, Integer.class);
     }
 
     @Override
     public int getLinkedErpShipmentsCount(CustomUserDetails curUser) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        StringBuilder sb1 = new StringBuilder("SELECT COUNT(s.SHIPMENT_ID) FROM rm_shipment s "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=s.MAX_VERSION_ID "
+                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=s.PROGRAM_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "WHERE st.ACCOUNT_FLAG AND st.ACTIVE AND st.ERP_FLAG and ppu.ACTIVE;");
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        this.aclService.addFullAclForProgram(sb1, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sb1.toString(), params, Integer.class);
     }
 
 }
