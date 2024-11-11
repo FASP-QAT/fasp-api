@@ -64,7 +64,7 @@ public class DashboardServiceImpl implements DashboardService {
         map.put("USER_COUNT", this.dashboardDao);
         map.put("LINKED_ERP_SHIPMENTS_COUNT", this.dashboardDao);
         ProgramCount fullProgramCount = this.dashboardDao.getFullProgramCount(curUser);
-        map.put("FULL_PROGRAM_COUNT", programCount.getProgramCount()); // ProgramType = 1 
+        map.put("FULL_PROGRAM_COUNT", fullProgramCount.getProgramCount()); // ProgramType = 1 
         return map;
     }
 
