@@ -417,7 +417,7 @@ public class DashboardDaoImpl implements DashboardDao {
     public int getLinkedErpShipmentsCount(CustomUserDetails curUser) {
         StringBuilder sb1 = new StringBuilder("SELECT COUNT(s.SHIPMENT_ID) FROM rm_shipment s "
                 + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=s.MAX_VERSION_ID "
-                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=s.PROGRAM_ID "
+                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=s.PROGRAM_ID "
                 + "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
                 + "WHERE st.ACCOUNT_FLAG AND st.ACTIVE AND st.ERP_FLAG and ppu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
