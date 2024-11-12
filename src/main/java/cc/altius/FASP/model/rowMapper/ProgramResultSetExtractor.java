@@ -62,6 +62,10 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 if (rs.wasNull()) {
                     p.setNoOfMonthsInPastForBottomDashboard(null);
                 }
+                p.setNoOfMonthsInFutureForBottomDashboard(rs.getInt("PROG_NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD"));
+                if (rs.wasNull()) {
+                    p.setNoOfMonthsInFutureForBottomDashboard(null);
+                }
                 p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setCurrentVersion(new Version(
                         rs.getInt("CV_VERSION_ID"),
