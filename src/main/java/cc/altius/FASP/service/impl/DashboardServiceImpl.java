@@ -53,7 +53,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public Map<String, Object> getRealmLevelDashboard(CustomUserDetails curUser) {
         Map<String, Object> map = new HashMap<>();
-        map.put("REALM_COUNTRY_COUNT", this.dashboardDao.getRealmCount(curUser));
+        map.put("REALM_COUNTRY_COUNT", this.dashboardDao.getRealmCountryCount(curUser));
         map.put("TECHNICAL_AREA_COUNT", this.dashboardDao.getHealthAreaCount(curUser));
         map.put("REGION_COUNT", this.dashboardDao.getRegionCount(curUser));
         map.put("ORGANIZATION_COUNT", this.dashboardDao.getOrganisationCount(curUser));
