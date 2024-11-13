@@ -39,6 +39,8 @@ public class DashboardShipmentDetailsReportForLoadProgramResultSetExtractor impl
             sd.setOrderCount(rs.getInt("ORDER_COUNT"));
             sd.setQuantity(rs.getDouble("QUANTITY"));
             sd.setCost(rs.getDouble("COST"));
+            sd.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
+            sd.setColorHtmlDarkCode(rs.getString("COLOR_HTML_DARK_CODE"));
             switch (reportBy) {
                 case 1 -> {
                     db.getBottomPuData().get(planningUnitId).getShipmentDetailsByFundingSource().add(sd);

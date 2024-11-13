@@ -118,6 +118,7 @@ public class DashboardDaoImpl implements DashboardDao {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_realm_country r WHERE r.`ACTIVE`");
         this.aclService.addUserAclForRealm(sb, params, "r", curUser);
+        this.aclService.addUserAclForRealmCountry(sb, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, Integer.class);
     }
 
