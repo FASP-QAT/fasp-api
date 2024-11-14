@@ -4,7 +4,12 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +36,10 @@ public class SimpleProgram extends SimpleCodeObject {
     private int programTypeId;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
     private boolean active;
+    @JsonView({Views.DropDown2View.class})
+    private int noOfMonthsInPastForBottomDashboard;
+    @JsonView({Views.DropDown2View.class})
+    private int noOfMonthsInFutureForBottomDashboard;
 
     public SimpleProgram() {
         super();
@@ -119,6 +128,22 @@ public class SimpleProgram extends SimpleCodeObject {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getNoOfMonthsInPastForBottomDashboard() {
+        return noOfMonthsInPastForBottomDashboard;
+    }
+
+    public void setNoOfMonthsInPastForBottomDashboard(int noOfMonthsInPastForBottomDashboard) {
+        this.noOfMonthsInPastForBottomDashboard = noOfMonthsInPastForBottomDashboard;
+    }
+
+    public int getNoOfMonthsInFutureForBottomDashboard() {
+        return noOfMonthsInFutureForBottomDashboard;
+    }
+
+    public void setNoOfMonthsInFutureForBottomDashboard(int noOfMonthsInFutureForBottomDashboard) {
+        this.noOfMonthsInFutureForBottomDashboard = noOfMonthsInFutureForBottomDashboard;
     }
 
     @Override
