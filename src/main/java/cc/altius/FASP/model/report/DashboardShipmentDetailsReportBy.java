@@ -24,6 +24,10 @@ public class DashboardShipmentDetailsReportBy implements Serializable {
     private double quantity;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double cost;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private String colorHtmlCode;
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
+    private String colorHtmlDarkCode;
 
     public SimpleCodeObject getReportBy() {
         return reportBy;
@@ -55,6 +59,22 @@ public class DashboardShipmentDetailsReportBy implements Serializable {
 
     public void setCost(double cost) {
         this.cost = cost;
+    }
+
+    public String getColorHtmlCode() {
+        return colorHtmlCode;
+    }
+
+    public void setColorHtmlCode(String colorHtmlCode) {
+        this.colorHtmlCode = colorHtmlCode;
+    }
+
+    public String getColorHtmlDarkCode() {
+        return colorHtmlDarkCode;
+    }
+
+    public void setColorHtmlDarkCode(String colorHtmlDarkCode) {
+        this.colorHtmlDarkCode = colorHtmlDarkCode;
     }
 
 }

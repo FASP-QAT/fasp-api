@@ -24,6 +24,8 @@ public class DashboardShipmentDetailsReportByRowMapper implements RowMapper<Dash
         sdfs.setOrderCount(rs.getInt("ORDER_COUNT"));
         sdfs.setQuantity(rs.getDouble("QUANTITY"));
         sdfs.setCost(rs.getDouble("COST"));
+        sdfs.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
+        sdfs.setColorHtmlDarkCode(rs.getString("COLOR_HTML_DARK_CODE"));
         return sdfs;
     }
 
