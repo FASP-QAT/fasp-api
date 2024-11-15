@@ -108,7 +108,7 @@ public class DashboardExpiredPu implements Serializable {
 
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     public double getExpiryAmt() {
-        return (double) this.expiringQty * this.price;
+        return Math.round((double) this.expiringQty * this.price);
     }
 
 }
