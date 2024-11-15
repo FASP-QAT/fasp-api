@@ -208,7 +208,7 @@ public class DashboardDaoImpl implements DashboardDao {
             eParams.put("programId", ed.getProgram().getId());
             eParams.put("curMonth", curMonth);
             eParams.put("endMonth", endMonth);
-            String sql2 = "SELECT SUM(p1.EXPIRED_STOCK*st.RATE) EXPIRED_VALUE "
+            String sql2 = "SELECT SUM(ROUND(p1.EXPIRED_STOCK*st.RATE,0)) EXPIRED_VALUE "
                     + "    FROM ( "
                     + "        SELECT "
                     + "            p.PROGRAM_ID, p.CURRENT_VERSION_ID, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
