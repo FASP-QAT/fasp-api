@@ -36,11 +36,11 @@ BEGIN
         SELECT 
             amc.PLANNING_UNIT_ID, amc.`TRANS_DATE`,
             CASE
-                WHEN ROUND(amc.MOS,1) is null THEN 4 -- NA
-                WHEN ROUND(amc.MOS,1)=0 THEN 0 -- StockOut
-                WHEN ROUND(amc.MOS,1) < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
-                WHEN ROUND(amc.MOS,1) <= IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
-                WHEN ROUND(amc.MOS,1) > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
+                WHEN amc.MOS is null THEN 4 -- NA
+                WHEN amc.MOS=0 THEN 0 -- StockOut
+                WHEN amc.MOS < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
+                WHEN amc.MOS <= IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
+                WHEN amc.MOS > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
                 ELSE 5 -- Unknown
             END `STOCK_CONDITION`
         FROM vw_program p 
