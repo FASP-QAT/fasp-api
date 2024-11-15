@@ -72,8 +72,21 @@ BEGIN
         WHERE p.PROGRAM_ID=VAR_PROGRAM_ID AND spb.TRANS_DATE BETWEEN VAR_START_DATE and VAR_STOP_DATE AND spb.EXPIRED_STOCK>0 
         GROUP BY spb.PLANNING_UNIT_ID, spb.BATCH_ID
     ) p1 
-    LEFT JOIN rm_shipment_trans_batch_info stbi ON p1.BATCH_ID=stbi.BATCH_ID 
-    LEFT JOIN rm_shipment_trans st ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID AND st.VERSION_ID<=@versionId GROUP BY stbi.BATCH_ID ;
+    LEFT JOIN ( 
+            SELECT 
+                s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD, s.PROGRAM_ID 
+            FROM rm_shipment s 
+            LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID 
+            WHERE 
+                s.PROGRAM_ID=VAR_PROGRAM_ID
+                AND st.VERSION_ID<=@versionId
+                AND st.SHIPMENT_TRANS_ID IS NOT NULL 
+            GROUP BY s.SHIPMENT_ID 
+        ) AS s ON s.PROGRAM_ID=p1.PROGRAM_ID
+    LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
+    LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
+    LEFT JOIN rm_shipment_trans_batch_info stbi ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID and stbi.BATCH_ID=p1.BATCH_ID 
+    WHERE stbi.BATCH_ID IS NOT NULL;
 END$$
 
 DELIMITER ;
