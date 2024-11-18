@@ -12,6 +12,9 @@ import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
@@ -59,6 +62,11 @@ public class JwtAuthenticationRestController {
 
     private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
+    @Operation(summary = "Authenticate user", description = "Get JWT token for authentication")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully authenticated"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest, HttpServletRequest request) throws AuthenticationException {
         try {
