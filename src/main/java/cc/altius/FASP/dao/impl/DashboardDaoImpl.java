@@ -268,58 +268,16 @@ public class DashboardDaoImpl implements DashboardDao {
         sqlString = "CALL getDashboardForecastErrorNew(:startDate, :stopDate, :programId)";
         db.setForecastErrorList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorRowMapper()));
 
-        sqlString = "CALL getDashboardForecastConsumptionProblems(:programId, :curStartOfMonth)";
+        sqlString = "CALL getDashboardForecastConsumptionProblems(:programId)";
         db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
-        sqlString = "CALL getDashboardActualConsumptionList(:programId, :curDate)";
-        Map<Integer, List<DashboardActualConsumptionDetails>> dacMap = this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardActualConsumptionResultSetExtractor());
+        sqlString = "CALL getDashboardActualConsumptionList(:programId)";
+        db.setActualConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
-        DashboardQpl ac = new DashboardQpl();
-        ac.setPuCount(dacMap.size());
-
-        for (Integer planningUnit : dacMap.keySet()) {
-            // Step 1 check for 3 months of ActualConsumption
-            List<DashboardActualConsumptionDetails> dacdList = (List<DashboardActualConsumptionDetails>) dacMap.get(planningUnit);
-            int actualCount = dacdList.stream().limit(4).map(DashboardActualConsumptionDetails::getActualCount).collect(Collectors.summingInt(Integer::intValue));
-            if (actualCount >= 1) {
-                // Step 2 check for gaps in last 6 months 
-                int flipCount = 0;
-                Boolean prevMonth = null;
-                for (DashboardActualConsumptionDetails dacd : dacdList) {
-                    if (prevMonth == null) {
-                        if (dacd.getActualCount() == 1) {
-                            // exists
-                            prevMonth = true;
-                        } else {
-                            // does not exist
-                            prevMonth = false;
-                        }
-                    } else {
-                        if (dacd.getActualCount() == 1) {
-                            // exists
-                            if (prevMonth == false) {
-                                prevMonth = true;
-                                flipCount++;
-                            }
-                        } else {
-                            // does not exist
-                            if (prevMonth == true) {
-                                prevMonth = false;
-                            }
-                        }
-                    }
-                }
-                if (flipCount <= 1) {
-                    ac.setCorrectCount(ac.getCorrectCount() + 1);
-                }
-            }
-        }
-        db.setActualConsumptionQpl(ac);
-
-        sqlString = "CALL getDashboardInventoryProblems(:programId, :curEndOfMonth)";
+        sqlString = "CALL getDashboardInventoryProblems(:programId)";
         db.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
-        sqlString = "CALL getDashboardShipmentProblems(:programId, :curEndOfMonth)";
+        sqlString = "CALL getDashboardShipmentProblems(:programId)";
         db.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
 
         return db;
