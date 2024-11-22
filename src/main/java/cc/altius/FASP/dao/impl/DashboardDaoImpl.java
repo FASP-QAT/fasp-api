@@ -329,7 +329,7 @@ public class DashboardDaoImpl implements DashboardDao {
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorForLoadProgramResultSetExtractor(db));
         sqlString = "CALL getDashboardForecastConsumptionProblemsForLoadProgram(:programId, :versionId, :curStartOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 1));
-        sqlString = "CALL getDashboardActualConsumptionList(:programId, :curStartOfMonth)";
+        sqlString = "CALL getDashboardActualConsumptionListForLoadProgram(:programId, :curStartOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 2));
         sqlString = "CALL getDashboardInventoryProblemsForLoadProgram(:programId, :versionId, :curEndOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 3));
