@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ManualProblem;
@@ -72,7 +73,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public int createManualProblem(ManualProblem manualProblem, CustomUserDetails curUser) {
+    public int createManualProblem(ManualProblem manualProblem, CustomUserDetails curUser) throws AccessControlFailedException {
         this.programCommonDao.getSimpleProgramById(manualProblem.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.problemDao.createManualProblem(manualProblem, curUser);
     }

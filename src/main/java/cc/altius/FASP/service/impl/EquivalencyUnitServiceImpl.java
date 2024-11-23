@@ -7,14 +7,19 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleProgram;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EquivalencyUnitService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,7 +32,9 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     @Autowired
     private EquivalencyUnitDao equivalencyUnitDao;
     @Autowired
-    ProgramCommonDao programCommonDao;
+    private ProgramCommonDao programCommonDao;
+    @Autowired
+    private AclService aclService;
 
     @Override
     public List<EquivalencyUnit> getEquivalencyUnitList(boolean active, CustomUserDetails curUser) {
@@ -40,7 +47,16 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     }
 
     @Override
-    public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser) {
+    public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (EquivalencyUnit eu : equivalencyUnitList) {
+            if (eu.getProgram() != null && eu.getProgram().getId() != null && eu.getProgram().getId() != 0) {
+                try {
+                    SimpleProgram p = this.programCommonDao.getSimpleProgramById(eu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+                } catch (EmptyResultDataAccessException erda) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
         return this.equivalencyUnitDao.addAndUpdateEquivalencyUnit(equivalencyUnitList, curUser);
     }
 
@@ -50,19 +66,30 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     }
 
     @Override
-    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException, CouldNotSaveException {
+    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException, CouldNotSaveException, AccessControlFailedException {
         for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
             if (curUser.getRealm().getRealmId() != eum.getEquivalencyUnit().getRealm().getId()) {
                 throw new IllegalAccessException("Equivalency Unit from a different Realm");
+            }
+            if (eum.getProgram() != null && eum.getProgram().getId() != null && eum.getProgram().getId() != 0) {
+//                try {
+                    SimpleProgram p = this.programCommonDao.getSimpleProgramById(eum.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+//                } catch (EmptyResultDataAccessException erda) {
+//                    throw new AccessDeniedException("You do not have the rights to Program " + eum.getProgram().getId());
+//                }
             }
         }
         return this.equivalencyUnitDao.addAndUpdateEquivalencyUnitMapping(equivalencyUnitMappingList, curUser);
     }
 
     @Override
-    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser) {
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingForForecastingUnit(int fuId, int programId, CustomUserDetails curUser) throws AccessControlFailedException{
         if (programId != 0) {
-            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+//            try {
+                this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+//            } catch (EmptyResultDataAccessException erda) {
+//                throw new AccessDeniedException("You do not have access to this resource");
+//            }
         }
         return this.equivalencyUnitDao.getEquivalencyUnitMappingForForecastingUnit(fuId, programId, curUser);
     }

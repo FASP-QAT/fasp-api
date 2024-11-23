@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.SimpleProgram;
@@ -20,9 +21,9 @@ import java.util.Map;
  */
 public interface ProgramCommonDao {
 
-    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser);
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException;
 
 //    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser);
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser);

@@ -5,8 +5,14 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
+import cc.altius.FASP.model.report.DashboardInput;
+import cc.altius.FASP.model.report.DashboardBottom;
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
+import cc.altius.FASP.model.report.DashboardTop;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,4 +31,10 @@ public interface DashboardService {
     List<DashboardUser> getUserListForApplicationLevelAdmin(CustomUserDetails curUser);
 
     List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
+
+    List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser) throws AccessControlFailedException;
+
+    DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
+    
+    DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException, AccessControlFailedException;
 }

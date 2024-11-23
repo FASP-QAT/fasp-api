@@ -33,6 +33,10 @@ public class RealmRowMapper implements RowMapper<Realm> {
         r.setInventoryMonthsInPast(rs.getInt("INVENTORY_MONTHS_IN_PAST"));
         r.setMinCountForMode(rs.getInt("MIN_COUNT_FOR_MODE"));
         r.setMinPercForMode(rs.getDouble("MIN_PERC_FOR_MODE"));
+        r.setNoOfMonthsInPastForBottomDashboard(rs.getInt("NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD"));
+        r.setNoOfMonthsInFutureForBottomDashboard(rs.getInt("NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD"));
+        r.setNoOfMonthsInPastForTopDashboard(rs.getInt("NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD"));
+        r.setNoOfMonthsInFutureForTopDashboard(rs.getInt("NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD"));
         r.setActive(rs.getBoolean("ACTIVE"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         r.setLabel(new LabelRowMapper().mapRow(rs, i));

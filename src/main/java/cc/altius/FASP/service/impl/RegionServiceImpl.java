@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RegionDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
@@ -34,7 +35,7 @@ public class RegionServiceImpl implements RegionService {
     private AclService aclService;
 
     @Override
-    public int saveRegions(Region[] regions, CustomUserDetails curUser) {
+    public int saveRegions(Region[] regions, CustomUserDetails curUser) throws AccessControlFailedException {
         int rowsUpdated = 0;
         for (Region r : regions) {
             if (r.getRegionId() == 0) {
@@ -47,7 +48,7 @@ public class RegionServiceImpl implements RegionService {
                     this.regionDao.addRegion(r, curUser);
                     rowsUpdated++;
                 } else {
-                    throw new AccessDeniedException("Access denied");
+                    throw new AccessControlFailedException();
                 }
             } else {
                 Region region = this.getRegionById(r.getRegionId(), curUser);
@@ -58,7 +59,7 @@ public class RegionServiceImpl implements RegionService {
                     this.regionDao.updateRegion(r, curUser);
                     rowsUpdated++;
                 } else {
-                    throw new AccessDeniedException("Access denied");
+                    throw new AccessControlFailedException();
                 }
             }
         }

@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.CommitRequestDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CommitRequest;
@@ -30,6 +31,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -55,11 +57,18 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
-        Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+    public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
+        SimpleProgram p = this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (p != null) {
+//            if (programData.getProgramId() != 0) {
+//                try {
+//                    this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//                } catch (EmptyResultDataAccessException e) {
+//                    throw new AccessControlFailedException();
+//                }
+//            }
             programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
-            programData.setCurrentVersion(p.getCurrentVersion());
+            programData.setCurrentVersion(programData.getCurrentVersion());
             return this.commitRequestDao.saveProgramData(programData, json, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -67,9 +76,16 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     }
 
     @Override
-    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
-        Program p = this.programCommonDao.getFullProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException, AccessControlFailedException {
+        SimpleProgram p = this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        if (p != null) {
+//            if (programData.getProgramId() != 0) {
+//                try {
+//                    this.programCommonDao.getSimpleProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+//                } catch (EmptyResultDataAccessException e) {
+//                    throw new AccessControlFailedException();
+//                }
+//            }
             int requestedVersionId = programData.getCurrentVersion().getVersionId();
 //            programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveDatasetData(programData, requestedVersionId, json, curUser);
@@ -79,7 +95,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     }
 
     @Override
-    public void processCommitRequest(CustomUserDetails curUser) {
+    public void processCommitRequest(CustomUserDetails curUser) throws AccessControlFailedException {
         CommitRequest spcr = this.commitRequestDao.getPendingCommitRequestProcessList();
         if (spcr != null) {
             if (spcr.getFailedReason() != null) {
@@ -89,7 +105,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
                     SimpleProgram p = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-                    if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmId(), p.getId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+//                    if (p != null) {
                         Version version;
                         CustomUserDetails user = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
                         try {
@@ -150,7 +166,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", sbBccEmails.length() != 0 ? sbBccEmails.deleteCharAt(sbBccEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                                     int emailerId = this.emailService.saveEmail(emailer);
                                     emailer.setEmailerId(emailerId);
-                                    if (this.emailService.sendMail(emailer)==1) {
+                                    if (this.emailService.sendMail(emailer) == 1) {
                                         logger.info("Emails sent out");
                                     } else {
                                         logger.info("Email could not be sent out");
@@ -160,13 +176,13 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                         } catch (ParseException pe) {
                             logger.error("Error while sending email", pe);
                         }
-                    } else {
-                        throw new AccessDeniedException("Access denied");
-                    }
+//                    } else {
+//                        throw new AccessDeniedException("Access denied");
+//                    }
                     logger.info("Supply Plan batch commit completed");
                 } else if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_DATASET) {
                     SimpleProgram sp = this.programCommonDao.getSimpleProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-                    if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
+//                    if (sp != null) {
                         Version version;
                         CustomUserDetails user = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
                         try {
@@ -198,9 +214,9 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                         } catch (Exception pe) {
                             logger.error("Error while sending email", pe);
                         }
-                    } else {
-                        throw new AccessDeniedException("Access denied");
-                    }
+//                    } else {
+//                        throw new AccessDeniedException("Access denied");
+//                    }
                 }
             }
         }

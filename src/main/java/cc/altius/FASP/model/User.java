@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,25 +22,72 @@ import java.util.List;
  */
 public class User extends BaseModel implements Serializable {
 
+    @JsonView(Views.UserListView.class)
     private int userId;
+    @JsonView(Views.UserListView.class)
     private String username;
     private String password;
+    @JsonView(Views.UserListView.class)
     private String emailId;
+    @JsonView(Views.UserListView.class)
     private String orgAndCountry;
+    @JsonView(Views.UserListView.class)
     private Realm realm;
+    @JsonView(Views.UserListView.class)
     private List<Role> roleList;
     private String[] roles;
+    @JsonView(Views.UserListView.class)
     private Language language;
+    @JsonView(Views.UserListView.class)
     private int defaultModuleId;
+    @JsonView(Views.UserListView.class)
     private int defaultThemeId;
+    @JsonView(Views.UserListView.class)
     private boolean showDecimals;
+    @JsonView(Views.UserListView.class)
     private int faildAttempts;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.UserListView.class)
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
     private UserAcl[] userAcls;
     private List<String> businessFunctionList;
+    private boolean editable;
+
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.UserListView.class)
+    @Override
+    public Date getLastModifiedDate() {
+        return super.getLastModifiedDate();
+    }
+
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.UserListView.class)
+    @Override
+    public Date getCreatedDate() {
+        return super.getCreatedDate();
+    }
+
+    @JsonView(Views.UserListView.class)
+    @Override
+    public BasicUser getLastModifiedBy() {
+        return super.getLastModifiedBy();
+    }
+
+    @JsonView(Views.UserListView.class)
+    @Override
+    public BasicUser getCreatedBy() {
+        return super.getCreatedBy();
+    }
+
+    @JsonView(Views.UserListView.class)
+    @Override
+    public boolean isActive() {
+        return super.isActive();
+    }
 
     public String[] getRoles() {
         if (this.roleList.isEmpty()) {
@@ -195,9 +243,39 @@ public class User extends BaseModel implements Serializable {
         this.businessFunctionList = businessFunctionList;
     }
 
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
     @Override
     public String toString() {
         return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", orgAndCountry=" + orgAndCountry + ", realm=" + realm + ", roleList=" + roleList + ", roles=" + roles + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + ", userAcls=" + userAcls + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + this.userId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        return this.userId == other.userId;
     }
 
 }

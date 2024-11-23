@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
@@ -18,9 +19,9 @@ import java.util.List;
  */
 public interface FundingSourceService {
 
-    public int addFundingSource(FundingSource f, CustomUserDetails curUser);
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateFundingSource(FundingSource f, CustomUserDetails CurUser);
+    public int updateFundingSource(FundingSource f, CustomUserDetails CurUser) throws AccessControlFailedException;
 
     public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
 
@@ -33,9 +34,9 @@ public interface FundingSourceService {
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 
     public List<SimpleFundingSourceObject> getFundingSourceDropdownList(CustomUserDetails curUser);
-    
+
     public List<SimpleFundingSourceObject> getFundingSourceForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleCodeObject> getFundingSourceTypeForProgramsDropdownList(int[] programIds, CustomUserDetails curUser);
 
     public int addFundingSourceType(FundingSourceType fundingSourceType, CustomUserDetails curUser);
@@ -47,6 +48,6 @@ public interface FundingSourceService {
     public List<FundingSourceType> getFundingSourceTypeByRealm(int realmId, CustomUserDetails curUser);
 
     public FundingSourceType getFundingSourceTypeById(int fundingSourceTypeId, CustomUserDetails curUser);
-    
+
     public List<FundingSourceType> getFundingSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

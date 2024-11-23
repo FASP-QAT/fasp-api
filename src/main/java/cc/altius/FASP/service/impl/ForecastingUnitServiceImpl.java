@@ -16,6 +16,7 @@ import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
@@ -68,11 +69,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
 
     @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException {
-        if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
-            return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
     }
 
     @Override
@@ -115,13 +112,13 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     }
 
     @Override
-    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
-        } else {
-            throw new AccessDeniedException("You do not have access to this Program");
-        }
+//        if (sp != null) {
+        return this.forecastingUnitDao.getForecastingUnitListForDataset(programId, versionId, curUser);
+//        } else {
+//            throw new AccessDeniedException("You do not have access to this Program");
+//        }
     }
 
     @Override
@@ -153,7 +150,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     public List<SimpleCodeObject> getListOfSpProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, active, curUser);
     }
-    
+
     @Override
     public List<SimpleCodeObject> getListOfFcProgramsForForecastingUnitId(int forecastingUnitId, boolean active, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, active, curUser);

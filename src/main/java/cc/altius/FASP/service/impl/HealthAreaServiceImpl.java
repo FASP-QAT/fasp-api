@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Realm;
@@ -38,18 +39,36 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     private AclService aclService;
 
     @Override
-    public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getId())) {
-            return this.healthAreaDao.addHealthArea(h, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int addHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (RealmCountry realmCountry : h.getRealmCountryList()) {
+            if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+                try {
+                    if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
         }
+        return this.healthAreaDao.addHealthArea(h, curUser);
     }
 
     @Override
-    public int updateHealthArea(HealthArea h, CustomUserDetails curUser) {
+    public int updateHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException {
         HealthArea ha = this.getHealthAreaById(h.getHealthAreaId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, ha.getRealm().getId())) {
+            for (RealmCountry realmCountry : h.getRealmCountryList()) {
+                if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+                    try {
+                        if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                            throw new AccessControlFailedException();
+                        }
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.healthAreaDao.updateHealthArea(h, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -62,8 +81,8 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
-    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser) {
-        return this.healthAreaDao.getHealthAreaDropdownList(realmId, curUser);
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaDropdownList(realmId, aclFilter, curUser);
     }
 
     @Override
@@ -73,6 +92,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
             throw new EmptyResultDataAccessException(1);
         }
         return this.healthAreaDao.getHealthAreaListByRealmCountry(realmCountryId, curUser);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getHealthAreaListByRealmCountryIds(String[] realmCountryIds, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaListByRealmCountryIds(realmCountryIds, curUser);
     }
 
     @Override
