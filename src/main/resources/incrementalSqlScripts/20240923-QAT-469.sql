@@ -9,7 +9,7 @@ DROP procedure IF EXISTS `fasp`.`buildUserAcl`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `buildUserAcl`()
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildUserAcl`()
 BEGIN
 	DECLARE VAR_FINISHED INTEGER DEFAULT 0;
 	DECLARE VAR_USER_ID INTEGER DEFAULT 0;

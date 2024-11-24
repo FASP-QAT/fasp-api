@@ -122,7 +122,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'To edit, you must have editable access to all selected programs. If you lack editable access to any selected program, the screen will be view-only');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour pouvoir effectuer des modifications, vous devez disposer d`un accès modifiable à tous les programmes sélectionnés. Si vous ne disposez pas d'un accès modifiable à un programme sélectionné, l'écran sera en lecture seule.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour pouvoir effectuer des modifications, vous devez disposer d`un accès modifiable à tous les programmes sélectionnés. Si vous ne disposez pas d`un accès modifiable à un programme sélectionné, l`écran sera en lecture seule.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para editar, debe tener acceso editable a todos los programas seleccionados. Si no tiene acceso editable a ningún programa seleccionado, la pantalla será de solo lectura.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para editar, você deve ter acesso editável a todos os programas selecionados. Se você não tiver acesso editável a nenhum programa selecionado, a tela será somente para visualização');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validated.restrictionNoOfMonthsInPastForTopDashboard','1'); 
