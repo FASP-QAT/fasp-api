@@ -41,10 +41,10 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
-        for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
-            if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+        if (organisation.getRealmCountryArray() != null) {
+            for (String realmCountry : organisation.getRealmCountryArray()) {
                 try {
-                    if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                    if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
                         throw new AccessControlFailedException();
                     }
                 } catch (EmptyResultDataAccessException e) {
@@ -59,10 +59,10 @@ public class OrganisationServiceImpl implements OrganisationService {
     public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
         Organisation o = this.getOrganisationById(organisation.getOrganisationId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, o.getRealm().getId())) {
-            for (RealmCountry realmCountry : organisation.getRealmCountryList()) {
-                if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+            if (organisation.getRealmCountryArray() != null) {
+                for (String realmCountry : organisation.getRealmCountryArray()) {
                     try {
-                        if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                        if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
                             throw new AccessControlFailedException();
                         }
                     } catch (EmptyResultDataAccessException e) {
