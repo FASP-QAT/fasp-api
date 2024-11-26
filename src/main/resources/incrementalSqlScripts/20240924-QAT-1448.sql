@@ -7,7 +7,7 @@ ALTER TABLE `fasp`.`rm_realm` CHANGE COLUMN `NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_D
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_realm` AS
     SELECT 
@@ -49,7 +49,7 @@ ALTER TABLE `fasp`.`rm_program` ADD COLUMN `NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DA
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_program` AS
     SELECT 
@@ -96,7 +96,7 @@ VIEW `vw_program` AS
 USE `fasp`;
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
+    DEFINER = `faspUser`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `vw_dataset` AS
     SELECT 
@@ -150,7 +150,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardStockStatusForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardStockStatusForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardStockStatusForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT)
 BEGIN
     
     SELECT COUNT(mn.MONTH) INTO @monthCount FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE AND VAR_STOP_DATE;
@@ -204,7 +204,7 @@ DROP procedure IF EXISTS `getDashboardShipmentDetailsReportByForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentDetailsReportByForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_DISPLAY_SHIPMENTS_BY INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardShipmentDetailsReportByForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_DISPLAY_SHIPMENTS_BY INT)
 BEGIN
 
     SET @verVersionId = VAR_VERSION_ID;
@@ -307,7 +307,7 @@ DROP procedure IF EXISTS `getDashboardForecastErrorForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastErrorForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastErrorForLoadProgram`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT)
 BEGIN
 
     
@@ -367,7 +367,7 @@ DROP procedure IF EXISTS `getDashboardForecastConsumptionProblemsForLoadProgram`
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastConsumptionProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_CUR_DATE DATE)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastConsumptionProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_CUR_DATE DATE)
 BEGIN
 
     SET @varStartDate = VAR_CUR_DATE;
@@ -404,7 +404,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardInventoryProblemsForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardInventoryProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_STOP_DATE DATE)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardInventoryProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_STOP_DATE DATE)
 BEGIN
 
     SET @stopDate = VAR_STOP_DATE;
@@ -436,7 +436,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardShipmentProblemsForLoadProgram`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_STOP_DATE DATE)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardShipmentProblemsForLoadProgram`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_STOP_DATE DATE)
 BEGIN
 
     SELECT

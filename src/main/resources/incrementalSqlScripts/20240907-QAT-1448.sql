@@ -7,7 +7,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardStockStatus`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardStockStatus`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardStockStatus`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
 BEGIN
     
     SELECT COUNT(mn.MONTH) INTO @monthCount FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE AND VAR_STOP_DATE;
@@ -66,7 +66,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardShipmentDetailsReportBy`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentDetailsReportBy`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_DISPLAY_SHIPMENTS_BY INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardShipmentDetailsReportBy`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_DISPLAY_SHIPMENTS_BY INT)
 BEGIN
 
     SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID = VAR_PROGRAM_ID;
@@ -170,7 +170,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardShipmentWithFundingSourceTbd`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentWithFundingSourceTbd`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardShipmentWithFundingSourceTbd`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
 BEGIN
 
     SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID = VAR_PROGRAM_ID;
@@ -211,7 +211,7 @@ DROP procedure IF EXISTS `getDashboardForecastConsumptionProblems`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastConsumptionProblems`(VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastConsumptionProblems`(VAR_PROGRAM_ID INT)
 BEGIN
 
 SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND prr.REALM_PROBLEM_ID = 8) THEN prr.DATA3 END) AS GOOD_COUNT
@@ -233,7 +233,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardActualConsumptionList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardActualConsumptionList`(VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardActualConsumptionList`(VAR_PROGRAM_ID INT)
 BEGIN
 
 SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND (prr.REALM_PROBLEM_ID = 1 OR prr.REALM_PROBLEM_ID = 25)) THEN prr.DATA3 END) AS GOOD_COUNT
@@ -256,7 +256,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardInventoryProblems`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardInventoryProblems`(VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardInventoryProblems`(VAR_PROGRAM_ID INT)
 BEGIN
 SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND prr.REALM_PROBLEM_ID = 2) THEN prr.DATA3 END) AS GOOD_COUNT
 FROM rm_problem_report prr 
@@ -278,7 +278,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardShipmentProblems`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentProblems`(VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardShipmentProblems`(VAR_PROGRAM_ID INT)
 BEGIN
 
 SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND (prr.REALM_PROBLEM_ID = 3 OR prr.REALM_PROBLEM_ID = 4)) THEN prr.DATA3 END) AS GOOD_COUNT
@@ -301,7 +301,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardForecastErrorNew`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastErrorNew`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastErrorNew`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
 BEGIN
 
     SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID=VAR_PROGRAM_ID;
@@ -365,7 +365,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardActualConsumptionListForLoadProgram
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardActualConsumptionListForLoadProgram`(VAR_PROGRAM_ID INT, VAR_CUR_DATE DATE)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardActualConsumptionListForLoadProgram`(VAR_PROGRAM_ID INT, VAR_CUR_DATE DATE)
 BEGIN
 
 SET @stopDate = CONCAT(SUBSTRING(VAR_CUR_DATE,1,7),"-01");
