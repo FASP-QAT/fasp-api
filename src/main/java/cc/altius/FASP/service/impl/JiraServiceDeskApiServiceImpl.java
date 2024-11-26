@@ -43,7 +43,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService {
 
-    
     @Value("#{credentials['jira.apiUrl']}")
     private String JIRA_API_URL;
     @Value("#{credentials['jira.serviceDeskApiUrl']}")
