@@ -6,51 +6,81 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ManualIntegration;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.BudgetReportInput;
+import cc.altius.FASP.model.report.BudgetReportOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
+import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
+import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
 import cc.altius.FASP.model.report.ForecastSummaryInput;
+import cc.altius.FASP.model.report.ForecastSummaryOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.InventoryTurnsInput;
+import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ManualJsonPushReportInput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
+import cc.altius.FASP.model.report.MonthlyForecastOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
+import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
+import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ShipmentDetailsInput;
+import cc.altius.FASP.model.report.ShipmentDetailsOutput;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandInput;
+import cc.altius.FASP.model.report.ShipmentGlobalDemandOutput;
 import cc.altius.FASP.model.report.ShipmentOverviewInput;
+import cc.altius.FASP.model.report.ShipmentOverviewOutput;
 import cc.altius.FASP.model.report.ShipmentReportInput;
+import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
+import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsOutput;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
+import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
+import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
+import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
+import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.IntegrationProgramService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import java.util.LinkedList;
-import java.util.List;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +102,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/report/")
+@Tag(
+    name = "Reports",
+    description = "Manage system reports including consumption, inventory, shipment, stock status, and forecast analytics"
+)
 public class ReportRestController {
 
     @Autowired
@@ -101,13 +135,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programProductCatalog")
+    @Operation(
+        summary = "Get Program Product Catalog",
+        description = "Retrieve a list of program product catalog"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program product catalog input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramProductCatalogInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramProductCatalogOutput.class))), responseCode = "200", description = "Returns the list of program product catalog")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/programProductCatalog", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -131,13 +176,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/consumptionForecastVsActual")
+    @Operation(
+        summary = "Get Consumption Forecast vs Actual",
+        description = "Retrieve a list of consumption forecast vs actual"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The consumption forecast vs actual input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConsumptionForecastVsActualInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ConsumptionForecastVsActualOutput.class))), responseCode = "200", description = "Returns the list of consumption forecast vs actual")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/consumptionForecastVsActual", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -163,13 +219,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/globalConsumption")
+    @Operation(
+        summary = "Get Global Consumption",
+        description = "Retrieve the global consumption report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The global consumption input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = GlobalConsumptionInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = GlobalConsumptionOutput.class))), responseCode = "200", description = "Returns the global consumption")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getGlobalConsumption(gci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/globalConsumption", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -196,13 +263,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsMonthly")
+    @Operation(
+        summary = "Get Forecast Metrics Monthly",
+        description = "Retrieve the forecast metrics monthly report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The forecast metrics monthly input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsMonthlyInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMetricsMonthlyOutput.class))), responseCode = "200", description = "Returns the list of forecast metrics monthly")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/forecastMetricsMonthly", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -231,13 +309,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsComparision")
+    @Operation(
+        summary = "Get Forecast Metrics Comparision",
+        description = "Retrieve the forecast metrics comparision report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The forecast metrics comparision input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsComparisionInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMetricsComparisionOutput.class))), responseCode = "200", description = "Returns the forecast metrics comparision")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsComparision(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/forecastMetricsComparision", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
 
     }
@@ -260,13 +349,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
+    @Operation(
+        summary = "Get Warehouse Capacity Report",
+        description = "Retrieve the warehouse capacity report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The warehouse capacity input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseCapacityInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = WarehouseCapacityOutput.class))), responseCode = "200", description = "Returns the list of warehouse capacity report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getWarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/warehouseCapacityReport", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -277,19 +377,32 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping("/warehouseByCountry")
+    @Operation(
+        summary = "Get Warehouse By Country Report",
+        description = "Retrieve the warehouse by country report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The warehouse by country input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseByCountryInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = WarehouseByCountryOutput.class))), responseCode = "200", description = "Returns the warehouse by country report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access the report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Report not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getWarehouseByCountry(@RequestBody WarehouseByCountryInput wbc, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseByCountryReport(wbc, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -314,13 +427,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/costOfInventory")
+    @Operation(
+        summary = "Get Cost Of Inventory Report",
+        description = "Retrieve the cost of inventory report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The cost of inventory input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CostOfInventoryInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = CostOfInventoryOutput.class))), responseCode = "200", description = "Returns the list of cost of inventory report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getCostOfInventory(cii, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/costOfInventory", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -346,13 +470,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/inventoryTurns")
+    @Operation(
+        summary = "Get Inventory Turns Report",
+        description = "Retrieve the inventory turns report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The inventory turns input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventoryTurnsInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = InventoryTurnsOutput.class))), responseCode = "200", description = "Returns the inventory turns report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getInventoryTurns(@RequestBody InventoryTurnsInput it, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/inventoryTurns", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -376,13 +511,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/expiredStock")
+    @Operation(
+        summary = "Get Expired Stock Report",
+        description = "Retrieve the expired stock report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The expired stock input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpiredStockInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ExpiredStockOutput.class))), responseCode = "200", description = "Returns the expired stock report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getExpiredStock(esi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/expiredStock", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -404,13 +550,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockAdjustmentReport")
+    @Operation(
+        summary = "Get Stock Adjustment Report",
+        description = "Retrieve the stock adjustment report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock adjustment input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockAdjustmentReportInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockAdjustmentReportOutput.class))), responseCode = "200", description = "Returns the stock adjustment report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockAdjustmentReport(@RequestBody StockAdjustmentReportInput si, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockAdjustmentReport(si, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockAdjustmentReport", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -438,13 +595,24 @@ public class ReportRestController {
     // Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/procurementAgentShipmentReport")
+    @Operation(
+        summary = "Get Procurement Agent Shipment Report",
+        description = "Retrieve procurement agent shipment report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The procurement agent shipment input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcurementAgentShipmentReportInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentShipmentReportOutput.class))), responseCode = "200", description = "Returns the procurement agent shipment report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProcurementAgentShipmentReport(pari, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/procurementAgentShipmentReport", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -465,6 +633,17 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programLeadTimes")
+    @Operation(
+        summary = "Get Program Lead Times Report",
+        description = "Retrieve the program lead times report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program lead times input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramLeadTimesInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramLeadTimesOutput.class))), responseCode = "200", description = "Returns the program lead times report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -473,7 +652,7 @@ public class ReportRestController {
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/programLeadTimes", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -500,13 +679,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/fundingSourceShipmentReport")
+    @Operation(
+        summary = "Get Funding Source Shipment Report",
+        description = "Retrieve funding source shipment report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The funding source shipment input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FundingSourceShipmentReportInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = FundingSourceShipmentReportOutput.class))), responseCode = "200", description = "Returns the list of funding source shipment report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getFundingSourceShipmentReport(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/fundingSourceShipmentReport", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -527,6 +717,17 @@ public class ReportRestController {
     // ActualConsumption = null -- No consumption data
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
+    @Operation(
+        summary = "Get Stock Status Vertical Report",
+        description = "Retrieve the stock status vertical report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status vertical input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the stock status vertical report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -541,7 +742,7 @@ public class ReportRestController {
             }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -551,13 +752,24 @@ public class ReportRestController {
     // If onlyAllowPuPresentAcrossAllPrograms=true then only include those PU's that exist in all of the selected Programs
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical/dropdowns")
+    @Operation(
+        summary = "Get Dropdowns for Stock Status Vertical Report",
+        description = "Retrieve a list of dropdowns for stock status vertical report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status vertical dropdown input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalDropdownInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DropdownsForStockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the list of dropdowns for stock status vertical report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical/dropdowns", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
@@ -582,13 +794,24 @@ public class ReportRestController {
     // ActualConsumption = null -- No consumption data
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusOverTime")
+    @Operation(
+        summary = "Get Stock Status Over Time Report",
+        description = "Retrieve a stock status over time report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status over time input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusOverTimeInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusOverTimeOutput.class))), responseCode = "200", description = "Returns the stock status over time report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusOverTime", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -614,13 +837,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusMatrix")
+    @Operation(
+        summary = "Get Stock Status Matrix Report",
+        description = "Retrieve the stock status matrix report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status matrix input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusMatrixInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrixOutput.class))), responseCode = "200", description = "Returns the stock status matrix report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusMatrix", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
 
     }
@@ -643,16 +877,26 @@ public class ReportRestController {
      * @param auth
      * @return
      */
-    
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentDetails")
+    @Operation(
+        summary = "Get Shipment Details Report",
+        description = "Retrieve the shipment details report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The shipment details input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentDetailsInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentDetailsOutput.class))), responseCode = "200", description = "Returns the shipment details report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/shipmentDetails", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -671,13 +915,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentOverview")
+    @Operation(
+        summary = "Get Shipment Overview Report",
+        description = "Retrieve the shipment overview report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The shipment overview input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentOverviewInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentOverviewOutput.class))), responseCode = "200", description = "Returns the shipment overview report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/shipmentOverview", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -696,13 +951,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentGlobalDemand")
+    @Operation(
+        summary = "Get Shipment Global Demand Report",
+        description = "Retrieve the shipment global demand report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The shipment global demand input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentGlobalDemandInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentGlobalDemandOutput.class))), responseCode = "200", description = "Returns the shipment global demand report")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/shipmentGlobalDemand", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -725,13 +991,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/annualShipmentCost")
+    @Operation(
+        summary = "Get Annual Shipment Cost Report",
+        description = "Retrieve the annual shipment cost report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The annual shipment cost input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnualShipmentCostInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = AnnualShipmentCostOutput.class))), responseCode = "200", description = "Returns the annual shipment cost report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/annualShipmentCost", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -755,16 +1032,26 @@ public class ReportRestController {
      * @param auth
      * @return
      */
-    
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/aggregateShipmentByProduct")
+    @Operation(
+        summary = "Get Aggregate Shipment By Product Report",
+        description = "Retrieve the aggregate shipment by product report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The aggregate shipment by product input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentReportInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentReportOutput.class))), responseCode = "200", description = "Returns the aggregate shipment by product report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAggregateShipmentByProduct(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/aggregateShipmentByProduct", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -792,13 +1079,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusForProgram")
+    @Operation(
+        summary = "Get Stock Status For Program Report",
+        description = "Retrieve the stock status for program report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status for program input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusForProgramInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusForProgramOutput.class))), responseCode = "200", description = "Returns the stock status for program report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusForProgram(sspi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusForProgram", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -814,13 +1112,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/budgetReport")
+    @Operation(
+        summary = "Get Budget Report",
+        description = "Retrieve the budget report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The budget report input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BudgetReportInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BudgetReportOutput.class))), responseCode = "200", description = "Returns the budget report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getBudgetReport(br, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/budgetReport", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -849,13 +1158,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusAcrossProducts")
+    @Operation(
+        summary = "Get Stock Status Across Products Report",
+        description = "Retrieve the stock status across products report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The stock status across products input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusAcrossProductsInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusAcrossProductsOutput.class))), responseCode = "200", description = "Returns the stock status across products report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusAcrossProducts", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -885,13 +1205,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastErrorNew")
+    @Operation(
+        summary = "Get Forecast Error Report",
+        description = "Retrieve the forecast error report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The forecast error input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastErrorInputNew.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastErrorOutput.class))), responseCode = "200", description = "Returns the forecast error report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getForecastError(@RequestBody ForecastErrorInputNew fei, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/forecastError", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -909,13 +1240,24 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/monthlyForecast")
+    @Operation(
+        summary = "Get Monthly Forecast Report",
+        description = "Retrieve the monthly forecast report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The monthly forecast input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = MonthlyForecastInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = MonthlyForecastOutput.class))), responseCode = "200", description = "Returns the monthly forecast report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getMonthlyForecast(@RequestBody MonthlyForecastInput mf, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getMonthlyForecast(mf, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/monthlyForecast", e);
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -929,6 +1271,17 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastSummary")
+    @Operation(
+        summary = "Get Forecast Summary Report",
+        description = "Retrieve the forecast summary report"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The forecast summary input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastSummaryInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastSummaryOutput.class))), responseCode = "200", description = "Returns the forecast summary report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getForecastSummary(@RequestBody ForecastSummaryInput fs, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -960,9 +1313,9 @@ public class ReportRestController {
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/manualJson")
-    @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push", tags = ("integrationProgram"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
+    @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ManualIntegration.class))), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
     public ResponseEntity getManualJsonReport(@RequestBody ManualJsonPushReportInput mi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -984,8 +1337,8 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @GetMapping(value = "/updateProgramInfo/programTypeId/{programTypeId}/realmCountryId/{realmCountryId}/active/{active}")
     @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the report")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UpdateProgramInfoOutput.class))), responseCode = "200", description = "Returns the report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
     public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

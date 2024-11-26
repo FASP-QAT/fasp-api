@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/usagePeriod")
+@Tag(
+    name = "Usage period",
+    description = "Manage usage periods with active status filtering"
+)
 public class UsagePeriodRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -53,9 +60,12 @@ public class UsagePeriodRestController {
      * @return returns the active list of active UsagePeriods
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete UsagePeriod list. Will only return those UsagePeriods that are marked Active.", summary = "Get active UsagePeriod list", tags = ("usagePeriod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsagePeriod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
+    @Operation(
+        summary = "Get active UsagePeriod list",
+        description = "Get active UsagePeriod list"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsagePeriod.class))), responseCode = "200", description = "Returns the UsagePeriod list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
     public ResponseEntity getUsagePeriodList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -73,9 +83,12 @@ public class UsagePeriodRestController {
      * @return returns the complete list of UsagePeriods
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete UsagePeriod list.", summary = "Get complete UsagePeriod list", tags = ("usagePeriod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsagePeriod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
+    @Operation(
+        summary = "Get complete UsagePeriod list",
+        description = "Get complete UsagePeriod list"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsagePeriod.class))), responseCode = "200", description = "Returns the UsagePeriod list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
     public ResponseEntity getUsagePeriodListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -95,26 +108,29 @@ public class UsagePeriodRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update UsagePeriod", summary = "Add or Update UsagePeriod", tags = ("usagePeriod"))
+    @Operation(
+        summary = "Add or Update UsagePeriod",
+        description = "API used to add or update UsagePeriod"
+    )
     @Parameters(
             @Parameter(name = "usagePeriod", description = "The list of UsagePeriod objects that you want to add or update. If usagePeriodId is null or 0 then it is added if usagePeriodId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteUsagePeriod(@RequestBody List<UsagePeriod> usagePeriodList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.usagePeriodService.addAndUpdateUsagePeriod(usagePeriodList, curUser) + " records updated", HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add UsagePeriod", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add UsagePeriod", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add UsagePeriod", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 

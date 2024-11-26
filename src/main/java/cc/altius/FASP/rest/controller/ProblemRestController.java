@@ -7,9 +7,19 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ManualProblem;
+import cc.altius.FASP.model.ProblemReport;
+import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +42,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Problem",
+    description = "Manage system problems and issues with support for manual entries and realm-based reporting"
+)
 public class ProblemRestController implements Serializable {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,13 +55,22 @@ public class ProblemRestController implements Serializable {
     private UserService userService;
     
     @GetMapping("/problem/realmId/{realmId}")
+    @Operation(
+        summary = "Get Problem by Realm",
+        description = "Retrieve a list of active problem list for a specific realm"
+    )
+    @Parameter(name = "realmId", description = "The ID of the realm to retrieve active problem list for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = RealmProblem.class))), responseCode = "200", description = "Returns a list of active problem list for a specific realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No active problem list found for the specified realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting problem list")
     public ResponseEntity getProblmeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -58,37 +81,60 @@ public class ProblemRestController implements Serializable {
     }
     
     @GetMapping("/problemReport/programId/{programId}/versionId/{versionId}")
+    @Operation(
+        summary = "Get Problem Report",
+        description = "Retrieve a list of problem reports for a specific program and version"
+    )
+    @Parameter(name = "programId", description = "The ID of the program to retrieve problem report list for", required = true)
+    @Parameter(name = "versionId", description = "The ID of the version to retrieve problem report list for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProblemReport.class))), responseCode = "200", description = "Returns a list of problem reports for a specific program and version")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this program and version")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No problem reports found for the specified program and version")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting problem report list")
     public ResponseEntity getProblmeReport(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemReportList(programId, versionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
     
     @PostMapping("/problemReport/createManualProblem")
+    @Operation(
+        summary = "Create Manual Problem",
+        description = "Create a new manual problem entry"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The input object containing problem details",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManualProblem.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Integer.class)), responseCode = "200", description = "Returns the created manual problem ID")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to create a manual problem entry")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No manual problem entry found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while creating a manual problem entry")
     public ResponseEntity createManualProblem(@RequestBody ManualProblem manualProblem, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.createManualProblem(manualProblem, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
@@ -141,13 +187,19 @@ public class ProblemRestController implements Serializable {
 //    }
     
     @GetMapping(value = "/problemStatus")
+    @Operation(
+        summary = "Get Problem Status List",
+        description = "Retrieve a complete list of all problem statuses"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProblemStatus.class))), responseCode = "200", description = "Returns a complete list of all problem statuses")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting problem status list")
     public ResponseEntity getProblemStatusList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemStatus(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while listing problemStatus", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     

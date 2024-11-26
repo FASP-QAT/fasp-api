@@ -16,12 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 /**
  *
@@ -29,12 +32,21 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Registration Management",
+    description = "Registration Management for FASP"
+)
 public class RegistrationController {
 
     @Autowired
     RegistrationService registrationService;
 
     @PutMapping(value = "/saveRegistration")
+    @Operation(summary = "Save registration", description = "Save registration")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully saved"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity saveRegistration(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
@@ -67,6 +79,11 @@ public class RegistrationController {
     }
 
     @GetMapping(value = "/getUserApprovalList")
+    @Operation(summary = "Get user approval list", description = "Get user approval list")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public List<Registration> saveRegistration() throws UnsupportedEncodingException {
         try {
             List<Registration> userApprovalList = this.registrationService.getUserApprovalList();
@@ -77,6 +94,11 @@ public class RegistrationController {
     }
 
     @PutMapping(value = "/saveApproval")
+    @Operation(summary = "Save approval", description = "Save approval")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully saved"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity saveApproval(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();

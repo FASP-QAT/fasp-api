@@ -12,6 +12,12 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +38,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Test",
+    description = "Test endpoints for ACL permissions and email functionality"
+)
 public class TestRestController {
 
     @Autowired
@@ -45,6 +55,18 @@ public class TestRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @PostMapping(path = "/aclTest")
+    @Operation(
+        summary = "Check access to programs",
+        description = "Check access to programs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program IDs to check access for",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the access check results")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while checking access")
     public ResponseEntity postCheckAccessToProgram(@RequestBody Integer[] programIdList, Authentication auth) {
         StringBuilder sb = new StringBuilder();
         try {
@@ -69,15 +91,27 @@ public class TestRestController {
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Supplier", ae);
             sb.append(ae.getMessage());
-            return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             sb.append(e.getMessage());
             logger.error("Error while trying to add Supplier", e);
-            return new ResponseEntity(sb.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(sb.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @PostMapping(path = "/aclTestQuery")
+    @Operation(
+        summary = "Check access to programs via query",
+        description = "Check access to programs via query"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program IDs to check access for",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the access check results")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while checking access")
     public ResponseEntity postCheckAccessViaQuery(@RequestBody String[] programIdList, Authentication auth) {
         StringBuilder sb = new StringBuilder();
         try {
@@ -86,15 +120,21 @@ public class TestRestController {
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Supplier", ae);
             sb.append(ae.getMessage());
-            return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             sb.append(e.getMessage());
             logger.error("Error while trying to add Supplier", e);
-            return new ResponseEntity(sb.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(sb.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping(path = "/sendTestEmail/{emailerId}")
+    @Operation(
+        summary = "Send a test email",
+        description = "Send a test email"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the email sent status")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while sending the email")
     public ResponseEntity sendTestEmail(@PathVariable(value = "emailerId", required = true) int emailerId) {
         Emailer e = this.emailService.getEmailByEmailerId(emailerId);
         this.emailService.sendMail(e);

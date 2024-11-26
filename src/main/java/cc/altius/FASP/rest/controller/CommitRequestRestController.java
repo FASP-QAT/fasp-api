@@ -6,6 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
@@ -23,6 +24,13 @@ import cc.altius.FASP.service.CommitRequestService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.FASP.utils.CompressUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -57,6 +65,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Commit Request",
+    description = "Manage version control requests"
+)
 public class CommitRequestRestController {
 
     @Autowired
@@ -72,6 +84,23 @@ public class CommitRequestRestController {
 
     // Part 1 of the Commit Request for Supply Plan
     @PutMapping("/programData/{comparedVersionId}")
+    @Operation(
+        summary = "Update Program Data",
+        description = "Update the Program data for a given version ID"
+    )
+    @Parameter(name = "comparedVersionId", description = "The ID of the version to compare against")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program data to update",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Integer.class)), responseCode = "200", description = "Returns the ID of the commit request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "The compared version is not the latest version")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "A commit request already exists for the program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Internal error that prevented the update of the program data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the update of the program data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unable to find the program data for the given version ID")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have access to the program data")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
         try {
             String programDataBytes = CompressUtils.decompress(programDataCompressed);
@@ -99,30 +128,41 @@ public class CommitRequestRestController {
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
                 } else {
                     logger.error("Request already exists");
-                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE); //406
                 }
             } else {
                 logger.error("Compared version is not latest");
-                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
+                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE); //406
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED); //412
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); //404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); //403
         } catch (Exception e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 
     // Part 1 of the Commit Request for Dataset
     @PutMapping("/datasetData/{comparedVersionId}")
+    @Operation(
+        summary = "Update Dataset Data",
+        description = "Update the Dataset data for a given version ID"
+    )
+    @Parameter(name = "comparedVersionId", description = "The ID of the version to compare against")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Integer.class)), responseCode = "200", description = "Returns the ID of the commit request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "The compared version is not the latest version")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "A commit request already exists for the program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the update of the dataset data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unable to find the dataset data for the given version ID")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "The user does not have access to the dataset data")
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
         String json = null;
         try {
@@ -180,32 +220,41 @@ public class CommitRequestRestController {
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
                 } else {
                     logger.error("Request already exists");
-                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE); //406
                 }
             } else {
                 logger.error("Compared version is not latest");
-                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
+                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE); //406
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED); //412
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); //404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); //403
         } catch (Exception e) {
             logger.error(json);
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 
     // Part 2 of the Commit Request
     // @GetMapping("/processCommitRequest")
     @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
+    @Operation(
+        summary = "Process Commit Request",
+        description = "Process Commit Requests for Supply Plans and Datasets"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the processing of the commit request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Scheduler for commit is not active")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unable to find the commit request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have access to the commit request")
     public ResponseEntity processCommitRequest() {
         try {
             String propertyFilePath = QAT_FILE_PATH+"/properties/scheduler.properties";
@@ -219,17 +268,17 @@ public class CommitRequestRestController {
                 return new ResponseEntity(HttpStatus.OK);
             } else {
                 logger.info("Commit request scheduler is not active");
-                return new ResponseEntity(new ResponseCode("Scheduler for commit is not active"), HttpStatus.PRECONDITION_FAILED);
+                return new ResponseEntity(new ResponseCode("Scheduler for commit is not active"), HttpStatus.PRECONDITION_FAILED); //412
             }
 //        } catch (CouldNotSaveException e) {
 //            logger.error("Error while trying to processCommitRequest", e);
 //            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to processCommitRequest", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); //404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to processCommitRequest", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); //403
         } catch (Exception e) {
             logger.error("Error while trying to processCommitRequest", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -237,6 +286,19 @@ public class CommitRequestRestController {
     }
 
     @PostMapping("/getCommitRequest/{requestStatus}")
+    @Operation(
+        summary = "Get Commit Request List",
+        description = "Retrieve a list of Supply Plan or Dataset Commit Requests based on the provided criteria"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The criteria for retrieving commit requests",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommitRequestInput.class))
+    )
+    @Parameter(name = "requestStatus", description = "The status of the commit request to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = CommitRequest.class))), responseCode = "200", description = "Returns the list of commit requests based on the provided criteria")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the commit request list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have access to the commit request list")
     public ResponseEntity getProgramDataCommitRequest(@RequestBody CommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -245,19 +307,27 @@ public class CommitRequestRestController {
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); //403
         } catch (Exception e) {
             logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 
     @GetMapping("/sendNotification/{commitRequestId}")
+    @Operation(
+        summary = "Send Notification",
+        description = "Send a notification for a Commit Request once it is processed successfully"
+    )
+    @Parameter(name = "commitRequestId", description = "The ID of the commit request to send a notification for")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = CommitRequest.class)), responseCode = "200", description = "Returns the status of the commit request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the commit request status")
     public ResponseEntity sendNotification(@PathVariable("commitRequestId") int commitRequestId) {
         try {
             return new ResponseEntity(this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error while trying to send notification", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 }

@@ -15,12 +15,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -40,6 +39,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(
+    name = "JWT Authentication", 
+    description = "JWT Authentication for theFASP API"
+)
 public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")
@@ -65,7 +68,9 @@ public class JwtAuthenticationRestController {
     @Operation(summary = "Authenticate user", description = "Get JWT token for authentication")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully authenticated"),
-        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+        @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+        @ApiResponse(responseCode = "406", description = "Password expired"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest, HttpServletRequest request) throws AuthenticationException {
@@ -109,6 +114,11 @@ public class JwtAuthenticationRestController {
     }
 
     @RequestMapping(value = "${jwt.refresh.token.uri}", method = RequestMethod.GET)
+    @Operation(summary = "Refresh JWT token", description = "Refresh JWT token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully refreshed"),
+        @ApiResponse(responseCode = "401", description = "Invalid token")
+    })
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String authToken = request.getHeader(tokenHeader);
         final String token = authToken.substring(7);

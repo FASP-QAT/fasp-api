@@ -8,12 +8,18 @@ import cc.altius.FASP.exception.InvalidDataException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.service.ExportDataService;
 import cc.altius.FASP.service.PlanningUnitService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +39,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/api/export")
+@Tag(
+    name = "Export API",
+    description = "Export supply plan data"
+)
 public class ExportApiRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -73,25 +83,35 @@ public class ExportApiRestController {
 //    }
     @JsonView(Views.ExportApiView.class)
     @GetMapping(value = {"/supplyPlan/programId/{programId}/versionId/{versionId}", "/supplyPlan/programId/{programId}/versionId/{versionId}/", "/supplyPlan/programId/{programId}/versionId/{versionId}/startDate/{startDate}"})
+    @Operation(
+        summary = "Get Supply Plan Data",
+        description = "Retrieve supply plan data for a specific program and version, with optional start date filtering"
+    )
+    @Parameter(name = "startDate", description = "The start date for the supply plan data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = SupplyPlan.class)), responseCode = "200", description = "Returns the supply plan data for the specified program and version, with optional start date filtering")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have rights to the Program requested")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the supply plan data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Date format is incorrect")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Specified program or version does not exist")
     public ResponseEntity getSupplyPlanForProgram(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "startDate", required = false) String startDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.exportDataService.getSupplyPlanForProgramId(programId, versionId, startDate, curUser), HttpStatus.OK);
         } catch (InvalidDataException ie) {
             logger.error(ie.getMessage(), ie);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE); //406
         } catch (ParseException pe) {
             logger.error("Incorrect format for startDate provided", pe);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE); //406
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Export of Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); //404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Export of Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); //403
         } catch (Exception e) {
             logger.error("Error while trying to get Export of Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 

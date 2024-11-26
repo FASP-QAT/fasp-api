@@ -26,6 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.Parameter;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +43,10 @@ import java.text.SimpleDateFormat;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Tracer category",
+    description = "Manage tracer categories with realm and program-specific filtering"
+)
 public class TracerCategoryRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,6 +57,18 @@ public class TracerCategoryRestController {
     private UserService userService;
 
     @PostMapping(path = "/tracerCategory")
+    @Operation(
+        summary = "Add a new tracer category",
+        description = "Add a new tracer category"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The tracer category to add",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = TracerCategory.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the tracer category")
     public ResponseEntity postTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -53,14 +76,26 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add TracerCategory", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to add TracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @PutMapping(path = "/tracerCategory")
+    @Operation(
+        summary = "Update an existing tracer category",
+        description = "Update an existing tracer category"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The tracer category to update",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = TracerCategory.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the tracer category")
     public ResponseEntity putTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -68,105 +103,167 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add TracerCategory", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to add TracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping("/tracerCategory")
+    @Operation(
+        summary = "Get all tracer categories",
+        description = "Get all tracer categories"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list")
     public ResponseEntity getTracerCategory(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
     @JsonView(Views.InternalView.class)
     @GetMapping("/tracerCategory/simple")
+    @Operation(
+        summary = "Get all tracer categories (simplified)",
+        description = "Get all tracer categories in a simplified format"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories in a simplified format")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list")
     public ResponseEntity getTracerCategorySimple(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping("/tracerCategory/{tracerCategoryId}")
+    @Operation(
+        summary = "Get tracer category",
+        description = "Get a specific tracer category"
+    )
+    @Parameter(name = "tracerCategoryId", description = "The ID of the tracer category to get", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = TracerCategory.class)), responseCode = "200", description = "Returns the tracer category")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Tracer category not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category")
     public ResponseEntity getTracerCategory(@PathVariable("tracerCategoryId") int tracerCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryById(tracerCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
     @GetMapping("/tracerCategory/realmId/{realmId}")
+    @Operation(
+        summary = "Get tracer categories",
+        description = "Get tracer categories for a specific realm"
+    )
+    @Parameter(name = "realmId", description = "The ID of the realm to get tracer categories for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories for the specified realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Tracer categories not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list")
     public ResponseEntity getTracerCategoryForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
     @GetMapping("/tracerCategory/realmId/{realmId}/programId/{programId}")
+    @Operation(
+        summary = "Get tracer categories",
+        description = "Get tracer categories for a specific realm and program"
+    )
+    @Parameter(name = "realmId", description = "The ID of the realm to get tracer categories for", required = true)
+    @Parameter(name = "programId", description = "The ID of the program to get tracer categories for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories for the specified realm and program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Tracer categories not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the realm or program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list")
     public ResponseEntity getTracerCategoryForRealmProgram(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
     @PostMapping("/tracerCategory/realmId/{realmId}/programIds")
+    @Operation(
+        summary = "Get tracer categories",
+        description = "Get tracer categories for a specific realm and multiple programs"
+    )
+    @Parameter(name = "realmId", description = "The ID of the realm to get tracer categories for", required = true)
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of program IDs to get tracer categories for",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories for the specified realm and programs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Tracer categories not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the realm or programs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list")
     public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, programIds, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get TracerCategory list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping(value = "/sync/tracerCategory/{lastSyncDate}")
+    @Operation(
+        summary = "Get tracer categories for sync",
+        description = "Get tracer categories for sync"
+    )
+    @Parameter(name = "lastSyncDate", description = "The last sync date", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TracerCategory.class))), responseCode = "200", description = "Returns the list of tracer categories for sync")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid last sync date")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the tracer category list for sync")
     public ResponseEntity getTracerCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -175,10 +272,10 @@ public class TracerCategoryRestController {
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing tracerCategory", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
         } catch (Exception e) {
             logger.error("Error while listing tracerCategory", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 }

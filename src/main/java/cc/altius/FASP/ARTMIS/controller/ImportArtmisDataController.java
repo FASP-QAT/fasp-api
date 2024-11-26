@@ -12,12 +12,17 @@ import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.service.ImportArtmisDataService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  *
  * @author altius
  */
 @RestController
+@Tag(
+    name = "Import Shipment Data",
+    description = "Import Shipment Data from ARTMIS"
+)
 public class ImportArtmisDataController {
 
     @Autowired

@@ -15,8 +15,11 @@ import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/equivalencyUnit")
+@Tag(
+    name = "Equivalency Unit",
+    description = "Manage equivalency units and their mappings"
+)
 public class EquivalencyUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -56,9 +63,12 @@ public class EquivalencyUnitRestController {
      * @return returns the active list of active EquivalencyUnits
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete EquivalencyUnit list. Will only return those EquivalencyUnits that are marked Active.", summary = "Get active EquivalencyUnit list", tags = ("equivalencyUnit"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnit list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnit list")
+    @Operation(
+        summary = "Get Active Equivalency Units",
+        description = "Retrieve a list of active equivalency units"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnit.class))), responseCode = "200", description = "Returns the EquivalencyUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnit list")
     public ResponseEntity getEquivalencyUnitList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -76,9 +86,12 @@ public class EquivalencyUnitRestController {
      * @return returns the complete list of EquivalencyUnits
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete EquivalencyUnit list.", summary = "Get complete EquivalencyUnit list", tags = ("equivalencyUnit"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnit list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnit list")
+    @Operation(
+        summary = "Get All Equivalency Units",
+        description = "Retrieve a complete list of all equivalency units (includes disabled units)"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnit.class))), responseCode = "200", description = "Returns the EquivalencyUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnit list")
     public ResponseEntity getEquivalencyUnitListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -98,13 +111,19 @@ public class EquivalencyUnitRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update EquivalencyUnit", summary = "Add or Update EquivalencyUnit", tags = ("equivalencyUnit"))
-    @Parameters(
-            @Parameter(name = "equivalencyUnit", description = "The list of EquivalencyUnit objects that you want to add or update. If equivalencyUnitId is null or 0 then it is added if equivalencyUnitId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @Operation(
+        summary = "Add or Update Equivalency Units",
+        description = "Create or update a list of equivalency units"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of EquivalencyUnit objects that you want to add or update. If equivalencyUnitId is null or 0 then it is added if equivalencyUnitId is not null and non 0 it is updated",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquivalencyUnit.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteEquivalencyUnit(@RequestBody List<EquivalencyUnit> equivalencyUnitList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -129,9 +148,12 @@ public class EquivalencyUnitRestController {
      * @return returns the active list of active EquivalencyUnitMappings
      */
     @GetMapping("/mapping")
-    @Operation(description = "API used to get the complete EquivalencyUnitMapping list. Will only return those EquivalencyUnitMappings that are marked Active.", summary = "Get active EquivalencyUnitMapping list", tags = ("equivalencyUnitMapping, equivalencyUnit"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
+    @Operation(
+        summary = "Get Active Equivalency Unit Mappings",
+        description = "Retrieve a list of active equivalency unit mappings"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnitMapping.class))), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
     public ResponseEntity getEquivalencyUnitMappingList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -149,9 +171,12 @@ public class EquivalencyUnitRestController {
      * @return returns the complete list of EquivalencyUnitMappings
      */
     @GetMapping("/mapping/all")
-    @Operation(description = "API used to get the complete EquivalencyUnitMapping list.", summary = "Get complete EquivalencyUnitMapping list", tags = ("equivalencyUnitMapping, equivalencyUnit"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
+    @Operation(
+        summary = "Get All Equivalency Unit Mappings List",
+        description = "Retrieve a complete list of all equivalency unit mappings (includes disabled mappings)"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnitMapping.class))), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
     public ResponseEntity getEquivalencyUnitMappingListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -171,13 +196,19 @@ public class EquivalencyUnitRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "/mapping")
-    @Operation(description = "API used to add or update EquivalencyUnitMapping", summary = "Add or Update EquivalencyUnitMapping", tags = ("equivalencyUnitMapping, equivalencyUnit"))
-    @Parameters(
-            @Parameter(name = "equivalencyUnitMappingList", description = "The list of EquivalencyUnitMapping objects that you want to add or update. If equivalencyUnitMappingId is null or 0 then it is added if equivalencyUnitMappingId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @Operation(
+        summary = "Add or Update Equivalency Unit Mappings",
+        description = "Create or update a list of equivalency unit mappings"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of EquivalencyUnitMapping objects that you want to add or update. If equivalencyUnitMappingId is null or 0 then it is added if equivalencyUnitMappingId is not null and non 0 it is updated",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EquivalencyUnitMapping.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteEquivalencyUnitMapping(@RequestBody List<EquivalencyUnitMapping> equivalencyUnitMappingList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -207,16 +238,19 @@ public class EquivalencyUnitRestController {
      * @return List of EUM
      */
     @GetMapping(value = "/forecastingUnitId/{forecastingUnitId}/programId/{programId}")
-    @Operation(description = "API used to get the list of Equivalency Units Mapping based on a Program and a Forecasting Unit", summary = "Get list of EquivalencyUnitMapping", tags = ("equivalencyUnitMapping, equivalencyUnit"))
+    @Operation(
+        summary = "Get Equivalency Unit Mappings by Forecasting Unit and Program",
+        description = "Retrieve equivalency unit mappings for a specific forecasting unit and program"
+    )
     @Parameters(
             {
                 @Parameter(name = "forecastingUnitId", description = "The Forecasting Unit Id that you want the list of EUM for"),
                 @Parameter(name = "programId", description = "The Program Id that you want the priority for")
             }
     )
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to the Program that you requested")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnitMapping.class))), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to the Program that you requested")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of EquivalencyUnitMapping list")
     public ResponseEntity getEquivalencyUnitMappingForForecastingUnit(@PathVariable("forecastingUnitId") int forecastingUnitId, @PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

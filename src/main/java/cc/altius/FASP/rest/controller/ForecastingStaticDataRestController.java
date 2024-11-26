@@ -7,10 +7,15 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.SimpleBaseModel;
+import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +33,10 @@ import cc.altius.FASP.service.ForecastingStaticDataService;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Forecasting Static Data",
+    description = "Manage static lookup data for forecasting system configuration"
+)
 public class ForecastingStaticDataRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -45,9 +54,12 @@ public class ForecastingStaticDataRestController {
      * @return returns the complete list of active UsageTypes
      */
     @GetMapping("/usageType")
-    @Operation(description = "API used to get the complete UsageType list. Will only return those UsageTypes that are marked Active.", summary = "Get active UsageType list", tags = ("usageType"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageType list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageType list")
+    @Operation(
+        summary = "Get Active Usage Type List",
+        description = "Retrieve a list of active usage types"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleBaseModel.class))), responseCode = "200", description = "Returns the UsageType list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsageType list")
     public ResponseEntity getUsageTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -66,9 +78,12 @@ public class ForecastingStaticDataRestController {
      * @return returns the complete list of active NodeTypes
      */
     @GetMapping("/nodeType")
-    @Operation(description = "API used to get the complete NodeType list. Will only return those NodeTypes that are marked Active.", summary = "Get active NodeType list", tags = ("nodeType"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the NodeType list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of NodeType list")
+    @Operation(
+        summary = "Get Active Node Type List",
+        description = "Retrieve a list of active node types"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = NodeType.class))), responseCode = "200", description = "Returns the NodeType list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of NodeType list")
     public ResponseEntity getNodeTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -87,9 +102,12 @@ public class ForecastingStaticDataRestController {
      * @return returns the complete list of active ForecastMethodTypes
      */
     @GetMapping("/forecastMethodType")
-    @Operation(description = "API used to get the complete ForecastMethodType list. Will only return those ForecastMethodTypes that are marked Active.", summary = "Get active ForecastMethodType list", tags = ("forecastMethodType"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMethodType list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethodType list")
+    @Operation(
+        summary = "Get Active Forecast Method Type List",
+        description = "Retrieve a list of active forecast method types"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleBaseModel.class))), responseCode = "200", description = "Returns the ForecastMethodType list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethodType list")
     public ResponseEntity getForecastMethodTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

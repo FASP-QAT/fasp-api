@@ -8,10 +8,8 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.OrganisationService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +26,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 
 /**
  *
@@ -35,6 +40,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Organisation",
+    description = "Manage organizations with realm-based access control"
+)
 public class OrganisationRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -45,6 +54,19 @@ public class OrganisationRestController {
     private UserService userService;
 
     @PostMapping(path = "/organisation")
+    @Operation(
+        summary = "Add Organisation",
+        description = "Add a new organisation"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The organisation data to add",
+        required = true,
+        content = @Content(schema = @Schema(implementation = Organisation.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to add this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Organisation already exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding organisation")
     public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -52,17 +74,30 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Organisation", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @PutMapping(path = "/organisation")
+    @Operation(
+        summary = "Update Organisation",
+        description = "Update an existing organisation"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The organisation data to update",
+        required = true,
+        content = @Content(schema = @Schema(implementation = Organisation.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Organisation data is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating organisation")
     public ResponseEntity putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -70,20 +105,27 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DuplicateKeyException ae) {
+            // FIXME: How does this error get thrown on an update
             logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to update Organisation", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping("/organisation")
+    @Operation(
+        summary = "Get Organisation list",
+        description = "Retrieve a list of organisations"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Organisation.class))), responseCode = "200", description = "Returns a list of organisations")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation list")
     public ResponseEntity getOrganisation(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -126,23 +168,39 @@ public class OrganisationRestController {
 //    }
 
     @GetMapping("/organisation/{organisationId}")
+    @Operation(
+        summary = "Get Organisation",
+        description = "Retrieve an organisation by its ID"
+    )
+    @Parameter(name = "organisationId", description = "The ID of the organisation to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Organisation.class)), responseCode = "200", description = "Returns an organisation")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Organisation not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation")
     public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getOrganisationById(organisationId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Organisation list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get Organisation list", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get Organisation list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping("/organisation/getDisplayName/realmId/{realmId}/name/{name}")
+    @Operation(
+        summary = "Get Organisation Display Name",
+        description = "Retrieve an organisation's funding source suggested display name"
+    )
+    @Parameter(name = "realmId", description = "The ID of the realm to retrieve the organisation from")
+    @Parameter(name = "name", description = "The name of the organisation to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns an organisation's funding source suggested display name")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation display name")
     public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
