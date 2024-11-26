@@ -5,16 +5,19 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.exception.IncorrectAccessControlException;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -27,6 +30,8 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByEmailId(String emailId);
 
     public CustomUserDetails getCustomUserByUserId(int userId);
+    
+    public CustomUserDetails getCustomUserByUserIdForApi(int userId, int method, String apiUrl);
 
 //    public Map<String, Object> checkIfUserExists(String username, String password);
     public List<String> getBusinessFunctionsForUserId(int userId);
@@ -35,7 +40,7 @@ public interface UserDao {
 
     public int updateFailedAttemptsByUserId(String emailId);
 
-    public int addNewUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<User> getUserList(CustomUserDetails curUser);
     
@@ -43,11 +48,11 @@ public interface UserDao {
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
     
-    public List<User> getUserListForProgram(int programId, CustomUserDetails curUser);
+    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser);
 
-    public User getUserByUserId(int userId, CustomUserDetails curUser);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateUser(User user, CustomUserDetails curUser) throws IncorrectAccessControlException;
+    public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 
@@ -68,6 +73,8 @@ public interface UserDao {
     public Role getRoleById(String roleId);
 
     public List<Role> getRoleList(CustomUserDetails curUser);
+    
+    public boolean checkCanCreateRole(String roleId, CustomUserDetails curUser);
 
     public String generateTokenForUserId(int userId);
 
@@ -83,6 +90,8 @@ public interface UserDao {
 
     public void addTokenToLogout(String token);
 
+    public List<UserAcl> getAccessControls(CustomUserDetails curUser);
+    
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
     public int updateSuncExpiresOn(String emailId);
@@ -108,4 +117,8 @@ public interface UserDao {
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
 
     public String getEmailByUserId(int userId);
+    
+    public List<SecurityRequestMatcher> getSecurityList();
+    
+    public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser);
 }

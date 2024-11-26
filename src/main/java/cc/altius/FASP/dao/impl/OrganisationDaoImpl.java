@@ -84,7 +84,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + ":CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", o.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         params.put("ORGANISATION_TYPE_ID", o.getOrganisationType().getId());
         int labelId = this.labelDao.addLabel(o.getLabel(), LabelConstants.RM_ORGANISATION, curUser.getUserId());
         params.put("ORGANISATION_CODE", o.getOrganisationCode());
@@ -166,12 +166,14 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT o.ORGANISATION_ID `ID`, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR, o.ORGANISATION_CODE `CODE` FROM vw_organisation o WHERE o.ACTIVE AND (o.REALM_ID=:realmId OR :realmId=-1) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "o", curUser);
-        this.aclService.addUserAclForOrganisation(stringBuilder, params, "o", curUser);
+        if (aclFilter) {
+            this.aclService.addUserAclForOrganisation(stringBuilder, params, "o", curUser);
+        }
         stringBuilder.append(" ORDER BY o.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
@@ -207,6 +209,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", organisationId);
         this.aclService.addUserAclForRealm(sqlListString, params, "o", curUser);
+        this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationResultSetExtractor());
     }
 

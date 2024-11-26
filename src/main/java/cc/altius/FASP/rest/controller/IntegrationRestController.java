@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -58,7 +60,7 @@ public class IntegrationRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration list")
     public ResponseEntity getIntegration(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationService.getIntegrationList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Integrations", e);
@@ -69,11 +71,11 @@ public class IntegrationRestController {
     /**
      * API used to get the Integration for a specific IntegrationId
      *
-     * @param integrationId IntegrationId that you want the Integration
-     * Object for
+     * @param integrationId IntegrationId that you want the Integration Object
+     * for
      * @param auth
-     * @return returns the list the Integration object based on
-     * IntegrationId specified
+     * @return returns the list the Integration object based on IntegrationId
+     * specified
      */
     @GetMapping(value = "/{integrationId}")
     @Operation(description = "API used to get the Integration for a specific IntegrationId", summary = "Get Integration for an IntegrationId", tags = ("integration"))
@@ -85,7 +87,7 @@ public class IntegrationRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration")
     public ResponseEntity getIntegration(@PathVariable("integrationId") int integrationId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationService.getIntegrationById(integrationId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Integration Id=" + integrationId, ae);
@@ -116,7 +118,7 @@ public class IntegrationRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addIntegration(@RequestBody Integration integration, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.integrationService.addIntegration(integration, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -149,7 +151,7 @@ public class IntegrationRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity updateIntegration(@RequestBody Integration integration, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.integrationService.updateIntegration(integration, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -166,20 +168,21 @@ public class IntegrationRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
-     * API used to get the complete Integration View list.
+     * API used to get the List of Views that are allowed to be set for an
+     * Integration
      *
      * @param auth
      * @return returns the complete list of IntegrationViews
      */
     @GetMapping("/viewList")
-    @Operation(description = "API used to get the complete Integration View list.", summary = "Get Integration View list", tags = ("integration"))
+    @Operation(description = "API used to get the List of Views that are allowed to be set for an Integration", summary = "Get Integration View list", tags = ("integration"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration View list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration list")
     public ResponseEntity getIntegrationView(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationService.getIntegrationViewList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Integrations", e);

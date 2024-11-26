@@ -6,13 +6,17 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
@@ -34,20 +38,36 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
-    public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
-            return this.fundingSourceDao.addFundingSource(f, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException {
+        for (SimpleObject program : f.getProgramList()) {
+            if (program != null && program.getId() != null && program.getId() != 0) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
         }
+        return this.fundingSourceDao.addFundingSource(f, curUser);
     }
 
     @Override
-    public int updateFundingSource(FundingSource f, CustomUserDetails curUser) {
+    public int updateFundingSource(FundingSource f, CustomUserDetails curUser) throws AccessControlFailedException {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(f.getFundingSourceId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
+            for (SimpleObject program : f.getProgramList()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.fundingSourceDao.updateFundingSource(f, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -75,7 +95,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
         FundingSource f = this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
+        if (f == null || this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
             return f;
         } else {
             throw new AccessDeniedException("Access denied");

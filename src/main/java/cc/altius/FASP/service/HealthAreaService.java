@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -16,15 +17,17 @@ import java.util.List;
  */
 public interface HealthAreaService {
 
-    public int addHealthArea(HealthArea h, CustomUserDetails curUser);
+    public int addHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
+    public int updateHealthArea(HealthArea h, CustomUserDetails CurUser) throws AccessControlFailedException;
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
 
-    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getHealthAreaDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<SimpleCodeObject> getHealthAreaListByRealmCountryIds(String[] realmCountryIds, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser);
 
@@ -33,7 +36,7 @@ public interface HealthAreaService {
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListForProgramByRealmId(int realmId, CustomUserDetails curUser);
-
+    
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser);

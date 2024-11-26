@@ -83,5 +83,5 @@ public interface ProcurementAgentDao {
 
     public List<SimpleCodeObject> getProcurementAgentListByProgramId(int programId, CustomUserDetails curUser);
     
-    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser);
+//    public int updateProcurementAgentsForProgram(int programId, Integer[] procurementAgentIds, CustomUserDetails curUser);
 }

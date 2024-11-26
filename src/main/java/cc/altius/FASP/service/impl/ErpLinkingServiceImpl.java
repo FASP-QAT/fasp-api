@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ErpLinkingDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ArtmisHistory;
@@ -16,7 +17,6 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInput;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
-import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.LinkedShipmentBatchDetails;
 import cc.altius.FASP.model.NotLinkedErpShipmentsInputTab3;
 import cc.altius.FASP.model.ProductCategory;
@@ -30,7 +30,6 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.FASP.service.ProgramService;
-import cc.altius.utils.TreeUtils.Node;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,9 +112,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
-            System.out.println("length---" + manualTaggingOrderDTO.length);
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
-                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
                     int id = 0;
                     int count = this.erpLinkingDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
@@ -132,7 +129,6 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
-                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
                     this.erpLinkingDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
                 }
             }
@@ -160,13 +156,13 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
 
     // ################################## New functions ###########################################
     @Override
-    public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
+    public List<Shipment> getNotLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) throws AccessControlFailedException {
         this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.getNotLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
     }
 
     @Override
-    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) {
+    public List<String> autoCompleteOrder(ErpAutoCompleteDTO erpAutoCompleteDTO, CustomUserDetails curUser) throws AccessControlFailedException {
         this.programService.getSimpleProgramById(erpAutoCompleteDTO.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.autoCompleteOrder(erpAutoCompleteDTO, curUser);
     }
@@ -177,7 +173,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) {
+    public List<ShipmentLinkingOutput> getNotLinkedErpShipmentsTab1AndTab3(NotLinkedErpShipmentsInput input, CustomUserDetails curUser) throws AccessControlFailedException {
         if (input.getProgramId() != 0) {
             this.programService.getSimpleProgramById(input.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         }
@@ -190,7 +186,7 @@ public class ErpLinkingServiceImpl implements ErpLinkingService {
     }
 
     @Override
-    public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) {
+    public List<ShipmentLinkingOutput> getLinkedQatShipments(int programId, int versionId, String[] planningUnitIds, CustomUserDetails curUser) throws AccessControlFailedException{
         this.programService.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         return this.erpLinkingDao.getLinkedQatShipments(programId, versionId, planningUnitIds, curUser);
     }

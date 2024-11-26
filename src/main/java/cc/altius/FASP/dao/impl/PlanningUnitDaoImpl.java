@@ -301,7 +301,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate,String stopDate, CustomUserDetails curUser) {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlPlanningUnitCapacityListString);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
@@ -315,7 +315,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate,String stopDate, CustomUserDetails curUser) {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate, String stopDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlPlanningUnitCapacityListString).append(" AND puc.PLANNING_UNIT_ID=:planningUnitId");
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
@@ -530,7 +530,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID as ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE fu.TRACER_CATEGORY_ID=:tracerCategoryId AND ((:active=TRUE AND pu.ACTIVE) OR (:active=FALSE))");
+        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID as ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE fu.TRACER_CATEGORY_ID=:tracerCategoryId AND ((:active=TRUE AND pu.ACTIVE) OR (:active=FALSE))");
         Map<String, Object> params = new HashMap<>();
         params.put("tracerCategoryId", tracerCategoryId);
         params.put("active", active);
@@ -669,7 +669,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         stringBuilder.append(" ORDER BY pu.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new PlanningUnitWithCountRowMapper());
     }
-    
+
     @Override
     public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId AND ((:active=1 AND p.ACTIVE AND ppu.ACTIVE) OR (:active=0 AND (p.ACTIVE=0 OR ppu.ACTIVE=0))) ");
@@ -680,7 +680,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         stringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
-    
+
     @Override
     public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_dataset p LEFT JOIN rm_dataset_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND p.CURRENT_VERSION_ID=ppu.VERSION_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE pu.PLANNING_UNIT_ID=:planningUnitId AND ((:active=1 AND p.ACTIVE AND ppu.ACTIVE) OR (:active=0 AND (p.ACTIVE=0 OR ppu.ACTIVE=0))) ");

@@ -63,7 +63,7 @@ public class SupplierDaoImpl implements SupplierDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_supplier").usingGeneratedKeyColumns("SUPPLIER_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", m.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(m.getLabel(), LabelConstants.RM_SUPPLIER, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);

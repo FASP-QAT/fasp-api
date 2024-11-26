@@ -23,7 +23,7 @@ public interface OrganisationDao {
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
     
-    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser);
     
     public List<SimpleCodeObject> getOrganisationDropdownListForRealmCountryId(int realmCountryId, CustomUserDetails curUser);
     

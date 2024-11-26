@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
@@ -18,14 +19,13 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ShipmentSync;
-import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramVersionTrans;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
@@ -34,6 +34,7 @@ import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.report.LoadProgramInput;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,8 +46,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.access.AccessDeniedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -67,8 +68,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private ProblemService problemService;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private DashboardService dashboardService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) throws AccessControlFailedException {
         ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
@@ -89,10 +93,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) {
+    public List<ProgramData> getProgramData(List<LoadProgramInput> lpInputList, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         List<ProgramData> programDataList = new LinkedList<>();
-        lpInputList.forEach(pv -> {
-            ProgramData pd = new ProgramData(this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+        for (LoadProgramInput pv : lpInputList) {
+            Program p = this.programCommonDao.getFullProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            ProgramData pd = new ProgramData(p);
             pd.setCutOffDate(pv.getCutOffDate());
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
@@ -109,13 +114,29 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             pd.setProcurementAgentList(this.procurementAgentDao.getProcurementAgentListByProgramId(pv.getProgramId(), curUser));
             pd.setShipmentBudgetList(this.programDataDao.getShipmentBudgetList(pv.getProgramId(), pv.getVersionId(), curUser));
+            int noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop = p.getRealmCountry().getRealm().getNoOfMonthsInPastForTopDashboard(), noOfMonthsInFutureForTop = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForTopDashboard();
+            if (p.getNoOfMonthsInPastForBottomDashboard() == null) {
+                noOfMonthsInPastForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInPastForBottomDashboard();
+            } else {
+                noOfMonthsInPastForBottom = p.getNoOfMonthsInPastForBottomDashboard();
+            }
+            if (p.getNoOfMonthsInFutureForBottomDashboard() == null) {
+                noOfMonthsInFutureForBottom = p.getRealmCountry().getRealm().getNoOfMonthsInFutureForBottomDashboard();
+            } else {
+                noOfMonthsInFutureForBottom = p.getNoOfMonthsInFutureForBottomDashboard();
+            }
+            try {
+                pd.setDashboardData(this.dashboardService.getDashboardForLoadProgram(pv.getProgramId(), versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser));
+            } catch (ParseException ex) {
+                logger.error("Error occurred getting the dates for Dashboard", ex);
+            }
             programDataList.add(pd);
-        });
+        }
         return programDataList;
     }
 
     @Override
-    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser) {
+    public DatasetData getDatasetData(int programId, int versionId, boolean includeTreeData, CustomUserDetails curUser) throws AccessControlFailedException {
         if (versionId == -1) {
             versionId = this.programDao.getLatestVersionForPrograms("" + programId).get(0).getVersionId();
         }
@@ -150,32 +171,18 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser) {
+    public List<DatasetPlanningUnit> getDatasetPlanningUnit(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDao.getDatasetPlanningUnitList(programId, versionId);
-        } else {
-            throw new AccessDeniedException("You do not have access to this Program");
-        }
+        return this.programDao.getDatasetPlanningUnitList(programId, versionId);
     }
 
     @Override
-    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) throws AccessControlFailedException {
         List<DatasetData> datasetDataList = new LinkedList<>();
-        programVersionList.forEach(pv -> {
+        for (ProgramIdAndVersionId pv : programVersionList) {
             datasetDataList.add(getDatasetData(pv.getProgramId(), pv.getVersionId(), true, curUser));
-        });
+        }
         return datasetDataList;
-    }
-
-    @Override
-    public List<SimpleObject> getVersionTypeList() {
-        return this.programDataDao.getVersionTypeList();
-    }
-
-    @Override
-    public List<SimpleObject> getVersionStatusList() {
-        return this.programDataDao.getVersionStatusList();
     }
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
@@ -183,18 +190,24 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, UpdateProgramVersion updateProgramVersion, CustomUserDetails curUser) throws AccessControlFailedException {
+//        if (programId != 0) {
+//            try {
+        this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//            } catch (EmptyResultDataAccessException e) {
+//                throw new AccessControlFailedException();
+//            }
         return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion, curUser);
     }
 
     @Override
-    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) {
+    public void resetProblemListForPrograms(int[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
         for (int programId : programIds) {
-            try {
-                SimpleCodeObject p = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
-            } catch (EmptyResultDataAccessException erda) {
-                throw new AccessDeniedException("Access denied");
-            }
+//            try {
+            this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//            } catch (EmptyResultDataAccessException e) {
+//                throw new AccessControlFailedException();
+//            }
         }
         this.programDataDao.resetProblemListForPrograms(programIds, curUser);
     }
@@ -238,7 +251,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+    public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) throws AccessControlFailedException {
         boolean newer = false;
         ListMultimap<Integer, Integer> programMap = LinkedListMultimap.create();
         for (ProgramIdAndVersionId pv : programVersionList) {
@@ -288,16 +301,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+    public Map<String, List<ActualConsumptionDataOutput>> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) throws AccessControlFailedException {
         Map<String, List<ActualConsumptionDataOutput>> actualConsumptionMap = new HashMap<>();
         for (ActualConsumptionData pd : acd.getProgramDataList()) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(pd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (sp != null && this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-                List<ActualConsumptionDataOutput> acdo = this.programDataDao.getActualConsumptionDataInput(pd, acd.getStartDate(), acd.getStopDate(), curUser);
-                actualConsumptionMap.put(pd.getProgramId() + "~" + pd.getVersionId(), acdo);
-            } else {
-                throw new AccessDeniedException("Access denied");
-            }
+//            if (sp != null && this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
+            List<ActualConsumptionDataOutput> acdo = this.programDataDao.getActualConsumptionDataInput(pd, acd.getStartDate(), acd.getStopDate(), curUser);
+            actualConsumptionMap.put(pd.getProgramId() + "~" + pd.getVersionId(), acdo);
+//            } else {
+//                throw new AccessDeniedException("Access denied");
+//            }
         }
         return actualConsumptionMap;
     }

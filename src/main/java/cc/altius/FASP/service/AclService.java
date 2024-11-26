@@ -5,7 +5,10 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +18,14 @@ import java.util.Map;
  */
 public interface AclService {
 
-    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
+//    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
+    public boolean userHasAccessToResources(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
 
     public boolean checkRealmAccessForUser(CustomUserDetails curUser, int realmId);
 
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
+    public List<UserAcl> expandUserAccess(UserAcl acl, CustomUserDetails curUser) throws AccessControlFailedException;
 
+//    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser);
 
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, CustomUserDetails curUser);
@@ -30,10 +35,16 @@ public interface AclService {
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, CustomUserDetails curUser);
 
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser);
-    
+
     public void addUserAclForHealthArea(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser);
 
     public void addUserAclForOrganisation(StringBuilder sb, Map<String, Object> params, String oAlias, CustomUserDetails curUser);
 
     public void addUserAclForRealmCountry(StringBuilder sb, Map<String, Object> params, String rcAlias, CustomUserDetails curUser);
+
+    public void addFullAclAtUserLevel(StringBuilder sb, Map<String, Object> params, String userAclAlias, CustomUserDetails curUser);
+
+    public int buildSecurity();
+    
+    public boolean canEditUser(User user, CustomUserDetails curUser, Map<String, List<String>> canCreateRoleMap);
 }
