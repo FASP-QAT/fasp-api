@@ -500,6 +500,7 @@ public class UserDaoImpl implements UserDao {
                 //            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
                 //        }
                 .append(" ORDER BY u.`USER_ID`, ur.`ROLE_ID`");
+        params.put("realmId", realmId);
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserListResultSetExtractor());
     }

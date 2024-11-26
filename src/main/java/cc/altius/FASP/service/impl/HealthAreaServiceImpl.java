@@ -40,10 +40,10 @@ public class HealthAreaServiceImpl implements HealthAreaService {
 
     @Override
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException {
-        for (RealmCountry realmCountry : h.getRealmCountryList()) {
-            if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+        if (h.getRealmCountryArray() != null) {
+            for (String realmCountry : h.getRealmCountryArray()) {
                 try {
-                    if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                    if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
                         throw new AccessControlFailedException();
                     }
                 } catch (EmptyResultDataAccessException e) {
@@ -58,10 +58,10 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     public int updateHealthArea(HealthArea h, CustomUserDetails curUser) throws AccessControlFailedException {
         HealthArea ha = this.getHealthAreaById(h.getHealthAreaId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, ha.getRealm().getId())) {
-            for (RealmCountry realmCountry : h.getRealmCountryList()) {
-                if (realmCountry != null && realmCountry.getRealmCountryId() != 0) {
+            if (h.getRealmCountryArray() != null) {
+                for (String realmCountry : h.getRealmCountryArray()) {
                     try {
-                        if (this.realmCountryDao.getRealmCountryById(realmCountry.getRealmCountryId(), curUser) == null) {
+                        if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
                             throw new AccessControlFailedException();
                         }
                     } catch (EmptyResultDataAccessException e) {

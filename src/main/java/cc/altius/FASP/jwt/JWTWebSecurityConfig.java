@@ -9,7 +9,6 @@ import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,18 +124,14 @@ public class JWTWebSecurityConfig {
         if (security.getHttpMethod() == null) {
             if (security.getBfList().equals("")) {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split(",")).authenticated());
-                System.out.println(Arrays.asList(security.getUrlList().split(",")) + " -> authenticated()");
             } else {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(security.getUrlList().split(",")).hasAnyAuthority(security.getBfList().split(",")));
-                System.out.println(Arrays.asList(security.getUrlList().split(",")) + " -> " + Arrays.asList(security.getBfList().split(",")));
             }
         } else {
             if (security.getBfList().equals("")) {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split(",")).authenticated());
-                System.out.println(security.getMethod() + " : " + Arrays.asList(security.getUrlList().split(",")) + " -> authenticated()");
             } else {
                 http.authorizeHttpRequests(auth -> auth.requestMatchers(method, security.getUrlList().split(",")).hasAnyAuthority(security.getBfList().split(",")));
-                System.out.println(security.getMethod() + " : " + Arrays.asList(security.getUrlList().split(",")) + " -> " + Arrays.asList(security.getBfList().split(",")));
             }
         }
     }
