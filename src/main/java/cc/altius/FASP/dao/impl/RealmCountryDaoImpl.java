@@ -201,12 +201,14 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
-    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, CustomUserDetails curUser) {
+    public List<SimpleCodeObject> getRealmCountryDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT rc.REALM_COUNTRY_ID `ID`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, c.COUNTRY_CODE `CODE` FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.ACTIVE AND (rc.REALM_ID=:realmId OR :realmId=-1) ");
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         this.aclService.addUserAclForRealm(stringBuilder, params, "rc", curUser);
-        this.aclService.addUserAclForRealmCountry(stringBuilder, params, "rc", curUser);
+        if (aclFilter) {
+            this.aclService.addUserAclForRealmCountry(stringBuilder, params, "rc", curUser);
+        }
         stringBuilder.append(" ORDER BY c.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
@@ -217,6 +219,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         try {
             return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
         } catch (EmptyResultDataAccessException erda) {
@@ -239,6 +242,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }

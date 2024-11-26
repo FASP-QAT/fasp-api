@@ -36,6 +36,8 @@ public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<L
                 p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setActive(rs.getBoolean("ACTIVE"));
                 p.setRealmId(rs.getInt("REALM_ID"));
+                p.setNoOfMonthsInFutureForBottomDashboard(rs.getInt("NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD"));
+                p.setNoOfMonthsInPastForBottomDashboard(rs.getInt("NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD"));
             } else {
                 p = pList.get(idx);
             }

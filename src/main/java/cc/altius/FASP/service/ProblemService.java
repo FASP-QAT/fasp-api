@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ManualProblem;
 import cc.altius.FASP.model.ProblemReport;
@@ -35,5 +36,5 @@ public interface ProblemService {
     
     public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser);
     
-    public int createManualProblem(ManualProblem problemReport, CustomUserDetails curUser);
+    public int createManualProblem(ManualProblem problemReport, CustomUserDetails curUser) throws AccessControlFailedException;
 }

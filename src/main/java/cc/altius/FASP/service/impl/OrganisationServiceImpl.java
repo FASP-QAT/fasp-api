@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
@@ -39,18 +40,36 @@ public class OrganisationServiceImpl implements OrganisationService {
     private AclService aclService;
 
     @Override
-    public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getId())) {
-            return organisationDao.addOrganisation(organisation, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int addOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (organisation.getRealmCountryArray() != null) {
+            for (String realmCountry : organisation.getRealmCountryArray()) {
+                try {
+                    if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
+                        throw new AccessControlFailedException();
+                    }
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
         }
+        return organisationDao.addOrganisation(organisation, curUser);
     }
 
     @Override
-    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) {
+    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) throws AccessControlFailedException {
         Organisation o = this.getOrganisationById(organisation.getOrganisationId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, o.getRealm().getId())) {
+            if (organisation.getRealmCountryArray() != null) {
+                for (String realmCountry : organisation.getRealmCountryArray()) {
+                    try {
+                        if (this.realmCountryDao.getRealmCountryById(Integer.parseInt(realmCountry), curUser) == null) {
+                            throw new AccessControlFailedException();
+                        }
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return organisationDao.updateOrganisation(organisation, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -63,8 +82,8 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
-    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, CustomUserDetails curUser) {
-        return this.organisationDao.getOrganisationDropdownList(realmId, curUser);
+    public List<SimpleCodeObject> getOrganisationDropdownList(int realmId, boolean aclFilter, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationDropdownList(realmId, aclFilter, curUser);
     }
 
     @Override

@@ -1,22 +1,8 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getForecastErrorNew`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT (10), VAR_VIEW_BY INT(10), VAR_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REGION_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PREVIOUS_MONTHS INT(10), VAR_DAYS_OF_STOCK_OUT TINYINT (1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getForecastErrorNew`(VAR_PROGRAM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE)
 BEGIN 
-    -- If the view is EquivalencyUnit then all PU or FU selected must be from the same EU
-    -- If the view is FU then the PU's selected must be from the same FU
-    -- If the view is PU then you cannot multi-select
     SET @programId = VAR_PROGRAM_ID; 
-    SET @versionId = VAR_VERSION_ID; -- Can be -1 for the latest Program
-    SET @unitIds= VAR_UNIT_IDS; -- PU or FU based on viewBy
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
-    SET @viewBy = VAR_VIEW_BY; -- 1 for PU and 2 for FU
-    SET @regionIds = VAR_REGION_IDS; -- empty if all Regions
-    SET @equivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID; -- If the output is to be in EquivalencyUnit then this is a non zero id
-    SET @previousMonths = VAR_PREVIOUS_MONTHS; -- The number of months that we need to average the Consumption for WAPE. Does not include current month which is always included.
-    SET @daysOfStockOut = VAR_DAYS_OF_STOCK_OUT; -- Boolean field that if true means we should consider the Days of Stock Out valued and adjust the consumption accordingly. Only adjusts for Actual Consumption.
-    
-    IF @versionId = -1 THEN 
-        SELECT MAX(pv.VERSION_ID) into @versionId FROM rm_program_version pv where pv.PROGRAM_ID=@programId;
-    END IF;
     
     
     SELECT 

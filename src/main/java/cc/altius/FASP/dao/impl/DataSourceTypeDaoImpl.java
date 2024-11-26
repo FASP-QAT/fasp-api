@@ -64,7 +64,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
         SimpleJdbcInsert insertDataSource = new SimpleJdbcInsert(dataSource).withTableName("rm_data_source_type").usingGeneratedKeyColumns("DATA_SOURCE_TYPE_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("LABEL_ID", insertedRow);
-        params.put("REALM_ID", dataSourceType.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         params.put("ACTIVE", 1);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);

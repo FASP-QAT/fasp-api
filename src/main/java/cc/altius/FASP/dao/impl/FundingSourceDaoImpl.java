@@ -90,7 +90,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("FUNDING_SOURCE_CODE", f.getFundingSourceCode());
-        params.put("REALM_ID", f.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(f.getLabel(), LabelConstants.RM_FUNDING_SOURCE, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ALLOWED_IN_BUDGET", true);

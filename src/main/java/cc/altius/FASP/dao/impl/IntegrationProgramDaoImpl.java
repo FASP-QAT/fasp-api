@@ -72,22 +72,6 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
             + "LEFT JOIN ap_integration i ON im.INTEGRATION_ID=i.INTEGRATION_ID "
             + "LEFT JOIN us_user cb ON im.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID ";
-//    @Override
-//    public int addIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
-//        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_program").usingGeneratedKeyColumns("INTEGRATION_PROGRAM_ID");
-//        Map<String, Object> params = new HashMap<>();
-//        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-//        params.put("INTEGRATION_ID", i.getIntegration().getIntegrationId());
-//        params.put("PROGRAM_ID", i.getProgram().getId());
-//        params.put("VERSION_TYPE_ID", i.getVersionType().getId());
-//        params.put("VERSION_STATUS_ID", i.getVersionStatus().getId());
-//        params.put("ACTIVE", true);
-//        params.put("CREATED_BY", curUser.getUserId());
-//        params.put("CREATED_DATE", curDate);
-//        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-//        params.put("LAST_MODIFIED_DATE", curDate);
-//        return si.executeAndReturnKey(params).intValue();
-//    }
 
     @Override
     public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser) {
