@@ -116,7 +116,7 @@ public class EquivalencyUnitRestController {
      */
     @PostMapping(value = "")
     @Operation(
-        summary = "Add or Update Equivalency Units",
+        summary = "Save Equivalency Units",
         description = "Create or update a list of equivalency units"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -182,7 +182,7 @@ public class EquivalencyUnitRestController {
      */
     @GetMapping("/mapping/all")
     @Operation(
-        summary = "Get All Equivalency Unit Mappings List",
+        summary = "Get All Equivalency Unit Mappings",
         description = "Retrieve a complete list of all equivalency unit mappings (includes disabled mappings)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = EquivalencyUnitMapping.class))), responseCode = "200", description = "Returns the EquivalencyUnitMapping list")
@@ -207,7 +207,7 @@ public class EquivalencyUnitRestController {
      */
     @PostMapping(value = "/mapping")
     @Operation(
-        summary = "Add or Update Equivalency Unit Mappings",
+        summary = "Save Equivalency Unit Mappings",
         description = "Create or update a list of equivalency unit mappings"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

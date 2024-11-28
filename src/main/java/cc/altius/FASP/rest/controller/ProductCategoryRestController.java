@@ -102,7 +102,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get Product Category List",
+        summary = "Get Product Categories",
         description = "Retrieve a list of product categories for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve product categories for", required = true)
@@ -134,7 +134,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
      */
     @GetMapping("/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
     @Operation(
-        summary = "Get Product Category List by Realm",
+        summary = "Get Product Categories by Realm",
         description = "Retrieve a list of product categories for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve product categories for", required = true)
@@ -172,7 +172,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
      */
     @GetMapping("/realmId/{realmId}/programId/{programId}")
     @Operation(
-        summary = "Get Product Category List for Program",
+        summary = "Get Product Categories for Supply Plan Program",
         description = "Retrieve a list of product categories for a specific program"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve product categories for", required = true)

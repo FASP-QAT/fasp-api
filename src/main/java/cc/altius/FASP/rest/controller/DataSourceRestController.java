@@ -110,7 +110,7 @@ public class DataSourceRestController {
      */
     @GetMapping(value = "")
     @Operation(
-        summary = "Get Active Data Source List",
+        summary = "Get Active Data Sources",
         description = "Retrieve a list of all active data sources"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DataSource.class))), responseCode = "200", description = "Returns the list of active data sources")
@@ -133,7 +133,7 @@ public class DataSourceRestController {
      */
     @GetMapping(value = "/all")
     @Operation(
-        summary = "Get All Data Source List",
+        summary = "Get All Data Sources",
         description = "Retrieve a complete list of all data sources (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DataSource.class))), responseCode = "200", description = "Returns the complete list of data sources")
@@ -157,7 +157,7 @@ public class DataSourceRestController {
      */
     @GetMapping(value = "/{dataSourceId}")
     @Operation(
-        summary = "Get Data Source by ID",
+        summary = "Get Data Source",
         description = "Retrieve a data source by its ID"
     )
     @Parameter(name = "dataSourceId", description = "The ID of the data source to retrieve")

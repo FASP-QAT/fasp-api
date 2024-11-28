@@ -122,7 +122,7 @@ public class CurrencyRestController {
      */
     @GetMapping(value = "/{currencyId}")
     @Operation(
-        summary = "Get Currency by Id",
+        summary = "Get Currency",
         description = "Retrieve a currency by its ID"
     )
     @Parameter(name = "currencyId", description = "The ID of the currency to retrieve")
@@ -150,7 +150,7 @@ public class CurrencyRestController {
      */
     @GetMapping(value = "/all")
     @Operation(
-        summary = "Get All Currency List",
+        summary = "Get All Currencies",
         description = "Retrieve a complete list of all currencies (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Currency.class))), responseCode = "200", description = "Returns the list of all currencies")

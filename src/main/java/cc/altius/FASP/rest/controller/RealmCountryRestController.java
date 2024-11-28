@@ -148,7 +148,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Realm Country List",
+        summary = "Get Realm Countries",
         description = "Retrieve a list of realm countries"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = RealmCountry.class))), responseCode = "200", description = "Returns the list of realm countries")
@@ -179,7 +179,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("/{realmCountryId}")
     @Operation(
-        summary = "Get Realm Country by ID",
+        summary = "Get Realm Country",
         description = "Retrieve a realm country by its ID"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve", required = true)
@@ -212,7 +212,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get Realm Country by Realm ID",
+        summary = "Get Realm Country by Realm",
         description = "Retrieve a list of realm countries by their realm ID"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve realm countries for", required = true)
@@ -245,7 +245,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("/{realmCountryId}/planningUnit")
     @Operation(
-        summary = "Get Planning Unit for Country",
+        summary = "Get Planning Units for Country",
         description = "Retrieve a list of planning units (administrative reporting units) for a given realm country"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve planning units for", required = true)
@@ -278,7 +278,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @PostMapping("/programIds/planningUnit")
     @Operation(
-        summary = "Get Planning Unit for Program List",
+        summary = "Get Planning Units for Program List",
         description = "Retrieve a list of planning units (administrative reporting units) for a given list of program IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -315,7 +315,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("/{realmCountryId}/planningUnit/all")
     @Operation(
-        summary = "Get All Planning Unit for Country",
+        summary = "Get all Planning Units for Country",
         description = "Retrieve a list of all planning units (administrative reporting units) for a given realm country"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve all planning units for", required = true)
@@ -393,7 +393,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
      */
     @GetMapping("/program/realmId/{realmId}")
     @Operation(
-        summary = "Get Realm Country for Active Programs by Realm ID",
+        summary = "Get Realm Countries for Active Programs by Realm ID",
         description = "Retrieve a list of realm countries for active programs by their realm ID"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve realm countries for active programs for", required = true)
@@ -419,7 +419,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
 
     @GetMapping("/program")
     @Operation(
-        summary = "Get Realm Country for Active Programs",
+        summary = "Get Realm Countries for Active Programs",
         description = "Retrieve a list of realm countries for active programs"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = RealmCountryHealthArea.class))), responseCode = "200", description = "Returns the list of realm countries")

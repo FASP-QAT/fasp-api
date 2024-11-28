@@ -184,7 +184,7 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}/planningUnit")
     @Operation(
-        summary = "Get Planning Unit Lists for Supply Plan Program",
+        summary = "Get Planning Units for Supply Plan Program",
         description = "Retrieve a list of planning units for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
@@ -369,7 +369,7 @@ public class ProgramRestController {
     // List of Programs and List of PlanningUnitIds instead of single select
     @PostMapping("/program/planningUnit/procurementAgent/")
     @Operation(
-        summary = "Get Procurement Agent List for Program Planning Unit",
+        summary = "Get Procurement Agents for Program Planning Unit",
         description = "Retrieve a list of procurement agents for a specific supply plan program planning unit"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -444,7 +444,7 @@ public class ProgramRestController {
      */
     @PostMapping("/planningUnit/programs")
     @Operation(
-        summary = "Get Planning Unit List for Supply Plan Programs",
+        summary = "Get Planning Units mapped to Supply Plan Programs",
         description = "Retrieve a list of planning units for a list of supply plan programs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -481,7 +481,7 @@ public class ProgramRestController {
     @JsonView(Views.DropDownView.class)
     @PostMapping("/programAndPlanningUnit/programs")
     @Operation(
-        summary = "Get Program and Planning Unit List",
+        summary = "Get Program and Planning Units",
         description = "Retrieve a list of programs and planning units given a list of supply plan programs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -524,7 +524,7 @@ public class ProgramRestController {
      */
     @GetMapping("/program/realmId/{realmId}")
     @Operation(
-        summary = "Get Supply Plan Program List for Realm",
+        summary = "Get Supply Plan Programs for Realm",
         description = "Retrieve a list of supply plan programs for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve programs for", required = true)
@@ -595,7 +595,7 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
     @Operation(
-        summary = "Get Planning Unit List for Supply Plan Program and Product Category",
+        summary = "Get Planning Units for Supply Plan Program and Product Category",
         description = "Retrieve a list of planning units for a specific supply plan program and product category"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
@@ -632,7 +632,7 @@ public class ProgramRestController {
      */
     @PostMapping(path = "/program/initialize")
     @Operation(
-        summary = "Add Supply Plan Program Initialize",
+        summary = "Add Supply Plan Program",
         description = "Initialize a new supply plan program"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -673,7 +673,7 @@ public class ProgramRestController {
     @GetMapping("/loadProgram")
     @JsonView(Views.InternalView.class)
     @Operation(
-        summary = "Get Load Supply Plan Program",
+        summary = "Get Supply Plan Programs (load)",
         description = "Retrieve a list of supply plan programs for load"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = LoadProgram.class))), responseCode = "200", description = "Returns a list of programs for load")
@@ -709,7 +709,7 @@ public class ProgramRestController {
     @GetMapping("/loadProgram/programId/{programId}/page/{page}")
     @JsonView(Views.InternalView.class)
     @Operation(
-        summary = "Get Version List for Load Supply Plan Program",
+        summary = "Get Version List for Supply Plan Program (load)",
         description = "Retrieve a list of versions for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve programs for", required = true)
@@ -783,7 +783,7 @@ public class ProgramRestController {
      */
     @PostMapping("/program/realmCountryList")
     @Operation(
-        summary = "Get Supply Plan Program List for Realm Country List",
+        summary = "Get Supply Plan Programs for Realm Countries",
         description = "Retrieve a simple list of supply plan programs by realm country IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -816,7 +816,7 @@ public class ProgramRestController {
      */
     @PostMapping("/program/productCategoryList")
     @Operation(
-        summary = "Get Program List by Product Categories",
+        summary = "Get Programs by Product Categories",
         description = "Retrieve a simple list of programs by product category IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

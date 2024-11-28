@@ -58,6 +58,7 @@ public class UserManualRestController {
     @Parameter(name = "file", description = "The file to upload", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Return a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to upload the user manual")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The user manual was not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while uploading the user manual")
     public ResponseEntity uploadUserManual(@RequestParam("file") MultipartFile file, Authentication auth) {
         try {
@@ -65,13 +66,13 @@ public class UserManualRestController {
             return new ResponseEntity(HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to upload user manual", e);
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+            return new ResponseEntity(HttpStatus.FORBIDDEN); // 403
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to upload user manual", e);
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
             logger.error("Error while trying to upload user manual", e);
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 

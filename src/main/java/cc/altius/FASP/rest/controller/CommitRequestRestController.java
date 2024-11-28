@@ -7,7 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
-import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetDataJson;
@@ -95,8 +94,8 @@ public class CommitRequestRestController {
      */
     @PutMapping("/programData/{comparedVersionId}")
     @Operation(
-        summary = "Update Program Data",
-        description = "Update the Program data for a given version ID"
+        summary = "Update Supply Plan Program Data",
+        description = "Update the Supply Plan Program data for a given version ID"
     )
     @Parameter(name = "comparedVersionId", description = "The ID of the version to compare against")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -323,7 +322,7 @@ public class CommitRequestRestController {
      */
     @PostMapping("/getCommitRequest/{requestStatus}")
     @Operation(
-        summary = "Get Commit Request List",
+        summary = "Get Commit Requests",
         description = "Retrieve a list of Supply Plan or Dataset Commit Requests based on the provided criteria"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

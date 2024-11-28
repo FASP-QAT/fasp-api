@@ -13,12 +13,16 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.DashboardBottom;
+import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardInput;
+import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmService;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,7 +55,7 @@ import java.util.Map;
 @RequestMapping("/api/dashboard")
 @Tag(
     name = "Dashboard",
-    description = "Manage dashboard metrics and user lists across different administrative levels"
+    description = "Get dashboard metrics across different administrative levels"
 )
 public class DashboardRestController {
 
@@ -183,48 +187,86 @@ public class DashboardRestController {
 
     @PostMapping(value = "/supplyPlanTop")
     @JsonView(Views.ReportView.class)
+    @Operation(
+        summary = "Get Supply Plans (top))",
+        description = "Retrieve a dashboard summary for the top supply plans"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program IDs for the supply plans to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(type = "string")))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DashboardTop.class))), responseCode = "200", description = "Returns the dashboard summary for supply plans")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the supply plans")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The supply plans were not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard summary")
     public ResponseEntity getDashboardTop(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.dashboardService.getDashboardTop(programIds, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getDashboardTop(programIds, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
+            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while trying to get dashboard supply plan top", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get dashboard supply plan top", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get dashboard supply plan top", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);     
         }
     }
 
     @PostMapping(value = "/supplyPlanBottom")
     @JsonView(Views.ReportView.class)
+    @Operation(
+        summary = "Get Supply Plans (bottom)",
+        description = "Retrieve a dashboard summary for the bottom supply plans"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The dashboard input for the supply plans to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = DashboardInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DashboardBottom.class)), responseCode = "200", description = "Returns the dashboard summary for supply plans bottom")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the supply plans")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The supply plans were not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard summary")
     public ResponseEntity getDashboardBottom(@RequestBody DashboardInput ei, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.dashboardService.getDashboardBottom(ei, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getDashboardBottom(ei, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
+            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while trying to get dashboard supply plan bottom", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get dashboard supply plan bottom", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get dashboard supply plan bottom", ae);
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+            return new ResponseEntity(HttpStatus.FORBIDDEN); // 409
         } catch (Exception e) {
             logger.error("Error while trying to get dashboard supply plan bottom", e);
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @GetMapping(value = "/db/{programId}/{versionId}")
     @JsonView(Views.ReportView.class)
+    @Operation(
+        summary = "Get Dashboard for Load Program",
+        description = "Retrieve a dashboard summary for the load program"
+    )
+    @Parameter(name = "programId", description = "The program ID for the program to retrieve")
+    @Parameter(name = "versionId", description = "The version ID for the program to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DashboardForLoadProgram.class)), responseCode = "200", description = "Returns the dashboard")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The program was not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard")
     public ResponseEntity getDashboardForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -243,17 +285,18 @@ public class DashboardRestController {
             }
             return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException ae) {
+            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while getting Dashboard", ae);
-            return new ResponseEntity(HttpStatus.CONFLICT);
+            return new ResponseEntity(HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while getting Dashboard", ae);
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException ae) {
             logger.error("Error while getting Dashboard", ae);
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+            return new ResponseEntity(HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while getting Dashboard", e);
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 }

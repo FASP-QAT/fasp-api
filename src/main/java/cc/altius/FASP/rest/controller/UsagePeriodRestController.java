@@ -63,7 +63,7 @@ public class UsagePeriodRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get active UsagePeriod list",
+        summary = "Get Usage Periods",
         description = "Get active UsagePeriod list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsagePeriod.class))), responseCode = "200", description = "Returns the UsagePeriod list")
@@ -86,7 +86,7 @@ public class UsagePeriodRestController {
      */
     @GetMapping("/all")
     @Operation(
-        summary = "Get complete UsagePeriod list",
+        summary = "Get Usage Periods",
         description = "Get complete UsagePeriod list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsagePeriod.class))), responseCode = "200", description = "Returns the UsagePeriod list")
@@ -111,8 +111,8 @@ public class UsagePeriodRestController {
      */
     @PostMapping(value = "")
     @Operation(
-        summary = "Add or Update UsagePeriod",
-        description = "API used to add or update UsagePeriod"
+        summary = "Save UsagePeriod",
+        description = "Create or update UsagePeriod"
     )
     @Parameters(
             @Parameter(name = "usagePeriod", description = "The list of UsagePeriod objects that you want to add or update. If usagePeriodId is null or 0 then it is added if usagePeriodId is not null and non 0 it is updated"))

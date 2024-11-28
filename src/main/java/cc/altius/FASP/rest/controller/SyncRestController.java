@@ -162,7 +162,7 @@ public class SyncRestController {
             }
         }
     }
-    
+
 //    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
     @Operation(
         summary = "Test synchronization",
@@ -212,7 +212,7 @@ public class SyncRestController {
      */
     @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
     @Operation(
-        summary = "Get all masters data",
+        summary = "Get all Master Data",
         description = "Get all the data that needs to be synced with the offline machine"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -295,7 +295,7 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get list of Languages that are allowed
      *
@@ -304,7 +304,7 @@ public class SyncRestController {
      */
     @GetMapping(value = "/language/{lastSyncDate}")
     @Operation(
-        summary = "Get language list",
+        summary = "Get Languages",
         description = "Get language list for synchronization"
     )
     @Parameter(
@@ -328,7 +328,7 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get the list of Tree Anchor nodes for a Specific DataSet Program and a
      * list of Trees
@@ -339,8 +339,8 @@ public class SyncRestController {
      */
     @PostMapping(value = "/treeAnchor")
     @Operation(
-        summary = "Get tree anchor list",
-        description = "Get tree anchor list for synchronization"
+        summary = "Get Tree Anchors",
+        description = "Get the list of tree anchor nodes for a specified dataset and list of trees for synchronization"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The tree anchor input",

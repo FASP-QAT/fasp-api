@@ -144,7 +144,7 @@ public class DataSourceTypeRestController {
      */
     @GetMapping(value = "/{dataSourceTypeId}")
     @Operation(
-        summary = "Get Data Source Type by ID",
+        summary = "Get Data Source Type",
         description = "Retrieve a data source type by its ID"
     )
     @Parameter(name = "dataSourceTypeId", description = "The ID of the data source type to retrieve")

@@ -63,7 +63,7 @@ public class ProblemRestController implements Serializable {
     @PostMapping("/problemReport/createManualProblem")
     @Operation(
         summary = "Create Manual Problem",
-        description = "Create a new manual problem entry"
+        description = "Create a new manual problem entry for a Supply Plan Program"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input object containing problem details",

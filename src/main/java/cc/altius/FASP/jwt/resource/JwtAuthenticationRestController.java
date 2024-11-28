@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(
-    name = "JWT Authentication", 
+    name = "JWT Authentication",
     description = "JWT Authentication for theFASP API"
 )
 public class JwtAuthenticationRestController {

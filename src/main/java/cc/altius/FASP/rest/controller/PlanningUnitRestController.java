@@ -11,9 +11,10 @@ import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitD
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.PlanningUnitWithCount;
-import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
+import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -155,11 +156,11 @@ public class PlanningUnitRestController {
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List",
+        summary = "Get Planning Units",
         description = "Retrieve a list of active planning units"
     )
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of active planning units")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of active planning units")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnit(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -180,7 +181,7 @@ public class PlanningUnitRestController {
     @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List",
+        summary = "Get Planning Units",
         description = "Retrieve a list of planning units by their IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -210,15 +211,15 @@ public class PlanningUnitRestController {
     @PostMapping("/withPrices/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List with Prices",
-        description = "Retrieve a list of planning units with prices by their IDs"
+        summary = "Get Planning Units with Prices",
+        description = "Retrieve a list of planning units with prices"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of planning unit IDs to retrieve",
         required = true,
         content = @Content(schema = @Schema(type = "array", implementation = String.class))
     )
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of planning units with prices")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnitWithPrices.class))), responseCode = "200", description = "Returns a list of planning units with prices")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitWithPricesByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
         try {
@@ -239,11 +240,11 @@ public class PlanningUnitRestController {
     @JsonView(Views.InternalView.class)
     @GetMapping("/basic")
     @Operation(
-        summary = "Get Planning Unit List Basic",
+        summary = "Get Planning Units (basic)",
         description = "Retrieve a list of planning units with basic information"
     )
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of planning units with basic information")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimplePlanningUnitForAdjustPlanningUnit.class))), responseCode = "200", description = "Returns a list of planning units with basic information")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitListBasic(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -263,11 +264,11 @@ public class PlanningUnitRestController {
     @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List All",
+        summary = "Get all Planning Units",
         description = "Retrieve a list of all planning units (active and disabled)"
     )
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of all planning units (active and disabled)")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of all planning units (active and disabled)")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -288,14 +289,14 @@ public class PlanningUnitRestController {
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List for Realm",
+        summary = "Get Planning Units for Realm",
         description = "Retrieve a list of active planning units for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve planning units for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of active planning units for a specific realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning units found for the specified realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have rights to access this realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of active planning units for a specific realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -322,14 +323,14 @@ public class PlanningUnitRestController {
     @GetMapping("/realmId/{realmId}/all")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit List All",
+        summary = "Get all Planning Units for Realm",
         description = "Retrieve a list of all planning units (active and disabled) for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve planning units for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of all planning units (active and disabled) for a specific realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning units found for the specified realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have rights to access this realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of all planning units (active and disabled) for a specific realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -359,9 +360,9 @@ public class PlanningUnitRestController {
         description = "Retrieve a planning unit by its ID"
     )
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the planning unit with the specified ID")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Planning unit not found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = PlanningUnit.class)), responseCode = "200", description = "Returns the planning unit with the specified ID")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Planning unit not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -382,9 +383,9 @@ public class PlanningUnitRestController {
         description = "Retrieve a planning unit with its associated supply planning and forecasting programs (active and disabled)"
     )
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the planning unit with its associated supply planning and forecasting programs (active and disabled)")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Planning unit not found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the planning unit with its associated supply planning and forecasting programs (active and disabled)")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Planning unit not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitWithProgramsById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -418,9 +419,9 @@ public class PlanningUnitRestController {
         description = "Retrieve a list of active planning units associated with a specific forecasting unit"
     )
     @Parameter(name = "forecastingUnitId", description = "The ID of the forecasting unit to retrieve planning units for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of active planning units associated with a specific forecasting unit")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning units found for the specified forecasting unit")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of active planning units associated with a specific forecasting unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified forecasting unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitByForecastingUnitId(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -447,10 +448,10 @@ public class PlanningUnitRestController {
         description = "Retrieve a list of planning unit capacities for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve planning units for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of planning unit capacities for a specific realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning unit capacities found for the specified realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have rights to access this realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnitCapacity.class))), responseCode = "200", description = "Returns a list of planning unit capacities for a specific realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning unit capacities found for the specified realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -484,11 +485,11 @@ public class PlanningUnitRestController {
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve planning units for", required = true)
     @Parameter(name = "startDate", description = "The start date of the range to retrieve planning unit capacities for", required = true)
     @Parameter(name = "stopDate", description = "The stop date of the range to retrieve planning unit capacities for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of planning unit capacities for a specific realm between two dates")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning unit capacities found for the specified realm between the specified dates")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have rights to access this realm")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Invalid date format")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnitCapacity.class))), responseCode = "200", description = "Returns a list of planning unit capacities for a specific realm between two dates")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning unit capacities found for the specified realm between the specified dates")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid date format")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -521,10 +522,10 @@ public class PlanningUnitRestController {
         description = "Retrieve a planning unit capacity for a specific planning unit"
     )
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the planning unit capacity for a specific planning unit")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Planning unit capacity not found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Invalid date format")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = PlanningUnitCapacity.class)), responseCode = "200", description = "Returns the planning unit capacity for a specific planning unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Planning unit capacity not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid date format")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -559,11 +560,11 @@ public class PlanningUnitRestController {
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve", required = true)
     @Parameter(name = "startDate", description = "The start date of the range to retrieve planning unit capacities for", required = true)
     @Parameter(name = "stopDate", description = "The end date of the range to retrieve planning unit capacities for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the planning unit capacity for a specific planning unit between two dates")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have rights to access this planning unit")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Planning unit capacity not found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Invalid date format")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = PlanningUnitCapacity.class)), responseCode = "200", description = "Returns the planning unit capacity for a specific planning unit between two dates")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this planning unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Planning unit capacity not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid date format")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -592,11 +593,11 @@ public class PlanningUnitRestController {
     @GetMapping(value = "/capacity/all")
     @Operation(
         summary = "Get Planning Unit Capacity List",
-        description = "Retrieve a list of all planning unit capacities"
+        description = "Retrieve a full list of all planning unit capacities"
     )
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a list of all planning unit capacities")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "No planning unit capacities found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnitCapacity.class))), responseCode = "200", description = "Returns a full list of all planning unit capacities")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning unit capacities found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -623,7 +624,7 @@ public class PlanningUnitRestController {
     @PutMapping(value = "/capacity")
     @Operation(
         summary = "Save Planning Unit Capacity",
-        description = "Save a list of planning unit capacities"
+        description = "Create or update a list of planning unit capacities"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of planning unit capacities to save",
@@ -633,7 +634,7 @@ public class PlanningUnitRestController {
             array = @ArraySchema(schema = @Schema(implementation = PlanningUnitCapacity.class))
         )
     )
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a list of planning unit capacities")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a successful response code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning unit capacities found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while saving planning unit capacity")
     public ResponseEntity savePlanningUnitCapacity(@RequestBody PlanningUnitCapacity[] planningUnitCapacitys, Authentication auth) {
@@ -656,26 +657,10 @@ public class PlanningUnitRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/planningUnit/{lastSyncDate}")
-//    public ResponseEntity getPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing planningUnit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing planningUnit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
     @GetMapping("/productCategory/{productCategoryId}/all")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit for Product Category (All)",
+        summary = "Get all Planning Units for Product Category",
         description = "Retrieve a list of all planning units for a specific product category (active and disabled)"
     )
     @Parameter(name = "productCategoryId", description = "The ID of the product category to retrieve planning units for", required = true)
@@ -763,8 +748,8 @@ public class PlanningUnitRestController {
      */
     @GetMapping("/realmCountry/{realmCountryId}")
     @Operation(
-        summary = "Get Planning Unit by Realm Country",
-        description = "Retrieve a list of planning units for a specific realm country"
+        summary = "Get Planning Units by Realm Country",
+        description = "Retrieve a list of all planning units attached to a supply plan for a specific realm country"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleObject.class))), responseCode = "200", description = "Returns a list of planning units for a specific realm country")
@@ -789,7 +774,7 @@ public class PlanningUnitRestController {
 
     @GetMapping("/tracerCategory/{tracerCategoryId}")
     @Operation(
-        summary = "Get Planning Unit by Tracer Category",
+        summary = "Get Planning Units by Tracer Category",
         description = "Retrieve a list of active planning units for a specific tracer category"
     )
     @Parameter(name = "tracerCategoryId", description = "The ID of the tracer category to retrieve planning units for", required = true)
@@ -815,7 +800,7 @@ public class PlanningUnitRestController {
 
     @PostMapping("/tracerCategorys")
     @Operation(
-        summary = "Get Planning Unit by Tracer Category List",
+        summary = "Get Planning Units by Tracer Category List",
         description = "Retrieve a list of planning units for a list of tracer categories"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -848,7 +833,7 @@ public class PlanningUnitRestController {
 
     @GetMapping("/withPricing/productCategory/{productCategoryId}")
     @Operation(
-        summary = "Get Planning Unit with Pricing for Product Category",
+        summary = "Get Planning Units with Pricing for Product Category",
         description = "Retrieve a list of planning units with pricing for a specific product category"
     )
     @Parameter(name = "productCategoryId", description = "The ID of the product category to retrieve planning units with pricing for", required = true)
@@ -875,7 +860,7 @@ public class PlanningUnitRestController {
     @PostMapping("/tracerCategory/productCategory/forecastingUnit")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Planning Unit by Tracer Category, Product Category and Forecasting Unit",
+        summary = "Get Planning Units by Tracer Category, Product Category and Forecasting Unit",
         description = "Retrieve a list of planning units for a specific tracer category, product category and forecasting unit"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

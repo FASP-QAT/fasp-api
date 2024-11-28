@@ -64,7 +64,7 @@ public class LanguageRestController {
     @GetMapping("/locales/{languageCode}")
     @Operation(
         summary = "Get Language JSON",
-        description = "Retrieve localized labels for a given language code."
+        description = "Retrieve localized static labels for a given language code."
     )
     @Parameter(name = "languageCode", description = "The language code to retrieve localized labels for")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the localized labels for the given language code")
@@ -81,7 +81,7 @@ public class LanguageRestController {
      */
     @GetMapping(value = "/language")
     @Operation(
-        summary = "Get Language List",
+        summary = "Get Languages",
         description = "Retrieve a list of all active languages."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Language.class))), responseCode = "200", description = "Returns the list of active languages")
@@ -104,7 +104,7 @@ public class LanguageRestController {
      */
     @GetMapping(value = "/language/all")
     @Operation(
-        summary = "Get Language List All",
+        summary = "Get Languages All",
         description = "Retrieve a complete list of all languages (active and disabled)."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Language.class))), responseCode = "200", description = "Returns the list of all languages")
@@ -198,7 +198,7 @@ public class LanguageRestController {
      */
     @PutMapping(value = "/language")
     @Operation(
-        summary = "Edit Language",
+        summary = "Update Language",
         description = "Update an existing language."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

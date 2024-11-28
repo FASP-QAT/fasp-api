@@ -63,7 +63,7 @@ public class SupplierRestController {
      */
     @PostMapping(path = "")
     @Operation(
-        summary = "Add a new supplier",
+        summary = "Add Supplier",
         description = "Add a new supplier to the system"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -97,7 +97,7 @@ public class SupplierRestController {
      */
     @PutMapping(path = "")
     @Operation(
-        summary = "Update an existing supplier",
+        summary = "Update Supplier",
         description = "Update an existing supplier in the system"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -130,7 +130,7 @@ public class SupplierRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get all suppliers",
+        summary = "Get all Suppliers",
         description = "Retrieve a list of all suppliers"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Supplier.class))), responseCode = "200", description = "Returns the list of suppliers")
@@ -154,7 +154,7 @@ public class SupplierRestController {
      */
     @GetMapping("/{supplierId}")
     @Operation(
-        summary = "Get a supplier",
+        summary = "Get Supplier",
         description = "Retrieve a supplier by their ID"
     )
     @Parameter(
@@ -191,7 +191,7 @@ public class SupplierRestController {
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get suppliers for a realm",
+        summary = "Get Suppliers for Realm",
         description = "Retrieve a list of suppliers for a specific realm"
     )
     @Parameter(

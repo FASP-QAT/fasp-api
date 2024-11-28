@@ -153,7 +153,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Simple list of TracerCategories
      *
@@ -177,7 +177,6 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     /**
      * Get TracerCategory by Id
@@ -211,7 +210,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get list of TracerCategories for a Realm
      *
@@ -244,7 +243,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get list of TracerCategories for all the PU’s mapped to a SP Program
      *
@@ -279,7 +278,7 @@ public class TracerCategoryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get list of TracerCategories for all the PU’s mapped to a list of SP
      * Program

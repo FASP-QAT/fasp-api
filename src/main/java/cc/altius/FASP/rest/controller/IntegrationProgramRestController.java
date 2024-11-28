@@ -88,7 +88,7 @@ public class IntegrationProgramRestController {
      */
     @GetMapping("/program/{programId}")
     @Operation(
-        summary = "Get Integration Program List for ProgramId",
+        summary = "Get Integration Programs for ProgramId",
         description = "Retrieve a complete list of integration programs for a given program, identified by its ID."
     )
     @Parameters(

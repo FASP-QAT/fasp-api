@@ -204,7 +204,7 @@ public class IntegrationRestController {
      */
     @GetMapping("/viewList")
     @Operation(
-        summary = "Get Integration View List",
+        summary = "Get Integration Views",
         description = "Retrieve a complete list of all integration views."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = IntegrationView.class))), responseCode = "200", description = "Returns the Integration View list")

@@ -44,9 +44,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cc.altius.FASP.model.pipeline.QatTempDataSource;
-import cc.altius.FASP.model.pipeline.QatTempFundingSource;
-import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -509,7 +506,7 @@ public class PipelineDbRestController {
     @Operation(
         summary = "Get QAT Temp Data Source List",
         description = "Retrieve a list of data source from temp tables"
-    )   
+    )
     @Parameter(name = "pipelineId", description = "The ID of the pipeline to retrieve the data source list from")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = QatTempDataSource.class))), responseCode = "200", description = "Returns a list of data source")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting pipeline data source list")

@@ -37,7 +37,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.Parameter;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
@@ -150,7 +149,7 @@ public class ForecastingUnitRestController {
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Active Forecasting Unit List",
+        summary = "Get Active Forecasting Units",
         description = "Retrieve a list of active forecasting units."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastingUnit.class))), responseCode = "200", description = "Returns the ForecastingUnit list")
@@ -179,7 +178,7 @@ public class ForecastingUnitRestController {
     @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit List",
+        summary = "Get Forecasting Units",
         description = "Retrieve a list of forecasting units given a list of IDs."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -209,7 +208,7 @@ public class ForecastingUnitRestController {
     @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get All Forecasting Unit List",
+        summary = "Get All Forecasting Units",
         description = "Retrieve a list of all forecasting units (active and disabled)."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastingUnit.class))), responseCode = "200", description = "Returns the ForecastingUnit list")
@@ -238,7 +237,7 @@ public class ForecastingUnitRestController {
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit List for Realm",
+        summary = "Get Forecasting Units for Realm",
         description = "Retrieve a list of active forecasting units for a given realm, identified by its ID."
     )
     @Parameter(name = "realmId", description = "The ID of the realm")
@@ -305,7 +304,7 @@ public class ForecastingUnitRestController {
     @GetMapping("/{forecastingUnitId}/withPrograms")
     @JsonView(Views.InternalView.class)
     @Operation(
-        summary = "Get Forecasting Unit with Programs",
+        summary = "Get Forecasting Units with Programs",
         description = "Retrieve a forecasting unit and its associated supply plan and forecasting programs (active and disabled)."
     )
     @Parameter(name = "forecastingUnitId", description = "The ID of the forecasting unit")
@@ -345,7 +344,7 @@ public class ForecastingUnitRestController {
     @GetMapping("/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit for Tracer Category",
+        summary = "Get Forecasting Units for Tracer Category",
         description = "Retrieve a list of active forecasting units for a given tracer category, identified by its ID."
     )
     @Parameter(name = "tracerCategoryId", description = "The ID of the tracer category")
@@ -379,7 +378,7 @@ public class ForecastingUnitRestController {
     @PostMapping("/tracerCategorys")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit for Tracer Category List",
+        summary = "Get Forecasting Units for Tracer Category List",
         description = "Retrieve a list of active forecasting units for a given list of tracer category IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -418,7 +417,7 @@ public class ForecastingUnitRestController {
     @GetMapping(value = "/programId/{programId}/versionId/{versionId}")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit for Dataset",
+        summary = "Get Forecasting Units for Dataset",
         description = "Retrieve a list of active forecasting units for a given dataset, identified by its program ID and version ID."
     )
     @Parameter(name = "programId", description = "The ID of the program")
@@ -452,7 +451,7 @@ public class ForecastingUnitRestController {
     @PostMapping("/tracerCategory/productCategory")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit by Tracer Category and Product Category",
+        summary = "Get Forecasting Units by Tracer Category and Product Category",
         description = "Retrieve a list of active forecasting units for a given tracer category and product category."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

@@ -9,6 +9,7 @@ import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
 import cc.altius.FASP.model.FundingSource;
@@ -102,15 +103,16 @@ public class DropDownRestController {
     @Autowired
     private BudgetService budgetService;
 
-    /**
-     * Get Program list for Dropdown based on Realm
-     *
-     * @param realmId
-     * @param auth
-     * @return
-     */
+
     @JsonView(Views.DropDownView.class)
     @GetMapping("/supplyPlan/program/realm/{realmId}")
+    @Operation(
+        summary = "Get Supply Plan Programs for Realm",
+        description = "Retrieve a list of supply plans programs for a realm"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of supply plans programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramForDropdownSupplyPlan(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -121,15 +123,29 @@ public class DropDownRestController {
         }
     }
 
+    /**
+     * Get Program list for Dropdown based on Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/dataset/program/realm/{realmId}")
+    @Operation(
+        summary = "Get Programs for Realm",
+        description = "Retrieve a list of programs for a realm"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of dataset programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramForDropdownDataset(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 
@@ -142,13 +158,20 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/all/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Programs for Realm (expanded)",
+        description = "Retrieve a list of programs for a realm with additional details"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramExpandedForAllDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, 0, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -161,13 +184,20 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/sp/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Supply Plan Programs for Realm (expanded)",
+        description = "Retrieve a list of supply plan programs for a realm with additional details"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -180,13 +210,20 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/fc/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Forecast Programs for Realm (expanded)",
+        description = "Retrieve a list of forecast programs for a realm with additional details"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramExpandedForFcDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getProgramListForDropdown(realmId, GlobalConstants.PROGRAM_TYPE_DATASET, true, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
     
@@ -199,6 +236,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/all/nofilter/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Programs for Realm (expanded) without ACL Filter",
+        description = "Retrieve a list of programs for a realm with additional details without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramNoFilterExpandedForAllDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -218,6 +262,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/sp/nofilter/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Supply Plan Programs for Realm (expanded) without ACL Filter",
+        description = "Retrieve a list of supply plan programs for a realm with additional details without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramNoFilterExpandedForSpDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -237,6 +288,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDown2View.class)
     @GetMapping("/program/fc/nofilter/expanded/realm/{realmId}")
+    @Operation(
+        summary = "Get Forecast Programs for Realm (expanded) without ACL Filter",
+        description = "Retrieve a list of forecast programs for a realm with additional details without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the programs to retrieve")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramNoFilterExpandedForFcDropdown(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -258,6 +316,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/sp/filter/healthAreaAndRealmCountry/realm/{realmId}")
+    @Operation(
+        summary = "Get Supply Plan Programs for Realm and HealthArea and RealmCountry",
+        description = "Retrieve a list of supply plan programs for a realm and health area and realm country"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The health area and realm country for the programs to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = HealthAreaAndRealmCountryDTO.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm and health area and realm country")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForSpDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -279,6 +348,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/fc/filter/healthAreaAndRealmCountry/realm/{realmId}")
+    @Operation(
+        summary = "Get Forecast Programs for Realm and HealthArea and RealmCountry",
+        description = "Retrieve a list of forecast programs for a realm and health area and realm country"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The health area and realm country for the programs to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = HealthAreaAndRealmCountryDTO.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for a realm and health area and realm country")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramWithFilterForHealthAreaAndRealmCountryForFcDropdown(@RequestBody HealthAreaAndRealmCountryDTO input, @PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -298,6 +378,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/sp/filter/multipleRealmCountry")
+    @Operation(
+        summary = "Get Supply Plan Programs for Multiple RealmCountry",
+        description = "Retrieve a list of supply plan programs for multiple realm countries"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The realm countries for the programs to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = String[].class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for multiple realm countries")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramWithFilterForMultipleRealmCountryForSpDropdown(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -317,6 +408,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/fc/filter/multipleRealmCountry")
+    @Operation(
+        summary = "Get Forecast Programs for Multiple RealmCountry",
+        description = "Retrieve a list of forecast programs for multiple realm countries"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The realm countries for the programs to retrieve",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = String[].class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleProgram.class))), responseCode = "200", description = "Returns the list of programs for multiple realm countries")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the programs")
     public ResponseEntity getProgramWithFilterForMultipleRealmCountryForFcDropdown(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -571,6 +673,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/realmCountry/nofilter/realm/{realmId}")
+    @Operation(
+        summary = "Get Realm Countries without ACL Filter",
+        description = "Retrieve a list of countries for a specific realm without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the country list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of countries for a specific realm without ACL Filter")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of countries without ACL Filter")
     public ResponseEntity getRealmCountryNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -616,6 +725,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/healthArea/nofilter/realm/{realmId}")
+    @Operation(
+        summary = "Get Health Areas without ACL Filter",
+        description = "Retrieve a list of health areas for a specific realm without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the health area list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of health areas for a specific realm without ACL Filter")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of health areas without ACL Filter")
     public ResponseEntity getHealthAreaNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -636,12 +752,12 @@ public class DropDownRestController {
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realm/{realmId}")
     @Operation(
-        summary = "Get Organizations",
-        description = "Retrieve a list of organizations for a specific realm"
+        summary = "Get Organisations",
+        description = "Retrieve a list of organisations for a specific realm"
     )
     @Parameter(name = "realmId", description = "The realm ID for the organization list")
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of organizations for a specific realm")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of organizations")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of organisations for a specific realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of organisations")
     public ResponseEntity getOrganisationDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -661,6 +777,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/nofilter/realm/{realmId}")
+    @Operation(
+        summary = "Get Organisations without ACL Filter",
+        description = "Retrieve a list of organisations for a specific realm without ACL Filter"
+    )
+    @Parameter(name = "realmId", description = "The realm ID for the organization list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of organisations for a specific realm without ACL Filter")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of organis")
     public ResponseEntity getOrganisationNoFilterDropdownList(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -681,12 +804,12 @@ public class DropDownRestController {
     @JsonView(Views.DropDownView.class)
     @GetMapping("/organisation/realmCountryId/{realmCountryId}")
     @Operation(
-        summary = "Get Organizations by Country",
-        description = "Retrieve a list of organizations for a specific realm country"
+        summary = "Get Organisations by Country",
+        description = "Retrieve a list of organisations for a specific realm country"
     )
     @Parameter(name = "realmCountryId", description = "The realm country ID for the organization list")
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of organizations for a specific realm country")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of organizations")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of organisations for a specific realm country")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of organisations")
     public ResponseEntity getOrganisationDropdownListForRealmCountryId(@PathVariable(value = "realmCountryId", required = true) int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -911,7 +1034,7 @@ public class DropDownRestController {
     @GetMapping("/user")
     @Operation(
         summary = "Get Users",
-        description = "Retrieve a list of users"
+        description = "Retrieve a list of users for a dropdown"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BasicUser.class))), responseCode = "200", description = "Returns the list of users")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of users")
@@ -1051,6 +1174,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/version/filter/fc/programId/{programId}")
+    @Operation(
+        summary = "Get Version List for Dataset Program",
+        description = "Retrieve a list of versions for a specific dataset program"
+    )
+    @Parameter(name = "programId", description = "The program ID for the version list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Version.class))), responseCode = "200", description = "Returns the list of versions for a specific dataset program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of versions")
     public ResponseEntity getVersionListForFcProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1070,6 +1200,13 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @GetMapping("/version/filter/sp/programId/{programId}")
+    @Operation(
+        summary = "Get Version List for Supply Plan Program",
+        description = "Retrieve a list of versions for a specific supply plan program"
+    )
+    @Parameter(name = "programId", description = "The program ID for the version list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Version.class))), responseCode = "200", description = "Returns the list of versions for a specific supply plan program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of versions")
     public ResponseEntity getVersionListForSpProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1089,6 +1226,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/fc/programs")
+    @Operation(
+        summary = "Get Version List for Dataset Programs",
+        description = "Retrieve a list of versions for a list of dataset programs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of program IDs for the version list",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the list of versions for a list of dataset programs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of versions")
     public ResponseEntity getVersionListForFcPrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1108,6 +1256,17 @@ public class DropDownRestController {
      */
     @JsonView(Views.DropDownView.class)
     @PostMapping("/version/filter/sp/programs")
+    @Operation(
+        summary = "Get Version List for Supply Plan Programs",
+        description = "Retrieve a list of versions for a list of supply plan programs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of program IDs for the version list",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the list of versions for a list of supply plan programs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of versions")
     public ResponseEntity getVersionListForSpPrograms(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1179,6 +1338,12 @@ public class DropDownRestController {
      */
     @JsonView(Views.InternalView.class)
     @GetMapping("/planningUnit/basic")
+    @Operation(
+        summary = "Get Planning Units with Forecasting Units",
+        description = "Retrieve a simple list of active planning units with forecasting units"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimplePlanningUnitForAdjustPlanningUnit.class))), responseCode = "200", description = "Returns the list of planning units with forecasting units")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of planning units")
     public ResponseEntity getPlanningUnitListBasic(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1191,6 +1356,17 @@ public class DropDownRestController {
 
     @JsonView(Views.DropDownView.class)
     @PostMapping("/healthArea/realmCountryIds")
+    @Operation(
+        summary = "Get Health Areas by Realm Countries",
+        description = "Retrieve a list of health areas filtered on a list of realm country IDs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of realm country IDs",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of health areas filtered on a list of realm country IDs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of health areas")
     public ResponseEntity getHealthAreaListByRealmCountryIds(@RequestBody String[] realmCountryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -1203,6 +1379,17 @@ public class DropDownRestController {
 
     @JsonView(Views.DropDownView.class)
     @PostMapping("/program/realmCountryIds/healthAreaIds")
+    @Operation(
+        summary = "Get Supply Plan Programs by Realm Countries and Health Areas",
+        description = "Retrieve a list of supply plan programs filtered on a list of realm country IDs and health area IDs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of realm country IDs and health area IDs",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = RealmCountryIdsAndHealthAreaIds.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns the list of supply plan programs filtered on a list of realm country IDs and health area IDs")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the list of supply plan programs")
     public ResponseEntity getSupplyPlanProgramListByRealmCountryIdsAndHealthAreaIds(@RequestBody RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());

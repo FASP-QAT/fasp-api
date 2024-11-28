@@ -152,7 +152,7 @@ public class HealthAreaRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Health Area List",
+        summary = "Get Health Areas",
         description = "Retrieve a complete list of all health areas."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = HealthArea.class))), responseCode = "200", description = "Returns the list of HealthAreas")
@@ -176,7 +176,7 @@ public class HealthAreaRestController {
      */
     @GetMapping("/realmCountryId/{realmCountryId}")
     @Operation(
-        summary = "Get Health Area List for Realm Country",
+        summary = "Get Health Areas for Realm Country",
         description = "Retrieve a list of health areas for a given realm country, identified by its ID."
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve health areas for")
@@ -222,7 +222,7 @@ public class HealthAreaRestController {
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get Health Area List for Realm",
+        summary = "Get Health Areas for Realm",
         description = "Retrieve a list of health areas for a given realm, identified by its ID."
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve health areas for")
@@ -288,7 +288,7 @@ public class HealthAreaRestController {
      */
     @GetMapping("/program")
     @Operation(
-        summary = "Get Health Area List for Program",
+        summary = "Get Health Areas for Program",
         description = "Retrieve a list of health areas that are associated with active programs."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = HealthArea.class))), responseCode = "200", description = "Returns the list of HealthAreas")
@@ -325,7 +325,7 @@ public class HealthAreaRestController {
      */
     @GetMapping("/program/realmId/{realmId}")
     @Operation(
-        summary = "Get Health Area List for Program by Realm",
+        summary = "Get Health Areas for Program by Realm",
         description = "Retrieve a complete list of health areas that are associated with the given realm, identified by its ID."
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve health areas for")

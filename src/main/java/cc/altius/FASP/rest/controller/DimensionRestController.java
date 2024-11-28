@@ -133,7 +133,7 @@ public class DimensionRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Active Dimension List",
+        summary = "Get Active Dimensions",
         description = "Retrieve a list of all active dimensions"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Dimension.class))), responseCode = "200", description = "Returns the list of all active dimensions")
@@ -155,7 +155,7 @@ public class DimensionRestController {
      */
     @GetMapping("/all")
     @Operation(
-        summary = "Get Dimension List",
+        summary = "Get Dimensions",
         description = "Retrieve a complete list of all dimensions (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Dimension.class))), responseCode = "200", description = "Returns the complete list of all dimensions (active and disabled)")

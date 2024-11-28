@@ -61,7 +61,7 @@ public class ModelingTypeRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Modeling Type list",
+        summary = "Get Modeling Types",
         description = "Retrieve a list of active Modeling Types"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ModelingType.class))), responseCode = "200", description = "Returns the ModelingType list")
@@ -84,8 +84,8 @@ public class ModelingTypeRestController {
      */
     @GetMapping("/all")
     @Operation(
-        summary = "Get complete Modeling Type list",
-        description = "Retrieve a list of all Modeling Types (active and disabled)"
+        summary = "Get all Modeling Types",
+        description = "Retrieve a complete list of all Modeling Types (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ModelingType.class))), responseCode = "200", description = "Returns the ModelingType list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ModelingType list")
@@ -109,8 +109,8 @@ public class ModelingTypeRestController {
      */
     @PostMapping(value = "")
     @Operation(
-        summary = "Add or Update Modeling Type",
-        description = "Add or update a list of Modeling Types"
+        summary = "Save Modeling Types",
+        description = "Create or update a list of Modeling Types"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of ModelingType objects that you want to add or update. If modelingTypeId is null or 0 then it is added if modelingTypeId is not null and non 0 it is updated",

@@ -66,7 +66,7 @@ public class BudgetRestController {
      */
     @PostMapping(path = "")
     @Operation(
-        summary = "Create new budget",
+        summary = "Add Budget",
         description = "Create a new budget for the realm"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -112,7 +112,7 @@ public class BudgetRestController {
      */
     @PutMapping(path = "")
     @Operation(
-        summary = "Update budget",
+        summary = "Update Budget",
         description = "Update an existing budget for a realm"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -160,7 +160,7 @@ public class BudgetRestController {
     @PostMapping("/programIds")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get budgets by program IDs",
+        summary = "Get Budgets by Programs",
         description = "Retrieve a list of budgets for a given list of program IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -189,7 +189,7 @@ public class BudgetRestController {
     @GetMapping("")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get all budgets",
+        summary = "Get Budgets",
         description = "Retrieve a complete list of all budgets"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Budget.class))), responseCode = "200", description = "Returns the complete list of budgets")
@@ -213,7 +213,7 @@ public class BudgetRestController {
      */
     @GetMapping("/{budgetId}")
     @Operation(
-        summary = "Get budget by ID",
+        summary = "Get Budget",
         description = "Retrieve a specific budget by its ID"
     )
     @Parameter(name = "budgetId", description = "The ID of the budget to retrieve")
@@ -251,7 +251,7 @@ public class BudgetRestController {
     @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get budgets by realm",
+        summary = "Get Budgets by Realm",
         description = "Retrieve a list of budgets for a given realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve budgets for")

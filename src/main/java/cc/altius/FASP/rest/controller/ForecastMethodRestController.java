@@ -82,11 +82,11 @@ public class ForecastMethodRestController {
      * @param auth
      * @return returns the complete list of ForecastMethods
      */
+    @GetMapping("/all")
     @Operation(
         summary = "Get All Forecast Methods",
         description = "Retrieve a complete list of all forecast methods (active and disabled)"
     )
-    @GetMapping("/all")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMethod.class))), responseCode = "200", description = "Returns the ForecastMethod list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
     public ResponseEntity getForecastMethodListAll(Authentication auth) {
@@ -107,11 +107,11 @@ public class ForecastMethodRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @Operation(
-        summary = "Get Forecast Method by ID",
-        description = "Retrieve a specific forecast method by its ID"
-    )
     @PostMapping(value = "")
+    @Operation(
+        summary = "Save Forecast Method",
+        description = "Create or update a specific forecast method by its ID"
+    )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of ForecastMethod objects that you want to add or update. If forecastMethodId is null or 0 then it is added if forecastMethodId is not null and non 0 it is updated",
         required = true,

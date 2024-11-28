@@ -155,7 +155,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403 
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
@@ -276,7 +276,7 @@ public class ProgramDataRestController {
      */
     @PutMapping("/programVersion/resetProblem")
     @Operation(
-        summary = "Reset Problem Reports for Program Ids",
+        summary = "Reset Problem Reports for Programs",
         description = "Reset the problem reports for a list of program IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

@@ -117,8 +117,8 @@ public class SupplyPlanRestController {
     @PostMapping("/rebuildSupplyPlans")
     @ResponseBody
     @Operation(
-        summary = "Rebuild supply plans",
-        description = "Rebuild supply plans for a list of program IDs and version IDs"
+        summary = "Rebuild Supply Plan",
+        description = "Rebuild the supply plan for a list of program IDs and version IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "A list of program IDs and version IDs to rebuild supply plans for",

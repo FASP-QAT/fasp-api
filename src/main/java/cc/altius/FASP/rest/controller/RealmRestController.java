@@ -135,7 +135,7 @@ public class RealmRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Realm List",
+        summary = "Get Realms",
         description = "Retrieve a list of realms"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Realm.class))), responseCode = "200", description = "Returns the list of realms")

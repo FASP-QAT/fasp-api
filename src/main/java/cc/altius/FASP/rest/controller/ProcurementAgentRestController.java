@@ -157,7 +157,7 @@ public class ProcurementAgentRestController {
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent")
     @Operation(
-        summary = "Get Procurement Agent List",
+        summary = "Get Procurement Agents",
         description = "Retrieve a list of active procurement agents"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgent.class))), responseCode = "200", description = "Returns a list of active procurement agents")
@@ -244,7 +244,7 @@ public class ProcurementAgentRestController {
     @PutMapping("/procurementAgent/planningUnit")
     @Operation(
         summary = "Save Planning Unit for Procurement Agent",
-        description = "Save a list of planning units for a procurement agent"
+        description = "Create or update a list of planning units for a procurement agent"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input object containing procurement agent planning unit details",
@@ -278,7 +278,7 @@ public class ProcurementAgentRestController {
      */
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
     @Operation(
-        summary = "Get Procurement Agent Planning Unit List",
+        summary = "Get Procurement Agent Planning Units",
         description = "Retrieve a list of planning units for a procurement agent"
     )
     @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve planning unit list for", required = true)
@@ -308,7 +308,7 @@ public class ProcurementAgentRestController {
     @PutMapping("/procurementAgent/forecastingUnit")
     @Operation(
         summary = "Save Forecasting Unit for Procurement Agent",
-        description = "Save a list of forecasting units for a procurement agent"
+        description = "Create or update a list of forecasting units for a procurement agent"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input object containing procurement agent forecasting unit details",
@@ -342,7 +342,7 @@ public class ProcurementAgentRestController {
      */
     @GetMapping("/procurementAgent/{procurementAgentId}/forecastingUnit")
     @Operation(
-        summary = "Get Procurement Agent Forecasting Unit List",
+        summary = "Get Procurement Agent Forecasting Units",
         description = "Retrieve a list of forecasting units for a procurement agent"
     )
     @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve forecasting unit list for", required = true)
@@ -371,7 +371,7 @@ public class ProcurementAgentRestController {
      */
     @GetMapping("/procurementAgent/{procurementAgentId}/forecastingUnit/all")
     @Operation(
-        summary = "Get Procurement Agent Forecasting Unit List",
+        summary = "Get Procurement Agent Forecasting Units",
         description = "Retrieve a list of forecasting units for a procurement agent"
     )
     @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve forecasting unit list for", required = true)
@@ -434,8 +434,8 @@ public class ProcurementAgentRestController {
      */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit")
     @Operation(
-        summary = "Get Procurement Agent Procurement Unit List",
-        description = "Retrieve a list of procurement units for a procurement agent"
+        summary = "Get Procurement Agent Procurement Units",
+        description = "Retrieve a list of active procurement units for a procurement agent"
     )
     @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve procurement unit list for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentProcurementUnit.class))), responseCode = "200", description = "Returns a list of procurement units for a procurement agent")
@@ -463,7 +463,7 @@ public class ProcurementAgentRestController {
      */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit/all")
     @Operation(
-        summary = "Get Procurement Agent Procurement Unit List",
+        summary = "Get Procurement Agent Procurement Units",
         description = "Retrieve a list of procurement units for a procurement agent"
     )
     @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve procurement unit list for", required = true)

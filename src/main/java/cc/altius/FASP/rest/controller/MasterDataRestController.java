@@ -7,7 +7,9 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.ShipmentStatus;
 import cc.altius.FASP.model.SimpleBaseModel;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,6 +57,12 @@ public class MasterDataRestController {
      * @return
      */
     @GetMapping("/versionType")
+    @Operation(
+        summary = "Get Version Types",
+        description = "Retrieve a list of version types"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleObject.class))), responseCode = "200", description = "Returns the VersionType list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of VersionType list")
     public ResponseEntity getVersionType(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -72,6 +80,12 @@ public class MasterDataRestController {
      * @return
      */
     @GetMapping("/versionStatus")
+    @Operation(
+        summary = "Get Version Statuses",
+        description = "Retrieve a list of version statuses"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleObject.class))), responseCode = "200", description = "Returns the VersionStatus list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of VersionStatus list")
     public ResponseEntity getVersionStatus(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -89,6 +103,12 @@ public class MasterDataRestController {
      * @return
      */
     @GetMapping(value = "/shipmentStatus")
+    @Operation(
+        summary = "Get Shipment Statuses",
+        description = "Retrieve a list of shipment statuses"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentStatus.class))), responseCode = "200", description = "Returns the ShipmentStatus list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentStatus list")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {
             return new ResponseEntity(this.masterDataService.getShipmentStatusList(true), HttpStatus.OK);
@@ -107,7 +127,7 @@ public class MasterDataRestController {
      */
     @GetMapping("/usageType")
     @Operation(
-        summary = "Get Active Usage Type List",
+        summary = "Get active Usage Types",
         description = "Retrieve a list of active usage types"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleBaseModel.class))), responseCode = "200", description = "Returns the UsageType list")
@@ -131,7 +151,7 @@ public class MasterDataRestController {
      */
     @GetMapping("/nodeType")
     @Operation(
-        summary = "Get Active Node Type List",
+        summary = "Get active Node Types",
         description = "Retrieve a list of active node types"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = NodeType.class))), responseCode = "200", description = "Returns the NodeType list")
@@ -155,7 +175,7 @@ public class MasterDataRestController {
      */
     @GetMapping("/forecastMethodType")
     @Operation(
-        summary = "Get Active Forecast Method Type List",
+        summary = "Get active Forecast Method Types",
         description = "Retrieve a list of active forecast method types"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleBaseModel.class))), responseCode = "200", description = "Returns the ForecastMethodType list")

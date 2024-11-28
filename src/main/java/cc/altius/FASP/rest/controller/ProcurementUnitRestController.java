@@ -62,7 +62,8 @@ public class ProcurementUnitRestController {
      * @param auth
      * @return
      */
-    @PostMapping(path = "")    @Operation(
+    @PostMapping(path = "")
+    @Operation(
         summary = "Add Procurement Unit",
         description = "Create a new procurement unit"
     )
@@ -99,7 +100,8 @@ public class ProcurementUnitRestController {
      * @param auth
      * @return
      */
-    @PutMapping(path = "")    @Operation(
+    @PutMapping(path = "")
+    @Operation(
         summary = "Update Procurement Unit",
         description = "Update an existing procurement unit"
     )
@@ -160,7 +162,7 @@ public class ProcurementUnitRestController {
      */
     @GetMapping("/all")
     @Operation(
-        summary = "Get All Procurement Unit List",
+        summary = "Get all Procurement Units",
         description = "Retrieve a list of all procurement units (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementUnit.class))), responseCode = "200", description = "Returns a list of all procurement units (active and disabled)")
@@ -184,7 +186,7 @@ public class ProcurementUnitRestController {
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get Procurement Unit by Realm",
+        summary = "Get Procurement Units by Realm",
         description = "Retrieve a list of procurement units for a specific realm"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementUnit.class))), responseCode = "200", description = "Returns a list of procurement units for a specific realm")
@@ -212,7 +214,7 @@ public class ProcurementUnitRestController {
      */
     @GetMapping("/realmId/{realmId}/all")
     @Operation(
-        summary = "Get All Procurement Unit by Realm",
+        summary = "Get all Procurement Units by Realm",
         description = "Retrieve a list of all procurement units (active and disabled) for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve procurement units for", required = true)
@@ -241,7 +243,7 @@ public class ProcurementUnitRestController {
      */
     @GetMapping("/planningUnitId/{planningUnitId}")
     @Operation(
-        summary = "Get Procurement Unit by Planning Unit",
+        summary = "Get Procurement Units by Planning Unit",
         description = "Retrieve a list of procurement units for a specific planning unit"
     )
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve procurement units for", required = true)
@@ -270,7 +272,7 @@ public class ProcurementUnitRestController {
      */
     @GetMapping("/planningUnitId/{planningUnitId}/all")
     @Operation(
-        summary = "Get All Procurement Unit by Planning Unit",
+        summary = "Get all Procurement Units by Planning Unit",
         description = "Retrieve a list of all procurement units (active and disabled) for a specific planning unit"
     )
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve procurement units for", required = true)

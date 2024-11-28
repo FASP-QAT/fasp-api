@@ -516,7 +516,7 @@ public class UserRestController {
             } else {
                 // FIXME: how does this happen on an update?
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
-                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED); 
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
         } catch (AccessControlFailedException acfe) {
             auditLogger.error(acfe.getMessage());

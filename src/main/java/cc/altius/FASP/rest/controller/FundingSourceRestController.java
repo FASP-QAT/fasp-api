@@ -156,7 +156,7 @@ public class FundingSourceRestController {
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     @Operation(
-        summary = "Get Funding Source List",
+        summary = "Get Funding Sources",
         description = "Retrieve a list of all active funding sources"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = FundingSource.class))), responseCode = "200", description = "Returns the FundingSource list")
@@ -206,7 +206,7 @@ public class FundingSourceRestController {
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     @Operation(
-        summary = "Get Funding Source for Realm",
+        summary = "Get Funding Sources for Realm",
         description = "Retrieve a list of funding sources for a given realm, identified by its ID."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = FundingSource.class))), responseCode = "200", description = "Returns the FundingSource list for the given realm")
@@ -349,7 +349,7 @@ public class FundingSourceRestController {
      */
     @GetMapping("/fundingSourceType")
     @Operation(
-        summary = "Get Funding Source Type List",
+        summary = "Get Funding Source Types",
         description = "Retrieve a list of all active funding source types."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = FundingSourceType.class))), responseCode = "200", description = "Returns the FundingSourceType list")
@@ -373,7 +373,7 @@ public class FundingSourceRestController {
      */
     @GetMapping("/fundingSourceType/realmId/{realmId}")
     @Operation(
-        summary = "Get Funding Source Type for Realm",
+        summary = "Get Funding Source Types for Realm",
         description = "Retrieve a list of funding source types for a given realm, identified by its ID."
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve funding source types for")

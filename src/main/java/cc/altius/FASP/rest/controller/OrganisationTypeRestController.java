@@ -140,7 +140,7 @@ public class OrganisationTypeRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Organisation Type list",
+        summary = "Get Organisation Types",
         description = "Retrieve a list of active organisation types"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = OrganisationType.class))), responseCode = "200", description = "Returns a list of active organisation types")
@@ -162,7 +162,7 @@ public class OrganisationTypeRestController {
      */
     @GetMapping(value = "/all")
     @Operation(
-        summary = "Get all Organisation Type list",
+        summary = "Get all Organisation Types",
         description = "Retrieve a list of all organisation types (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = OrganisationType.class))), responseCode = "200", description = "Returns a list of all organisation types")
@@ -184,7 +184,7 @@ public class OrganisationTypeRestController {
      */
     @GetMapping("/realmId/{realmId}")
     @Operation(
-        summary = "Get Organisation Type by Realm",
+        summary = "Get Organisation Types by Realm",
         description = "Retrieve a list of organisation types by realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve the organisation types from")

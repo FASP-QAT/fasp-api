@@ -61,7 +61,7 @@ public class CountryRestController {
      */
     @GetMapping(value = "")
     @Operation(
-        summary = "Get Active Country List",
+        summary = "Get Active Countries",
         description = "Retrieve a complete list of active countries"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Country.class))), responseCode = "200", description = "Returns the list of active countries")
@@ -84,7 +84,7 @@ public class CountryRestController {
      */
     @GetMapping(value = "/all")
     @Operation(
-        summary = "Get All Country List",
+        summary = "Get All Countries",
         description = "Retrieve a complete list of all countries"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Country.class))), responseCode = "200", description = "Returns the list of all countries")
@@ -108,7 +108,7 @@ public class CountryRestController {
      */
     @GetMapping(value = "/{countryId}")
     @Operation(
-        summary = "Get Country by Id",
+        summary = "Get Country",
         description = "Retrieve a country by its ID"
     )
     @Parameter(name = "countryId", description = "The ID of the country to retrieve")

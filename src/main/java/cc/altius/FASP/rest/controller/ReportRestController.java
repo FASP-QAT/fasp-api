@@ -104,7 +104,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author ekta
  */
 @RestController
-@RequestMapping("/api/report/")
+@RequestMapping("/api/report")
 @Tag(
     name = "Reports",
     description = "Manage system reports including consumption, inventory, shipment, stock status, and forecast analytics"

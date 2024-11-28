@@ -87,7 +87,7 @@ public class DatasetRestController {
      */
     @GetMapping("/dataset")
     @Operation(
-        summary = "Get Active Dataset List",
+        summary = "Get Active Datasets",
         description = "Retrieve a list of all active datasets"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Program.class))), responseCode = "200", description = "Returns the list of active datasets")
@@ -111,8 +111,8 @@ public class DatasetRestController {
      */
     @GetMapping("/dataset/{programId}")
     @Operation(
-        summary = "Get Dataset by Program Id",
-        description = "Retrieve a dataset by its Program ID"
+        summary = "Get Dataset by Program",
+        description = "Retrieve a dataset by its program ID"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve a dataset for")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Program.class)), responseCode = "200", description = "Returns the dataset with the specified program ID")

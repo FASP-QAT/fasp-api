@@ -101,7 +101,7 @@ public class ForecastingStatisticsRestController {
     @PostMapping(path = "/arima")
     @Operation(
         summary = "Get Forecasting Statistics (ARIMA)",
-        description = "Optimize ARIMA model parameters for given data. Returns the best-fit parameters and their corresponding RMSE."
+        description = "Optimize ARIMA model parameters for given dataset. Returns the best-fit parameters and their corresponding RMSE."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input data for the ARIMA optimization",
@@ -181,7 +181,7 @@ public class ForecastingStatisticsRestController {
     @PostMapping(path = "/tes")
     @Operation(
         summary = "Get Forecasting Statistics (TES)",
-        description = "Optimize Triple Exponential Smoothing (TES) model parameters for given data. Returns the best-fit parameters and their corresponding Root Mean Square Error (RMSE)."
+        description = "Optimize Triple Exponential Smoothing (TES) model parameters for given dataset. Returns the best-fit parameters and their corresponding Root Mean Square Error (RMSE)."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input data for the TES optimization",
@@ -260,7 +260,7 @@ public class ForecastingStatisticsRestController {
     @PostMapping(path = "/regression")
     @Operation(
         summary = "Get Forecasting Statistics (Regression)",
-        description = "Perform regression analysis on given data. Returns the regression results."
+        description = "Perform regression analysis on given dataset. Returns the regression results."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the regression results")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while parsing the input data")

@@ -105,7 +105,7 @@ public class RegionRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Region List",
+        summary = "Get Regions",
         description = "Retrieve a list of regions"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Region.class))), responseCode = "200", description = "Returns the list of regions")
@@ -166,7 +166,7 @@ public class RegionRestController {
      */
     @GetMapping("/realmCountryId/{realmCountryId}")
     @Operation(
-        summary = "Get Region List by Realm Country ID",
+        summary = "Get Regions by Realm Country",
         description = "Retrieve a list of regions by their realm country ID"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve regions for", required = true)

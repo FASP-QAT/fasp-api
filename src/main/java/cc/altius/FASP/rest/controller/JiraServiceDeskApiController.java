@@ -101,7 +101,7 @@ public class JiraServiceDeskApiController {
     @PostMapping(value = "/addIssueAttachment/{issueId}")
     @Operation(
         summary = "Add Issue Attachment",
-        description = "Add an attachment to a Jira Service Desk ticket."
+        description = "Add a file attachment to an existing Jira Service Desk ticket."
     )
     @Parameter(name = "file", description = "The file to upload")
     @Parameter(name = "issueId", description = "The ID of the issue to attach the file to")
@@ -136,7 +136,7 @@ public class JiraServiceDeskApiController {
     @GetMapping(value = "/openIssues")
     @Operation(
         summary = "Get Open Issues",
-        description = "Retrieve a summary of open Jira Service Desk tickets."
+        description = "Retrieve a summary of open Jira Service Desk tickets for the current user."
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = JiraServiceDeskIssuesDTO.class))), responseCode = "200", description = "Returns the list of open issues")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting open issues")
@@ -148,6 +148,5 @@ public class JiraServiceDeskApiController {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 }
