@@ -163,7 +163,7 @@ public class ProgramServiceImpl implements ProgramService {
     public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
         if (p.getProgramId() != 0) {
             try {
-                this.programCommonDao.getSimpleProgramById(p.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
