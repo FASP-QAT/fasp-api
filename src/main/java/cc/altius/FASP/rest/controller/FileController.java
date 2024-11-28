@@ -53,6 +53,16 @@ public class FileController {
     private String SHIPMENT_DATA_ENTRY_TEMPLATE;
 
 
+    /**
+     * Get File by FileId
+     *
+     * @param fileName
+     * @param response
+     * @param auth
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     @GetMapping("/file/{fileName}")
     @Operation(
         summary = "Get File",
@@ -95,7 +105,7 @@ public class FileController {
                 response.setHeader("Content-Disposition", "attachment;filename=" + INVENTORY_DATA_ENTRY_TEMPLATE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + INVENTORY_DATA_ENTRY_TEMPLATE));
-                break;    
+                break;
             case "adjustmentsDataEntryTemplate":
                 response.setContentType("application/pdf");
                 response.setHeader("Content-Disposition", "attachment;filename=" + ADJUSTMENT_DATA_ENTRY_TEMPLATE);
@@ -107,7 +117,7 @@ public class FileController {
                 response.setHeader("Content-Disposition", "attachment;filename=" + SHIPMENT_DATA_ENTRY_TEMPLATE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + SHIPMENT_DATA_ENTRY_TEMPLATE));
-                break;    
+                break;
         }
         return IOUtils.toByteArray(fin);
     }

@@ -13,7 +13,9 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -39,6 +41,7 @@ import cc.altius.FASP.model.SimpleObjectWithType;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.RealmCountryIdsAndHealthAreaIds;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
@@ -80,12 +83,14 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private RealmCountryDao realmCountryDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
-        return this.programDao.getProgramListForDropdown(realmId, programTypeId, curUser);
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active) {
+        return this.programDao.getProgramListForDropdown(realmId, programTypeId, aclFilter, curUser, active);
     }
 
     @Override
@@ -104,9 +109,34 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) {
+    public int addProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                if (this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+                }
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : p.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (p.getOrganisation() != null && p.getOrganisation().getId() != null && p.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         p.setRealmCountry(this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser));
-        if (this.aclService.checkAccessForUser(
+        if (this.aclService.userHasAccessToResources(
                 curUser,
                 p.getRealmCountry().getRealm().getRealmId(),
                 p.getRealmCountry().getRealmCountryId(),
@@ -130,22 +160,55 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) {
+    public int updateProgram(ProgramInitialize p, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (p.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(p.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        if (p.getRealmCountry() != null && p.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                if (this.realmCountryDao.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+
+                }
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : p.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (p.getOrganisation() != null && p.getOrganisation().getId() != null && p.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
-        if (curProg == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkAccessForUser(
-                curUser,
-                curProg.getRealmId(),
-                curProg.getRealmCountry().getId(),
-                curProg.getHealthAreaIdList(),
-                curProg.getOrganisation().getId(),
-                curProg.getId())) {
-            return this.programDao.updateProgram(p, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        if (curProg == null) {
+//            throw new EmptyResultDataAccessException(1);
+//        }
+//        if (this.aclService.checkAccessForUser(
+//                curUser,
+//                curProg.getRealmId(),
+//                curProg.getRealmCountry().getId(),
+//                curProg.getHealthAreaIdList(),
+//                curProg.getOrganisation().getId(),
+//                curProg.getId())) {
+        return this.programDao.updateProgram(p, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
@@ -172,68 +235,68 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
-        Program p = this.programCommonDao.getFullProgramById(programId, programTypeId, curUser);
-        if (p == null) {
-            throw new AccessDeniedException("Access denied");
-        }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-            return p;
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+    public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException {
+        return this.programCommonDao.getFullProgramById(programId, programTypeId, curUser);
+//        if (p == null) {
+//            throw new AccessDeniedException("Access denied");
+//        }
+//        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
+//            return p;
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
-    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) {
+    public SimpleProgram getSimpleProgramById(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         return this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
     }
 
     @Override
-    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
+    public SimpleProgram getSimpleProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException {
         return this.programCommonDao.getSimpleProgramById(programId, programTypeId, curUser);
     }
 
     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+        return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+        return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
-    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDao.getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+        return this.programDao.getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-                programList.append("'").append(programId).append("',");
-            } else {
-                throw new AccessDeniedException("Access denied");
-            }
+//            if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+            programList.append("'").append(programId).append("',");
+//            } else {
+//                throw new AccessDeniedException("Access denied");
+//            }
         }
         if (programList.length() > 0) {
             programList.setLength(programList.length() - 1);
@@ -242,17 +305,17 @@ public class ProgramServiceImpl implements ProgramService {
             return new LinkedList<>();
         }
     }
-    
+
     @Override
-    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+    public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) throws AccessControlFailedException {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-                programList.append("'").append(programId).append("',");
-            } else {
-                throw new AccessDeniedException("Access denied");
-            }
+//            if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+            programList.append("'").append(programId).append("',");
+//            } else {
+//                throw new AccessDeniedException("Access denied");
+//            }
         }
         if (programList.length() > 0) {
             programList.setLength(programList.length() - 1);
@@ -263,12 +326,16 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
+//            try {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            if (!this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), sp.getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-                throw new AccessDeniedException("Access denied");
-            }
+//                if (!this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
+//                    throw new AccessControlFailedException();
+//                }
+//            } catch (EmptyResultDataAccessException e) {
+//                throw new AccessControlFailedException();
+//            }
         }
         return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
     }
@@ -279,11 +346,18 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnitProcurementAgentPrice papup : programPlanningUnitProcurementAgentPrices) {
             ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papup.getProcurementAgent().getId(), curUser);
             if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
                 throw new AccessDeniedException("Access denied");
+            }
+            if (papup != null && papup.getProgram().getId() != null && papup.getProgram().getId() != 0) {
+//                try {
+                this.programCommonDao.getSimpleProgramById(papup.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//                } catch (EmptyResultDataAccessException e) {
+//                    throw new AccessControlFailedException();
+//                }
             }
         }
         return this.programDao.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);
@@ -300,18 +374,43 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, sp.getRealmId(), programId, sp.getHealthAreaIdList(), sp.getOrganisation().getId())) {
-            return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
+        return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override
     @Transactional
-    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
+    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (program.getRealmCountry() != null && program.getRealmCountry().getRealmCountryId() != 0) {
+            try {
+                if (this.realmCountryDao.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser) == null) {
+                    throw new AccessControlFailedException();
+                }
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        for (int haId : program.getHealthAreaIdList()) {
+            if (haId != 0) {
+                try {
+                    this.healthAreaDao.getHealthAreaById(haId, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        if (program.getOrganisation() != null && program.getOrganisation().getId() != null && program.getOrganisation().getId() != 0) {
+            try {
+                this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
         StringBuilder healthAreaCode = new StringBuilder();
         for (int haId : program.getHealthAreaIdList()) {
@@ -436,13 +535,18 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         return this.programDao.getSupplyPlanReviewerList(programId, curUser);
     }
 
     @Override
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
         return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser) {
+        return this.programDao.getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(realmCountryIdsAndHealthAreaIds, curUser);
     }
 
     @Override
@@ -456,7 +560,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) throws AccessControlFailedException {
         if (this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser) == null) {
             // ACL check fail
             return null;
@@ -486,7 +590,14 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) {
+    public List<UpdateProgramInfoOutput> getUpdateProgramInfoReport(int programTypeId, int realmCountryId, int active, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (realmCountryId != 0) {
+            try {
+                this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
         return this.programCommonDao.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser);
     }
 

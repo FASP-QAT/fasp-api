@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
@@ -42,13 +43,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/forecastingUnit")
 @Tag(
     name = "Forecasting Unit",
     description = "Manages forecasting units with realm-based access control."
@@ -62,7 +65,14 @@ public class ForecastingUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/forecastingUnit")
+    /**
+     * Add a FU
+     *
+     * @param forecastingUnit
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add Forecasting Unit",
         description = "Add a new forecasting unit."
@@ -78,9 +88,9 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding forecasting unit")
     public ResponseEntity postForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.forecastingUnitService.addForecastingUnit(forecastingUnit, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateNameException de) {
             logger.error("Error while trying to add ForecastingUnit", de);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
@@ -93,7 +103,14 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PutMapping(path = "/forecastingUnit")
+    /**
+     * Update a FU
+     *
+     * @param forecastingUnit
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update Forecasting Unit",
         description = "Update an existing forecasting unit."
@@ -109,9 +126,9 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating forecasting unit")
     public ResponseEntity putForecastingUnit(@RequestBody ForecastingUnit forecastingUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.forecastingUnitService.updateForecastingUnit(forecastingUnit, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateNameException de) {
             logger.error("Error while trying to add ForecastingUnit", de);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
@@ -124,7 +141,13 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit")
+    /**
+     * Get list of active FU’s
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Active Forecasting Unit List",
@@ -135,8 +158,8 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnit(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(true, curUser), HttpStatus.OK); // 200
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to list ForecastingUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
@@ -146,10 +169,17 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/byIds")
+    /**
+     * Get list of FU’s filtered by Id’s
+     *
+     * @param forecastingUnitIdList
+     * @param auth
+     * @return
+     */
+    @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
-        summary = "Get Forecasting Unit List by IDs",
+        summary = "Get Forecasting Unit List",
         description = "Retrieve a list of forecasting units given a list of IDs."
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -162,15 +192,21 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitByIdList(@RequestBody List<String> forecastingUnitIdList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByIds(forecastingUnitIdList, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByIds(forecastingUnitIdList, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping("/forecastingUnit/all")
+    /**
+     * Get list of all FU’s
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("/all")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get All Forecasting Unit List",
@@ -181,18 +217,25 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(false, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(false, curUser), HttpStatus.OK); // 200
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to list ForecastingUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping("/forecastingUnit/realmId/{realmId}")
+    /**
+     * Get list of all FU’s for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Forecasting Unit List for Realm",
@@ -205,8 +248,8 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(realmId, true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(realmId, true, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -219,7 +262,14 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/{forecastingUnitId}")
+    /**
+     * Get FU by Id
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{forecastingUnitId}")
     @Operation(
         summary = "Get Forecasting Unit",
         description = "Retrieve a forecasting unit by its ID."
@@ -227,44 +277,12 @@ public class ForecastingUnitRestController {
     @Parameter(name = "forecastingUnitId", description = "The ID of the forecasting unit")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ForecastingUnit.class)), responseCode = "200", description = "Returns the ForecastingUnit")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have permission to get forecasting unit")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Forecasting unit not found")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting forecasting unit")
     public ResponseEntity getForecastingUnitById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to list ForecastingUnit", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to update ForecastingUnit", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
-        } catch (Exception e) {
-            logger.error("Error while trying to list ForecastingUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
-    @GetMapping("/forecastingUnit/{forecastingUnitId}/withPrograms")
-    @JsonView(Views.InternalView.class)
-    @Operation(
-        summary = "Get Forecasting Unit with Programs",
-        description = "Retrieve a forecasting unit by its ID and its associated supply plan and forecasting programs (active and disabled)."
-    )
-    @Parameter(name = "forecastingUnitId", description = "The ID of the forecasting unit")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the ForecastingUnit with programs")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have permission to get forecasting unit with programs")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Forecasting unit not found")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting forecasting unit with programs")
-    public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            Map<String, Object> data = new HashMap<>();
-            data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
-            data.put("spProgramListActive", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
-            data.put("spProgramListDisabled", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
-            data.put("fcProgramListActive", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
-            data.put("fcProgramListDisabled", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
-            return new ResponseEntity(data, HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -277,7 +295,54 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/tracerCategory/{tracerCategoryId}")
+    /**
+     * Get ForecastingUnitId with information on SP and FC programs
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{forecastingUnitId}/withPrograms")
+    @JsonView(Views.InternalView.class)
+    @Operation(
+        summary = "Get Forecasting Unit with Programs",
+        description = "Retrieve a forecasting unit and its associated supply plan and forecasting programs (active and disabled)."
+    )
+    @Parameter(name = "forecastingUnitId", description = "The ID of the forecasting unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the ForecastingUnit with programs")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "User does not have permission to get forecasting unit with programs")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Forecasting unit not found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting forecasting unit with programs")
+    public ResponseEntity getForecastingUnitWithProgramsById(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            Map<String, Object> data = new HashMap<>();
+            data.put("forecastingUnit", this.forecastingUnitService.getForecastingUnitById(forecastingUnitId, curUser));
+            data.put("spProgramListActive", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("spProgramListDisabled", this.forecastingUnitService.getListOfSpProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
+            data.put("fcProgramListActive", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, true, curUser));
+            data.put("fcProgramListDisabled", this.forecastingUnitService.getListOfFcProgramsForForecastingUnitId(forecastingUnitId, false, curUser));
+            return new ResponseEntity(data, HttpStatus.OK); // 200
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to list ForecastingUnit", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update ForecastingUnit", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
+
+    /**
+     * Get FU by TracerCategory
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/tracerCategory/{tracerCategoryId}")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Forecasting Unit for Tracer Category",
@@ -290,8 +355,8 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -304,7 +369,14 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/tracerCategorys")
+    /**
+     * Get FU filtered by TracerCategory list
+     *
+     * @param tracerCategoryIds
+     * @param auth
+     * @return
+     */
+    @PostMapping("/tracerCategorys")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Forecasting Unit for Tracer Category List",
@@ -321,8 +393,8 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategoryIds(tracerCategoryIds, true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategoryIds(tracerCategoryIds, true, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -335,7 +407,15 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping(value = "/forecastingUnit/programId/{programId}/versionId/{versionId}")
+    /**
+     * Get list of FU’s for the Dataset by ProgramId and VersionId
+     *
+     * @param programId
+     * @param versionId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/programId/{programId}/versionId/{versionId}")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Forecasting Unit for Dataset",
@@ -348,8 +428,11 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForDataset(programId, versionId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForDataset(programId, versionId, curUser), HttpStatus.OK); // 200
+        } catch (AccessControlFailedException er) {
+            logger.error("Error while trying to list ForecastingUnit", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ForecastingUnit", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -359,7 +442,14 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @PostMapping("/forecastingUnit/tracerCategory/productCategory")
+    /**
+     * Get list of FU’s filtered by ProductCategory and TracerCategory
+     *
+     * @param input
+     * @param auth
+     * @return
+     */
+    @PostMapping("/tracerCategory/productCategory")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Forecasting Unit by Tracer Category and Product Category",
@@ -375,8 +465,8 @@ public class ForecastingUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing forecasting units")
     public ResponseEntity getForecastingUnitByTracerCategoryAndProductCategory(@RequestBody ProductCategoryAndTracerCategoryDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitByTracerCategoryAndProductCategory(input, curUser), HttpStatus.OK); // 200
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update ForecastingUnit", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403

@@ -8,6 +8,9 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.BudgetDao;
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
@@ -45,14 +48,25 @@ public class BudgetServiceImpl implements BudgetService {
     private ProgramService programService;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
-    public int addBudget(Budget b, CustomUserDetails curUser) {
+    public int addBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(b.getFundingSource().getFundingSourceId(), curUser);
         b.setFundingSource(fs);
         Currency c = this.currencyDao.getCurrencyById(b.getCurrency().getCurrencyId(), curUser);
         b.setCurrency(c);
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
+            for (SimpleCodeObject program : b.getPrograms()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                    } catch (EmptyResultDataAccessException e) {
+                        throw new AccessControlFailedException();
+                    }
+                }
+            }
             return this.budgetDao.addBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -60,9 +74,18 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public int updateBudget(Budget b, CustomUserDetails curUser) {
+    public int updateBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         Budget bt = this.budgetDao.getBudgetById(b.getBudgetId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, bt.getFundingSource().getRealm().getId())) {
+            for (SimpleCodeObject program : b.getPrograms()) {
+                if (program != null && program.getId() != null && program.getId() != 0) {
+//                    try {
+                        this.programCommonDao.getSimpleProgramById(program.getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+//                    } catch (EmptyResultDataAccessException e) {
+//                        throw new AccessControlFailedException();
+//                    }
+                }
+            }
             return this.budgetDao.updateBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -96,7 +119,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) {
+    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) throws AccessControlFailedException {
         Budget b = this.budgetDao.getBudgetById(BudgetId, curUser);
         this.updateProgramsWithAccess(b, curUser);
         return b;
@@ -113,14 +136,14 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) throws AccessControlFailedException {
         List<Budget> bList = this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
         updateProgramsWithAccess(bList, curUser);
         return bList;
     }
 
     @Override
-    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) throws AccessControlFailedException {
         if (programIdsString.length() > 0) {
             List<Budget> bList = this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
             updateProgramsWithAccess(bList, curUser);
@@ -130,20 +153,22 @@ public class BudgetServiceImpl implements BudgetService {
         }
     }
 
-    private void updateProgramsWithAccess(List<Budget> budgetList, CustomUserDetails curUser) {
+    private void updateProgramsWithAccess(List<Budget> budgetList, CustomUserDetails curUser) throws AccessControlFailedException {
         for (Budget b : budgetList) {
             this.updateProgramsWithAccess(b, curUser);
         }
     }
 
-    private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) {
-        b.setProgramsWithAccess(new LinkedList<>());
-        for (SimpleCodeObject p : b.getPrograms()) {
-            try {
-                SimpleProgram sp = this.programService.getSimpleProgramById(p.getId(), curUser);
-                b.getProgramsWithAccess().add(p);
-            } catch (EmptyResultDataAccessException e) {
+    private void updateProgramsWithAccess(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (b != null) {
+            b.setProgramsWithAccess(new LinkedList<>());
+            for (SimpleCodeObject p : b.getPrograms()) {
+                try {
+                    SimpleProgram sp = this.programService.getSimpleProgramById(p.getId(), curUser);
+                    b.getProgramsWithAccess().add(p);
+                } catch (EmptyResultDataAccessException e) {
 
+                }
             }
         }
     }

@@ -64,7 +64,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation_type").usingGeneratedKeyColumns("ORGANISATION_TYPE_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", o.getRealm().getId());
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(o.getLabel(), LabelConstants.RM_ORGANISATION_TYPE, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);

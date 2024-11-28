@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
@@ -36,7 +37,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceTypeDao dataSourceTypeDao;
     @Autowired
     private RealmDao realmDao;
-    @Autowired 
+    @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
@@ -47,18 +48,26 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSource.getRealm().getId())) {
-            return this.dataSourceDao.addDataSource(dataSource, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int addDataSource(DataSource dataSource, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (dataSource.getProgram() != null && dataSource.getProgram().getId() != null && dataSource.getProgram().getId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(dataSource.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
         }
+        return this.dataSourceDao.addDataSource(dataSource, curUser);
     }
 
     @Override
-    public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) {
+    public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) throws AccessControlFailedException {
         DataSource ds = this.dataSourceDao.getDataSourceById(dataSource.getDataSourceId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
+            try {
+                this.programCommonDao.getSimpleProgramById(dataSource.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
             return this.dataSourceDao.updateDataSource(dataSource, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -81,17 +90,17 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException{
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+//        if (p != null) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+//        } else {
+//            throw new AccessDeniedException("Access denied");
+//        }
     }
 
     @Override

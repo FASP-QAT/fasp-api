@@ -5,9 +5,10 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.exception.IncorrectAccessControlException;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
+import cc.altius.FASP.model.BfAndProgramId;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
@@ -17,7 +18,10 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,8 +31,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +56,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -68,6 +77,8 @@ public class UserRestController {
     @Autowired
     private UserService userService;
     @Autowired
+    private ProgramService programService;
+    @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -76,33 +87,23 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
-    @GetMapping(value = "/userDetails")
-    @Operation(
-        summary = "Get user details",
-        description = "Get user details"
-    )
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user details")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user details")
-    public ResponseEntity getUserDetails(Authentication auth) {
-        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-        try {
-            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId(), curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to get User details", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /**
+     * Get list of Roles
+     *
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role")
     @Operation(
-        summary = "Get role list",
+        summary = "Get Roles",
         description = "Get role list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Role.class))), responseCode = "200", description = "Returns the role list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the role list")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getRoleList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Role", e);
@@ -110,9 +111,16 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Get Role by Id
+     *
+     * @param roleId
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role/{roleId}")
     @Operation(
-        summary = "Get role",
+        summary = "Get Role",
         description = "Get role by ID"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Role.class)), responseCode = "200", description = "Returns the role")
@@ -126,9 +134,16 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Add Role
+     *
+     * @param role
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/role")
     @Operation(
-        summary = "Add new role",
+        summary = "Add Role",
         description = "Add new role"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
@@ -136,7 +151,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.addRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " added successfully");
@@ -154,13 +169,20 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Update Role
+     *
+     * @param role
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "/role")
     @Operation(
-        summary = "Edit role",
-        description = "Edit role"
+        summary = "Update Role",
+        description = "Update role"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The role to edit",
+        description = "The role to update",
         required = true,
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Role.class))
     )
@@ -169,7 +191,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.updateRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " updated successfully");
@@ -187,6 +209,11 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Get list of Business functions
+     *
+     * @return
+     */
     @GetMapping(value = "/businessFunction")
     @Operation(
         summary = "Get business function list",
@@ -203,16 +230,76 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Used after the User has Logged in to retrieve the ACL and other data for
+     * this user
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/user/details")
+    @Operation(
+        summary = "Get user details",
+        description = "Get user details including ACL"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user details")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user details")
+    public ResponseEntity getUserDetails(Authentication auth) {
+        logger.info("getCustomUserByUserIdForApi==>" + ((CustomUserDetails) auth.getPrincipal()).getUserId() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod() + "==" + ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+        logger.info("CustomUserDetails==>" + curUser);
+        try {
+            User loggedInUser = this.userService.getUserByUserId(curUser.getUserId(), curUser);
+            cc.altius.FASP.model.UserDetails ud = new cc.altius.FASP.model.UserDetails();
+            ud.setUser(loggedInUser);
+            Map<String, BfAndProgramId> bfAndProgramMap = new HashMap<>();
+            ud.setBfAndProgramIdMap(bfAndProgramMap);
+            Map<String, List<String>> aclBfMap = this.userService.getAclRoleBfList(curUser.getUserId(), curUser);
+            for (String role : aclBfMap.keySet()) {
+                if (bfAndProgramMap.containsKey(role)) {
+                    bfAndProgramMap.get(role).getBusinessFunctionList().addAll(aclBfMap.get(role));
+                } else {
+                    BfAndProgramId bfAndProgramId = new BfAndProgramId();
+                    bfAndProgramId.getBusinessFunctionList().addAll(aclBfMap.get(role));
+                    bfAndProgramMap.put(role, bfAndProgramId);
+                }
+            }
+
+            for (UserAcl acl : loggedInUser.getUserAclList()) {
+                curUser.getAclList().clear();
+                curUser.getAclList().add(acl);
+                HashSet<Integer> programSet;
+                String role = acl.getRoleId();
+                if (role == null) {
+                    role = "";
+                }
+                bfAndProgramMap.get(role).getProgramIdList().addAll(this.programService.getProgramListForDropdown(curUser.getRealm().getRealmId(), 0, true, curUser, false).stream().map(p -> p.getId()).toList());
+            }
+            return new ResponseEntity(ud, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get User details", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get User list
+     *
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user")
     @Operation(
-        summary = "Get user list",
+        summary = "Get User List",
         description = "Get user list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = User.class))), responseCode = "200", description = "Returns the user list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user list")
     public ResponseEntity getUserList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Could not get User list", e);
@@ -220,9 +307,17 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Get User list for Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user/realmId/{realmId}")
     @Operation(
-        summary = "Get user list for realm",
+        summary = "Get User List for Realm",
         description = "Get user list for realm"
     )
     @Parameter(name = "realmId", description = "The realm ID")
@@ -232,7 +327,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user list")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for RealmId=" + realmId, e);
@@ -245,11 +340,18 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
+    /**
+     * Get list of Users that have access to a Program
+     *
+     * @param programId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/user/programId/{programId}")
     @Operation(
-        summary = "Get user list for program",
-        description = "Get user list for program"
+        summary = "Get Users for Program",
+        description = "Get list of Users that have access to a Program"
     )
     @Parameter(name = "programId", description = "The program ID")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = User.class))), responseCode = "200", description = "Returns the user list for program")
@@ -258,7 +360,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user list")
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for ProgramId=" + programId, e);
@@ -271,12 +373,18 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
 
+    /**
+     * Get User by Id
+     *
+     * @param userId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/user/{userId}")
     @Operation(
-        summary = "Get user",
-        description = "Get user by user ID"
+        summary = "Get User",
+        description = "Get user by ID"
     )
     @Parameter(name = "userId", description = "The user ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user by user ID")
@@ -285,27 +393,40 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("userId " + userId);
             return new ResponseEntity(this.userService.getUserByUserId(userId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (AccessControlFailedException e) {
+            // FIXME: this should be a 403, not a 409
+            logger.error(("Could not get User for UserId=" + userId));
+            auditLogger.error(("Could not get User list for UserId=" + userId));
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
-            logger.error(("Could not get User list for UserId=" + userId));
+            logger.error(("Could not get User for UserId=" + userId));
             auditLogger.info("Could not get User list for UserId=" + e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
+    /**
+     * Add User
+     *
+     * @param user
+     * @param authentication
+     * @param request
+     * @return
+     */
     @PostMapping(value = "/user")
     @Operation(
-        summary = "Add user",
+        summary = "Add User",
         description = "Add user"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -316,8 +437,8 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "User or username already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the user")
-    public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
-        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+    public ResponseEntity addUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
             PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -344,9 +465,10 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED); // 412
             }
-        } catch (IncorrectAccessControlException iae) {
-            auditLogger.error("Either add All access or specific access " + user);
-            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        } catch (AccessControlFailedException acfe) {
+            // FIXME: this should be a 409, not a 403
+            auditLogger.error(acfe.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT); // 409
         } catch (DuplicateKeyException e) {
             auditLogger.error("Duplicate Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
@@ -357,10 +479,18 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Update User
+     *
+     * @param user
+     * @param authentication
+     * @param request
+     * @return
+     */
     @PutMapping(value = "/user")
     @Operation(
-        summary = "Edit user",
-        description = "Edit user"
+        summary = "Update User",
+        description = "Update user"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The user to edit",
@@ -369,8 +499,8 @@ public class UserRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while editing the user")
-    public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
-        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+    public ResponseEntity editUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
             String msg = this.userService.checkIfUserExistsByEmailId(user, 2);
@@ -388,16 +518,22 @@ public class UserRestController {
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED); 
             }
-        } catch (IncorrectAccessControlException iae) {
-            auditLogger.error("Either add All access or specific access " + user);
-            return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (AccessControlFailedException acfe) {
+            auditLogger.error(acfe.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping(value = "/updateExpiredPassword")
+    /**
+     * Update a new passwords when a password has expired for a user
+     *
+     * @param password
+     * @return
+     */
+    @PostMapping(value = "/user/updateExpiredPassword")
     @Operation(
         summary = "Update expired password",
         description = "Update expired password"
@@ -440,7 +576,14 @@ public class UserRestController {
         }
     }
 
-    @PostMapping(value = "/changePassword")
+    /**
+     * Update a new password for the user
+     *
+     * @param password
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/user/changePassword")
     @Operation(
         summary = "Change password",
         description = "Change password"
@@ -455,9 +598,9 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while changing the password")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             User user = this.userService.getUserByUserId(password.getUserId(), curUser);
-            if (!this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
+            if (curUser.getUserId() != password.getUserId() || !this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED); // 412
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -473,14 +616,21 @@ public class UserRestController {
                 }
             }
         } catch (Exception e) {
-            return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @PostMapping(value = "/forgotPassword")
+    /**
+     * Sends out the Forgot password email to the registered emailId
+     *
+     * @param user
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/user/forgotPassword")
     @Operation(
         summary = "Get forgot password token",
-        description = "Generates a forgot password token"
+        description = "Generates a forgot password token and sends it via email"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The email id to forgot password",
@@ -521,7 +671,15 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/confirmForgotPasswordToken")
+    /**
+     * Used to validate the token when the link in the forgot password email is
+     * clicked
+     *
+     * @param user
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/user/confirmForgotPasswordToken")
     @Operation(
         summary = "Confirm forgot password token",
         description = "Confirm forgot password token"
@@ -547,10 +705,17 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/updatePassword")
+    /**
+     * Update a new password from forgot password
+     *
+     * @param user
+     * @param request
+     * @return
+     */
+    @PostMapping("/user/updatePassword")
     @Operation(
         summary = "Update password",
-        description = "Update password"
+        description = "Update password from forgot password"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The email id and token to update password",
@@ -592,6 +757,13 @@ public class UserRestController {
         }
     }
 
+    /**
+     * Log a user out
+     *
+     * @param authentication
+     * @param request
+     * @return
+     */
     @GetMapping(value = "/logout")
     @Operation(
         summary = "Logout",
@@ -621,7 +793,36 @@ public class UserRestController {
         }
     }
 
-    @PutMapping(value = "/accessControls")
+    /**
+     * Gets the list of Access controls for all Users
+     *
+     * @param user
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.UserListView.class)
+    @GetMapping(value = "/user/accessControls")
+    public ResponseEntity accessControl(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.userService.getAccessControls(curUser), HttpStatus.OK);
+        } catch (DuplicateKeyException e) {
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            auditLogger.error("Error while trying to Add Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Updates the list of Access controls for a User
+     *
+     * @param user
+     * @param auth
+     * @return
+     */
+    @PutMapping(value = "/user/accessControls")
     @Operation(
         summary = "Update access controls",
         description = "Update user access controls"
@@ -635,7 +836,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the access controls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int row = this.userService.mapAccessControls(user, curUser);
             if (row > 0) {
                 auditLogger.error(user + " updated successfully");
@@ -656,10 +857,17 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/language")
+    /**
+     * Sets the default language used by a User
+     *
+     * @param languageUser
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/user/language")
     @Operation(
         summary = "Update user language",
-        description = "Update user preferred language"
+        description = "Update user default language"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The language to update",
@@ -670,7 +878,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the preferred language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update language change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserLanguage(curUser.getUserId(), languageUser.getLanguageCode());
             auditLogger.info("Preferred language updated successfully for Username: " + curUser.getUsername());
@@ -681,7 +889,14 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/module/{moduleId}")
+    /**
+     * Sets the default module used by a User
+     *
+     * @param moduleId
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/user/module/{moduleId}")
     @Operation(
         summary = "Update user module",
         description = "Update user default module"
@@ -690,7 +905,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the default module")
     public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Module change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserModule(curUser.getUserId(), moduleId);
             auditLogger.info("Default Module updated successfully for Username: " + curUser.getUsername());
@@ -700,7 +915,14 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.moduleChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Sets the Theme that the user wants
+     *
+     * @param themeId
+     * @param auth
+     * @return
+     */
     @PostMapping("/user/theme/{themeId}")
     @Operation(
         summary = "Update user theme",
@@ -710,7 +932,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the default theme")
     public ResponseEntity updateUserTheme(@PathVariable int themeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserTheme(curUser.getUserId(), themeId);
             auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
@@ -720,7 +942,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.themeChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/user/decimalPreference/{showDecimals}")
     @Operation(
         summary = "Update user decimal preference",
@@ -730,7 +952,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the decimal preference")
     public ResponseEntity updateUserDecimalPreference(@PathVariable boolean showDecimals, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             auditLogger.info("Update Theme change triggered for Username: " + curUser.getUsername());
             this.userService.updateUserDecimalPreference(curUser.getUserId(), showDecimals);
             auditLogger.info("Default Theme updated successfully for Username: " + curUser.getUsername());
@@ -741,7 +963,13 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/agreement")
+    /**
+     * Updates the I agree field for a User
+     *
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/user/agreement")
     @Operation(
         summary = "Accept user agreement",
         description = "Accept user agreement"
@@ -750,9 +978,6 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
-            auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
-            auditLogger.info("auth 2: " + auth);
-            auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.userService.acceptUserAgreement(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity("", HttpStatus.OK);
         } catch (Exception e) {

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.FundingSourceType;
@@ -36,6 +37,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -55,6 +58,13 @@ public class FundingSourceRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Funding Source
+     *
+     * @param fundingSource
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/fundingSource")
     @Operation(
         summary = "Add Funding Source",
@@ -71,9 +81,15 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding funding source")
     public ResponseEntity postFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.fundingSourceService.addFundingSource(fundingSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Funding source", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to add Funding source", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
@@ -86,6 +102,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Update Funding Source
+     *
+     * @param fundingSource
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/fundingSource")
     @Operation(
         summary = "Update Funding Source",
@@ -102,9 +125,12 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating funding source")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.fundingSourceService.updateFundingSource(fundingSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update Funding source", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); // 404
@@ -121,6 +147,12 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of active Funding Sources
+     *
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource")
     @Operation(
@@ -131,7 +163,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing funding sources")
     public ResponseEntity getFundingSource(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding source", e);
@@ -139,6 +171,14 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Check if Funding Source Display name exists in the same Realm
+     *
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSource/getDisplayName/realmId/{realmId}/name/{name}")
     @Operation(
         summary = "Get Funding Source Display Name",
@@ -148,7 +188,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting funding source display name")
     public ResponseEntity getFundingSourceDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Funding source suggested display name", e);
@@ -156,6 +196,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of Funding Sources by RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/realmId/{realmId}")
     @Operation(
@@ -167,7 +214,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting funding source")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Funding source for Realm, RealmId=" + realmId, ae);
@@ -181,6 +228,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get Funding Source by Id
+     *
+     * @param fundingSourceId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/fundingSource/{fundingSourceId}")
     @Operation(
@@ -192,7 +246,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting funding source")
     public ResponseEntity getFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceById(fundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
@@ -206,6 +260,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Add Funding Source Type
+     *
+     * @param fundingSourceType
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/fundingSourceType")
     @Operation(
         summary = "Add Funding Source Type",
@@ -222,7 +283,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding funding source type")
     public ResponseEntity postFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int fundingSourceTypeId = this.fundingSourceService.addFundingSourceType(fundingSourceType, curUser);
             if (fundingSourceTypeId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -242,6 +303,13 @@ public class FundingSourceRestController {
 
     }
 
+    /**
+     * Update Funding Source Type
+     *
+     * @param fundingSourceType
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/fundingSourceType")
     @Operation(
         summary = "Update Funding Source Type",
@@ -258,7 +326,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating funding source type")
     public ResponseEntity putFundingSourceType(@RequestBody FundingSourceType fundingSourceType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rows = this.fundingSourceService.updateFundingSourceType(fundingSourceType, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -273,6 +341,12 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of active Funding Source Types
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSourceType")
     @Operation(
         summary = "Get Funding Source Type List",
@@ -282,7 +356,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing funding source types")
     public ResponseEntity getFundingSourceType(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding Source Type", e);
@@ -290,6 +364,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get list of Funding Source Types by RealmId
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSourceType/realmId/{realmId}")
     @Operation(
         summary = "Get Funding Source Type for Realm",
@@ -301,7 +382,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting funding source type")
     public ResponseEntity getFundingSourceTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeByRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Funding Source Type", e);
@@ -315,6 +396,13 @@ public class FundingSourceRestController {
         }
     }
 
+    /**
+     * Get Funding Source Type by Id
+     *
+     * @param fundingSourceTypeId
+     * @param auth
+     * @return
+     */
     @GetMapping("/fundingSourceType/{fundingSourceTypeId}")
     @Operation(
         summary = "Get Funding Source Type",
@@ -326,7 +414,7 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting funding source type")
     public ResponseEntity getFundingSourceType(@PathVariable("fundingSourceTypeId") int fundingSourceTypeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.fundingSourceService.getFundingSourceTypeById(fundingSourceTypeId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Funding Source Type Id" + fundingSourceTypeId, er);

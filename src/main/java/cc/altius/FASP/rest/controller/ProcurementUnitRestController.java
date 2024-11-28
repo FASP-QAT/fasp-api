@@ -33,17 +33,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
 @Tag(
     name = "Procurement Unit",
     description = "Manage procurement units with support for realm and planning unit based filtering"
 )
+@RequestMapping("/api/procurementUnit")
 public class ProcurementUnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -53,8 +55,14 @@ public class ProcurementUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/procurementUnit")
-    @Operation(
+    /**
+     * Add a Procurement Unit
+     *
+     * @param procurementUnit
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")    @Operation(
         summary = "Add Procurement Unit",
         description = "Create a new procurement unit"
     )
@@ -69,7 +77,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding a procurement unit")
     public ResponseEntity postProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.procurementUnitService.addProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateNameException de) {
@@ -84,8 +92,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @PutMapping(path = "/procurementUnit")
-    @Operation(
+    /**
+     * Update a Procurement Unit
+     *
+     * @param procurementUnit
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")    @Operation(
         summary = "Update Procurement Unit",
         description = "Update an existing procurement unit"
     )
@@ -100,7 +114,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement unit")
     public ResponseEntity putProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.procurementUnitService.updateProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateNameException de) {
@@ -115,7 +129,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit")
+    /**
+     * Get list of active Procurement Units
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @Operation(
         summary = "Get Procurement Unit List",
         description = "Retrieve a list of active procurement units"
@@ -124,7 +144,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement unit list")
     public ResponseEntity getProcurementUnit(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -132,7 +152,13 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/all")
+    /**
+     * Get list of all Procurement Units
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("/all")
     @Operation(
         summary = "Get All Procurement Unit List",
         description = "Retrieve a list of all procurement units (active and disabled)"
@@ -141,7 +167,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting all procurement unit list")
     public ResponseEntity getProcurementUnitAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -149,7 +175,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}")
+    /**
+     * Get list of active Procurement Units by Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @Operation(
         summary = "Get Procurement Unit by Realm",
         description = "Retrieve a list of procurement units for a specific realm"
@@ -159,7 +192,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement unit list")
     public ResponseEntity getProcurementUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForRealm(realmId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -170,7 +203,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/realmId/{realmId}/all")
+    /**
+     * Get list of all Procurement Units by Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}/all")
     @Operation(
         summary = "Get All Procurement Unit by Realm",
         description = "Retrieve a list of all procurement units (active and disabled) for a specific realm"
@@ -181,7 +221,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting all procurement unit list")
     public ResponseEntity getProcurementUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -192,7 +232,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}")
+    /**
+     * Get list of active Procurement Units by Planning Unit
+     *
+     * @param planningUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/planningUnitId/{planningUnitId}")
     @Operation(
         summary = "Get Procurement Unit by Planning Unit",
         description = "Retrieve a list of procurement units for a specific planning unit"
@@ -203,7 +250,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement unit list")
     public ResponseEntity getProcurementUnitForPlanningUnit(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListByPlanningUnit(planningUnitId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -214,7 +261,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}/all")
+    /**
+     * Get list of all Procurement Units by Planning Unit
+     *
+     * @param planningUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/planningUnitId/{planningUnitId}/all")
     @Operation(
         summary = "Get All Procurement Unit by Planning Unit",
         description = "Retrieve a list of all procurement units (active and disabled) for a specific planning unit"
@@ -225,7 +279,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting all procurement unit list")
     public ResponseEntity getProcurementUnitForPlanningUnitAll(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListByPlanningUnit(planningUnitId, false, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -236,7 +290,14 @@ public class ProcurementUnitRestController {
         }
     }
 
-    @GetMapping("/procurementUnit/{procurementUnitId}")
+    /**
+     * Get Procurement Unit by Id
+     *
+     * @param procurementUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{procurementUnitId}")
     @Operation(
         summary = "Get Procurement Unit",
         description = "Retrieve a procurement unit by their unique identifier"
@@ -247,7 +308,7 @@ public class ProcurementUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement unit")
     public ResponseEntity getProcurementUnitById(@PathVariable("procurementUnitId") int procurementUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitById(procurementUnitId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ProcurementUnit", er);
@@ -257,22 +318,5 @@ public class ProcurementUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
-    
-//    @GetMapping(value = "/sync/procurementUnit/{lastSyncDate}")
-//    public ResponseEntity getProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing procurementUnit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing procurementUnit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 }

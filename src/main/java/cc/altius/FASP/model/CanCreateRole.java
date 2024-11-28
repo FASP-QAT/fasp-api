@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 
 /**
@@ -13,7 +14,9 @@ import java.util.Objects;
  */
 public class CanCreateRole {
 
+    @JsonView(Views.ReportView.class)
     private String roleId;
+    @JsonView(Views.ReportView.class)
     private Label label;
 
     public CanCreateRole(String roleId) {

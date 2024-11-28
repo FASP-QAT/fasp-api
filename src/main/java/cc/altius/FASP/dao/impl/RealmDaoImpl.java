@@ -45,7 +45,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.`MIN_COUNT_FOR_MODE`, r.`MIN_PERC_FOR_MODE`, "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.`MIN_COUNT_FOR_MODE`, r.`MIN_PERC_FOR_MODE`, r.`NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, r.`NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD`, r.`NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD`, r.`NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD`, "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
@@ -75,6 +75,10 @@ public class RealmDaoImpl implements RealmDao {
         params.put("INVENTORY_MONTHS_IN_PAST", r.getInventoryMonthsInPast());
         params.put("MIN_COUNT_FOR_MODE", r.getMinCountForMode());
         params.put("MIN_PERC_FOR_MODE", r.getMinPercForMode());
+        params.put("NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD", r.getNoOfMonthsInPastForBottomDashboard());
+        params.put("NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD", r.getNoOfMonthsInFutureForBottomDashboard());
+        params.put("NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD", r.getNoOfMonthsInPastForTopDashboard());
+        params.put("NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD", r.getNoOfMonthsInFutureForTopDashboard());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -109,6 +113,10 @@ public class RealmDaoImpl implements RealmDao {
         params.put("inventoryMonthsInPast", r.getInventoryMonthsInPast());
         params.put("minCountForMode", r.getMinCountForMode());
         params.put("minPercForMode", r.getMinPercForMode());
+        params.put("noOfMonthsInPastForBottomDashboard", r.getNoOfMonthsInPastForBottomDashboard());
+        params.put("noOfMonthsInFutureForBottomDashboard", r.getNoOfMonthsInFutureForBottomDashboard());
+        params.put("noOfMonthsInPastForTopDashboard", r.getNoOfMonthsInPastForTopDashboard());
+        params.put("noOfMonthsInFutureForTopDashboard", r.getNoOfMonthsInFutureForTopDashboard());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
@@ -126,6 +134,10 @@ public class RealmDaoImpl implements RealmDao {
                 + "r.INVENTORY_MONTHS_IN_PAST=:inventoryMonthsInPast,"
                 + "r.MIN_COUNT_FOR_MODE=:minCountForMode,"
                 + "r.MIN_PERC_FOR_MODE=:minPercForMode,"
+                + "r.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD=:noOfMonthsInPastForBottomDashboard,"
+                + "r.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD=:noOfMonthsInFutureForBottomDashboard,"
+                + "r.NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD=:noOfMonthsInPastForTopDashboard,"
+                + "r.NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD=:noOfMonthsInFutureForTopDashboard,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=:curUser, "
                 + "r.LAST_MODIFIED_DATE=:curDate, "

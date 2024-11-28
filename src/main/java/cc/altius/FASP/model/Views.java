@@ -46,5 +46,9 @@ public class Views {
     public interface ExportApiView {
         
     }
+    
+    public interface UserListView {
+        
+    }
 
 }

@@ -33,13 +33,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/currency")
 @Tag(
     name = "Currency",
     description = "Manage system currencies"
@@ -53,7 +55,15 @@ public class CurrencyRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/currency")
+    /**
+     * Add Currency
+     *
+     * @param currency
+     * @param auth
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "")
     @Operation(
         summary = "Add Currency",
         description = "Create a new currency"
@@ -68,19 +78,25 @@ public class CurrencyRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the creation of the currency")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.currencyService.addCurrency(currency, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); //406
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping(value = "/currency")
+    /**
+     * Get list of active Currencies
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "")
     @Operation(
         summary = "Get Active Currency List",
         description = "Retrieve a complete list of active currencies"
@@ -89,15 +105,22 @@ public class CurrencyRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the currency list")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.currencyService.getCurrencyList(true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.currencyService.getCurrencyList(true, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping(value = "/currency/{currencyId}")
+    /**
+     * Get Currency by Id
+     *
+     * @param currencyId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/{currencyId}")
     @Operation(
         summary = "Get Currency by Id",
         description = "Retrieve a currency by its ID"
@@ -108,18 +131,24 @@ public class CurrencyRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the currency")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.currencyService.getCurrencyById(currencyId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.currencyService.getCurrencyById(currencyId, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); //404
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping(value = "/currency/all")
+    /**
+     * Get list of all Currencies
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/all")
     @Operation(
         summary = "Get All Currency List",
         description = "Retrieve a complete list of all currencies (active and disabled)"
@@ -128,15 +157,22 @@ public class CurrencyRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the currency list")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.currencyService.getCurrencyList(false, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.currencyService.getCurrencyList(false, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @PutMapping(value = "/currency")
+    /**
+     * Update Currency
+     *
+     * @param currency
+     * @param auth
+     * @return
+     */
+    @PutMapping(value = "")
     @Operation(
         summary = "Update Currency",
         description = "Update an existing currency"
@@ -151,31 +187,16 @@ public class CurrencyRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the update of the currency")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.currencyService.updateCurrency(currency, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to update Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); //406
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to update Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
-//    @GetMapping(value = "/sync/currency/{lastSyncDate}")
-//    public ResponseEntity getCurrencyListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            return new ResponseEntity(this.currencyService.getCurrencyListForSync(lastSyncDate), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing currency", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing currency", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 }

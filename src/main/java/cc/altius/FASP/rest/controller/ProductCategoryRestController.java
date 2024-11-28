@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,17 +37,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
 @Tag(
     name = "Product Category",
     description = "Manage product categories with hierarchical structure and program-specific filtering"
 )
+@RequestMapping("/api/productCategory")
 public class ProductCategoryRestController extends BaseModel implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -55,10 +59,17 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @Autowired
     private UserService userService;
 
-    @PutMapping(path = "/productCategory")
+    /**
+     * Add and Update Product Category Tree
+     *
+     * @param productCategories
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Save Product Category",
-        description = "Save a list of product categories"
+        description = "Save a product category tree"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The input object containing product category details",
@@ -70,7 +81,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating product categories")
     public ResponseEntity putProductCategory(@RequestBody Node<ProductCategory>[] productCategories, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.productCategoryService.saveProductCategoryList(productCategories, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -82,7 +93,14 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/realmId/{realmId}")
+    /**
+     * Get list of ProductCategories for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @Operation(
         summary = "Get Product Category List",
         description = "Retrieve a list of product categories for a specific realm"
@@ -93,7 +111,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting product category list")
     public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.productCategoryService.getProductCategoryListForRealm(curUser, realmId), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to list Product Category", ae);
@@ -104,7 +122,17 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
+    /**
+     * Get list of ProductCategories for a Realm and other filters
+     *
+     * @param realmId
+     * @param productCategoryId
+     * @param includeCurrentLevel
+     * @param includeAllChildren
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
     @Operation(
         summary = "Get Product Category List by Realm",
         description = "Retrieve a list of product categories for a specific realm"
@@ -125,7 +153,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             bolIncludeAllChildren = includeAllChildren.get();
         }
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser, realmId, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
@@ -133,23 +161,16 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-//    @GetMapping(value = "/sync/productCategory/{lastSyncDate}")
-//    public ResponseEntity getProductCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing productCategory", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing productCategory", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    @GetMapping("/productCategory/realmId/{realmId}/programId/{programId}")
+    /**
+     * Get list of ProductCategories for a Realm that are from a SupplyPlan
+     * ProgramPlanning Unit list
+     *
+     * @param realmId
+     * @param programId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}/programId/{programId}")
     @Operation(
         summary = "Get Product Category List for Program",
         description = "Retrieve a list of product categories for a specific program"
@@ -160,8 +181,14 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting product category list")
     public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.productCategoryService.getProductCategoryListForProgram(curUser, realmId, programId), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to list Product Category", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Product Category", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500

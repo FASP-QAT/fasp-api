@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.BaseModel;
@@ -40,17 +41,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
 @Tag(
     name = "Realm Country",
     description = "Manage realm country assignments and their associated planning units"
 )
+@RequestMapping("/api/realmCountry")
 public class RealmCountryRestController extends BaseModel implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,7 +63,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/realmCountry")
+    /**
+     * Add RealmCountry
+     *
+     * @param realmCountryList
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add Realm Country",
         description = "Add a list of realm countries"
@@ -75,9 +85,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding realm countries")
     public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.realmCountryService.addRealmCountry(realmCountryList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add RealmCountry", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
@@ -90,7 +103,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping(path = "/realmCountry")
+    /**
+     * Update RealmCountry
+     *
+     * @param realmCountryList
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update Realm Country",
         description = "Update a list of realm countries"
@@ -105,7 +125,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating realm countries")
     public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException d) {
@@ -120,7 +140,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry")
+    /**
+     * Get list of RealmCountries
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @Operation(
         summary = "Get Realm Country List",
         description = "Retrieve a list of realm countries"
@@ -130,7 +156,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while listing realm countries")
     public ResponseEntity getRealmCountry(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryList(curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -144,7 +170,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}")
+    /**
+     * Get RealmCountry by Id
+     *
+     * @param realmCountryId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{realmCountryId}")
     @Operation(
         summary = "Get Realm Country by ID",
         description = "Retrieve a realm country by its ID"
@@ -156,7 +189,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting a realm country")
     public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryById(realmCountryId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -170,7 +203,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/realmId/{realmId}")
+    /**
+     * Get list of RealmCountries for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @Operation(
         summary = "Get Realm Country by Realm ID",
         description = "Retrieve a list of realm countries by their realm ID"
@@ -182,7 +222,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting a realm country by realm ID")
     public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -196,10 +236,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}/planningUnit")
+    /**
+     * Get list of active ARU’s for a RealmCountry
+     *
+     * @param realmCountryId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{realmCountryId}/planningUnit")
     @Operation(
         summary = "Get Planning Unit for Country",
-        description = "Retrieve a list of planning units for a given realm country"
+        description = "Retrieve a list of planning units (administrative reporting units) for a given realm country"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = RealmCountryPlanningUnit.class))), responseCode = "200", description = "Returns the list of planning units")
@@ -208,7 +255,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning units for a country")
     public ResponseEntity getPlanningUnitForCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
@@ -222,10 +269,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PostMapping("/realmCountry/programIds/planningUnit")
+    /**
+     * Get list of ARU’s filtered by a list of ProgramIds
+     *
+     * @param programIds
+     * @param auth
+     * @return
+     */
+    @PostMapping("/programIds/planningUnit")
     @Operation(
         summary = "Get Planning Unit for Program List",
-        description = "Retrieve a list of planning units for a given list of program IDs"
+        description = "Retrieve a list of planning units (administrative reporting units) for a given list of program IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of program IDs to retrieve planning units for",
@@ -238,7 +292,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning units for a program list")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryPlanningUnitListForProgramList(programIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
@@ -252,10 +306,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}/planningUnit/all")
+    /**
+     * Get list of all ARU’s for a RealmCountry
+     *
+     * @param realmCountryId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{realmCountryId}/planningUnit/all")
     @Operation(
         summary = "Get All Planning Unit for Country",
-        description = "Retrieve a list of all planning units for a given realm country"
+        description = "Retrieve a list of all planning units (administrative reporting units) for a given realm country"
     )
     @Parameter(name = "realmCountryId", description = "The ID of the realm country to retrieve all planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = RealmCountryPlanningUnit.class))), responseCode = "200", description = "Returns the list of all planning units")
@@ -264,7 +325,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting all planning units for a country")
     public ResponseEntity getPlanningUnitForCountryAll(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
@@ -278,10 +339,17 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/planningUnit")
+    /**
+     * Add or Update ARU
+     *
+     * @param realmCountryPlanningUnits
+     * @param auth
+     * @return
+     */
+    @PutMapping("/planningUnit")
     @Operation(
         summary = "Save Planning Unit for Country",
-        description = "Save a list of planning units for a given realm country"
+        description = "Save a list of planning units (administrative reporting units) for a given realm country"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The list of planning units to save",
@@ -294,9 +362,12 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while saving planning units for a country")
     public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rowsEffected = this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update PlanningUnit for Country", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (CouldNotSaveException cnse) {
             logger.error("Error while trying to update PlanningUnit for Country", cnse);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED); // 412
@@ -313,7 +384,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/program/realmId/{realmId}")
+    /**
+     * Get list of RealmCountry with HealthArea mapping for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/program/realmId/{realmId}")
     @Operation(
         summary = "Get Realm Country for Active Programs by Realm ID",
         description = "Retrieve a list of realm countries for active programs by their realm ID"
@@ -325,7 +403,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting realm countries for active programs by realm ID")
     public ResponseEntity getRealmCountryByRealmIdForActivePrograms(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -339,7 +417,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/program")
+    @GetMapping("/program")
     @Operation(
         summary = "Get Realm Country for Active Programs",
         description = "Retrieve a list of realm countries for active programs"
@@ -351,7 +429,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting realm countries for active programs")
     public ResponseEntity getRealmCountryForActivePrograms(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             if (curUser.getRealm().getRealmId() == -1) {
                 logger.error("A User with access to multiple Realms tried to access a RealmCountry Program list without specifying a Realm");
                 return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
@@ -369,35 +447,4 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-//    @GetMapping(value = "/sync/realmCountry/{lastSyncDate}")
-//    public ResponseEntity getRealmCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.realmCountryService.getRealmCountryListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing realmCountry", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing realmCountry", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @GetMapping(value = "/sync/realmCountryPlanningUnit/{lastSyncDate}")
-//    public ResponseEntity getRealmCountryPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.realmCountryService.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing realmCountryPlanningUnit", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing realmCountryPlanningUnit", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

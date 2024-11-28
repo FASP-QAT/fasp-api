@@ -1,0 +1,395 @@
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardStockStatus`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardStockStatus`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardStockStatus`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+BEGIN
+    
+    SELECT COUNT(mn.MONTH) INTO @monthCount FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE AND VAR_STOP_DATE;
+    SELECT COUNT(*) INTO @puCount FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID where ppu.PROGRAM_ID=VAR_PROGRAM_ID AND ppu.ACTIVE AND pu.ACTIVE;
+    
+    SELECT 
+        SUM(p2.`COUNT_OF_STOCK_OUT`) `COUNT_OF_STOCK_OUT`, 
+        SUM(p2.`COUNT_OF_UNDER_STOCK`) `COUNT_OF_UNDER_STOCK`, 
+        SUM(p2.`COUNT_OF_ADEQUATE_STOCK`) `COUNT_OF_ADEQUATE_STOCK`, 
+        SUM(p2.`COUNT_OF_OVER_STOCK`) `COUNT_OF_OVER_STOCK`, 
+        @puCount*@monthCount - (SUM(p2.`COUNT_OF_STOCK_OUT`)+SUM(p2.`COUNT_OF_UNDER_STOCK`)+SUM(p2.`COUNT_OF_ADEQUATE_STOCK`)+SUM(p2.`COUNT_OF_OVER_STOCK`)) `COUNT_OF_NA`,
+        @puCount*@monthCount `COUNT_OF_TOTAL`
+    FROM vw_program p 
+    LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE
+    LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE 
+    LEFT JOIN (
+        SELECT 
+            p1.PLANNING_UNIT_ID, 
+            SUM(IF(p1.STOCK_CONDITION=0, 1, 0)) `COUNT_OF_STOCK_OUT`, 
+            SUM(IF(STOCK_CONDITION=1, 1, 0)) `COUNT_OF_UNDER_STOCK`, 
+            SUM(IF(STOCK_CONDITION=2, 1, 0)) `COUNT_OF_ADEQUATE_STOCK`, 
+            SUM(IF(STOCK_CONDITION=3, 1, 0)) `COUNT_OF_OVER_STOCK`, 
+            SUM(IF(STOCK_CONDITION=4, 1, 0)) `COUNT_OF_NA`,
+            SUM(IF(STOCK_CONDITION=5, 1, 0)) `COUNT_OF_UNK`
+        FROM ( 
+        SELECT 
+            amc.PLANNING_UNIT_ID, amc.`TRANS_DATE`,
+            CASE
+                WHEN amc.MOS is null THEN 4 -- NA
+                WHEN amc.MOS=0 THEN 0 -- StockOut
+                WHEN amc.MOS < IF(ppu.PLAN_BASED_ON=1,ppu.MIN_MONTHS_OF_STOCK,ppu.MIN_QTY) THEN 1 -- UnderStock
+                WHEN amc.MOS <= IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 2 -- Adequate Stock
+                WHEN amc.MOS > IF(ppu.PLAN_BASED_ON=1,(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS),ROUND(amc.MAX_STOCK_QTY)) THEN 3 -- Over Stock
+                ELSE 5 -- Unknown
+            END `STOCK_CONDITION`
+        FROM vw_program p 
+        LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID
+        LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+        LEFT JOIN rm_supply_plan_amc amc ON p.PROGRAM_ID=amc.PROGRAM_ID AND p.CURRENT_VERSION_ID=amc.VERSION_ID AND ppu.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID
+        WHERE p.PROGRAM_ID=VAR_PROGRAM_ID AND amc.TRANS_DATE BETWEEN VAR_START_DATE AND VAR_STOP_DATE and ppu.ACTIVE AND pu.ACTIVE
+        ) p1 GROUP BY p1.PLANNING_UNIT_ID) p2 ON pu.PLANNING_UNIT_ID=p2.PLANNING_UNIT_ID
+    WHERE p.PROGRAM_ID = VAR_PROGRAM_ID AND pu.PLANNING_UNIT_ID IS NOT NULL
+    GROUP BY p.PROGRAM_ID;
+END$$
+
+DELIMITER ;
+;
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardShipmentDetailsReportBy`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardShipmentDetailsReportBy`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentDetailsReportBy`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_DISPLAY_SHIPMENTS_BY INT)
+BEGIN
+
+    SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID = VAR_PROGRAM_ID;
+    
+    IF VAR_DISPLAY_SHIPMENTS_BY = 1 THEN -- FundingSource
+        SELECT 
+            fs.`FUNDING_SOURCE_ID` `REPORT_BY_ID`, fs.FUNDING_SOURCE_CODE `REPORT_BY_CODE`, fs.LABEL_ID `RB_LABEL_ID`, fs.LABEL_EN `RB_LABEL_EN`, fs.LABEL_FR `RB_LABEL_FR`, fs.LABEL_SP `RB_LABEL_SP`, fs.LABEL_PR `RB_LABEL_PR`, 
+            COUNT(st.SHIPMENT_ID) `ORDER_COUNT`, 
+            SUM(st.SHIPMENT_QTY) `QUANTITY`, 
+            SUM((IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD) `COST` , NULL `COLOR_HTML_CODE`, NULL `COLOR_HTML_DARK_CODE`
+        FROM 
+            ( 
+            SELECT 
+                s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD 
+            FROM rm_shipment s 
+            LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID 
+            WHERE 
+                s.PROGRAM_ID=VAR_PROGRAM_ID
+                AND st.VERSION_ID<=@varVersionId
+                AND st.SHIPMENT_TRANS_ID IS NOT NULL 
+            GROUP BY s.SHIPMENT_ID 
+        ) AS s 
+        LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
+        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
+        LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID 
+        LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+        LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
+        WHERE 
+            st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
+            AND st.SHIPMENT_STATUS_ID!=8 
+            AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN VAR_START_DATE AND VAR_STOP_DATE 
+        GROUP BY st.FUNDING_SOURCE_ID;
+    ELSEIF VAR_DISPLAY_SHIPMENTS_BY = 2 THEN -- ProcurementAgent
+        SELECT 
+            pa.`PROCUREMENT_AGENT_ID` `REPORT_BY_ID`, pa.PROCUREMENT_AGENT_CODE `REPORT_BY_CODE`, pa.LABEL_ID `RB_LABEL_ID`, pa.LABEL_EN `RB_LABEL_EN`, pa.LABEL_FR `RB_LABEL_FR`, pa.LABEL_SP `RB_LABEL_SP`, pa.LABEL_PR `RB_LABEL_PR`, 
+            COUNT(st.SHIPMENT_ID) `ORDER_COUNT`, 
+            SUM(st.SHIPMENT_QTY) `QUANTITY`, 
+            SUM((IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD) `COST` , pa.COLOR_HTML_CODE, pa.COLOR_HTML_DARK_CODE
+        FROM 
+            ( 
+            SELECT 
+                s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD 
+            FROM rm_shipment s 
+            LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID 
+            WHERE 
+                s.PROGRAM_ID=VAR_PROGRAM_ID
+                AND st.VERSION_ID<=@varVersionId
+                AND st.SHIPMENT_TRANS_ID IS NOT NULL 
+            GROUP BY s.SHIPMENT_ID 
+        ) AS s 
+        LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
+        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
+        LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID 
+        LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+        LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
+        WHERE 
+            st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
+            AND st.SHIPMENT_STATUS_ID!=8 
+            AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN VAR_START_DATE AND VAR_STOP_DATE 
+        GROUP BY st.PROCUREMENT_AGENT_ID;
+    ELSEIF VAR_DISPLAY_SHIPMENTS_BY = 3 THEN -- Status
+        SELECT 
+            ss.`SHIPMENT_STATUS_ID` `REPORT_BY_ID`, ss.LABEL_EN `REPORT_BY_CODE`, ss.LABEL_ID `RB_LABEL_ID`, ss.LABEL_EN `RB_LABEL_EN`, ss.LABEL_FR `RB_LABEL_FR`, ss.LABEL_SP `RB_LABEL_SP`, ss.LABEL_PR `RB_LABEL_PR`, 
+            COUNT(st.SHIPMENT_ID) `ORDER_COUNT`, 
+            SUM(st.SHIPMENT_QTY) `QUANTITY`, 
+            SUM((IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD) `COST` , NULL `COLOR_HTML_CODE`, NULL `COLOR_HTML_DARK_CODE`
+        FROM 
+            ( 
+            SELECT 
+                s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD 
+            FROM rm_shipment s 
+            LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID 
+            WHERE 
+                s.PROGRAM_ID=VAR_PROGRAM_ID
+                AND st.VERSION_ID<=@varVersionId
+                AND st.SHIPMENT_TRANS_ID IS NOT NULL 
+            GROUP BY s.SHIPMENT_ID 
+        ) AS s 
+        LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
+        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
+        LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID 
+        LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+        LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
+        WHERE 
+            st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
+            AND st.SHIPMENT_STATUS_ID!=8 
+            AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN VAR_START_DATE AND VAR_STOP_DATE 
+        GROUP BY st.SHIPMENT_STATUS_ID;
+    END IF;
+END$$
+
+DELIMITER ;
+;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardShipmentWithFundingSourceTbd`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardShipmentWithFundingSourceTbd`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentWithFundingSourceTbd`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+BEGIN
+
+    SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID = VAR_PROGRAM_ID;
+    
+    SELECT 
+        pu.`PLANNING_UNIT_ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, 
+        COUNT(st.SHIPMENT_ID) `COUNT`
+    FROM 
+        ( 
+        SELECT 
+            s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD 
+        FROM rm_shipment s 
+        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID 
+        WHERE 
+            s.PROGRAM_ID=VAR_PROGRAM_ID
+            AND st.VERSION_ID<=@varVersionId
+            AND st.SHIPMENT_TRANS_ID IS NOT NULL 
+        GROUP BY s.SHIPMENT_ID 
+    ) AS s 
+    LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
+    LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
+    LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+    LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
+    WHERE 
+        st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
+        AND st.SHIPMENT_STATUS_ID!=8 
+        AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN VAR_START_DATE AND VAR_STOP_DATE 
+        AND st.FUNDING_SOURCE_ID=8
+    GROUP BY st.PLANNING_UNIT_ID;
+END$$
+
+DELIMITER ;
+;
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardForecastConsumptionProblems`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastConsumptionProblems`(VAR_PROGRAM_ID INT)
+BEGIN
+
+SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND prr.REALM_PROBLEM_ID = 8) THEN prr.DATA3 END) AS GOOD_COUNT
+FROM rm_problem_report prr 
+LEFT JOIN vw_planning_unit pu ON prr.DATA3=pu.PLANNING_UNIT_ID 
+LEFT JOIN vw_program prog ON prr.PROGRAM_ID=prog.PROGRAM_ID 
+LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID                  
+WHERE prr.PROGRAM_ID=VAR_PROGRAM_ID AND prr.VERSION_ID<=prog.CURRENT_VERSION_ID AND pu.ACTIVE AND ppu.ACTIVE;
+END$$
+
+DELIMITER ;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardActualConsumptionList`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardActualConsumptionList`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardActualConsumptionList`(VAR_PROGRAM_ID INT)
+BEGIN
+
+SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND (prr.REALM_PROBLEM_ID = 1 OR prr.REALM_PROBLEM_ID = 25)) THEN prr.DATA3 END) AS GOOD_COUNT
+FROM rm_problem_report prr 
+LEFT JOIN vw_planning_unit pu ON prr.DATA3=pu.PLANNING_UNIT_ID 
+LEFT JOIN vw_program prog ON prr.PROGRAM_ID=prog.PROGRAM_ID 
+LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID                  
+WHERE prr.PROGRAM_ID=VAR_PROGRAM_ID AND prr.VERSION_ID<=prog.CURRENT_VERSION_ID AND pu.ACTIVE AND ppu.ACTIVE;
+END$$
+
+DELIMITER ;
+;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardInventoryProblems`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardInventoryProblems`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardInventoryProblems`(VAR_PROGRAM_ID INT)
+BEGIN
+SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND prr.REALM_PROBLEM_ID = 2) THEN prr.DATA3 END) AS GOOD_COUNT
+FROM rm_problem_report prr 
+LEFT JOIN vw_planning_unit pu ON prr.DATA3=pu.PLANNING_UNIT_ID 
+LEFT JOIN vw_program prog ON prr.PROGRAM_ID=prog.PROGRAM_ID 
+LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID                  
+WHERE prr.PROGRAM_ID=VAR_PROGRAM_ID AND prr.VERSION_ID<=prog.CURRENT_VERSION_ID AND pu.ACTIVE AND ppu.ACTIVE;
+END$$
+
+DELIMITER ;
+;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardShipmentProblems`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardShipmentProblems`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardShipmentProblems`(VAR_PROGRAM_ID INT)
+BEGIN
+
+SELECT COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID)) AS PU_COUNT, COUNT(DISTINCT(ppu.PROGRAM_PLANNING_UNIT_ID))-COUNT(DISTINCT CASE WHEN (prr.PROBLEM_STATUS_ID = 1 AND (prr.REALM_PROBLEM_ID = 3 OR prr.REALM_PROBLEM_ID = 4)) THEN prr.DATA3 END) AS GOOD_COUNT
+FROM rm_problem_report prr 
+LEFT JOIN vw_planning_unit pu ON prr.DATA3=pu.PLANNING_UNIT_ID 
+LEFT JOIN vw_program prog ON prr.PROGRAM_ID=prog.PROGRAM_ID 
+LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID                  
+WHERE prr.PROGRAM_ID=VAR_PROGRAM_ID AND prr.VERSION_ID<=prog.CURRENT_VERSION_ID AND pu.ACTIVE AND ppu.ACTIVE;
+END$$
+
+DELIMITER ;
+;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardForecastErrorNew`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardForecastErrorNew`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastErrorNew`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+BEGIN
+
+    SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID=VAR_PROGRAM_ID;
+    SELECT GROUP_CONCAT(pu.PLANNING_UNIT_ID) INTO @varPuList
+    FROM vw_program p 
+    LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID
+    LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+    WHERE p.PROGRAM_ID=VAR_PROGRAM_ID AND ppu.ACTIVE AND pu.ACTIVE;
+    SELECT COUNT(pr.REGION_ID) into @varRegionCount FROM rm_program_region pr WHERE pr.PROGRAM_ID=VAR_PROGRAM_ID;
+
+ 
+    SELECT 
+        c4.PLANNING_UNIT_ID, c4.LABEL_ID, c4.LABEL_EN, c4.LABEL_FR, c4.LABEL_SP, c4.LABEL_PR, AVG(FORECAST_ERROR) `ERROR_PERC`, COUNT(c4.ACTUAL_CONSUMPTION) `NO_OF_MONTHS`
+    FROM (
+        SELECT 
+            mn.MONTH, pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, c2.CONSUMPTION_DATE, c2.FORECAST_CONSUMPTION, c2.ACTUAL_CONSUMPTION, 
+            IF(c2.FORECAST_CONSUMPTION IS NOT NULL AND c2.ACTUAL_CONSUMPTION IS NOT NULL, SUM(ABS(c3.`FORECAST_CONSUMPTION`-c3.`ACTUAL_CONSUMPTION`))/SUM(c3.`ACTUAL_CONSUMPTION`), null) `FORECAST_ERROR`
+        FROM mn 
+        LEFT JOIN vw_program p ON p.PROGRAM_ID=VAR_PROGRAM_ID
+        LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID
+        LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+        LEFT JOIN (
+            SELECT c1.PLANNING_UNIT_ID, c1.CONSUMPTION_DATE, COUNT(c1.REGION_ID) `REGION_COUNT`, SUM(c1.`FORECAST_CONSUMPTION`) `FORECAST_CONSUMPTION`, SUM(c1.`ACTUAL_CONSUMPTION`) `ACTUAL_CONSUMPTION` 
+            FROM (
+                SELECT ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE, SUM(IF(ct.ACTUAL_FLAG, ct.CONSUMPTION_QTY, null)) `ACTUAL_CONSUMPTION`, SUM(IF(ct.ACTUAL_FLAG=0, ct.CONSUMPTION_QTY, null)) `FORECAST_CONSUMPTION`
+                FROM (
+                    SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE ct.VERSION_ID<=@varVersionId AND c.PROGRAM_ID=VAR_PROGRAM_ID GROUP BY ct.CONSUMPTION_ID
+                ) tc 
+                LEFT JOIN rm_consumption cons ON tc.CONSUMPTION_ID=cons.`CONSUMPTION_ID`
+                LEFT JOIN rm_consumption_trans ct ON cons.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
+                WHERE ct.CONSUMPTION_DATE BETWEEN VAR_START_DATE AND VAR_STOP_DATE AND FIND_IN_SET(ct.PLANNING_UNIT_ID, @varPuList)
+                GROUP BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE
+    --            ORDER BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE
+            ) c1 GROUP BY c1.PLANNING_UNIT_ID, c1.CONSUMPTION_DATE HAVING REGION_COUNT=@varRegionCount
+        ) c2 ON pu.PLANNING_UNIT_ID=c2.PLANNING_UNIT_ID AND mn.MONTH=c2.CONSUMPTION_DATE
+        LEFT JOIN (
+            SELECT ct.PLANNING_UNIT_ID, ct.CONSUMPTION_DATE, SUM(IF(ct.ACTUAL_FLAG=0, ct.CONSUMPTION_QTY, null)) `FORECAST_CONSUMPTION`, SUM(IF(ct.ACTUAL_FLAG, ct.CONSUMPTION_QTY, null)) `ACTUAL_CONSUMPTION`
+            FROM (
+                SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE ct.VERSION_ID<=@varVersionId AND c.PROGRAM_ID=VAR_PROGRAM_ID GROUP BY ct.CONSUMPTION_ID
+            ) tc 
+            LEFT JOIN rm_consumption cons ON tc.CONSUMPTION_ID=cons.`CONSUMPTION_ID`
+            LEFT JOIN rm_consumption_trans ct ON cons.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
+            WHERE ct.CONSUMPTION_DATE BETWEEN SUBDATE(VAR_START_DATE, INTERVAL 5 MONTH) AND VAR_STOP_DATE AND FIND_IN_SET(ct.PLANNING_UNIT_ID, @varPuList)
+            GROUP BY ct.PLANNING_UNIT_ID, ct.CONSUMPTION_DATE
+        ) c3 ON c3.CONSUMPTION_DATE BETWEEN SUBDATE(mn.`MONTH`, INTERVAL 5 MONTH) AND mn.`MONTH` AND c3.PLANNING_UNIT_ID=c2.PLANNING_UNIT_ID
+        WHERE mn.MONTH BETWEEN VAR_START_DATE AND VAR_STOP_DATE AND p.PROGRAM_ID=VAR_PROGRAM_ID AND pu.ACTIVE AND c2.PLANNING_UNIT_ID IS NOT NULL
+        GROUP BY pu.PLANNING_UNIT_ID, mn.`MONTH`
+    --    ORDER BY pu.PLANNING_UNIT_ID, mn.`MONTH`
+    ) c4 GROUP BY c4.PLANNING_UNIT_ID ORDER BY `ERROR_PERC` DESC;
+END$$
+
+DELIMITER ;
+;
+
+USE `fasp`;
+DROP procedure IF EXISTS `getDashboardActualConsumptionListForLoadProgram`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getDashboardActualConsumptionListForLoadProgram`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardActualConsumptionListForLoadProgram`(VAR_PROGRAM_ID INT, VAR_CUR_DATE DATE)
+BEGIN
+
+SET @stopDate = CONCAT(SUBSTRING(VAR_CUR_DATE,1,7),"-01");
+    SET @startDate = DATE_SUB(@stopDate, INTERVAL 6 MONTH);
+    SELECT p.CURRENT_VERSION_ID into @versionId FROM rm_program p WHERE p.PROGRAM_ID=VAR_PROGRAM_ID;
+    SELECT COUNT(pr.REGION_ID) into @regionCount FROM rm_program_region pr LEFT JOIN rm_region r ON pr.REGION_ID=r.REGION_ID WHERE pr.PROGRAM_ID=VAR_PROGRAM_ID AND pr.ACTIVE AND r.ACTIVE;
+    
+    SELECT pu.PLANNING_UNIT_ID, mn.`MONTH` `CONSUMPTION_DATE` , IF(c1.ACTUAL_COUNT IS NULL, NULL, IF(c1.ACTUAL_COUNT=@regionCount, 1, 0)) `ACTUAL_COUNT`
+    FROM vw_program p 
+    LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=VAR_PROGRAM_ID AND ppu.ACTIVE
+    LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE
+    LEFT JOIN mn ON mn.MONTH BETWEEN @startDate and @stopDate
+    LEFT JOIN (
+        SELECT 
+            ct.PLANNING_UNIT_ID, ct.CONSUMPTION_DATE, SUM(IF(ct.CONSUMPTION_QTY IS NOT NULL, 1, 0)) `ACTUAL_COUNT` 
+        FROM (SELECT c.PROGRAM_ID, ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE ct.VERSION_ID<=@versionId AND c.PROGRAM_ID=VAR_PROGRAM_ID GROUP BY ct.CONSUMPTION_ID) tc
+        LEFT JOIN rm_consumption cons ON tc.CONSUMPTION_ID=cons.CONSUMPTION_ID
+        LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
+        WHERE ct.ACTIVE AND ct.ACTUAL_FLAG=1 AND ct.CONSUMPTION_DATE BETWEEN @startDate and @stopDate
+        GROUP BY ct.PLANNING_UNIT_ID, ct.CONSUMPTION_DATE
+    ) c1 ON pu.PLANNING_UNIT_ID=c1.PLANNING_UNIT_ID AND mn.MONTH=c1.CONSUMPTION_DATE
+    WHERE p.PROGRAM_ID=VAR_PROGRAM_ID
+    ORDER BY pu.PLANNING_UNIT_ID, mn.MONTH DESC;
+END$$
+
+DELIMITER ;
+;

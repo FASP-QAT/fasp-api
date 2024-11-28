@@ -5,12 +5,12 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentForecastingUnit;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
-import cc.altius.FASP.model.ProcurementAgentType;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProcurementAgentService;
@@ -39,6 +39,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -59,6 +61,13 @@ public class ProcurementAgentRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Add Procurement Agent
+     *
+     * @param procurementAgent
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/procurementAgent")
     @Operation(
         summary = "Add Procurement Agent",
@@ -75,13 +84,16 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while creating a procurement agent")
     public ResponseEntity postProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int procurementAgentId = this.procurementAgentService.addProcurementAgent(procurementAgent, curUser);
             if (procurementAgentId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
             } else {
                 return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
             }
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to add Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Procurement Agent", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
@@ -95,42 +107,13 @@ public class ProcurementAgentRestController {
 
     }
 
-    @PostMapping(path = "/procurementAgentType")
-    @Operation(
-        summary = "Add Procurement Agent Type",
-        description = "Create a new procurement agent type"
-    )
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The input object containing procurement agent type details",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcurementAgentType.class))
-    )
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to create a procurement agent type")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Procurement agent type already exists")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while creating a procurement agent type")
-    public ResponseEntity postProcurementAgentType(@RequestBody ProcurementAgentType procurementAgentType, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int procurementAgentTypeId = this.procurementAgentService.addProcurementAgentType(procurementAgentType, curUser);
-            if (procurementAgentTypeId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-            } else {
-                return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-            }
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Procurement Agent Type", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
-        } catch (DuplicateKeyException e) {
-            logger.error("Error while trying to add Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
-        } catch (Exception e) {
-            logger.error("Error while trying to add Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-
-    }
-
+    /**
+     * Update Procurement Agent
+     *
+     * @param procurementAgent
+     * @param auth
+     * @return
+     */
     @PutMapping(path = "/procurementAgent")
     @Operation(
         summary = "Update Procurement Agent",
@@ -147,9 +130,12 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement agent")
     public ResponseEntity putProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int rows = this.procurementAgentService.updateProcurementAgent(procurementAgent, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to update  Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Procurement Agent", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
@@ -162,37 +148,12 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @PutMapping(path = "/procurementAgentType")
-    @Operation(
-        summary = "Update Procurement Agent Type",
-        description = "Update an existing procurement agent type"
-    )
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The input object containing procurement agent type details",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcurementAgentType.class))
-    )
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update a procurement agent type")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Procurement agent type already exists")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement agent type")
-    public ResponseEntity putProcurementAgentType(@RequestBody ProcurementAgentType procurementAgentType, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int rows = this.procurementAgentService.updateProcurementAgentType(procurementAgentType, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to update Procurement Agent Type", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
-        } catch (DuplicateKeyException e) {
-            logger.error("Error while trying to update Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
-        } catch (Exception e) {
-            logger.error("Error while trying to add Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
+    /**
+     * Get list of active Procurement Agents
+     *
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent")
     @Operation(
@@ -203,7 +164,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent list")
     public ResponseEntity getProcurementAgent(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Procurement Agent", e);
@@ -211,23 +172,13 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @GetMapping("/procurementAgentType")
-    @Operation(
-        summary = "Get Procurement Agent Type List",
-        description = "Retrieve a list of active procurement agent types"
-    )
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentType.class))), responseCode = "200", description = "Returns a list of active procurement agent types")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent type list")
-    public ResponseEntity getProcurementAgentType(Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeList(true, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
+    /**
+     * Get list of active Procurement Agents for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/realmId/{realmId}")
     @Operation(
@@ -239,7 +190,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent list")
     public ResponseEntity getProcurementAgentForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentByRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Procurement Agent", e);
@@ -253,30 +204,13 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @GetMapping("/procurementAgentType/realmId/{realmId}")
-    @Operation(
-        summary = "Get Procurement Agent Type by Realm",
-        description = "Retrieve a list of procurement agent types for a specific realm"
-    )
-    @Parameter(name = "realmId", description = "The ID of the realm to retrieve procurement agent type list for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentType.class))), responseCode = "200", description = "Returns a list of procurement agent types for a specific realm")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent type list")
-    public ResponseEntity getProcurementAgentTypeForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeByRealm(realmId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
-        } catch (Exception e) {
-            logger.error("Error while trying to list Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
+    /**
+     * Get Procurement Agent by Id
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @JsonView({Views.ReportView.class})
     @GetMapping("/procurementAgent/{procurementAgentId}")
     @Operation(
@@ -289,7 +223,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent")
     public ResponseEntity getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentById(procurementAgentId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
@@ -300,28 +234,13 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @GetMapping("/procurementAgentType/{procurementAgentTypeId}")
-    @Operation(
-        summary = "Get Procurement Agent Type",
-        description = "Retrieve a procurement agent type by their unique identifier"
-    )
-    @Parameter(name = "procurementAgentTypeId", description = "The ID of the procurement agent type to retrieve", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ProcurementAgentType.class)), responseCode = "200", description = "Returns a procurement agent type by their unique identifier")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Procurement agent type not found")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent type")
-    public ResponseEntity getProcurementAgentType(@PathVariable("procurementAgentTypeId") int procurementAgentTypeId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentTypeById(procurementAgentTypeId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Procurement Agent Type Id" + procurementAgentTypeId, er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
-        } catch (Exception e) {
-            logger.error("Error while trying to list Procurement Agent Type", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
+    /**
+     * Add and Update Procurement Agent Planning Unit
+     *
+     * @param procurementAgentPlanningUnits
+     * @param auth
+     * @return
+     */
     @PutMapping("/procurementAgent/planningUnit")
     @Operation(
         summary = "Save Planning Unit for Procurement Agent",
@@ -337,7 +256,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement agent")
     public ResponseEntity savePlanningUnitForProcurementAgent(@RequestBody ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.procurementAgentService.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -350,34 +269,13 @@ public class ProcurementAgentRestController {
         }
     }
 
-//    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
-//    public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, true, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException er) {
-//            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list Procurement Agent", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @PostMapping("/procurementAgent/planningUnits")
-//    public ResponseEntity getProcurementAgentPlanningUnitListByPlanningUnitList(@RequestBody int[] planningUnitIds, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException er) {
-//            logger.error("Error while trying to get Procurement Agent Planning Unit List", er);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get Procurement Agent Planning Unit List", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
+    /**
+     * Get the Planning Units for a Procurement Agent Id
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
     @Operation(
         summary = "Get Procurement Agent Planning Unit List",
@@ -389,7 +287,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent planning unit list")
     public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitList(procurementAgentId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
@@ -400,6 +298,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Add and Update the Forecasting Units for a Procurement Agent
+     *
+     * @param procurementAgentForecastingUnits
+     * @param auth
+     * @return
+     */
     @PutMapping("/procurementAgent/forecastingUnit")
     @Operation(
         summary = "Save Forecasting Unit for Procurement Agent",
@@ -415,7 +320,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement agent")
     public ResponseEntity saveForecastingUnitForProcurementAgent(@RequestBody ProcurementAgentForecastingUnit[] procurementAgentForecastingUnits, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.procurementAgentService.saveProcurementAgentForecastingUnit(procurementAgentForecastingUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -428,6 +333,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Get list of Forecasting Units for a Procurement Agent
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/forecastingUnit")
     @Operation(
         summary = "Get Procurement Agent Forecasting Unit List",
@@ -439,7 +351,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent forecasting unit list")
     public ResponseEntity getProcurementAgentForecastingUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentForecastingUnitList(procurementAgentId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
@@ -450,6 +362,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Get all the Forecasting Units for a Procurement Agent
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/forecastingUnit/all")
     @Operation(
         summary = "Get Procurement Agent Forecasting Unit List",
@@ -461,7 +380,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent forecasting unit list")
     public ResponseEntity getProcurementAgentForecastingUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentForecastingUnitList(procurementAgentId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
@@ -472,6 +391,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Add and Update Procurement Agent Procurement Unit
+     *
+     * @param procurementAgentProcurementUnits
+     * @param auth
+     * @return
+     */
     @PutMapping("/procurementAgent/procurementUnit")
     @Operation(
         summary = "Save Procurement Unit for Procurement Agent",
@@ -487,7 +413,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating a procurement agent")
     public ResponseEntity saveProcurementUnitForProcurementAgent(@RequestBody ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.procurementAgentService.saveProcurementAgentProcurementUnit(procurementAgentProcurementUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -499,6 +425,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Get list of active Procurement Units by Procurement Agent Id
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit")
     @Operation(
         summary = "Get Procurement Agent Procurement Unit List",
@@ -510,7 +443,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent procurement unit list")
     public ResponseEntity getProcurementAgentProcurementUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentProcurementUnitList(procurementAgentId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Unit for Procurement Agent" + procurementAgentId, er);
@@ -521,6 +454,13 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Get list of all Procurement Units by Procurement Agent Id
+     *
+     * @param procurementAgentId
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit/all")
     @Operation(
         summary = "Get Procurement Agent Procurement Unit List",
@@ -532,7 +472,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent procurement unit list")
     public ResponseEntity getProcurementAgentProcurementUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getProcurementAgentProcurementUnitList(procurementAgentId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Procurement Unit for Procurement Agent" + procurementAgentId, er);
@@ -543,6 +483,14 @@ public class ProcurementAgentRestController {
         }
     }
 
+    /**
+     * Check if Procurement Agent Display name exists in the same Realm
+     *
+     * @param realmId
+     * @param name
+     * @param auth
+     * @return
+     */
     @GetMapping("/procurementAgent/getDisplayName/realmId/{realmId}/name/{name}")
     @Operation(
         summary = "Get Procurement Agent Display Name",
@@ -554,7 +502,7 @@ public class ProcurementAgentRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting procurement agent display name")
     public ResponseEntity getProcurementAgentDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.procurementAgentService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Funding source suggested display name", e);

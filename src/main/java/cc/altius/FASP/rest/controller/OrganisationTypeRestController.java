@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +33,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/organisationType")
 @Tag(
     name = "Organisation Type",
     description = "Manage organization type classifications with realm-based filtering"
@@ -54,7 +55,13 @@ public class OrganisationTypeRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/organisationType")
+    /**Add an OrganisationType
+     * 
+     * @param organisationType
+     * @param auth
+     * @return 
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add Organisation Type",
         description = "Add a new organisation type"
@@ -70,9 +77,9 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding organisation type")
     public ResponseEntity postOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.organisationTypeService.addOrganisationType(organisationType, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Organisation Type", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
@@ -85,7 +92,13 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @PutMapping(path = "/organisationType")
+    /**Update an OrganisationType
+     * 
+     * @param organisationType
+     * @param auth
+     * @return 
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update Organisation Type",
         description = "Update an existing organisation type"
@@ -102,9 +115,9 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating organisation type")
     public ResponseEntity putOrganisationType(@RequestBody OrganisationType organisationType, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.organisationTypeService.updateOrganisationType(organisationType, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Organisation Type", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); // 404
@@ -120,7 +133,12 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping("/organisationType")
+    /**Get list of active OrganisationTypes
+     * 
+     * @param auth
+     * @return 
+     */
+    @GetMapping("")
     @Operation(
         summary = "Get Organisation Type list",
         description = "Retrieve a list of active organisation types"
@@ -129,15 +147,20 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation type list")
     public ResponseEntity getOrganisationTypeList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeList(true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeList(true, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to get Organisation Type list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping(value = "/organisationType/all")
+    /**Get list of all OrganisationTypes
+     * 
+     * @param auth
+     * @return 
+     */
+    @GetMapping(value = "/all")
     @Operation(
         summary = "Get all Organisation Type list",
         description = "Retrieve a list of all organisation types (active and disabled)"
@@ -146,15 +169,20 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation type list")
     public ResponseEntity getOrganisationTypeListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeList(false, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeList(false, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to get Organisation Type list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
-    @GetMapping("/organisationType/realmId/{realmId}")
+    /**Get list of OrganisationTypes for a Realm
+     * 
+     * @param realmId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/realmId/{realmId}")
     @Operation(
         summary = "Get Organisation Type by Realm",
         description = "Retrieve a list of organisation types by realm"
@@ -166,8 +194,8 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation type list")
     public ResponseEntity getOrganisationTypeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeListByRealmId(realmId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeListByRealmId(realmId, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Organisation Type list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -180,7 +208,13 @@ public class OrganisationTypeRestController {
         }
     }
 
-    @GetMapping("/organisationType/{organisationTypeId}")
+    /**Get OrganisationType by Id
+     * 
+     * @param organisationTypeId
+     * @param auth
+     * @return 
+     */
+    @GetMapping("/{organisationTypeId}")
     @Operation(
         summary = "Get Organisation Type",
         description = "Retrieve an organisation type by its ID"
@@ -192,8 +226,8 @@ public class OrganisationTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting organisation type")
     public ResponseEntity getOrganisationType(@PathVariable("organisationTypeId") int organisationTypeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeById(organisationTypeId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.organisationTypeService.getOrganisationTypeById(organisationTypeId, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Organisation Type list", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404

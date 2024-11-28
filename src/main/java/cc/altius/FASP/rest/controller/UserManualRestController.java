@@ -38,11 +38,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
     description = "Manage system documentation file uploads"
 )
 public class UserManualRestController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     UserManualService userManualService;
-    
+
+    /**
+     * Api Used to push the upload the UserManual
+     *
+     * @param file
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/userManual/uploadUserManual")
     @Operation(
         summary = "Upload user manual",
@@ -67,5 +74,5 @@ public class UserManualRestController {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

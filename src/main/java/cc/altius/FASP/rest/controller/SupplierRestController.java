@@ -32,17 +32,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
 @Tag(
     name = "Supplier",
     description = "Manage supplier data with realm-specific access control"
 )
+@RequestMapping("/api/supplier")
 public class SupplierRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -52,7 +54,14 @@ public class SupplierRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/supplier")
+    /**
+     * Add Supplier
+     *
+     * @param supplier
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add a new supplier",
         description = "Add a new supplier to the system"
@@ -67,7 +76,7 @@ public class SupplierRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the supplier")
     public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.supplierService.addSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -79,7 +88,14 @@ public class SupplierRestController {
         }
     }
 
-    @PutMapping(path = "/supplier")
+    /**
+     * Update Supplier
+     *
+     * @param supplier
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update an existing supplier",
         description = "Update an existing supplier in the system"
@@ -94,7 +110,7 @@ public class SupplierRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the supplier")
     public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.supplierService.updateSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -106,7 +122,13 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier")
+    /**
+     * Get Supplier list
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @Operation(
         summary = "Get all suppliers",
         description = "Retrieve a list of all suppliers"
@@ -115,7 +137,7 @@ public class SupplierRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the supplier list")
     public ResponseEntity getSupplier(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Supplier list", e);
@@ -123,9 +145,16 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/{supplierId}")
+    /**
+     * Get Supplier based on Id
+     *
+     * @param supplierId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{supplierId}")
     @Operation(
-        summary = "Get a supplier by ID",
+        summary = "Get a supplier",
         description = "Retrieve a supplier by their ID"
     )
     @Parameter(
@@ -139,7 +168,7 @@ public class SupplierRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the supplier")
     public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierById(supplierId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Supplier list", er);
@@ -153,7 +182,14 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/realmId/{realmId}")
+    /**
+     * Get Supplier list for Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @Operation(
         summary = "Get suppliers for a realm",
         description = "Retrieve a list of suppliers for a specific realm"
@@ -169,7 +205,7 @@ public class SupplierRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the supplier list")
     public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.supplierService.getSupplierListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Supplier list", er);
@@ -183,19 +219,4 @@ public class SupplierRestController {
         }
     }
 
-//    @GetMapping(value = "/sync/supplier/{lastSyncDate}")
-//    public ResponseEntity getSupplierListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            return new ResponseEntity(this.supplierService.getSupplierListForSync(lastSyncDate, curUser), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing supplier", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing supplier", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }

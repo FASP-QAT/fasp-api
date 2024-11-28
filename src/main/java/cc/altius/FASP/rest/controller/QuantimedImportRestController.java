@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -40,14 +42,22 @@ import org.springframework.web.multipart.MultipartFile;
     description = "Manage forecast data imports from Quantimed with program-specific validation"
 )
 public class QuantimedImportRestController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private QuantimedImportService quantimedImportService;
     @Autowired
     private UserService userService;
-    
+
+    /**
+     * Used to Import a Quantimed program into QAT
+     *
+     * @param file
+     * @param programId
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/quantimed/quantimedImport/{programId}")
     @Operation(
         summary = "Quantimed Import",
@@ -63,30 +73,15 @@ public class QuantimedImportRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while importing forecast data")
     public ResponseEntity quantimedImport(@RequestParam("file") MultipartFile file, @PathVariable("programId") String programId, Authentication auth) {
         String message = "";
-        try {                                    
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            QuantimedImportDTO quantimedImportDTO = this.quantimedImportService.importForecastData(file, programId, curUser);            
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            QuantimedImportDTO quantimedImportDTO = this.quantimedImportService.importForecastData(file, programId, curUser);
             return new ResponseEntity(quantimedImportDTO, HttpStatus.OK);
-        } catch (Exception e) {     
+        } catch (Exception e) {
             logger.error("Error while upload the file", e);
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
-    } 
-    
-//    @PostMapping(value = "/quantimed/addQuantimedImport")
-//    public ResponseEntity addQuantimedImport(@RequestBody QuantimedImportDTO importDTO, Authentication auth) {
-//        String message = "";
-//        try {            
-//            ResponseEntity<String> response;
-//            
-//            System.out.println("ProgramId : ================== "+importDTO);
-//            
-//            return new ResponseEntity("", HttpStatus.OK);
-//        } catch (Exception e) {     
-//            logger.error("Error while upload the file", e);
-//            message = "";
-//            return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }    
+    }
+
 }

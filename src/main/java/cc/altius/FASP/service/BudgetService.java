@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -16,9 +17,9 @@ import java.util.List;
  */
 public interface BudgetService {
 
-    public int addBudget(Budget b, CustomUserDetails curUser);
+    public int addBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateBudget(Budget b, CustomUserDetails curUser);
+    public int updateBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
@@ -26,13 +27,13 @@ public interface BudgetService {
 
     public List<Budget> getBudgetListForRealm(int realmId, CustomUserDetails curUser);
 
-    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
+    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<SimpleCodeObject> getBudgetDropdownFilterMultipleFundingSources(String fundingSourceIds, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getBudgetDropdownForProgram(int programId, CustomUserDetails curUser);
 
-    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) throws AccessControlFailedException;
 }

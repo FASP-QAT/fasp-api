@@ -19,7 +19,13 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtractor<List<ForecastErrorOutput>> {
-    
+
+    private final boolean getRegionalData;
+
+    public ForecastErrorOutputListResultSetExtractor(boolean getRegionalData) {
+        this.getRegionalData = getRegionalData;
+    }
+
     @Override
     public List<ForecastErrorOutput> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<ForecastErrorOutput> feList = new LinkedList<>();
@@ -41,7 +47,7 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             fe.setSumOfForecast((rs.getDouble("NTL_TOTAL_FORECAST_CONSUMPTION")));
             if (rs.wasNull()) {
                 fe.setSumOfForecast(null);
-            }            
+            }
             fe.setSumOfAbsDiff(rs.getDouble("NTL_TOTAL_ABS_DIFF_CONSUMPTION"));
             if (rs.wasNull()) {
                 fe.setSumOfAbsDiff(null);
@@ -53,34 +59,36 @@ public class ForecastErrorOutputListResultSetExtractor implements ResultSetExtra
             } else {
                 fe = feList.get(idx1);
             }
-            RegionForecastErrorOutput re = new RegionForecastErrorOutput(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper().mapRow(rs, 1)));
-            re.setActualQty(rs.getDouble("ADJUSTED_ACTUAL_CONSUMPTION"));
-            if (rs.wasNull()) {
-                re.setActualQty(null);
+            if (getRegionalData) {
+                RegionForecastErrorOutput re = new RegionForecastErrorOutput(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper().mapRow(rs, 1)));
+                re.setActualQty(rs.getDouble("ADJUSTED_ACTUAL_CONSUMPTION"));
+                if (rs.wasNull()) {
+                    re.setActualQty(null);
+                }
+                re.setForecastQty(rs.getDouble("FORECAST_CONSUMPTION"));
+                if (rs.wasNull()) {
+                    re.setForecastQty(null);
+                }
+                re.setSumOfActual(rs.getDouble("TOTAL_ADJUSTED_ACTUAL_CONSUMPTION"));
+                if (rs.wasNull()) {
+                    re.setSumOfActual(null);
+                }
+                re.setSumOfForecast(rs.getDouble("TOTAL_FORECAST_CONSUMPTION"));
+                if (rs.wasNull()) {
+                    re.setSumOfForecast(null);
+                }
+                re.setSumOfAbsDiff(rs.getDouble("TOTAL_ABS_DIFF_CONSUMPTION"));
+                if (rs.wasNull()) {
+                    re.setSumOfAbsDiff(null);
+                }
+                re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
+                if (rs.wasNull()) {
+                    re.setDaysOfStockOut(null);
+                }
+                fe.addRegionData(re);
             }
-            re.setForecastQty(rs.getDouble("FORECAST_CONSUMPTION"));
-            if (rs.wasNull()) {
-                re.setForecastQty(null);
-            }
-            re.setSumOfActual(rs.getDouble("TOTAL_ADJUSTED_ACTUAL_CONSUMPTION"));
-            if (rs.wasNull()) {
-                re.setSumOfActual(null);
-            }
-            re.setSumOfForecast(rs.getDouble("TOTAL_FORECAST_CONSUMPTION"));
-            if (rs.wasNull()) {
-                re.setSumOfForecast(null);
-            }
-            re.setSumOfAbsDiff(rs.getDouble("TOTAL_ABS_DIFF_CONSUMPTION"));
-            if (rs.wasNull()) {
-                re.setSumOfAbsDiff(null);
-            }
-            re.setDaysOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
-            if (rs.wasNull()) {
-                re.setDaysOfStockOut(null);
-            }
-            fe.addRegionData(re);
         }
         return feList;
     }
-    
+
 }

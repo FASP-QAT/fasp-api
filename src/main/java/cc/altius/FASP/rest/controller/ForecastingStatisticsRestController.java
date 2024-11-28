@@ -91,6 +91,13 @@ public class ForecastingStatisticsRestController {
     @Value("${forecastStats.tes.gammaStep}")
     private double gammaStep;
 
+    /**
+     * Run Arima on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/arima")
     @Operation(
         summary = "Get Forecasting Statistics (ARIMA)",
@@ -164,6 +171,13 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**
+     * Run TES on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/tes")
     @Operation(
         summary = "Get Forecasting Statistics (TES)",
@@ -236,6 +250,13 @@ public class ForecastingStatisticsRestController {
         }
     }
 
+    /**
+     * Run Regression on dataset
+     *
+     * @param request
+     * @param auth
+     * @return
+     */
     @PostMapping(path = "/regression")
     @Operation(
         summary = "Get Forecasting Statistics (Regression)",

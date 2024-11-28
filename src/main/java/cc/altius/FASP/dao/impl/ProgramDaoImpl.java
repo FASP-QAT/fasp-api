@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -48,6 +49,7 @@ import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
+import cc.altius.FASP.model.report.RealmCountryIdsAndHealthAreaIds;
 import cc.altius.FASP.model.report.TreeAnchorInput;
 import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.model.report.TreeAnchorOutputRowMapper;
@@ -126,7 +128,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static String sqlListString1 = "SELECT   "
-            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.ROAD_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.ROAD_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.PROGRAM_TYPE_ID, p.`NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD` `PROG_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, p.`NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD` `PROG_NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD`, "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vt.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`,  "
             + "     cpv.FORECAST_START_DATE `CV_FORECAST_START_DATE`, cpv.FORECAST_STOP_DATE `CV_FORECAST_STOP_DATE`, cpv.`DAYS_IN_MONTH`, cpv.`FREIGHT_PERC`, cpv.`FORECAST_THRESHOLD_HIGH_PERC`, cpv.`FORECAST_THRESHOLD_LOW_PERC`, "
@@ -134,7 +136,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME,  "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`,  "
             + "     p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP,  "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL,  r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE, r.ACTUAL_CONSUMPTION_MONTHS_IN_PAST, r.FORECAST_CONSUMPTION_MONTH_IN_PAST, r.INVENTORY_MONTHS_IN_PAST, r.MIN_COUNT_FOR_MODE, r.MIN_PERC_FOR_MODE, r.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD `REALM_NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD`, r.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD `REALM_NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD`, r.NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD `REALM_NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD`, r.NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD `REALM_NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD`, "
             + "     r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,   "
             + "     c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
@@ -302,6 +304,8 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
             params.put("SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME", p.getShippedToArrivedByRoadLeadTime());
             params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
+            params.put("NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD", p.getNoOfMonthsInPastForBottomDashboard());
+            params.put("NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD", p.getNoOfMonthsInFutureForBottomDashboard());
         }
         params.put("PROGRAM_TYPE_ID", p.getProgramTypeId());
         params.put("CURRENT_VERSION_ID", null);
@@ -415,6 +419,8 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("shippedToArrivedByAirLeadTime", p.getShippedToArrivedByAirLeadTime());
             params.put("shippedToArrivedByRoadLeadTime", p.getShippedToArrivedByRoadLeadTime());
             params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
+            params.put("noOfMonthsInPastForBottomDashboard", p.getNoOfMonthsInPastForBottomDashboard());
+            params.put("noOfMonthsInFutureForBottomDashboard", p.getNoOfMonthsInFutureForBottomDashboard());
         }
         params.put("active", p.isActive());
         params.put("curUser", curUser.getUserId());
@@ -437,7 +443,9 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_ROAD_LEAD_TIME=:shippedToArrivedByRoadLeadTime, "
-                    + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, ";
+                    + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
+                    + "p.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD=:noOfMonthsInPastForBottomDashboard, "
+                    + "p.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD=:noOfMonthsInFutureForBottomDashboard, ";
         }
         sqlString
                 += "p.ACTIVE=:active,"
@@ -528,13 +536,18 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, CustomUserDetails curUser) {
+    public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        if (active) {
+            sqlStringBuilder.append(" AND p.ACTIVE ");
+        }
         params.put("realmId", realmId);
         params.put("programTypeId", programTypeId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        if (aclFilter) {
+            this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        }
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_TYPE_ID, p.PROGRAM_CODE ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleProgramListResultSetExtractor());
     }
@@ -542,7 +555,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND rc.REALM_ID=:realmId AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
         params.put("realmId", realmId);
         params.put("programTypeId", programTypeId);
         if (input.getHealthAreaId() != null) {
@@ -562,7 +575,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramWithFilterForMultipleRealmCountryListForDropdown(int programTypeId, String realmCountryIdsStr, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.sqlSimpleProgramString).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) AND p.ACTIVE ");
         params.put("programTypeId", programTypeId);
         if (realmCountryIdsStr.length() > 0) {
             sqlStringBuilder.append(" AND FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) ");
@@ -686,7 +699,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     @Transactional
-    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit").usingColumns("PLANNING_UNIT_ID", "PROGRAM_ID", "REORDER_FREQUENCY_IN_MONTHS", "MIN_MONTHS_OF_STOCK", "LOCAL_PROCUREMENT_LEAD_TIME", "SHELF_LIFE", "CATALOG_PRICE", "MONTHS_IN_PAST_FOR_AMC", "MONTHS_IN_FUTURE_FOR_AMC", "PLAN_BASED_ON", "MIN_QTY", "DISTRIBUTION_LEAD_TIME", "FORECAST_ERROR_THRESHOLD", "NOTES", "CREATED_DATE", "CREATED_BY", "LAST_MODIFIED_DATE", "LAST_MODIFIED_BY", "ACTIVE");
         SimpleJdbcInsert rcpuSi = new SimpleJdbcInsert(dataSource).withTableName("rm_realm_country_planning_unit").usingColumns("REALM_COUNTRY_PLANNING_UNIT_ID", "PLANNING_UNIT_ID", "REALM_COUNTRY_ID", "LABEL_ID", "SKU_CODE", "UNIT_ID", "CONVERSION_METHOD", "CONVERSION_NUMBER", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE");
         List<SqlParameterSource> updateList = new ArrayList<>();
@@ -2528,7 +2541,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 logger.info(
                         "ERP Linking : Update completed---");
             } else {
-                System.out.println("delinking inside else----------" + parentShipmentId);
+                logger.info("delinking inside else----------" + parentShipmentId);
             }
         } else {
             logger.info("ERP Linking : Multiple child shipments found---");
@@ -2543,7 +2556,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
 
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println(
+                logger.info(
                         "delinking inside else else----------" + maxTransId);
             }
         }
@@ -2743,7 +2756,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram p = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "
@@ -2933,6 +2946,17 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIds));
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" ORDER BY p.PROGRAM_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
+    }
+
+    @Override
+    public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR FROM vw_program p LEFT JOIN vw_health_area ha on FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) WHERE FIND_IN_SET(p.REALM_COUNTRY_ID, :realmCountryIds) AND FIND_IN_SET(ha.HEALTH_AREA_ID, :healthAreaIds) AND p.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryIds", ArrayUtils.convertArrayToString(realmCountryIdsAndHealthAreaIds.getRealmCountryIds()));
+        params.put("healthAreaIds", ArrayUtils.convertArrayToString(realmCountryIdsAndHealthAreaIds.getHealthAreaIds()));
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY p.PROGRAM_ID ORDER BY p.PROGRAM_CODE");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleCodeObjectRowMapper(""));
     }
 

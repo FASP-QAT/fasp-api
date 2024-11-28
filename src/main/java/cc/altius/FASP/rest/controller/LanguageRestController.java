@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.Map;
 
 /**
@@ -53,6 +55,12 @@ public class LanguageRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Get the entire list of Static labels for the Language
+     *
+     * @param languageCode
+     * @return
+     */
     @GetMapping("/locales/{languageCode}")
     @Operation(
         summary = "Get Language JSON",
@@ -62,9 +70,15 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Map.class)), responseCode = "200", description = "Returns the localized labels for the given language code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting language JSON")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
-        return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
+        return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK); // 200
     }
 
+    /**
+     * Get list of active Languages
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language")
     @Operation(
         summary = "Get Language List",
@@ -74,14 +88,20 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting language list")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.languageService.getLanguageList(true, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.languageService.getLanguageList(true, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
+    /**
+     * Get list of all Languages
+     *
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language/all")
     @Operation(
         summary = "Get Language List All",
@@ -91,14 +111,21 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting language list")
     public ResponseEntity getLanguageListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.languageService.getLanguageList(false, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.languageService.getLanguageList(false, curUser), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
+    /**
+     * Get Language by Id
+     *
+     * @param languageId
+     * @param auth
+     * @return
+     */
     @GetMapping(value = "/language/{languageId}")
     @Operation(
         summary = "Get Language",
@@ -110,8 +137,8 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting language")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting languageId=" + languageId, er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
@@ -121,6 +148,13 @@ public class LanguageRestController {
         }
     }
 
+    /**
+     * Add a Language
+     *
+     * @param language
+     * @param auth
+     * @return
+     */
     @PostMapping(value = "/language")
     @Operation(
         summary = "Add Language",
@@ -137,10 +171,10 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding language")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
             } else {
                 logger.error("Error while adding language no Id returned");
                 return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
@@ -155,6 +189,13 @@ public class LanguageRestController {
 
     }
 
+    /**
+     * Update a Language
+     *
+     * @param language
+     * @param auth
+     * @return
+     */
     @PutMapping(value = "/language")
     @Operation(
         summary = "Edit Language",
@@ -171,10 +212,10 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating language")
     public ResponseEntity editLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             int updatedId = this.languageService.editLanguage(language, curUser);
             if (updatedId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
             } else {
                 logger.error("Error while updating language, no rows updated");
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500

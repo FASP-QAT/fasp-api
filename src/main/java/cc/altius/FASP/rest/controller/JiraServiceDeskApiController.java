@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -38,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/ticket")
 @Tag(
     name = "Jira Service Desk",
     description = "Manage Jira Service Desk tickets and their attachments"
@@ -46,14 +48,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class JiraServiceDeskApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
 
     @Autowired
     private JiraServiceDeskApiService jiraServiceDeskApiService;
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/ticket/addIssue")
+    /**
+     * Used to add a Ticket to Jira
+     *
+     * @param jsonData
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/addIssue")
     @Operation(
         summary = "Add Issue",
         description = "Create a new Jira Service Desk ticket."
@@ -65,15 +73,15 @@ public class JiraServiceDeskApiController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while creating issue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
-        try {            
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssue(jsonData, curUser);
-            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {                
+            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
                 return new ResponseEntity(response.getBody(), HttpStatus.OK);
-            } else {                
+            } else {
                 return new ResponseEntity(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-            }                        
+            }
 
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
@@ -82,7 +90,15 @@ public class JiraServiceDeskApiController {
 
     }
 
-    @PostMapping(value = "/ticket/addIssueAttachment/{issueId}")
+    /**
+     * Used to add a File to an existing Jira Ticket
+     *
+     * @param file
+     * @param issueId
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/addIssueAttachment/{issueId}")
     @Operation(
         summary = "Add Issue Attachment",
         description = "Add an attachment to a Jira Service Desk ticket."
@@ -93,7 +109,7 @@ public class JiraServiceDeskApiController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while adding issue attachment")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
-        try {            
+        try {
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssueAttachment(file, issueId);
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
@@ -104,14 +120,20 @@ public class JiraServiceDeskApiController {
                 return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR); // 500
             }
 
-        } catch (Exception e) {     
+        } catch (Exception e) {
             logger.error("Error while upload the file", e);
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }     
     
-    @GetMapping(value = "/ticket/openIssues")
+    /**
+     * Used to get a summary of Tickets for the current User
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/openIssues")
     @Operation(
         summary = "Get Open Issues",
         description = "Retrieve a summary of open Jira Service Desk tickets."
@@ -119,9 +141,9 @@ public class JiraServiceDeskApiController {
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = JiraServiceDeskIssuesDTO.class))), responseCode = "200", description = "Returns the list of open issues")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting open issues")
     public ResponseEntity getOpenIssue(Authentication auth) {
-        try {            
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
-            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);            
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

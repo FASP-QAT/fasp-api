@@ -46,13 +46,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/planningUnit")
 @Tag(
     name = "Planning Unit",
     description = "Manage planning units with support for capacity tracking"
@@ -68,7 +70,14 @@ public class PlanningUnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/planningUnit")
+    /**
+     * Add PU
+     *
+     * @param planningUnit
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add Planning Unit",
         description = "Save a new planning unit"
@@ -84,9 +93,9 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding planning unit")
     public ResponseEntity postPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.planningUnitService.addPlanningUnit(planningUnit, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateNameException de) {
             logger.error("Error while trying to add PlanningUnit", de);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
@@ -99,7 +108,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PutMapping(path = "/planningUnit")
+    /**
+     * Update PU
+     *
+     * @param planningUnit
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update Planning Unit",
         description = "Update an existing planning unit"
@@ -114,9 +130,9 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating planning unit")
     public ResponseEntity putPlanningUnit(@RequestBody PlanningUnit planningUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.planningUnitService.updatePlanningUnit(planningUnit, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateNameException de) {
             // FIXME: how does this error get thrown on an update?
             logger.error("Error while trying to add PlanningUnit", de);
@@ -130,7 +146,13 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit")
+    /**
+     * Get list of active PU’s
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Planning Unit List",
@@ -140,7 +162,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnit(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -148,7 +170,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/byIds")
+    /**
+     * Get list of PU’s by Id’s
+     *
+     * @param planningUnitIdList
+     * @param auth
+     * @return
+     */
+    @PostMapping("/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Planning Unit List",
@@ -163,7 +192,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListByIds(planningUnitIdList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -171,7 +200,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/withPrices/byIds")
+    /**
+     * Get list of PU’s including Price list by Id’s
+     *
+     * @param planningUnitIdList
+     * @param auth
+     * @return
+     */
+    @PostMapping("/withPrices/byIds")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Planning Unit List with Prices",
@@ -186,7 +222,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitWithPricesByIdList(@RequestBody List<String> planningUnitIdList, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListWithPricesByIds(planningUnitIdList, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -194,8 +230,14 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * Get List of PU's with only Basic information
+     *
+     * @param auth
+     * @return
+     */
     @JsonView(Views.InternalView.class)
-    @GetMapping("/planningUnit/basic")
+    @GetMapping("/basic")
     @Operation(
         summary = "Get Planning Unit List Basic",
         description = "Retrieve a list of planning units with basic information"
@@ -204,7 +246,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitListBasic(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListBasic(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -212,8 +254,14 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * Get list of all PU’s
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("/all")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/all")
     @Operation(
         summary = "Get Planning Unit List All",
         description = "Retrieve a list of all planning units (active and disabled)"
@@ -222,7 +270,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -230,8 +278,15 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * Get list of active PU’s for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/realmId/{realmId}")
     @Operation(
         summary = "Get Planning Unit List for Realm",
         description = "Retrieve a list of active planning units for a specific realm"
@@ -243,7 +298,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitList(realmId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -257,8 +312,15 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * Get list of all PU’s for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmId/{realmId}/all")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/realmId/{realmId}/all")
     @Operation(
         summary = "Get Planning Unit List All",
         description = "Retrieve a list of all planning units (active and disabled) for a specific realm"
@@ -270,7 +332,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit list")
     public ResponseEntity getPlanningUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitList(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -284,7 +346,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/{planningUnitId}")
+    /**
+     * Get PU by Id
+     *
+     * @param planningUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{planningUnitId}")
     @Operation(
         summary = "Get Planning Unit",
         description = "Retrieve a planning unit by its ID"
@@ -295,7 +364,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitById(planningUnitId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list PlanningUnit", er);
@@ -306,8 +375,8 @@ public class PlanningUnitRestController {
         }
     }
 
+    @GetMapping("/{planningUnitId}/withPrograms")
     @JsonView(Views.InternalView.class)
-    @GetMapping("/planningUnit/{planningUnitId}/withPrograms")
     @Operation(
         summary = "Get Planning Unit with Programs",
         description = "Retrieve a planning unit with its associated supply planning and forecasting programs (active and disabled)"
@@ -318,7 +387,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitWithProgramsById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             Map<String, Object> data = new HashMap<>();
             data.put("planningUnit", this.planningUnitService.getPlanningUnitById(planningUnitId, curUser));
             data.put("spProgramListActive", this.planningUnitService.getListOfSpProgramsForPlanningUnitId(planningUnitId, true, curUser));
@@ -335,8 +404,15 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * Get list of PU’s filtered by FU
+     *
+     * @param forecastingUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/forecastingUnit/{forecastingUnitId}")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/forecastingUnit/{forecastingUnitId}")
     @Operation(
         summary = "Get Planning Unit by Forecasting Unit",
         description = "Retrieve a list of active planning units associated with a specific forecasting unit"
@@ -347,7 +423,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitByForecastingUnitId(@PathVariable("forecastingUnitId") int forecastingUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListByForecastingUnit(forecastingUnitId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list PlanningUnit", er);
@@ -358,7 +434,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/realmId/{realmId}")
+    /**
+     * Get PUCapacity list for a Realm
+     *
+     * @param realmId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/capacity/realmId/{realmId}")
     @Operation(
         summary = "Get Planning Unit Capacity for Realm",
         description = "Retrieve a list of planning unit capacities for a specific realm"
@@ -370,7 +453,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForRealm(realmId, null, null, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while listing planningUnitCapacity", er);
@@ -384,7 +467,16 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/realmId/{realmId}/between/{startDate}/{stopDate}")
+    /**
+     * Get PUCapacity list for a Realm filtered by Start and Stop date
+     *
+     * @param realmId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/capacity/realmId/{realmId}/between/{startDate}/{stopDate}")
     @Operation(
         summary = "Get Planning Unit Capacity for Realm (Between Dates)",
         description = "Retrieve a list of planning unit capacities for a specific realm between two dates"
@@ -399,7 +491,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForRealm(realmId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing planningUnitCapacity", p);
@@ -416,7 +508,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/{planningUnitId}")
+    /**
+     * Get PUCapacity list for a specific Planning Unit
+     *
+     * @param planningUnitId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/capacity/{planningUnitId}")
     @Operation(
         summary = "Get Planning Unit Capacity",
         description = "Retrieve a planning unit capacity for a specific planning unit"
@@ -428,7 +527,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForId(planningUnitId, null, null, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while listing planningUnitCapacity", er);
@@ -442,7 +541,17 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/{planningUnitId}/between/{startDate}/{stopDate}")
+    /**
+     * Get PUCapacity list for a specific Planning Unit filtered by Start and
+     * Stop date
+     *
+     * @param planningUnitId
+     * @param startDate
+     * @param stopDate
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/capacity/{planningUnitId}/between/{startDate}/{stopDate}")
     @Operation(
         summary = "Get Planning Unit Capacity (Between Dates)",
         description = "Retrieve a planning unit capacity for a specific planning unit between two dates"
@@ -457,7 +566,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityForId(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForId(planningUnitId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing planningUnitCapacity", p);
@@ -474,7 +583,13 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping(value = "/planningUnit/capacity/all")
+    /**
+     * Get full PUCapacity list
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/capacity/all")
     @Operation(
         summary = "Get Planning Unit Capacity List",
         description = "Retrieve a list of all planning unit capacities"
@@ -484,7 +599,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting planning unit capacity")
     public ResponseEntity getPlanningUnitCapacityList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityList(curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while listing planningUnitCapacity", er);
@@ -498,7 +613,14 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PutMapping(value = "/planningUnit/capacity")
+    /**
+     * Add and Update Planning Unit Capacity list
+     *
+     * @param planningUnitCapacitys
+     * @param auth
+     * @return
+     */
+    @PutMapping(value = "/capacity")
     @Operation(
         summary = "Save Planning Unit Capacity",
         description = "Save a list of planning unit capacities"
@@ -516,7 +638,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while saving planning unit capacity")
     public ResponseEntity savePlanningUnitCapacity(@RequestBody PlanningUnitCapacity[] planningUnitCapacitys, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.planningUnitService.savePlanningUnitCapacity(planningUnitCapacitys, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (ParseException p) {
@@ -550,8 +672,8 @@ public class PlanningUnitRestController {
 //        }
 //    }
 
+    @GetMapping("/productCategory/{productCategoryId}/all")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}/all")
     @Operation(
         summary = "Get Planning Unit for Product Category (All)",
         description = "Retrieve a list of all planning units for a specific product category (active and disabled)"
@@ -563,7 +685,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForProductCategoryAll(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategory(productCategoryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -577,8 +699,8 @@ public class PlanningUnitRestController {
         }
     }
 
+    @GetMapping("/productCategory/{productCategoryId}/active")
     @JsonView(Views.ReportView.class)
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}/active")
     @Operation(
         summary = "Get Planning Unit for Product Category",
         description = "Retrieve a list of active planning units for a specific product category"
@@ -590,7 +712,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForproductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategory(productCategoryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -604,7 +726,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/productCategoryList/active/realmCountryId/{realmCountryId}")
+    @PostMapping("/productCategoryList/active/realmCountryId/{realmCountryId}")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Planning Unit for Product Category List",
@@ -617,7 +739,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, @PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListForProductCategoryList(productCategoryIds, realmCountryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -631,35 +753,15 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/getPlanningUnitByTracerCategory/planningUnitId/{planningUnitId}/{procurementAgentId}/{term}")
-    @Operation(
-        summary = "Get Planning Unit by Tracer Category (Procurement Agent)",
-        description = "Retrieve a list of planning units for a specific procurement agent and tracer category"
-    )
-    @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve", required = true)
-    @Parameter(name = "procurementAgentId", description = "The ID of the procurement agent to retrieve planning units for", required = true)
-    @Parameter(name = "term", description = "The term to retrieve planning units for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentPlanningUnit.class))), responseCode = "200", description = "Returns a list of planning units for a specific procurement agent and tracer category")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this procurement agent")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified procurement agent and tracer category")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
-    public ResponseEntity getPlanningUnitByTracerCategory(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("procurementAgentId") int procurementAgentId, @PathVariable("term") String term, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
-        } catch (Exception e) {
-            logger.error("Error while trying to get PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-        }
-    }
-
-    @GetMapping("/planningUnit/realmCountry/{realmCountryId}")
+    /**
+     * Get list of all Planning Units attached to a Supply Plan for a
+     * RealmCountry
+     *
+     * @param realmCountryId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/realmCountry/{realmCountryId}")
     @Operation(
         summary = "Get Planning Unit by Realm Country",
         description = "Retrieve a list of planning units for a specific realm country"
@@ -671,7 +773,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Planning Unit list", e);
@@ -685,7 +787,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/tracerCategory/{tracerCategoryId}")
+    @GetMapping("/tracerCategory/{tracerCategoryId}")
     @Operation(
         summary = "Get Planning Unit by Tracer Category",
         description = "Retrieve a list of active planning units for a specific tracer category"
@@ -697,7 +799,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -711,7 +813,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/tracerCategorys")
+    @PostMapping("/tracerCategorys")
     @Operation(
         summary = "Get Planning Unit by Tracer Category List",
         description = "Retrieve a list of planning units for a list of tracer categories"
@@ -730,7 +832,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForTracerCategorys(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -744,7 +846,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/withPricing/productCategory/{productCategoryId}")
+    @GetMapping("/withPricing/productCategory/{productCategoryId}")
     @Operation(
         summary = "Get Planning Unit with Pricing for Product Category",
         description = "Retrieve a list of planning units with pricing for a specific product category"
@@ -756,7 +858,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitWithPricingForProductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitListWithPricesForProductCategory(productCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -770,7 +872,7 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/tracerCategory/productCategory/forecastingUnit")
+    @PostMapping("/tracerCategory/productCategory/forecastingUnit")
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Planning Unit by Tracer Category, Product Category and Forecasting Unit",
@@ -787,7 +889,7 @@ public class PlanningUnitRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
     public ResponseEntity getPlanningUnitForTracerCategorys(@RequestBody ProductCategoryTracerCategoryAndForecastingUnitDTO input, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.planningUnitService.getPlanningUnitByTracerCategoryProductCategoryAndForecastingUnit(input, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);

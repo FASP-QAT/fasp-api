@@ -14,9 +14,9 @@ import java.io.Serializable;
  */
 public class BasicUser implements Serializable {
 
-    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.ReportView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.ReportView.class, Views.DropDownView.class, Views.UserListView.class})
     private int userId;
-    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.ReportView.class, Views.DropDownView.class})
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.ReportView.class, Views.DropDownView.class, Views.UserListView.class})
     private String username;
 
     public BasicUser(int userId, String username) {

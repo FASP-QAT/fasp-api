@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.TracerCategory;
@@ -16,20 +17,20 @@ import java.util.List;
  */
 public interface TracerCategoryService {
 
-    public int addTracerCategory(TracerCategory m, CustomUserDetails curUser);
+    public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) throws AccessControlFailedException;
 
-    public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser);
+    public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) throws AccessControlFailedException;
 
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getTracerCategoryDropdownList(CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getTracerCategoryDropdownListForFilterMultiplerPrograms(String programIds, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser);
-    
+
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser);
 
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser);

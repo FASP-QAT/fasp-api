@@ -31,13 +31,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
  * @author palash
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dimension")
 @Tag(
     name = "Dimension",
     description = "Manage system dimensions"
@@ -51,7 +53,14 @@ public class DimensionRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/dimension")
+    /**
+     * Add Dimension
+     *
+     * @param dimension
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "")
     @Operation(
         summary = "Add Dimension",
         description = "Create a new dimension"
@@ -62,24 +71,30 @@ public class DimensionRestController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Dimension.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to add this dimension")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "The dimension with the given name already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the addition of the dimension")
     public ResponseEntity postDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dimensionService.addDimension(dimension, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Dimension", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); //406
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @PutMapping(path = "/dimension")
+    /**
+     * Update Dimension
+     *
+     * @param dimension
+     * @param auth
+     * @return
+     */
+    @PutMapping(path = "")
     @Operation(
         summary = "Update Dimension",
         description = "Update an existing dimension"
@@ -90,28 +105,33 @@ public class DimensionRestController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Dimension.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to update this dimension")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dimension with the specified ID was not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "The dimension with the given name already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the update of the dimension")
     public ResponseEntity putDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             this.dimensionService.updateDimension(dimension, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Dimension ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); //404
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to update Dimension ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); //406
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping("/dimension")
+    /**
+     * Get list of active Dimensions
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("")
     @Operation(
         summary = "Get Active Dimension List",
         description = "Retrieve a list of all active dimensions"
@@ -120,32 +140,47 @@ public class DimensionRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dimension list")
     public ResponseEntity getDimension(Authentication auth) {
         try {
-            return new ResponseEntity(this.dimensionService.getDimensionList(false), HttpStatus.OK);
+            return new ResponseEntity(this.dimensionService.getDimensionList(true), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to list Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping("/dimension/all")
+    /**
+     * Get list of all Dimensions
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping("/all")
     @Operation(
-        summary = "Get All Dimension List",
+        summary = "Get Dimension List",
         description = "Retrieve a complete list of all dimensions (active and disabled)"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Dimension.class))), responseCode = "200", description = "Returns the complete list of all dimensions (active and disabled)")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dimension list")
     public ResponseEntity getDimensionAll(Authentication auth) {
         try {
-            return new ResponseEntity(this.dimensionService.getDimensionList(true), HttpStatus.OK);
+            return new ResponseEntity(this.dimensionService.getDimensionList(false), HttpStatus.OK); // 200
         } catch (Exception e) {
             logger.error("Error while trying to list Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @GetMapping("/dimension/{dimensionId}")
+
+
+    /**
+     * Get Dimension by Id
+     *
+     * @param dimensionId
+     * @param auth
+     * @return
+     */
+    @GetMapping("/{dimensionId}")
     @Operation(
-        summary = "Get Dimension by ID",
+        summary = "Get Dimension",
         description = "Retrieve a dimension by its ID"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Dimension.class)), responseCode = "200", description = "Returns the dimension with the specified ID")
@@ -153,29 +188,13 @@ public class DimensionRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dimension")
     public ResponseEntity getDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
-            return new ResponseEntity(this.dimensionService.getDimensionById(dimensionId), HttpStatus.OK);
+            return new ResponseEntity(this.dimensionService.getDimensionById(dimensionId), HttpStatus.OK); // 200
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); //404
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
             logger.error("Error while trying to list Dimension", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
-//    @GetMapping(value = "/sync/dimension/{lastSyncDate}")
-//    public ResponseEntity getCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            return new ResponseEntity(this.dimensionService.getDimensionListForSync(lastSyncDate), HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error while listing dimension", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error while listing dimension", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
 }

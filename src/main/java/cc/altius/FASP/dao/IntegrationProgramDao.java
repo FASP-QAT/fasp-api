@@ -17,8 +17,6 @@ import java.util.List;
  */
 public interface IntegrationProgramDao {
 
-//    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
-
     public int updateIntegrationProgram(IntegrationProgram[] integraionPrograms, CustomUserDetails curUser);
     
     public List<IntegrationProgram> getIntegrationProgramList(CustomUserDetails curUser);
