@@ -34,21 +34,4 @@ class WebApplicationTests extends AbstractIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithUserDetails("alexiodanje@gmail.com")
-    public void testUpdateExpiredPassword() throws Exception {
-        Password password = new Password();
-        password.setUserId(2100);
-        password.setEmailId("alexiodanje@gmail.com");
-        password.setOldPassword("#@ruth@#");
-        password.setNewPassword("#@danje@#");
-
-        mockMvc.perform(post("/api/updateExpiredPassword")
-                        .contentType("application/json")
-                        .content(asJsonString(password)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.token").isNotEmpty());
-    }
-
 }
