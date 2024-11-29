@@ -11,6 +11,7 @@ import cc.altius.FASP.utils.LogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${app.test-mode:false}")
+    private boolean testMode;
+
     @Override
     public CustomUserDetails loadUserByUsername(String emailId) throws UsernameNotFoundException {
         logger.info("Inside loadUserByUsername" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
@@ -34,6 +38,12 @@ public class CustomUserDetailsService implements UserDetailsService {
             CustomUserDetails user = this.userDao.getCustomUserByEmailId(emailId);
             if (user == null || !user.isPresent()) {
                 throw new UsernameNotFoundException("User not found");
+            }
+            if (testMode) {
+                CustomUserDetails testUser = this.userDao.getCustomUserByUserId(user.getUserId());
+                if (testUser != null) {
+                    return testUser;
+                }
             }
             return user;
         } catch (NullPointerException ne) {
