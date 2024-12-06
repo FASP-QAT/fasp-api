@@ -181,7 +181,7 @@ public class ExportSupplyPlanJson {
     
     @GetMapping("/exportManualJson")
     @ResponseBody
-    @Operation(summary = "Export manual json", description = "Export manual json")
+    @Operation(summary = "Export manual supply plan json", description = "Export manual supply plan json")
     public String exportManualJson(Authentication auth) {
         logger.info(" ################ Going to start Manual Json export process ############## ");
         String newLine = "<br/>\n";

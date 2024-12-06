@@ -106,6 +106,7 @@ public class UnitRestController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Unit.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Another unit with the same key exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the unit")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
@@ -113,7 +114,6 @@ public class UnitRestController {
             this.unitService.updateUnit(unit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
-            // FIXME: how do you get a duplicate key exception when updating?
             logger.error("Error while trying to update Unit ", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {

@@ -99,6 +99,7 @@ public class ExportApiRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the supply plan data")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Data is invalid")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Specified program or version does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     public ResponseEntity getSupplyPlanForProgram(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "startDate", required = false) String startDate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -110,7 +111,6 @@ public class ExportApiRestController {
             logger.error("Incorrect format for startDate provided", pe);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (AccessControlFailedException e) {
-            // FIXME: This exception should be mapped to 403
             logger.error("Error while trying to get Export of Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {

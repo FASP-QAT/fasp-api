@@ -189,7 +189,7 @@ public class DashboardRestController {
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Supply Plans (top))",
-        description = "Retrieve a dashboard summary for the top supply plans"
+        description = "Retrieve a dashboard summary for the top part of the supply plan dashboard"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The program IDs for the supply plans to retrieve",
@@ -200,12 +200,12 @@ public class DashboardRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the supply plans")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The supply plans were not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard summary")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     public ResponseEntity getDashboardTop(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getDashboardTop(programIds, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while trying to get dashboard supply plan top", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {
@@ -224,7 +224,7 @@ public class DashboardRestController {
     @JsonView(Views.ReportView.class)
     @Operation(
         summary = "Get Supply Plans (bottom)",
-        description = "Retrieve a dashboard summary for the bottom supply plans"
+        description = "Retrieve a dashboard summary for the bottom part of the supply plan dashboard"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The dashboard input for the supply plans to retrieve",
@@ -234,13 +234,13 @@ public class DashboardRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DashboardBottom.class)), responseCode = "200", description = "Returns the dashboard summary for supply plans bottom")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the supply plans")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The supply plans were not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard summary")
     public ResponseEntity getDashboardBottom(@RequestBody DashboardInput ei, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.dashboardService.getDashboardBottom(ei, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while trying to get dashboard supply plan bottom", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException e) {
@@ -248,7 +248,7 @@ public class DashboardRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get dashboard supply plan bottom", ae);
-            return new ResponseEntity(HttpStatus.FORBIDDEN); // 409
+            return new ResponseEntity(HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get dashboard supply plan bottom", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR); // 500
@@ -266,6 +266,7 @@ public class DashboardRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DashboardForLoadProgram.class)), responseCode = "200", description = "Returns the dashboard")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to the program")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The program was not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dashboard")
     public ResponseEntity getDashboardForLoadProgram(@PathVariable("programId") Integer programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -285,7 +286,6 @@ public class DashboardRestController {
             }
             return new ResponseEntity(this.dashboardService.getDashboardForLoadProgram(programId, versionId, noOfMonthsInPastForBottom, noOfMonthsInFutureForBottom, noOfMonthsInPastForTop, noOfMonthsInFutureForTop, curUser), HttpStatus.OK);
         } catch (AccessControlFailedException ae) {
-            // FIXME: this should be 403 (FORBIDDEN) not 409
             logger.error("Error while getting Dashboard", ae);
             return new ResponseEntity(HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException ae) {

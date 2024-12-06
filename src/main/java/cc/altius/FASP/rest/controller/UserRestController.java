@@ -390,6 +390,7 @@ public class UserRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user by user ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have access to this user")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "User not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "User has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
@@ -401,7 +402,6 @@ public class UserRestController {
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (AccessControlFailedException e) {
-            // FIXME: this should be a 403, not a 409
             logger.error(("Could not get User for UserId=" + userId));
             auditLogger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
@@ -435,6 +435,7 @@ public class UserRestController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "User or username already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the user")
     public ResponseEntity addUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
@@ -466,7 +467,6 @@ public class UserRestController {
                 return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED); // 412
             }
         } catch (AccessControlFailedException acfe) {
-            // FIXME: this should be a 409, not a 403
             auditLogger.error(acfe.getMessage());
             return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT); // 409
         } catch (DuplicateKeyException e) {
@@ -498,6 +498,8 @@ public class UserRestController {
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "The username or email id already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while editing the user")
     public ResponseEntity editUser(@RequestBody User user, Authentication auth, HttpServletRequest request) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -508,22 +510,21 @@ public class UserRestController {
                 int row = this.userService.updateUser(user, curUser);
                 if (row > 0) {
                     auditLogger.info("User updated successfully");
-                    return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+                    return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
                 } else {
                     auditLogger.info("User could not be updated");
-                    return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                    return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
                 }
             } else {
-                // FIXME: how does this happen on an update?
                 auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
-                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED); // 412
             }
         } catch (AccessControlFailedException acfe) {
             auditLogger.error(acfe.getMessage());
-            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT);
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT); // 409
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 

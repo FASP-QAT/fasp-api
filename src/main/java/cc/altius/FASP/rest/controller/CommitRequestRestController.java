@@ -95,9 +95,9 @@ public class CommitRequestRestController {
     @PutMapping("/programData/{comparedVersionId}")
     @Operation(
         summary = "Update Supply Plan Program Data",
-        description = "Update the Supply Plan Program data for a given version ID"
+        description = "Request updates to the Supply Plan Program data"
     )
-    @Parameter(name = "comparedVersionId", description = "The ID of the version to compare against")
+    @Parameter(name = "comparedVersionId", description = "The ID of the version against which supply plan data was compared before creating the request")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "The program data to update",
         required = true,
@@ -110,7 +110,7 @@ public class CommitRequestRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the update of the program data")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unable to find the program data for the given version ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have access to the program data")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "Conflict that prevented the update of the program data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody String programDataCompressed, Authentication auth) {
         try {
             String programDataBytes = CompressUtils.decompress(programDataCompressed);
@@ -147,7 +147,6 @@ public class CommitRequestRestController {
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (AccessControlFailedException e) {
-            // FIXME: AccessControlFailedException should be 403 not 409
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (CouldNotSaveException e) {
@@ -186,6 +185,7 @@ public class CommitRequestRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unable to find the dataset data for the given version ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have access to the dataset data")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "Conflict that prevented the update of the dataset data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
         String json = null;
         try {
@@ -251,7 +251,6 @@ public class CommitRequestRestController {
             }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (AccessControlFailedException e) {
-            // FIXME: AccessControlFailedException should be 403 not 409
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (CouldNotSaveException e) {

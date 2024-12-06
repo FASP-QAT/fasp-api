@@ -76,6 +76,7 @@ public class HealthAreaRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to add this object")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Health area already exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding health area")
     public ResponseEntity postHealthArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
@@ -83,7 +84,6 @@ public class HealthAreaRestController {
             this.healthAreaService.addHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: this should be 403
             logger.error("Error while trying to add Health Area", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (AccessDeniedException ae) {
@@ -118,6 +118,8 @@ public class HealthAreaRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success message")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update this object")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Health area not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Another health area with the same key exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating health area")
     public ResponseEntity putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
@@ -125,7 +127,6 @@ public class HealthAreaRestController {
             this.healthAreaService.updateHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: this should be 403
             logger.error("Error while trying to add Health Area", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException ae) {
@@ -135,7 +136,6 @@ public class HealthAreaRestController {
             logger.error("Error while trying to update Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DuplicateKeyException d) {
-            // FIXME: how can you have a duplicate key error on update?
             logger.error("Error while trying to update Health Area", d);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {

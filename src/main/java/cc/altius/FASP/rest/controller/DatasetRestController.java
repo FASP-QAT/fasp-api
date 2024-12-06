@@ -149,21 +149,21 @@ public class DatasetRestController {
     @GetMapping("/datasetData/programId/{programId}/versionId/{versionId}/withoutTree")
     @Operation(
         summary = "Get Dataset Data",
-        description = "Retrieve dataset data for a specific program and version ID with or without tree data"
+        description = "Retrieve dataset data for a specific program and version ID without tree data"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve dataset data for")
     @Parameter(name = "versionId", description = "The ID of the version to retrieve dataset data for")
-    @Parameter(name = "includeTreeData", description = "Whether to include tree data in the dataset data")
+    @Parameter(name = "includeTreeData", description = "Whether to include tree data in the dataset data (ignored parameter)")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DatasetData.class))), responseCode = "200", description = "Returns the dataset data for the specified program and version ID without tree data")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dataset with the given program ID was not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset data")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, @PathVariable(name = "includeTreeData", required = false) boolean includeTreeData, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetData(programId, versionId, false, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: This is not the correct response code for this exception, it should be 403 (and 409 shouldn't be thrown for a GET request)
             logger.error("Error while trying to list Dataset", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (AccessDeniedException e) {
@@ -197,13 +197,13 @@ public class DatasetRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DatasetData.class)), responseCode = "200", description = "Returns the dataset data for the specified program and version ID with tree data")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dataset with the given program ID was not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset data")
     public ResponseEntity getDatasetData(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetData(programId, versionId, true, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException er) {
-            // FIXME: This is not the correct response code for this exception, it should be 403 (and 409 shouldn't be thrown for a GET request)
             logger.error("Error while trying to list Dataset", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (AccessDeniedException e) {
@@ -236,13 +236,13 @@ public class DatasetRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = DatasetPlanningUnit.class)), responseCode = "200", description = "Returns the planning unit data for the specified program and version ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dataset with the given program ID was not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the planning unit data")
     public ResponseEntity getPlanningUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programDataService.getDatasetPlanningUnit(programId, versionId, curUser), HttpStatus.OK); // 200
         } catch (AccessControlFailedException er) {
-            // FIXME: This is not the correct response code for this exception, it should be 403 (and 409 shouldn't be thrown for a GET request)
             logger.error("Error while trying to list PlanningUnit", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException er) {
@@ -262,7 +262,7 @@ public class DatasetRestController {
      * @return
      */
     @JsonView(Views.InternalView.class)
-    @PostMapping("/datasetData") // Should be a GET request?
+    @PostMapping("/datasetData") // The reason it not a get request is because it is taking List of program and version Ids as body parameters
     @Operation(
         summary = "Get Dataset Programs",
         description = "Retrieve dataset programs for specified of program and version IDs"
@@ -275,6 +275,7 @@ public class DatasetRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DatasetData.class))), responseCode = "200", description = "Returns the dataset data for the specified list of program and version IDs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dataset with the given program ID was not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset data")
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
@@ -287,7 +288,6 @@ public class DatasetRestController {
             }
             return new ResponseEntity(masters, HttpStatus.OK); // 200
         } catch (AccessControlFailedException er) {
-            // FIXME: This is not the correct response code for this exception, it should be 403 (and 409 shouldn't be thrown for a GET request)
             logger.error("Error while trying to list Dataset", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT); // 409
         } catch (AccessDeniedException e) {
@@ -322,8 +322,7 @@ public class DatasetRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success message")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "The dataset with the given program ID already exists")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "There was a conflict while adding the dataset")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset")
     public ResponseEntity postDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -331,7 +330,6 @@ public class DatasetRestController {
             this.programService.addProgram(dataset, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: This is not the correct response code for this exception
             logger.error("Error while trying to add Program", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (DuplicateKeyException d) {
@@ -366,7 +364,7 @@ public class DatasetRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success message")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "The dataset with the given program ID was not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "The user does not have permission to access this dataset")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "There was a conflict while updating the dataset")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retrieval of the dataset")
     public ResponseEntity putDataset(@RequestBody ProgramInitialize dataset, Authentication auth) {
         try {
@@ -375,7 +373,6 @@ public class DatasetRestController {
             this.programService.updateProgram(dataset, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK); // 200
         } catch (AccessControlFailedException e) {
-            // FIXME: This is not the correct response code for this exception, it should be 403
             logger.error("Error while trying to add Program", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException ae) {

@@ -122,6 +122,8 @@ public class FundingSourceRestController {
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update this object")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Funding source not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Another funding source with the same key exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating funding source")
     public ResponseEntity putFundingSource(@RequestBody FundingSource fundingSource, Authentication auth) {
         try {
@@ -130,7 +132,7 @@ public class FundingSourceRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to update Funding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.CONFLICT); // 409
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND); // 404
@@ -138,7 +140,6 @@ public class FundingSourceRestController {
             logger.error("Error while trying to update Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (DuplicateKeyException d) {
-            // FIXME: how can you get duplicate key exception here?
             logger.error("Error while trying to update Funding source", d);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
