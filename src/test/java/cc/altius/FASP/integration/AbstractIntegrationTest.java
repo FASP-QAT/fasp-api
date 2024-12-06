@@ -1,8 +1,9 @@
 package cc.altius.FASP.integration;
 
-import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.jwt.JwtTokenUtil;
-import cc.altius.FASP.model.*;
+import cc.altius.FASP.model.Language;
+import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.UserService;
 import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
@@ -12,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -33,11 +32,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+/**
+ * AbstractIntegrationTest serves as the base class for integration tests in the application.
+ * It provides common setup and teardown logic for tests, including Testcontainers for
+ * database management and a preconfigured MockMvc instance for HTTP request simulation.
+ *
+ * This class uses:
+ * <ul>
+ *   <li>Spring Boot's testing framework (@SpringBootTest)</li>
+ *   <li>Testcontainers for managing a MySQL database container</li>
+ *   <li>DynamicPropertySource for dynamically configuring database connection properties</li>
+ *   <li>MockMvc for simulating HTTP requests</li>
+ * </ul>
+ *
+ * Tests extending this class automatically inherit the configured environment and utility methods.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -65,15 +74,19 @@ public abstract class AbstractIntegrationTest {
                 .webAppContextSetup(context)
                 .build();
     }
+    /**
+     * Testcontainers-managed MySQL container for integration testing.
+     */
     @Container
     private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("fasp")
             .withUsername("root")
             .withPassword("root")
-            //This is the better way of loading the script but it has to be clean without comments inside and version specific
-            //.withInitScript("schema.sql")
             .waitingFor(Wait.forListeningPort());
 
+    /**
+     * Starts the MySQL container and initializes the schema before running tests.
+     */
     @BeforeAll
     public static void start() {
         mysql.start();
@@ -99,11 +112,19 @@ public abstract class AbstractIntegrationTest {
 
     }
 
+    /**
+     * Stops the MySQL container after all tests are completed.
+     */
     @AfterAll
     public static void stop() {
         mysql.stop();
     }
 
+    /**
+     * Dynamically sets Spring datasource properties for the MySQL container.
+     *
+     * @param registry Dynamic property registry used to add properties.
+     */
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", mysql::getJdbcUrl);
@@ -113,6 +134,12 @@ public abstract class AbstractIntegrationTest {
 
     }
 
+    /**
+     * Converts an object to its JSON representation.
+     *
+     * @param obj Object to be converted.
+     * @return JSON string representation of the object.
+     */
     protected static String asJsonString(final Object obj) {
         return new Gson().toJson(obj);
     }
