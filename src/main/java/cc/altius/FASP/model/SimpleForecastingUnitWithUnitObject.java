@@ -32,5 +32,4 @@ public class SimpleForecastingUnitWithUnitObject extends SimpleObject {
     public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
     }
-
 }
