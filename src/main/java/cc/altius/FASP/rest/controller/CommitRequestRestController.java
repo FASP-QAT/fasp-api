@@ -174,8 +174,8 @@ public class CommitRequestRestController {
      */
     @PutMapping("/datasetData/{comparedVersionId}")
     @Operation(
-        summary = "Update Dataset Data",
-        description = "Update the Dataset data for a given version ID"
+        summary = "Request updates to Dataset Data",
+        description = "Request updates to the Dataset data"
     )
     @Parameter(name = "comparedVersionId", description = "The ID of the version to compare against")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Integer.class)), responseCode = "200", description = "Returns the ID of the commit request")
