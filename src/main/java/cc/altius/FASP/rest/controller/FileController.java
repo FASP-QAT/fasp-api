@@ -16,12 +16,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
 
 /**
  *
  * @author akil
  */
 @RestController
+@Tag(
+    name = "File",
+    description = "Handles file downloads for QAT-related resources."
+)
 public class FileController {
 
     @Value("${qat.homeFolder}")
@@ -43,6 +52,7 @@ public class FileController {
     @Value("${qat.shipmentDataEntryTemplate}")
     private String SHIPMENT_DATA_ENTRY_TEMPLATE;
 
+
     /**
      * Get File by FileId
      *
@@ -54,6 +64,15 @@ public class FileController {
      * @throws IOException
      */
     @GetMapping("/file/{fileName}")
+    @Operation(
+        summary = "Get File",
+        description = "Retrieve a file based on the provided file name"
+    )
+    @Parameter(name = "fileName", description = "The name of the file to retrieve. Options: qatUserGuide, pipelineConvertorLinux, pipelineConvertorWindows," +
+                                                "consumptionDataEntryTemplate, inventoryDataEntryTemplate, adjustmentsDataEntryTemplate," +
+                                                "shipmentDataEntryTemplate")
+    @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "200", description = "Returns the requested file")
+    @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "500", description = "Internal error that prevented the retrieval of the requested file")
     public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
         FileInputStream fin = null;
         switch (fileName) {

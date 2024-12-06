@@ -26,12 +26,17 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 /**
  *
  * @author altius
  */
 @Controller
+@Tag(
+    name = "Export Programs",
+    description = "Export Programs to CSV"
+)
 public class ExportProgramCsv {
 
     @Autowired
@@ -50,6 +55,7 @@ public class ExportProgramCsv {
 
     @RequestMapping(value = "/exportProgramData")
     @ResponseBody
+    @Operation(summary = "Export program data", description = "Export program data")
 //    @Scheduled(cron = "0 0 21 * * MON-FRI",zone="EST")
 //    @Scheduled(cron = "00 */02 * * * *")
     public String exportProgramCsv() {

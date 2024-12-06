@@ -9,8 +9,15 @@ import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ManualProblem;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +41,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Problem",
+    description = "Manage system problems and issues with support for manual entries and realm-based reporting"
+)
 public class ProblemRestController implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -50,6 +61,19 @@ public class ProblemRestController implements Serializable {
      * @return
      */
     @PostMapping("/problemReport/createManualProblem")
+    @Operation(
+        summary = "Create Manual Problem",
+        description = "Create a new manual problem entry for a Supply Plan Program"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The input object containing problem details",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManualProblem.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Integer.class)), responseCode = "200", description = "Returns the created manual problem ID")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to create a manual problem entry")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No manual problem entry found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while creating a manual problem entry")
     public ResponseEntity createManualProblem(@RequestBody ManualProblem manualProblem, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -59,13 +83,13 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             logger.error("Error while trying to get Problem list", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -76,13 +100,19 @@ public class ProblemRestController implements Serializable {
      * @return
      */
     @GetMapping(value = "/problemStatus")
+    @Operation(
+        summary = "Get Problem Status List",
+        description = "Retrieve a complete list of all problem statuses"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProblemStatus.class))), responseCode = "200", description = "Returns a complete list of all problem statuses")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting problem status list")
     public ResponseEntity getProblemStatusList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.problemService.getProblemStatus(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while listing problemStatus", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
