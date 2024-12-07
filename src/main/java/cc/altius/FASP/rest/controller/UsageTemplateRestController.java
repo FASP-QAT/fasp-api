@@ -16,6 +16,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api/usageTemplate")
+@Tag(
+    name = "Usage template",
+    description = "Manage usage templates with tracer category filtering"
+)
 public class UsageTemplateRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,9 +64,12 @@ public class UsageTemplateRestController {
      * @return returns the active list of active UsageTemplates
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active.", summary = "Get active UsageTemplate list", tags = ("usageTemplate"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
+    @Operation(
+        summary = "Get active UsageTemplate list",
+        description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active."
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsageTemplate.class))), responseCode = "200", description = "Returns the UsageTemplate list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -77,9 +87,12 @@ public class UsageTemplateRestController {
      * @return returns the complete list of UsageTemplates
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete UsageTemplate list.", summary = "Get complete UsageTemplate list", tags = ("usageTemplate"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
+    @Operation(
+        summary = "Get complete UsageTemplate list",
+        description = "API used to get the complete UsageTemplate list."
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsageTemplate.class))), responseCode = "200", description = "Returns the UsageTemplate list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -99,13 +112,16 @@ public class UsageTemplateRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update UsageTemplate", summary = "Add or Update UsageTemplate", tags = ("usageTemplate"))
+    @Operation(
+        summary = "Add or Update UsageTemplate",
+        description = "API used to add or update UsageTemplate"
+    )
     @Parameters(
             @Parameter(name = "usageTemplate", description = "The list of UsageTemplate objects that you want to add or update. If usageTemplateId is null or 0 then it is added if usageTemplateId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteUsageTemplate(@RequestBody List<UsageTemplate> usageTemplateList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -136,11 +152,14 @@ public class UsageTemplateRestController {
      * filter criteria
      */
     @GetMapping("/tracerCategory/{tracerCategoryId}")
-    @Operation(description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active.", summary = "Get active UsageTemplate list", tags = ("usageTemplate"))
+    @Operation(
+        summary = "Get active UsageTemplate list",
+        description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active."
+    )
     @Parameters(
             @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UsageTemplate.class))), responseCode = "200", description = "Returns the UsageTemplate list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateListWihtFilters(
             @PathVariable("tracerCategoryId") int tracerCategoryId,
             Authentication auth) {

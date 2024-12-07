@@ -6,7 +6,6 @@
 package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.ARTMIS.service.ExportArtmisDataService;
-import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportShipmentLinkingDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
@@ -27,12 +26,18 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 /**
  *
  * @author altius
  */
 @Controller
+@Tag(
+    name = "Export Shipment Linking",
+    description = "Export Shipment Linking to CSV"
+)
 public class ExportShipmentLinkingCsv {
 
     @Autowired
@@ -51,6 +56,7 @@ public class ExportShipmentLinkingCsv {
 
     @RequestMapping(value = "/exportShipmentLinkingData")
     @ResponseBody
+    @Operation(summary = "Export shipment linking data", description = "Export shipment linking data")
 //    @Scheduled(cron = "0 0 21 * * MON-FRI",zone="EST")
 //    @Scheduled(cron = "00 */02 * * * *")
     public String exportOrderData() {

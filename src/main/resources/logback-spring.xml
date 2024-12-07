@@ -97,39 +97,39 @@
     <!-- LOG everything at INFO level -->
     <root level="info">
         <appender-ref ref="FaspFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </root>
    
     <logger name="com.zaxxer.hikari" level="error" additivity="false">
         <appender-ref ref="FaspFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="FaspFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="info" additivity="false">
         <appender-ref ref="FaspFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
         <appender-ref ref="UserFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <logger name="cc.altius.FASP.ARTMIS" level="info" additivity="false">
         <appender-ref ref="ARTMISFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <logger name="cc.altius.FASP.web.controller.CurrencyConversionController" level="info" additivity="false">
         <appender-ref ref="CurrencyFile" />
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
     
     <logger name="cc.altius.FASP.model.Emailer" level="info" additivity="false">

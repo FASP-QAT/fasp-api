@@ -10,6 +10,13 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +40,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author akil
  */
 @RestController
+@Tag(
+    name = "Unit",
+    description = "Manage measurement units with dimension-based categorization"
+)
 @RequestMapping("/api/unit")
 public class UnitRestController {
 
@@ -51,6 +62,18 @@ public class UnitRestController {
      * @return
      */
     @PostMapping(path = "")
+    @Operation(
+        summary = "Add Unit",
+        description = "Add a new unit"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The unit to add",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Unit.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Unit already exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while adding the unit")
     public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -58,10 +81,10 @@ public class UnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Unit", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -73,6 +96,18 @@ public class UnitRestController {
      * @return
      */
     @PutMapping(path = "")
+    @Operation(
+        summary = "Update Unit",
+        description = "Update an existing Unit"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The unit to update",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Unit.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Another unit with the same key exists")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the unit")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -80,10 +115,10 @@ public class UnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to update Unit ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             logger.error("Error while trying to add Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -94,12 +129,18 @@ public class UnitRestController {
      * @return
      */
     @GetMapping("")
+    @Operation(
+        summary = "Get Units",
+        description = "Get all Units"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Unit.class))), responseCode = "200", description = "Returns the list of units")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while getting the unit list")
     public ResponseEntity getUnit(Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -111,12 +152,19 @@ public class UnitRestController {
      * @return
      */
     @GetMapping("/dimension/{dimensionId}")
+    @Operation(
+        summary = "Get Units by Dimension",
+        description = "Get Units by Dimension ID"
+    )
+    @Parameter(name = "dimensionId", description = "The dimension ID", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Unit.class))), responseCode = "200", description = "Returns the list of units")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the unit list")
     public ResponseEntity getUnitByDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitListByDimensionId(dimensionId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -128,15 +176,23 @@ public class UnitRestController {
      * @return
      */
     @GetMapping("/{unitId}")
+    @Operation(
+        summary = "Get Unit",
+        description = "Get a Unit by ID"
+    )
+    @Parameter(name = "unitId", description = "The unit ID", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Unit.class)), responseCode = "200", description = "Returns the unit")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Unit not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the unit")
     public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {
             return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
