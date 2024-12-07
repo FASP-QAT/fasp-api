@@ -13,12 +13,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  *
  * @author altius
  */
 @Controller
+@Tag(
+    name = "Import Product Catalogue",
+    description = "Import Product Catalogue from ARTMIS"
+)
 public class ImportProductCatalogueController {
 
     @Autowired

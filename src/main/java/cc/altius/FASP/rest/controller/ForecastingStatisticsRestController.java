@@ -10,6 +10,11 @@ import cc.altius.FASP.model.DTO.ForecastMethodOptimizationDTO;
 import cc.altius.FASP.model.DTO.ForecastMethodOptimizationDTOComparator;
 import cc.altius.FASP.model.DTO.ForecastMethodOutputDTO;
 import cc.altius.FASP.model.DTO.TesInputDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import cc.altius.FASP.model.ResponseCode;
 import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +45,10 @@ import org.springframework.web.client.RestTemplate;
  */
 @RestController
 @RequestMapping("/api/forecastStats")
+@Tag(
+    name = "Forecasting Statistics",
+    description = "Manage statistical forecasting operations including ARIMA models, triple exponential smoothing, and regression analysis"
+)
 public class ForecastingStatisticsRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -90,6 +99,17 @@ public class ForecastingStatisticsRestController {
      * @return
      */
     @PostMapping(path = "/arima")
+    @Operation(
+        summary = "Get Forecasting Statistics (ARIMA)",
+        description = "Optimize ARIMA model parameters for given dataset. Returns the best-fit parameters and their corresponding RMSE."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The input data for the ARIMA optimization",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ArimaInputDTO.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the best-fit parameters and their corresponding RMSE")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while parsing the input data")
     public ResponseEntity postArima(@RequestBody ArimaInputDTO input, HttpServletRequest request, Authentication auth) {
         try {
             Gson gson = new Gson();
@@ -159,6 +179,17 @@ public class ForecastingStatisticsRestController {
      * @return
      */
     @PostMapping(path = "/tes")
+    @Operation(
+        summary = "Get Forecasting Statistics (TES)",
+        description = "Optimize Triple Exponential Smoothing (TES) model parameters for given dataset. Returns the best-fit parameters and their corresponding Root Mean Square Error (RMSE)."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The input data for the TES optimization",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = TesInputDTO.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the best-fit parameters and their corresponding Root Mean Square Error (RMSE)")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while parsing the input data")
     public ResponseEntity postTes(@RequestBody TesInputDTO input, HttpServletRequest request, Authentication auth) {
         try {
             Gson gson = new Gson();
@@ -227,6 +258,13 @@ public class ForecastingStatisticsRestController {
      * @return
      */
     @PostMapping(path = "/regression")
+    @Operation(
+        summary = "Get Forecasting Statistics (Regression)",
+        description = "Perform regression analysis on given dataset. Returns the regression results."
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the regression results")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while parsing the input data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Internal error while parsing the input data")
     public ResponseEntity postRegression(HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
@@ -238,10 +276,10 @@ public class ForecastingStatisticsRestController {
             return new ResponseEntity(output, HttpStatus.OK);
         } catch (IOException ioe) {
             logger.error("Error while trying to read the Json", ioe);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
         } catch (Exception e) {
             logger.error("Error while trying to read the Json", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 

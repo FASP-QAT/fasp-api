@@ -39,3 +39,12 @@ src/main/resources/fasp - db design2.mwb.bak
 docs/
 HELP.md
 README.md
+
+# Mac
+.DS_Store
+
+# JEnv
+.java-version
+
+# VS Code
+.vscode

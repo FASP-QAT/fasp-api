@@ -11,10 +11,11 @@ import cc.altius.FASP.model.ForecastMethod;
 import cc.altius.FASP.service.ForecastMethodService;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api/forecastMethod")
+@Tag(
+    name = "Forecast Method",
+    description = "Manage forecast calculation methods and their configuration parameters"
+)
 public class ForecastMethodRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -55,9 +60,12 @@ public class ForecastMethodRestController {
      * @return returns the active list of active ForecastMethods
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete ForecastMethod list. Will only return those ForecastMethods that are marked Active.", summary = "Get active ForecastMethod list", tags = ("forecastMethod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMethod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
+    @Operation(
+        summary = "Get Active Forecast Methods",
+        description = "Retrieve a list of active forecast methods"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMethod.class))), responseCode = "200", description = "Returns the ForecastMethod list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
     public ResponseEntity getForecastMethodList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -75,9 +83,12 @@ public class ForecastMethodRestController {
      * @return returns the complete list of ForecastMethods
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete ForecastMethod list.", summary = "Get complete ForecastMethod list", tags = ("forecastMethod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMethod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
+    @Operation(
+        summary = "Get All Forecast Methods",
+        description = "Retrieve a complete list of all forecast methods (active and disabled)"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMethod.class))), responseCode = "200", description = "Returns the ForecastMethod list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
     public ResponseEntity getForecastMethodListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -97,13 +108,19 @@ public class ForecastMethodRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update ForecastMethod", summary = "Add or Update ForecastMethod", tags = ("forecastMethod"))
-    @Parameters(
-            @Parameter(name = "forecastMethod", description = "The list of ForecastMethod objects that you want to add or update. If forecastMethodId is null or 0 then it is added if forecastMethodId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @Operation(
+        summary = "Save Forecast Method",
+        description = "Create or update a specific forecast method by its ID"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of ForecastMethod objects that you want to add or update. If forecastMethodId is null or 0 then it is added if forecastMethodId is not null and non 0 it is updated",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteForecastMethod(@RequestBody List<ForecastMethod> forecastMethodList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());

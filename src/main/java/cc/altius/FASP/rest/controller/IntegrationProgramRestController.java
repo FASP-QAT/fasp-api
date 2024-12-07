@@ -17,6 +17,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api/integrationProgram")
+@Tag(
+    name = "Integration Program",
+    description = "Manage integration programs with support for manual JSON pushes and program-specific data synchronization"
+)
 public class IntegrationProgramRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,9 +64,12 @@ public class IntegrationProgramRestController {
      * @return returns the complete list of Integration Programs
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete Integration Program list.", summary = "Get Integration Program list", tags = ("integrationProgram"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
+    @Operation(
+        summary = "Get Integration Program List",
+        description = "Retrieve a complete list of all integration programs."
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = IntegrationProgram.class))), responseCode = "200", description = "Returns the Integration Program list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
     public ResponseEntity getIntegrationProgram(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -77,11 +87,14 @@ public class IntegrationProgramRestController {
      * @return returns the complete list of Integration Programs for a ProgramId
      */
     @GetMapping("/program/{programId}")
-    @Operation(description = "API used to get the complete Integration Program list for a ProgramId.", summary = "Get Integration Program list for a ProgramId", tags = ("integrationProgram"))
+    @Operation(
+        summary = "Get Integration Programs for ProgramId",
+        description = "Retrieve a complete list of integration programs for a given program, identified by its ID."
+    )
     @Parameters(
             @Parameter(name = "programId", description = "programId that you want to the Integration Program list for"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list for a ProgramId")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = IntegrationProgram.class))), responseCode = "200", description = "Returns the Integration Program list for a ProgramId")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
     public ResponseEntity getIntegrationProgramForProgramId(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -103,13 +116,16 @@ public class IntegrationProgramRestController {
      * IntegrationProgramId specified
      */
     @GetMapping(value = "/{integrationProgramId}")
-    @Operation(description = "API used to get the Integration Programs for a specific IntegrationProgramId", summary = "Get Integration Programs for an IntegrationProgramId", tags = ("integrationProgram"))
+    @Operation(
+        summary = "Get Integration Program",
+        description = "Retrieve an integration program by its ID."
+    )
     @Parameters(
             @Parameter(name = "integrationProgramId", description = "IntegrationProgramId that you want to the Integration Program for"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId specified does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = IntegrationProgram.class)), responseCode = "200", description = "Returns the Integration Program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
     public ResponseEntity getIntegrationProgram(@PathVariable("integrationProgramId") int integrationProgramId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -135,10 +151,16 @@ public class IntegrationProgramRestController {
      * @return returns a Success code if the operation was successful
      */
     @PutMapping(path = "")
-    @Operation(description = "API used to update an IntegrationProgram", summary = "Update IntegrationProgram", tags = ("integrationProgram"))
-    @Parameters(
-            @Parameter(name = "integrationPrograms", description = "An array of Integration Program objects that you want to update"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @Operation(
+        summary = "Update Integration Program",
+        description = "Update an existing integration program."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "An array of Integration Program objects that you want to update",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = IntegrationProgram.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId supplied does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
@@ -172,13 +194,19 @@ public class IntegrationProgramRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(path = "/manualJson")
-    @Operation(description = "API used to add a manual JSON push", summary = "Add manual JSON push", tags = ("integrationProgram"))
-    @Parameters(
-            @Parameter(name = "manualIntegrations", description = "An array of Manual Integration requests that you want to add"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId supplied does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @Operation(
+        summary = "Manual JSON Push",
+        description = "Manually pushes integration data to external systems. Handles batch requests with authentication validation and error tracking."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "An array of Manual Integration requests that you want to add",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ManualIntegration.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId supplied does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addManualJsonPush(@RequestBody ManualIntegration manualIntegrations[], Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());

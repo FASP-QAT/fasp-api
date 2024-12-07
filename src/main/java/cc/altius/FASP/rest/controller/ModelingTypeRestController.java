@@ -11,10 +11,11 @@ import cc.altius.FASP.model.ModelingType;
 import cc.altius.FASP.service.ModelingTypeService;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api/modelingType")
+@Tag(
+    name = "Modeling Type",
+    description = "Manage modeling configurations that control system calculation and processing behaviour"
+)
 public class ModelingTypeRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -55,9 +60,12 @@ public class ModelingTypeRestController {
      * @return returns the active list of active ModelingTypes
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete ModelingType list. Will only return those ModelingTypes that are marked Active.", summary = "Get active ModelingType list", tags = ("modelingType"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ModelingType list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ModelingType list")
+    @Operation(
+        summary = "Get Modeling Types",
+        description = "Retrieve a list of active Modeling Types"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ModelingType.class))), responseCode = "200", description = "Returns the ModelingType list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of ModelingType list")
     public ResponseEntity getModelingTypeList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
@@ -75,8 +83,11 @@ public class ModelingTypeRestController {
      * @return returns the complete list of ModelingTypes
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete ModelingType list.", summary = "Get complete ModelingType list", tags = ("modelingType"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ModelingType list")
+    @Operation(
+        summary = "Get all Modeling Types",
+        description = "Retrieve a complete list of all Modeling Types (active and disabled)"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ModelingType.class))), responseCode = "200", description = "Returns the ModelingType list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ModelingType list")
     public ResponseEntity getModelingTypeListAll(Authentication auth) {
         try {
@@ -97,13 +108,19 @@ public class ModelingTypeRestController {
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update ModelingType", summary = "Add or Update ModelingType", tags = ("modelingType"))
-    @Parameters(
-            @Parameter(name = "modelingType", description = "The list of ModelingType objects that you want to add or update. If modelingTypeId is null or 0 then it is added if modelingTypeId is not null and non 0 it is updated"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @Operation(
+        summary = "Save Modeling Types",
+        description = "Create or update a list of Modeling Types"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of ModelingType objects that you want to add or update. If modelingTypeId is null or 0 then it is added if modelingTypeId is not null and non 0 it is updated",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ModelingType.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addAndUpadteModelingType(@RequestBody List<ModelingType> modelingTypeList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());

@@ -34,12 +34,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 /**
  *
  * @author akil
  */
 @Controller
+@Tag(
+    name = "Export Supply Plan",
+    description = "Export Supply Plan to JSON"
+)
 public class ExportSupplyPlanJson {
 
     @Autowired
@@ -62,6 +68,7 @@ public class ExportSupplyPlanJson {
 
     @GetMapping("/exportSupplyPlan")
     @ResponseBody
+    @Operation(summary = "Export supply plan", description = "Export supply plan")
     public String exportSupplyPlan(Authentication auth) {
         logger.info(" ################ Going to start Supply Plan export process ############## ");
         String newLine = "<br/>\n";
@@ -174,6 +181,7 @@ public class ExportSupplyPlanJson {
     
     @GetMapping("/exportManualJson")
     @ResponseBody
+    @Operation(summary = "Export manual supply plan json", description = "Export manual supply plan json")
     public String exportManualJson(Authentication auth) {
         logger.info(" ################ Going to start Manual Json export process ############## ");
         String newLine = "<br/>\n";

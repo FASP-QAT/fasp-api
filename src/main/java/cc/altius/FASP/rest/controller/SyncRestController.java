@@ -6,9 +6,11 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.TreeAnchorInput;
+import cc.altius.FASP.model.report.TreeAnchorOutput;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.CountryService;
 import cc.altius.FASP.service.CurrencyService;
@@ -40,6 +42,13 @@ import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UsagePeriodService;
 import cc.altius.FASP.service.UsageTemplateService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import static cc.altius.FASP.utils.CompressUtils.compress;
 import static cc.altius.FASP.utils.CompressUtils.isCompress;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +76,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author akil
  */
 @Controller
+@Tag(
+    name = "Sync",
+    description = "Manage data synchronization and master data updates across the system"
+)
 @RequestMapping("/api/sync")
 public class SyncRestController {
 
@@ -151,6 +164,23 @@ public class SyncRestController {
     }
 
 //    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
+    @Operation(
+        summary = "Test synchronization",
+        description = "Test synchronization with program IDs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program IDs to test synchronization with",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @Parameter(
+        name = "lastSyncDate",
+        description = "The last synchronization date",
+        required = true
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = MastersSync.class)), responseCode = "200", description = "Returns masters data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid lastSyncDate")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the program planning units")
     public ResponseEntity TestSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -164,13 +194,13 @@ public class SyncRestController {
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
         } catch (Exception e) {
             logger.error("Error in masters sync", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
+    
     /**
      * API to get the data that needs to be Synced with the Offline machine
      *
@@ -181,6 +211,23 @@ public class SyncRestController {
      * @return
      */
     @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
+    @Operation(
+        summary = "Get all Master Data",
+        description = "Get all the data that needs to be synced with the offline machine"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The program IDs to get masters for",
+        required = true,
+        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+    )
+    @Parameter(
+        name = "lastSyncDate",
+        description = "The last synchronization date",
+        required = true
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = MastersSync.class)), responseCode = "200", description = "Returns the master data")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid lastSyncDate")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the master data")
     public ResponseEntity allMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -242,10 +289,10 @@ public class SyncRestController {
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
         } catch (Exception e) {
             logger.error("Error in masters sync", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -256,6 +303,18 @@ public class SyncRestController {
      * @return
      */
     @GetMapping(value = "/language/{lastSyncDate}")
+    @Operation(
+        summary = "Get Languages",
+        description = "Get language list for synchronization"
+    )
+    @Parameter(
+        name = "lastSyncDate",
+        description = "The last synchronization date",
+        required = true
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Language.class))), responseCode = "200", description = "Returns the language list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "Invalid lastSyncDate")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the language list")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -263,10 +322,10 @@ public class SyncRestController {
             return new ResponseEntity(this.languageService.getLanguageListForSync(lastSyncDate), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing language", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED); // 412
         } catch (Exception e) {
             logger.error("Error while listing language", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
@@ -279,13 +338,24 @@ public class SyncRestController {
      * @return
      */
     @PostMapping(value = "/treeAnchor")
+    @Operation(
+        summary = "Get Tree Anchors",
+        description = "Get the list of tree anchor nodes for a specified dataset and list of trees for synchronization"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The tree anchor input",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = TreeAnchorInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = TreeAnchorOutput.class))), responseCode = "200", description = "Returns the tree anchor list")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while retrieving the tree anchor list")
     public ResponseEntity getSyncListForTreeAnchor(@RequestBody TreeAnchorInput ta, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getTreeAnchorForSync(ta, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting Tree Anchor list", e);
-            return new ResponseEntity(new ResponseCode("    static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 }

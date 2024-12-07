@@ -11,6 +11,11 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,6 +40,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(
+    name = "Supply plan",
+    description = "Manage supply plan generation and batch processing"
+)
 public class SupplyPlanRestController {
 
     @Autowired
@@ -107,6 +116,16 @@ public class SupplyPlanRestController {
      */
     @PostMapping("/rebuildSupplyPlans")
     @ResponseBody
+    @Operation(
+        summary = "Rebuild Supply Plan",
+        description = "Rebuild the supply plan for a list of program IDs and version IDs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "A list of program IDs and version IDs to rebuild supply plans for",
+        required = true,
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramIdAndVersionId.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the supply plan build log")
     public ResponseEntity rebuildSupplyPlans(@RequestBody List<ProgramIdAndVersionId> pvList, Authentication auth) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         StringBuilder sb = new StringBuilder();
