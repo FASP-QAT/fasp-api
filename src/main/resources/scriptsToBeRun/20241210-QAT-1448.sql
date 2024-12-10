@@ -7,7 +7,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardForecastErrorNew`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardForecastErrorNew`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardForecastErrorNew`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
 BEGIN
 
     SELECT p.CURRENT_VERSION_ID INTO @varVersionId FROM vw_program p WHERE p.PROGRAM_ID=VAR_PROGRAM_ID;
