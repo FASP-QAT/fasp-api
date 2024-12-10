@@ -2028,6 +2028,12 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         if (paramList.size() > 0) {
             this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
         }
+        String setDateQuery = "SET @dt = CURDATE() - INTERVAL 6 MONTH;";
+        String setCountryIdQuery = "SET @realmCountryId = ?;";
+        this.jdbcTemplate.update(setDateQuery);
+        this.jdbcTemplate.update(setCountryIdQuery, input.getRealmCountryId());
+        String getCountryNameQuery = "SELECT c.LABEL_EN INTO @countryName FROM rm_realm_country rc LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE rc.REALM_COUNTRY_ID=@realmCountryId";
+        this.jdbcTemplate.execute(getCountryNameQuery);
         StringBuilder sqlStringBuilder = new StringBuilder(""
                 + "SELECT   "
                 + "    e.`RO_NO`, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO, e.`ACTIVE` `ORDER_ACTIVE`,   "
@@ -2053,19 +2059,16 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu on left(papu.SKU_CODE,12)=e.PLANNING_UNIT_SKU_CODE   "
                 + "LEFT JOIN vw_planning_unit pu ON pu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID   "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID   "
-                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=:shipmentProgramId   "
-                + "LEFT JOIN rm_realm_country rc ON (p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID OR rc.REALM_COUNTRY_ID=:realmCountryId)  "
-                + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID   "
                 + "LEFT JOIN vw_planning_unit spu ON spu.PLANNING_UNIT_ID=:shipmentPlanningUnitId   "
                 + "LEFT JOIN rm_forecasting_unit sfu ON spu.FORECASTING_UNIT_ID=sfu.FORECASTING_UNIT_ID   "
                 + "WHERE   "
                 + "	o1.RO_NO IS NOT NULL  "
-                + "    AND (papu.PLANNING_UNIT_ID = :filterPlanningUnitId OR :filterPlanningUnitId = 0) AND e.RECPIENT_COUNTRY=c.LABEL_EN  "
+                + "    AND (papu.PLANNING_UNIT_ID = :filterPlanningUnitId OR :filterPlanningUnitId = 0) AND e.RECPIENT_COUNTRY=@countryName  "
                 + "    AND e.ACTIVE   "
                 + "    AND ("
-                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < CURDATE() - INTERVAL 6 MONTH AND "
+                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) < @dt AND "
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,2,3,5,7,9,10,13,15) OR "
-                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= CURDATE() - INTERVAL 6 MONTH AND "
+                + "    COALESCE(s.ACTUAL_DELIVERY_DATE, e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) >= @dt AND "
                 + "    sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15))  "
                 + "    AND (slt.SHIPMENT_LINKING_TRANS_ID IS NULL OR dl.RO_NO IS NOT NULL)  "
                 + "    AND sfu.TRACER_CATEGORY_ID=fu.TRACER_CATEGORY_ID   "
