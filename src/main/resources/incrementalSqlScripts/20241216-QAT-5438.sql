@@ -50,7 +50,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'o erro de previsão ca
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.forecastErrorMonthlyFormulaupdatethreshold','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This forecast error threshold can be updated per planning unit by the program administrator in the ""Update Planning Units"" screen. The default forecast error threshold is 50%.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This forecast error threshold can be updated per planning unit by the program administrator in the "Update Planning Units" screen. The default forecast error threshold is 50%.');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce seuil d`erreur de prévision peut être mis à jour par unité de planification par l`administrateur du programme dans l`écran « Mettre à jour les unités de planification ». Le seuil d`erreur de prévision par défaut est de 50 %.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El administrador del programa puede actualizar este umbral de error de pronóstico por unidad de planificación en la pantalla ""Actualizar unidades de planificación"". El umbral de error de pronóstico predeterminado es del 50%.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El administrador del programa puede actualizar este umbral de error de pronóstico por unidad de planificación en la pantalla "Actualizar unidades de planificación". El umbral de error de pronóstico predeterminado es del 50%.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Este limite de erro de previsão pode ser atualizado por unidade de planejamento pelo administrador do programa na tela “Atualizar Unidades de Planejamento”. O limite de erro de previsão padrão é de 50%.');-- pr
