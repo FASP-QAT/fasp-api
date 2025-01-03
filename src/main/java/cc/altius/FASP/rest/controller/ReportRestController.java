@@ -106,8 +106,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RestController
 @RequestMapping("/api/report")
 @Tag(
-    name = "Reports",
-    description = "Manage system reports including consumption, inventory, shipment, stock status, and forecast analytics"
+        name = "Reports",
+        description = "Manage system reports including consumption, inventory, shipment, stock status, and forecast analytics"
 )
 public class ReportRestController {
 
@@ -138,13 +138,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programProductCatalog")
     @Operation(
-        summary = "Get Program Product Catalog",
-        description = "Retrieve a list of program product catalog"
+            summary = "Get Program Product Catalog",
+            description = "Retrieve a list of program product catalog"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The program product catalog input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramProductCatalogInput.class))
+            description = "The program product catalog input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramProductCatalogInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramProductCatalogOutput.class))), responseCode = "200", description = "Returns the list of program product catalog")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -181,13 +181,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/consumptionForecastVsActual")
     @Operation(
-        summary = "Get Consumption Forecast vs Actual",
-        description = "Retrieve a list of consumption forecast vs actual"
+            summary = "Get Consumption Forecast vs Actual",
+            description = "Retrieve a list of consumption forecast vs actual"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The consumption forecast vs actual input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConsumptionForecastVsActualInput.class))
+            description = "The consumption forecast vs actual input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConsumptionForecastVsActualInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ConsumptionForecastVsActualOutput.class))), responseCode = "200", description = "Returns the list of consumption forecast vs actual")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -226,13 +226,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/globalConsumption")
     @Operation(
-        summary = "Get Global Consumption",
-        description = "Retrieve the global consumption report"
+            summary = "Get Global Consumption",
+            description = "Retrieve the global consumption report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The global consumption input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = GlobalConsumptionInput.class))
+            description = "The global consumption input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GlobalConsumptionInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = GlobalConsumptionOutput.class))), responseCode = "200", description = "Returns the global consumption")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -272,13 +272,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsMonthly")
     @Operation(
-        summary = "Get Forecast Metrics Monthly",
-        description = "Retrieve the forecast metrics monthly report"
+            summary = "Get Forecast Metrics Monthly",
+            description = "Retrieve the forecast metrics monthly report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The forecast metrics monthly input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsMonthlyInput.class))
+            description = "The forecast metrics monthly input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsMonthlyInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMetricsMonthlyOutput.class))), responseCode = "200", description = "Returns the list of forecast metrics monthly")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -320,13 +320,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsComparision")
     @Operation(
-        summary = "Get Forecast Metrics Comparision",
-        description = "Retrieve the forecast metrics comparision report"
+            summary = "Get Forecast Metrics Comparision",
+            description = "Retrieve the forecast metrics comparision report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The forecast metrics comparision input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsComparisionInput.class))
+            description = "The forecast metrics comparision input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastMetricsComparisionInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastMetricsComparisionOutput.class))), responseCode = "200", description = "Returns the forecast metrics comparision")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -362,13 +362,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
     @Operation(
-        summary = "Get Warehouse Capacity Report",
-        description = "Retrieve the warehouse capacity report"
+            summary = "Get Warehouse Capacity Report",
+            description = "Retrieve the warehouse capacity report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The warehouse capacity input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseCapacityInput.class))
+            description = "The warehouse capacity input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseCapacityInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = WarehouseCapacityOutput.class))), responseCode = "200", description = "Returns the list of warehouse capacity report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -392,13 +392,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping("/warehouseByCountry")
     @Operation(
-        summary = "Get Warehouse By Country Report",
-        description = "Retrieve the warehouse by country report"
+            summary = "Get Warehouse By Country Report",
+            description = "Retrieve the warehouse by country report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The warehouse by country input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseByCountryInput.class))
+            description = "The warehouse by country input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = WarehouseByCountryInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = WarehouseByCountryOutput.class))), responseCode = "200", description = "Returns the warehouse by country report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access the report")
@@ -444,13 +444,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/costOfInventory")
     @Operation(
-        summary = "Get Cost Of Inventory Report",
-        description = "Retrieve the cost of inventory report"
+            summary = "Get Cost Of Inventory Report",
+            description = "Retrieve the cost of inventory report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The cost of inventory input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = CostOfInventoryInput.class))
+            description = "The cost of inventory input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CostOfInventoryInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = CostOfInventoryOutput.class))), responseCode = "200", description = "Returns the list of cost of inventory report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -489,13 +489,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/inventoryTurns")
     @Operation(
-        summary = "Get Inventory Turns Report",
-        description = "Retrieve the inventory turns report"
+            summary = "Get Inventory Turns Report",
+            description = "Retrieve the inventory turns report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The inventory turns input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventoryTurnsInput.class))
+            description = "The inventory turns input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventoryTurnsInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = InventoryTurnsOutput.class))), responseCode = "200", description = "Returns the inventory turns report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -532,13 +532,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/expiredStock")
     @Operation(
-        summary = "Get Expired Stock Report",
-        description = "Retrieve the expired stock report"
+            summary = "Get Expired Stock Report",
+            description = "Retrieve the expired stock report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The expired stock input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpiredStockInput.class))
+            description = "The expired stock input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpiredStockInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ExpiredStockOutput.class))), responseCode = "200", description = "Returns the expired stock report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -573,13 +573,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockAdjustmentReport")
     @Operation(
-        summary = "Get Stock Adjustment Report",
-        description = "Retrieve the stock adjustment report"
+            summary = "Get Stock Adjustment Report",
+            description = "Retrieve the stock adjustment report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock adjustment input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockAdjustmentReportInput.class))
+            description = "The stock adjustment input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockAdjustmentReportInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockAdjustmentReportOutput.class))), responseCode = "200", description = "Returns the stock adjustment report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -620,13 +620,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/procurementAgentShipmentReport")
     @Operation(
-        summary = "Get Procurement Agent Shipment Report",
-        description = "Retrieve procurement agent shipment report"
+            summary = "Get Procurement Agent Shipment Report",
+            description = "Retrieve procurement agent shipment report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The procurement agent shipment input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcurementAgentShipmentReportInput.class))
+            description = "The procurement agent shipment input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcurementAgentShipmentReportInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProcurementAgentShipmentReportOutput.class))), responseCode = "200", description = "Returns the procurement agent shipment report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -660,13 +660,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programLeadTimes")
     @Operation(
-        summary = "Get Program Lead Times Report",
-        description = "Retrieve the program lead times report"
+            summary = "Get Program Lead Times Report",
+            description = "Retrieve the program lead times report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The program lead times input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramLeadTimesInput.class))
+            description = "The program lead times input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramLeadTimesInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramLeadTimesOutput.class))), responseCode = "200", description = "Returns the program lead times report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -708,13 +708,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/fundingSourceShipmentReport")
     @Operation(
-        summary = "Get Funding Source Shipment Report",
-        description = "Retrieve funding source shipment report"
+            summary = "Get Funding Source Shipment Report",
+            description = "Retrieve funding source shipment report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The funding source shipment input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = FundingSourceShipmentReportInput.class))
+            description = "The funding source shipment input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = FundingSourceShipmentReportInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = FundingSourceShipmentReportOutput.class))), responseCode = "200", description = "Returns the list of funding source shipment report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -749,27 +749,27 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     @Operation(
-        summary = "Get Stock Status Vertical Report",
-        description = "Retrieve the stock status vertical report"
+            summary = "Get Stock Status Vertical Report",
+            description = "Retrieve the stock status vertical report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status vertical input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalInput.class))
+            description = "The stock status vertical input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the stock status vertical report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            if (ssvi.isAggregate()) {
+            if (ssvi.getProgramIds().length == 1) {
+                // Map where Key is ProgramId~ReportingUnitId
+                return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
+            } else {
                 StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
                 ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
                 ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
                 return new ResponseEntity(ssv, HttpStatus.OK);
-            } else {
-                // Map where Key is ProgramId~ReportingUnitId
-                return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
             }
         } catch (AccessControlFailedException e) {
             logger.error("/api/report/stockStatusVertical", e);
@@ -787,13 +787,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical/dropdowns")
     @Operation(
-        summary = "Get Dropdowns for Stock Status Vertical Report",
-        description = "Retrieve a list of dropdowns for stock status vertical report"
+            summary = "Get Dropdowns for Stock Status Vertical Report",
+            description = "Retrieve a list of dropdowns for stock status vertical report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status vertical dropdown input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalDropdownInput.class))
+            description = "The stock status vertical dropdown input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalDropdownInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DropdownsForStockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the list of dropdowns for stock status vertical report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -809,7 +809,7 @@ public class ReportRestController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     // Report no 17
     // Reports -> Stock Status -> Stock Status Over Time
     /**
@@ -832,13 +832,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusOverTime")
     @Operation(
-        summary = "Get Stock Status Over Time Report",
-        description = "Retrieve a stock status over time report"
+            summary = "Get Stock Status Over Time Report",
+            description = "Retrieve a stock status over time report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status over time input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusOverTimeInput.class))
+            description = "The stock status over time input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusOverTimeInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusOverTimeOutput.class))), responseCode = "200", description = "Returns the stock status over time report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -877,13 +877,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusMatrix")
     @Operation(
-        summary = "Get Stock Status Matrix Report",
-        description = "Retrieve the stock status matrix report"
+            summary = "Get Stock Status Matrix Report",
+            description = "Retrieve the stock status matrix report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status matrix input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusMatrixInput.class))
+            description = "The stock status matrix input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusMatrixInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrixOutput.class))), responseCode = "200", description = "Returns the stock status matrix report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -921,13 +921,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentDetails")
     @Operation(
-        summary = "Get Shipment Details Report",
-        description = "Retrieve the shipment details report"
+            summary = "Get Shipment Details Report",
+            description = "Retrieve the shipment details report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The shipment details input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentDetailsInput.class))
+            description = "The shipment details input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentDetailsInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentDetailsOutput.class))), responseCode = "200", description = "Returns the shipment details report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -959,13 +959,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentOverview")
     @Operation(
-        summary = "Get Shipment Overview Report",
-        description = "Retrieve the shipment overview report"
+            summary = "Get Shipment Overview Report",
+            description = "Retrieve the shipment overview report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The shipment overview input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentOverviewInput.class))
+            description = "The shipment overview input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentOverviewInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentOverviewOutput.class))), responseCode = "200", description = "Returns the shipment overview report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -997,13 +997,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentGlobalDemand")
     @Operation(
-        summary = "Get Shipment Global Demand Report",
-        description = "Retrieve the shipment global demand report"
+            summary = "Get Shipment Global Demand Report",
+            description = "Retrieve the shipment global demand report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The shipment global demand input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentGlobalDemandInput.class))
+            description = "The shipment global demand input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentGlobalDemandInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentGlobalDemandOutput.class))), responseCode = "200", description = "Returns the shipment global demand report")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while generating the report")
@@ -1039,13 +1039,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/annualShipmentCost")
     @Operation(
-        summary = "Get Annual Shipment Cost Report",
-        description = "Retrieve the annual shipment cost report"
+            summary = "Get Annual Shipment Cost Report",
+            description = "Retrieve the annual shipment cost report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The annual shipment cost input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnualShipmentCostInput.class))
+            description = "The annual shipment cost input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnnualShipmentCostInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = AnnualShipmentCostOutput.class))), responseCode = "200", description = "Returns the annual shipment cost report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1084,13 +1084,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/aggregateShipmentByProduct")
     @Operation(
-        summary = "Get Aggregate Shipment By Product Report",
-        description = "Retrieve the aggregate shipment by product report"
+            summary = "Get Aggregate Shipment By Product Report",
+            description = "Retrieve the aggregate shipment by product report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The aggregate shipment by product input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentReportInput.class))
+            description = "The aggregate shipment by product input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ShipmentReportInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentReportOutput.class))), responseCode = "200", description = "Returns the aggregate shipment by product report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1131,13 +1131,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusForProgram")
     @Operation(
-        summary = "Get Stock Status For Program Report",
-        description = "Retrieve the stock status for program report"
+            summary = "Get Stock Status For Program Report",
+            description = "Retrieve the stock status for program report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status for program input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusForProgramInput.class))
+            description = "The stock status for program input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusForProgramInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusForProgramOutput.class))), responseCode = "200", description = "Returns the stock status for program report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1166,13 +1166,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/budgetReport")
     @Operation(
-        summary = "Get Budget Report",
-        description = "Retrieve the budget report"
+            summary = "Get Budget Report",
+            description = "Retrieve the budget report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The budget report input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = BudgetReportInput.class))
+            description = "The budget report input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BudgetReportInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BudgetReportOutput.class))), responseCode = "200", description = "Returns the budget report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1213,13 +1213,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusAcrossProducts")
     @Operation(
-        summary = "Get Stock Status Across Products Report",
-        description = "Retrieve the stock status across products report"
+            summary = "Get Stock Status Across Products Report",
+            description = "Retrieve the stock status across products report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The stock status across products input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusAcrossProductsInput.class))
+            description = "The stock status across products input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusAcrossProductsInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusAcrossProductsOutput.class))), responseCode = "200", description = "Returns the stock status across products report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1262,13 +1262,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastErrorNew")
     @Operation(
-        summary = "Get Forecast Error Report",
-        description = "Retrieve the forecast error report"
+            summary = "Get Forecast Error Report",
+            description = "Retrieve the forecast error report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The forecast error input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastErrorInputNew.class))
+            description = "The forecast error input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastErrorInputNew.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastErrorOutput.class))), responseCode = "200", description = "Returns the forecast error report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1301,13 +1301,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/monthlyForecast")
     @Operation(
-        summary = "Get Monthly Forecast Report",
-        description = "Retrieve the monthly forecast report"
+            summary = "Get Monthly Forecast Report",
+            description = "Retrieve the monthly forecast report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The monthly forecast input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = MonthlyForecastInput.class))
+            description = "The monthly forecast input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MonthlyForecastInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = MonthlyForecastOutput.class))), responseCode = "200", description = "Returns the monthly forecast report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
@@ -1336,13 +1336,13 @@ public class ReportRestController {
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastSummary")
     @Operation(
-        summary = "Get Forecast Summary Report",
-        description = "Retrieve the forecast summary report"
+            summary = "Get Forecast Summary Report",
+            description = "Retrieve the forecast summary report"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The forecast summary input",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastSummaryInput.class))
+            description = "The forecast summary input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ForecastSummaryInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastSummaryOutput.class))), responseCode = "200", description = "Returns the forecast summary report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
