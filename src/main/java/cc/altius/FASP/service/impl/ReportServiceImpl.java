@@ -371,7 +371,7 @@ public class ReportServiceImpl implements ReportService {
                     ssv.setProgramId(programId);
                     ssv.setReportingUnitId(reportingUnitId);
                     StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVertical(ssv, curUser);
-                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
+                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReportIndividual(ssv, curUser);
                     cList.forEach(c -> {
                         int idx = ssvo.getConsumptionInfo().indexOf(c);
                         if (idx == -1) {
@@ -379,7 +379,7 @@ public class ReportServiceImpl implements ReportService {
                         }
                     });
 
-                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
+                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReportIndividual(ssv, curUser);
                     iList.forEach(i -> {
                         int idx = ssvo.getInventoryInfo().indexOf(i);
                         if (idx == -1) {

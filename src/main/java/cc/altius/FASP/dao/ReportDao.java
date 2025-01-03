@@ -131,8 +131,14 @@ public interface ReportDao {
     // Report no 16a
     public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
+    // Report no 16a
+    public List<ConsumptionInfo> getConsumptionInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+
     // Report no 16b
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+
+    // Report no 16b
+    public List<InventoryInfo> getInventoryInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16c
     public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy);
@@ -169,10 +175,10 @@ public interface ReportDao {
 
     //Report no 30
     public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt, boolean useApprovedSupplyPlanOnly);
-    
+
     // Report no 31
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
-    
+
     // Report no 31 new 
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, boolean getREgionalData, CustomUserDetails curUser);
 

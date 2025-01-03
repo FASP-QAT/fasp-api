@@ -367,7 +367,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programId", ssv.getProgramId());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalIndividualOutputResultSetExtractor());
+        params.put("versionId", ssv.getVersionId());
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :reportingUnitId, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalIndividualOutputResultSetExtractor());
     }
 
     @Override
@@ -401,14 +402,23 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        if (ssv.isAggregate()) {
-            params.put("programIds", ssv.getProgramIdsString());
-            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-        } else {
-            params.put("programIds", ssv.getProgramId());
-            params.put("reportingUnitIds", ssv.getReportingUnitId());
-        }
+        params.put("versionId", ssv.getVersionId());
+        params.put("programIds", ssv.getProgramIdsString());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
         return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
+    }
+
+    // Report no 16a
+    @Override
+    public List<ConsumptionInfo> getConsumptionInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssv.getStartDate());
+        params.put("stopDate", ssv.getStopDate());
+        params.put("viewBy", ssv.getViewBy());
+        params.put("versionId", ssv.getVersionId());
+        params.put("programId", ssv.getProgramId());
+        params.put("reportingUnitIds", ssv.getReportingUnitId());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReportIndividual(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
     }
 
     // Report no 16b
@@ -418,14 +428,22 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        if (ssv.isAggregate()) {
-            params.put("programIds", ssv.getProgramIdsString());
-            params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-        } else {
-            params.put("programIds", ssv.getProgramId());
-            params.put("reportingUnitIds", ssv.getReportingUnitId());
-        }
+        params.put("programIds", ssv.getProgramIdsString());
+        params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
         return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
+    }
+
+    // Report no 16b
+    @Override
+    public List<InventoryInfo> getInventoryInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssv.getStartDate());
+        params.put("stopDate", ssv.getStopDate());
+        params.put("viewBy", ssv.getViewBy());
+        params.put("programId", ssv.getProgramId());
+        params.put("versionId", ssv.getVersionId());
+        params.put("reportingUnitIds", ssv.getReportingUnitId());
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
     }
 
     @Override
