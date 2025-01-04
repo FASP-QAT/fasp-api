@@ -762,14 +762,16 @@ public class ReportRestController {
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            if (ssvi.getProgramIds().length == 1) {
-                // Map where Key is ProgramId~ReportingUnitId
-                return new ResponseEntity(this.reportService.getStockStatusVertical(ssvi, curUser), HttpStatus.OK);
-            } else {
+            if (ssvi.isAggregate()) {
+                // Respond with Aggregated output
                 StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
                 ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
                 ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
                 return new ResponseEntity(ssv, HttpStatus.OK);
+            } else {
+                // Respond with Individual Program + PU/ARU reports
+                // Map where Key is ProgramId~ReportingUnitId
+                return new ResponseEntity(this.reportService.getStockStatusVerticalIndividual(ssvi, curUser), HttpStatus.OK);
             }
         } catch (AccessControlFailedException e) {
             logger.error("/api/report/stockStatusVertical", e);

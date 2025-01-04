@@ -93,6 +93,35 @@ public class StockStatusVerticalAggregateOutput implements Serializable {
         this.inventoryInfo = new LinkedList<>();
     }
 
+    public StockStatusVerticalAggregateOutput(StockStatusVertical ssvo, SimpleObject reportingUnit, int planBasedOn, String ppuNotes) {
+        this.dt = ssvo.getDt();
+        this.reportingUnit = reportingUnit; // PU, ARU or EU
+        this.openingBalance = ssvo.getOpeningBalance();
+        this.actualConsumption = ssvo.getActualConsumption();
+        this.actualConsumptionQty = ssvo.getActualConsumptionQty();
+        this.forecastedConsumptionQty = ssvo.getForecastedConsumptionQty();
+        this.finalConsumptionQty = ssvo.getFinalConsumptionQty();
+        this.shipmentQty = ssvo.getShipmentQty();
+        this.shipmentInfo = new LinkedList<>();
+        this.consumptionInfo = new LinkedList<>();
+        this.inventoryInfo = new LinkedList<>();
+        this.adjustment = ssvo.getAdjustment();
+        this.expiredStock = ssvo.getExpiredStock();
+        this.closingBalance = ssvo.getClosingBalance();
+        this.amc = ssvo.getAmc();
+        this.mos = ssvo.getMos();
+        this.minStockMos = ssvo.getMinMos();
+        this.maxStockMos = ssvo.getMaxMos();
+        this.minStockQty = ssvo.getMinStock();
+        this.maxStockQty = ssvo.getMaxStock();
+        this.unmetDemand = ssvo.getUnmetDemand();
+        this.regionCount = ssvo.getRegionCount();
+        this.regionCountForStock = ssvo.getRegionCountForStock();
+        this.nationalAdjustment = ssvo.getNationalAdjustment();
+        this.planBasedOn = planBasedOn;
+        this.ppuNotes = ppuNotes;
+    }
+
     public Date getDt() {
         return dt;
     }

@@ -123,22 +123,22 @@ public interface ReportDao {
     public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16
-    public StockStatusVerticalIndividualOutput getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public StockStatusVerticalIndividualOutput getStockStatusVerticalIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16 PU list
     public List<ProgramAndPlanningUnit> getPlanningUnitListForStockStatusVerticalAggregate(StockStatusVerticalInput ssvi, CustomUserDetails curUser);
 
     // Report no 16a
-    public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<ConsumptionInfo> getConsumptionInfoForSSVAggregateReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16a
-    public List<ConsumptionInfo> getConsumptionInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<ConsumptionInfo> getConsumptionInfoForSSVIndividualReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16b
-    public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<InventoryInfo> getInventoryInfoForSSVAggregateReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16b
-    public List<InventoryInfo> getInventoryInfoForSSVReportIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+    public List<InventoryInfo> getInventoryInfoForSSVIndividualReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 16c
     public boolean checkIfExistsRuForProgram(int programId, int reportingUnitId, int viewBy);

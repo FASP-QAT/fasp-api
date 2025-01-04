@@ -105,7 +105,6 @@ public class ReportServiceImpl implements ReportService {
     ProgramDao programDao;
     @Autowired
     EquivalencyUnitDao equivalencyUnitDao;
-          
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -353,7 +352,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException {
+    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVerticalIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException {
         Map<String, StockStatusVerticalIndividualOutput> map = new HashMap<>();
         for (int programId : ssv.getProgramIds()) {
             if (programId != 0) {
@@ -370,8 +369,8 @@ public class ReportServiceImpl implements ReportService {
                     SimpleCodeObject program = this.programCommonDao.getSimpleSupplyPlanProgramById(programId, curUser);
                     ssv.setProgramId(programId);
                     ssv.setReportingUnitId(reportingUnitId);
-                    StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVertical(ssv, curUser);
-                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReportIndividual(ssv, curUser);
+                    StockStatusVerticalIndividualOutput ssvo = this.reportDao.getStockStatusVerticalIndividual(ssv, curUser);
+                    List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVIndividualReport(ssv, curUser);
                     cList.forEach(c -> {
                         int idx = ssvo.getConsumptionInfo().indexOf(c);
                         if (idx == -1) {
@@ -379,7 +378,7 @@ public class ReportServiceImpl implements ReportService {
                         }
                     });
 
-                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReportIndividual(ssv, curUser);
+                    List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVIndividualReport(ssv, curUser);
                     iList.forEach(i -> {
                         int idx = ssvo.getInventoryInfo().indexOf(i);
                         if (idx == -1) {
@@ -404,22 +403,46 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-        List<StockStatusVerticalAggregateOutput> ssvoList = this.reportDao.getStockStatusVerticalAggregate(ssv, curUser);
-        List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
-        cList.forEach(c -> {
-            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
-            if (idx != -1) {
-                ssvoList.get(idx).getConsumptionInfo().add(c);
-            }
-        });
+        final List<StockStatusVerticalAggregateOutput> ssvoList = new LinkedList<>();
+        if (ssv.getProgramIds().length != 1) {
+            StockStatusVerticalIndividualOutput ssvoIndividual = this.reportDao.getStockStatusVerticalIndividual(ssv, curUser);
+            ssvoIndividual.getStockStatusVertical().stream().forEachOrdered(ssvo -> {
+                StockStatusVerticalAggregateOutput ssvoNew = new StockStatusVerticalAggregateOutput(ssvo, ssvoIndividual.getReportingUnit(), ssvoIndividual.getPlanBasedOn(), ssvoIndividual.getPpuNotes());
+                List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVIndividualReport(ssv, curUser);
+                cList.forEach(c -> {
+                    int idx = ssvoNew.getConsumptionInfo().indexOf(c);
+                    if (idx == -1) {
+                        ssvoNew.getConsumptionInfo().add(c);
+                    }
+                });
 
-        List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
-        iList.forEach(i -> {
-            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
-            if (idx != -1) {
-                ssvoList.get(idx).getInventoryInfo().add(i);
-            }
-        });
+                List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVIndividualReport(ssv, curUser);
+                iList.forEach(i -> {
+                    int idx = ssvoNew.getInventoryInfo().indexOf(i);
+                    if (idx == -1) {
+                        ssvoNew.getInventoryInfo().add(i);
+                    }
+                });
+                ssvoList.add(ssvoNew);
+            });
+        } else {
+            ssvoList.addAll(this.reportDao.getStockStatusVerticalAggregate(ssv, curUser));
+            List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVAggregateReport(ssv, curUser);
+            cList.forEach(c -> {
+                int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
+                if (idx != -1) {
+                    ssvoList.get(idx).getConsumptionInfo().add(c);
+                }
+            });
+
+            List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVAggregateReport(ssv, curUser);
+            iList.forEach(i -> {
+                int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
+                if (idx != -1) {
+                    ssvoList.get(idx).getInventoryInfo().add(i);
+                }
+            });
+        }
         return ssvoList;
     }
 
@@ -531,7 +554,7 @@ public class ReportServiceImpl implements ReportService {
         }
         return finalList;
     }
-    
+
     // Report no 31 new
     @Override
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInputNew fei, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -544,7 +567,7 @@ public class ReportServiceImpl implements ReportService {
         }
         return this.reportDao.getForecastError(fei, true, curUser);
     }
-    
+
     // Mod 2 Report 1 -- Monthly Forecast
     @Override
     public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) throws AccessControlFailedException {
