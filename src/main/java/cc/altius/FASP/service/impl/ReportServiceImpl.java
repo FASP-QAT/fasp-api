@@ -404,45 +404,23 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         final List<StockStatusVerticalAggregateOutput> ssvoList = new LinkedList<>();
-        if (ssv.getProgramIds().length != 1) {
-            StockStatusVerticalIndividualOutput ssvoIndividual = this.reportDao.getStockStatusVerticalIndividual(ssv, curUser);
-            ssvoIndividual.getStockStatusVertical().stream().forEachOrdered(ssvo -> {
-                StockStatusVerticalAggregateOutput ssvoNew = new StockStatusVerticalAggregateOutput(ssvo, ssvoIndividual.getReportingUnit(), ssvoIndividual.getPlanBasedOn(), ssvoIndividual.getPpuNotes());
-                List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVIndividualReport(ssv, curUser);
-                cList.forEach(c -> {
-                    int idx = ssvoNew.getConsumptionInfo().indexOf(c);
-                    if (idx == -1) {
-                        ssvoNew.getConsumptionInfo().add(c);
-                    }
-                });
+        // Run as Aggregate directly
+        ssvoList.addAll(this.reportDao.getStockStatusVerticalAggregate(ssv, curUser));
+        List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVAggregateReport(ssv, curUser);
+        cList.forEach(c -> {
+            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
+            if (idx != -1) {
+                ssvoList.get(idx).getConsumptionInfo().add(c);
+            }
+        });
 
-                List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVIndividualReport(ssv, curUser);
-                iList.forEach(i -> {
-                    int idx = ssvoNew.getInventoryInfo().indexOf(i);
-                    if (idx == -1) {
-                        ssvoNew.getInventoryInfo().add(i);
-                    }
-                });
-                ssvoList.add(ssvoNew);
-            });
-        } else {
-            ssvoList.addAll(this.reportDao.getStockStatusVerticalAggregate(ssv, curUser));
-            List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVAggregateReport(ssv, curUser);
-            cList.forEach(c -> {
-                int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(c.getConsumptionDate()));
-                if (idx != -1) {
-                    ssvoList.get(idx).getConsumptionInfo().add(c);
-                }
-            });
-
-            List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVAggregateReport(ssv, curUser);
-            iList.forEach(i -> {
-                int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
-                if (idx != -1) {
-                    ssvoList.get(idx).getInventoryInfo().add(i);
-                }
-            });
-        }
+        List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVAggregateReport(ssv, curUser);
+        iList.forEach(i -> {
+            int idx = ssvoList.indexOf(new StockStatusVerticalAggregateOutput(i.getInventoryDate()));
+            if (idx != -1) {
+                ssvoList.get(idx).getInventoryInfo().add(i);
+            }
+        });
         return ssvoList;
     }
 

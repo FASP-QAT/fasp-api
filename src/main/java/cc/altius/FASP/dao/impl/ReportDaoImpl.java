@@ -113,6 +113,7 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -354,7 +355,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("viewBy", ssv.getViewBy());
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programIds", ssv.getProgramIdsString());
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId)", params, new StockStatusVerticalAggregateOutputRowMapper());
+        params.put("versionId", (ssv.getProgramIds().length > 1 ? -1 : ssv.getVersionId()));
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId, :versionId)", params, new StockStatusVerticalAggregateOutputRowMapper());
     }
 
     // Report no 16
@@ -402,10 +404,10 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
-        params.put("versionId", ssv.getVersionId());
+        params.put("versionId", (ssv.getProgramIds().length > 1 ? -1 : ssv.getVersionId()));
         params.put("programIds", ssv.getProgramIdsString());
         params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVAggregateReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new ConsumptionInfoRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVAggregateReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :versionId)", params, new ConsumptionInfoRowMapper());
     }
 
     // Report no 16a
@@ -428,9 +430,10 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", ssv.getStartDate());
         params.put("stopDate", ssv.getStopDate());
         params.put("viewBy", ssv.getViewBy());
+        params.put("versionId", (ssv.getProgramIds().length > 1 ? -1 : ssv.getVersionId()));
         params.put("programIds", ssv.getProgramIdsString());
         params.put("reportingUnitIds", ssv.getReportingUnitIdsString());
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVAggregateReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy)", params, new InventoryInfoRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVAggregateReport(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :versionId)", params, new InventoryInfoRowMapper());
     }
 
     // Report no 16b
