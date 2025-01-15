@@ -1,0 +1,6 @@
+
+CREATE DATABASE  IF NOT EXISTS `fasp` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+CREATE USER 'faspUser'@'%' IDENTIFIED BY 'faspP@ssw0rd';
+GRANT ALL PRIVILEGES ON fasp.* TO 'faspUser'@'%';
+GRANT CREATE VIEW, CREATE ROUTINE ON fasp.* TO 'faspUser'@'%';
+
