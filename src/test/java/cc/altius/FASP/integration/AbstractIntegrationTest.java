@@ -74,50 +74,13 @@ public abstract class AbstractIntegrationTest {
                 .webAppContextSetup(context)
                 .build();
     }
-    /**
-     * Testcontainers-managed MySQL container for integration testing.
-     */
-    @Container
-    private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
-            .withDatabaseName("fasp")
-            .withUsername("root")
-            .withPassword("root")
-            .waitingFor(Wait.forListeningPort());
 
     /**
      * Starts the MySQL container and initializes the schema before running tests.
      */
     @BeforeAll
     public static void start() {
-        mysql.start();
-        try (Connection connection = DriverManager.getConnection(
-                mysql.getJdbcUrl(),
-                mysql.getUsername(),
-                mysql.getPassword())) {
-            String schemaSql = Files.readString(Path.of("src/main/resources/db/changelog/schema.sql"));
-            try (Statement statement = connection.createStatement()) {
-                for (String sql : schemaSql.split(";")) {
-                    if (!sql.trim().isEmpty()) {
-                        statement.execute(sql.trim());
-                    }
-                }
-            }
-            try (Statement statement = connection.createStatement()) {
-                String setSqlMode = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))";
-                statement.execute(setSqlMode);
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
-     * Stops the MySQL container after all tests are completed.
-     */
-    @AfterAll
-    public static void stop() {
-        mysql.stop();
+        TestMySQLContainer.getInstance();
     }
 
     /**
@@ -127,6 +90,7 @@ public abstract class AbstractIntegrationTest {
      */
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
+        TestMySQLContainer mysql = TestMySQLContainer.getInstance();
         registry.add("spring.datasource.url", mysql::getJdbcUrl);
         registry.add("spring.datasource.username", mysql::getUsername);
         registry.add("spring.datasource.password", mysql::getPassword);
