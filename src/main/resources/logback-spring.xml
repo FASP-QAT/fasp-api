@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property resource="application.properties" />
+    <springProperty scope="context" name="qat.homeFolder" source="qat.homeFolder"/>
+    <springProperty scope="context" name="qat.logfilePath" source="qat.logfilePath"/>
     <property name="LOGS" value="${qat.homeFolder}${qat.logfilePath}" />
-<!--    <property name="jdbcUrl" value="${spring.datasource.url}"/>
-    <property name="jdbcUsername" value="${spring.datasource.username}"/>
-    <property name="jdbcPassword" value="${spring.datasource.password}"/>-->
     
     <appender name="RootConsole" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
