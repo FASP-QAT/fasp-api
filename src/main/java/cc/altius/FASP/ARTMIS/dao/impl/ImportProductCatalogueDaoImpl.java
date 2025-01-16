@@ -779,7 +779,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductIdNoPack, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductIdNoPack, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIdNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
         sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
