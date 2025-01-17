@@ -133,5 +133,9 @@
     <logger name="cc.altius.FASP.model.Emailer" level="info" additivity="false">
         <appender-ref ref="EmailFile" />
     </logger>
+
+    <logger name="org.flywaydb" level="info" additivity="false">
+        <appender-ref ref="FaspFile" />
+    </logger>
     
 </configuration>

@@ -1,9 +1,7 @@
 package cc.altius.FASP.integration;
 
 import org.testcontainers.containers.MySQLContainer;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,31 +22,26 @@ public class TestMySQLContainer extends MySQLContainer<TestMySQLContainer> {
                     .withUrlParam("useSSL", "false")
                     .withUrlParam("allowPublicKeyRetrieval", "true")
                     .withUrlParam("autoReconnect", "true")
+                    .withInitScript("db/init/schema-and-data.sql")
                     .withExposedPorts(3306);
             container.start();
             initializeDatabase(container);
         }
         return container;
     }
+    
     private static void initializeDatabase(MySQLContainer<?> mysql) {
         try (Connection connection = DriverManager.getConnection(
                 mysql.getJdbcUrl(),
                 mysql.getUsername(),
                 mysql.getPassword())) {
-            String schemaSql = Files.readString(Path.of("src/test/resources/testdata/sql/schema.sql"));
-            try (Statement statement = connection.createStatement()) {
-                for (String sql : schemaSql.split(";")) {
-                    if (!sql.trim().isEmpty()) {
-                        statement.execute(sql.trim());
-                    }
-                }
-            }
+            // this needs to be done here as it's not persisted in the container from the init script
             try (Statement statement = connection.createStatement()) {
                 String setSqlMode = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))";
                 statement.execute(setSqlMode);
             }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException("Failed to initialize database schema", e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to initialize the database", e);
         }
     }
 }
