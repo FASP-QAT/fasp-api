@@ -13,33 +13,6 @@ target/
 nbdist/
 .nb-gradle/
 
-# End of https://www.gitignore.io/api/netbeans
-
-# Created by https://www.gitignore.io/api/netbeans
-# Edit at https://www.gitignore.io/?templates=netbeans
-
-### NetBeans ###
-**/nbproject/private/
-**/nbproject/Makefile-*.mk
-**/nbproject/Package-*.bash
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-nbactions.xml
-# End of https://www.gitignore.io/api/netbeans
-/src/main/resources/fasp - db design.mwb.bak
-/src/main/resources/fasp - db design(2).mwb
-/src/main/resources/fasp - db design2.mwb
-src/main/resources/fasp - db design2.mwb
-src/main/resources/fasp - db design2.mwb.bak
-/src/main/resources/fasp - db design2.mwb.bak
-/target/
-docs/
-HELP.md
-README.md
-
 # Mac
 .DS_Store
 
@@ -48,3 +21,6 @@ README.md
 
 # VS Code
 .vscode
+
+# IntellJ
+.idea
