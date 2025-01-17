@@ -1,0 +1,59 @@
+name: Continuous Integration Pipeline
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - '**.json'
+      - '**.properties'
+      - '**.xml'
+      - '**.sql'
+      - '**.csv'
+      - '**.zip'
+      - 'docs/**'
+      - '.gitignore'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run Tests
+      run: mvn test
+
+    - name: Upload JaCoCo reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-reports
+        path: target/site/jacoco/
+
+    - name: Setup Code Climate
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        ./cc-test-reporter before-build
+    - name: Run Code Climate Analysis
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: |
+        JACOCO_SOURCE_PATH=src/main/java ./cc-test-reporter format-coverage target/site/jacoco/jacoco.xml --input-type jacoco
+        ./cc-test-reporter upload-coverage
