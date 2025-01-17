@@ -1,7 +1,6 @@
-package cc.altius.FASP.integration;
+package cc.altius.FASP.jwt.resource;
 
-
-import cc.altius.FASP.jwt.resource.JwtTokenRequest;
+import cc.altius.FASP.integration.AbstractIntegrationTest;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.service.UserService;
 import org.junit.jupiter.api.Test;

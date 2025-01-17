@@ -7,7 +7,6 @@ import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.UserService;
 import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,18 +18,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * AbstractIntegrationTest serves as the base class for integration tests in the application.
@@ -95,7 +83,6 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.username", mysql::getUsername);
         registry.add("spring.datasource.password", mysql::getPassword);
         registry.add("spring.datasource.driver-class-name", mysql::getDriverClassName);
-
     }
 
     /**

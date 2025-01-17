@@ -1,11 +1,11 @@
-package cc.altius.FASP.service;
+package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
-import cc.altius.FASP.service.impl.UserServiceImpl;
+import cc.altius.FASP.service.AclService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
