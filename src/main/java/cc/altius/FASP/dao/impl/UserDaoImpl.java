@@ -950,7 +950,7 @@ public class UserDaoImpl implements UserDao {
 //        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
 //            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
 //        }
-        sb.append(" ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
+        sb.append(" group by u.`USER_ID`,acl.`ROLE_ID`,aclrc.`REALM_COUNTRY_ID`,aclha.`HEALTH_AREA_ID`,aclo.`ORGANISATION_ID`,aclp.`PROGRAM_ID` ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserAclRowMapper());
     }
