@@ -67,6 +67,6 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Adjusted Consumption = (Actual consumption * Days in month) / (Days in Month – Days Stocked out)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,3138,2,'Consommation ajustée = (Consommation réelle * Jours dans le mois) / (Jours dans le mois – Jours de rupture de stock)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,3138,3,'Consumo ajustado = (Consumo real * Días del mes) / (Días del mes – Días de agotamiento de existencias)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,3138,4,'Consumo Ajustado = (Consumo real * Dias do mês) / (Dias do mês – Dias sem stock)');-- pr
