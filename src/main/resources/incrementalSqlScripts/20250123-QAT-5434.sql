@@ -389,3 +389,29 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si le rapport comprend
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se o relatório incluir vários programas ou unidades de planejamento, o QAT usará a média da quantidade mínima/máxima do programa e das unidades de planejamento selecionadas.');-- pr
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si el informe incluye varios programas o unidades de planificación, QAT utilizará el promedio de la cantidad mínima/máxima de las unidades de planificación y programas seleccionados.');-- sp
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlan.unmetDemandDef','1');
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Occurs when the ending balance is \'0\' and part of consumption was unmet, or when adjusted consumption accounts for days stocked out. Unmet demand can also happen when a negative manual adjustment is larger than the projected ending balance.');-- en
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Se produit lorsque le solde final est « 0 » et qu\'une partie de la consommation n\'est pas satisfaite, ou lorsque la consommation ajustée tient compte des jours de rupture de stock. Une demande non satisfaite peut également survenir lorsqu’un ajustement manuel négatif est supérieur au solde final projeté.');-- fr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocorre quando o saldo final é \'0\' e parte do consumo não foi atendida, ou quando o consumo ajustado contabiliza dias de falta de estoque. A procura não satisfeita também pode ocorrer quando um ajustamento manual negativo é superior ao saldo final projetado.');-- pr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocurre cuando el saldo final es \'0\' y parte del consumo no se cumplió, o cuando el consumo ajustado contabiliza los días desabastecidos. La demanda insatisfecha también puede ocurrir cuando un ajuste manual negativo es mayor que el saldo final proyectado.');-- sp
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.supplyPlanFormula.amcDef','1');
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Uses adjusted consumption when available, factoring in the number of days stocked out and actual consumption.');-- en
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilise la consommation ajustée lorsqu’elle est disponible, en tenant compte du nombre de jours de rupture de stock et de la consommation réelle.');-- fr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Utiliza o consumo ajustado quando disponível, considerando o número de dias de falta de estoque e o consumo real.');-- pr
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utiliza el consumo ajustado cuando está disponible, teniendo en cuenta el número de días sin existencias y el consumo real.');-- sp
