@@ -18,6 +18,7 @@ import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitD
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
+import cc.altius.FASP.model.PlanningUnitDraft;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
@@ -279,4 +280,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getListOfFcProgramsForPlanningUnitId(planningUnitId, active, curUser);
     }
 
+    @Override
+    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser) {
+        return this.planningUnitDao.getDraftPlanningUnits(curUser);
+    }
 }

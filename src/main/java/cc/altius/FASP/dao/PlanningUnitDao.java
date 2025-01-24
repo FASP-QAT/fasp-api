@@ -13,6 +13,7 @@ import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.PlanningUnit;
+import cc.altius.FASP.model.PlanningUnitDraft;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
@@ -87,4 +88,6 @@ public interface PlanningUnitDao {
     public List<SimpleCodeObject> getListOfSpProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
+
+    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser);
 }

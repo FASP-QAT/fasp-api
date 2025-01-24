@@ -16,6 +16,7 @@ import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitD
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.PlanningUnit;
+import cc.altius.FASP.model.PlanningUnitDraft;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
@@ -23,6 +24,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimplePlanningUnitWithPrices;
+import cc.altius.FASP.model.rowMapper.PlanningUnitDraftRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitWithCountRowMapper;
@@ -739,4 +741,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 //        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
 //    }
 
+    @Override
+    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser) {
+        StringBuilder stringBuilder = new StringBuilder("SELECT pud.ProductName FROM rm_planning_unit_draft pud WHERE pud.ACTION is NULL");
+        Map<String, Object> params = new HashMap<>();
+        //this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new PlanningUnitDraftRowMapper());
+    }
 }
