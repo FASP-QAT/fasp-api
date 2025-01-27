@@ -90,6 +90,6 @@ public interface PlanningUnitService {
 
     public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
-    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser);
+    public List<PlanningUnitDraft> getDraftPlanningUnits();
 
 }

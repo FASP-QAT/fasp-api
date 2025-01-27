@@ -742,10 +742,18 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 //    }
 
     @Override
-    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser) {
-        StringBuilder stringBuilder = new StringBuilder("SELECT pud.ProductName FROM rm_planning_unit_draft pud WHERE pud.ACTION is NULL");
-        Map<String, Object> params = new HashMap<>();
-        //this.aclService.addUserAclForRealm(stringBuilder, params, "fu", curUser);
-        return this.namedParameterJdbcTemplate.query(stringBuilder.toString(), params, new PlanningUnitDraftRowMapper());
+    public List<PlanningUnitDraft> getDraftPlanningUnits() {
+        String stringBuilder = "SELECT pud.*, " +
+                "cb.USER_ID as CB_USER_ID, " +
+                "cb.USERNAME as CB_USERNAME, " +
+                "lmb.USER_ID as LMB_USER_ID, " +
+                "lmb.USERNAME as LMB_USERNAME, " +
+                "pud.ACTIVE, " +
+                "pud.CREATED_DATE, " +
+                "pud.LAST_MODIFIED_DATE " +
+                "FROM rm_planning_unit_draft pud " +
+                "LEFT JOIN us_user cb ON pud.CREATED_BY = cb.USER_ID " +
+                "LEFT JOIN us_user lmb ON pud.LAST_MODIFIED_BY = lmb.USER_ID ";
+        return this.namedParameterJdbcTemplate.query(stringBuilder, new HashMap<>(), new PlanningUnitDraftRowMapper());
     }
 }

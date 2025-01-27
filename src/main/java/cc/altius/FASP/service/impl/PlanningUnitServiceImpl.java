@@ -281,7 +281,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<PlanningUnitDraft> getDraftPlanningUnits(CustomUserDetails curUser) {
-        return this.planningUnitDao.getDraftPlanningUnits(curUser);
+    public List<PlanningUnitDraft> getDraftPlanningUnits() {
+        return this.planningUnitDao.getDraftPlanningUnits();
     }
 }

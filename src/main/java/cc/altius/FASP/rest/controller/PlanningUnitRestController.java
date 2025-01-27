@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -893,14 +894,13 @@ public class PlanningUnitRestController {
         summary = "Get Draft Planning Units",
         description = "Retrieve a list of draft planning units"
     )
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of draft planning units")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this planning unit")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified planning unit")
-    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
-    public ResponseEntity getDraftPlanningUnits(Authentication auth) {
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = PlanningUnit.class))), responseCode = "200", description = "Returns a list of draft planning units")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this planning unit")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "No planning units found for the specified planning unit")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit")
+    public ResponseEntity getDraftPlanningUnits() {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.planningUnitService.getDraftPlanningUnits(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getDraftPlanningUnits(), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404

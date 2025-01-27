@@ -113,11 +113,7 @@ public class PlanningUnitDraftRowMapper implements RowMapper<PlanningUnitDraft> 
         draft.setEuro2(rs.getString("Euro2"));
         
         // Map audit fields
-        draft.setActive(rs.getBoolean("ACTIVE"));
-        draft.setCreatedBy(new BasicUserRowMapper().mapRow(rs, rowNum));
-        draft.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
-        draft.setLastModifiedBy(new BasicUserRowMapper().mapRow(rs, rowNum));
-        draft.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+        draft.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         
         return draft;
     }

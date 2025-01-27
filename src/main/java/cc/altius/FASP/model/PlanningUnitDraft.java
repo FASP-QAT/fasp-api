@@ -1,12 +1,11 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import java.io.Serializable;
 
 /**
  * POJO representing a draft planning unit record
  */
-public class PlanningUnitDraft extends BaseModel implements Serializable {
+public class PlanningUnitDraft extends BaseModel {
 
     @JsonView(Views.InternalView.class)
     private int planningUnitDraftId;
