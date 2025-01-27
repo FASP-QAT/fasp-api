@@ -22,6 +22,7 @@ public class StockStatusVerticalInput implements Serializable {
 
     private boolean aggregate; // True if you want the results to be aggregated and False if you want Individual Supply Plans for the Multi-Select information
     private int[] programIds; // Will be used when singleProgram is false
+    private int versionId; // Will be used only when aggregate is false and only one program is provided. If versionId is -1 then take the latest version
     @JsonIgnore
     private int programId; // Will be used only if aggregate is false
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -35,6 +36,10 @@ public class StockStatusVerticalInput implements Serializable {
     @JsonIgnore
     private int reportingUnitId; // Will be used only if aggregate is false
     private int equivalencyUnitId; // actual equivalencyUnitId if the output should be in equivalencyUnit or 0 if it is PU or ARU
+
+    public StockStatusVerticalInput() {
+        versionId = -1;
+    }
 
     public boolean isAggregate() {
         return aggregate;
@@ -58,6 +63,14 @@ public class StockStatusVerticalInput implements Serializable {
 
     public void setProgramIds(int[] programIds) {
         this.programIds = programIds;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
     public Date getStartDate() {
