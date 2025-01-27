@@ -415,7 +415,7 @@ DROP procedure IF EXISTS `fasp`.`stockStatusReportVerticalAggregated`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10), VAR_MULTIPLE_PROGRAMS TINYINT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16 Aggregated
@@ -428,6 +428,7 @@ BEGIN
     SET @varViewBy = VAR_VIEW_BY; -- 1 for PU, 2 for ARU
     SET @varEquivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID; -- Non zero if the report is to be showing in terms of equivalencyUnitId
     SET @versionId = VAR_VERSION_ID;
+    SET @varMultiplePrograms = VAR_MULTIPLE_PROGRAMS;
 
     DROP TEMPORARY TABLE IF EXISTS `tmp_supply_plan_amc`;
     CREATE TEMPORARY TABLE `tmp_supply_plan_amc` (
@@ -459,9 +460,9 @@ BEGIN
       KEY `idx_rm_supply_plan_amc_transDate` (`TRANS_DATE`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
-    IF @varVersionId = -1 THEN
-        SELECT MAX(pv.VERSION_ID) INTO @varVersionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@varProgramId;
-    END IF;
+--     IF @varVersionId = -1 AND @varMultiplePrograms = false THEN
+--         SELECT MAX(pv.VERSION_ID) INTO @varVersionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@varProgramIds;
+--     END IF;
     
     IF @varViewBy = 1 THEN
         SET @varPlanningUnitIds = @varReportingUnitIds;
@@ -504,11 +505,10 @@ BEGIN
         sma.`UNMET_DEMAND`,
         sma.`NATIONAL_ADJUSTMENT`
     FROM vw_program p 
-    LEFT JOIN rm_supply_plan_amc sma  ON p.PROGRAM_ID=sma.PROGRAM_ID 
+    LEFT JOIN rm_supply_plan_amc sma  ON p.PROGRAM_ID=sma.PROGRAM_ID AND (((@varMultiplePrograms = 0 AND @versionId = -1) AND sma.VERSION_ID=@versionId) OR (sma.VERSION_ID=p.CURRENT_VERSION_ID))
     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=sma.PLANNING_UNIT_ID
     WHERE 
         FIND_IN_SET(p.PROGRAM_ID, @varProgramIds) 
-        AND sma.VERSION_ID = @varVersionId
         AND FIND_IN_SET(sma.PLANNING_UNIT_ID, @varPlanningUnitIds) 
         AND sma.TRANS_DATE BETWEEN @varStartDate AND @varStopDate AND ppu.ACTIVE;
 

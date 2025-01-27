@@ -113,7 +113,6 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -356,7 +355,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("equivalencyUnitId", ssv.getEquivalencyUnitId());
         params.put("programIds", ssv.getProgramIdsString());
         params.put("versionId", (ssv.getProgramIds().length > 1 ? -1 : ssv.getVersionId()));
-        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId, :versionId)", params, new StockStatusVerticalAggregateOutputRowMapper());
+        params.put("multiplePrograms", ssv.getProgramIds().length > 1 ? (Integer) 1 : (Integer) 0);
+        return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVerticalAggregated(:startDate, :stopDate, :programIds, :reportingUnitIds, :viewBy, :equivalencyUnitId, :versionId, :multiplePrograms)", params, new StockStatusVerticalAggregateOutputRowMapper());
     }
 
     // Report no 16
