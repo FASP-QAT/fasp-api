@@ -92,4 +92,9 @@ public interface PlanningUnitService {
 
     public List<PlanningUnitDraft> getDraftPlanningUnits();
 
+    public int processDraftPlanningUnits(List<PlanningUnitDraft> planningUnitDrafts, CustomUserDetails curUser);
+
+    public int addDraftPlanningUnit(PlanningUnitDraft planningUnitDraft);
+
+    public int updateDraftPlanningUnit(PlanningUnitDraft planningUnitDraft);
 }

@@ -543,6 +543,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info(rows + " matched with the ap_unit table");
         sb.append(rows).append(" matched with the ap_unit table").append(br);
 
+        // TODO: change code below to insert into the draft planning unit table instead of the unit table so
+        // that we can allow the user to merge the planning unit with an existing planningunit manually
+
         logger.info("Setting the Dimension for any new rows to 3 - Eaches, rows updated:" + this.jdbcTemplate.update("UPDATE tmp_unit tu SET tu.DIMENSION_ID=3 WHERE tu.UNIT_ID IS NULL and tu.FOUND=0"));
 
         sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
@@ -627,6 +630,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " existing labels found");
         sb.append(rows).append(" existing labels found").append(br);
+
+        // TODO: change code below to insert into the draft planning unit table instead of the tracer category table so
+        // that we can allow the user to merge the planning unit with an existing planning unit manually
 
         // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
         sqlString = "SELECT "
@@ -814,6 +820,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     + "where tfu.GENERIC_LABEL=?";
             this.jdbcTemplate.update(sqlString, labelId, genericLabel);
         }
+
+        // TODO: change code below to insert into the draft planning unit table instead of the forecasting unit table so
+        // that we can allow the user to merge the forecasting unit with an existing unit manually
 
         sqlString = "SELECT null FORECASTING_UNIT_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
                 + " fu.LABEL_ID, fu.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
@@ -1008,6 +1017,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info(rows + " Planning units matched");
         sb.append(rows).append(" Planning units matched").append(br);
 
+        // TODO: change code below to insert into the draft planning unit table instead of the planning unit table so
+        // that we can allow the user to merge the forecasting unit with an existing unit manually
+
         sqlString = "SELECT tpu.*, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=0 AND tpu.DUPLICATE=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         SimpleJdbcInsert siPlanningUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
@@ -1170,6 +1182,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "WHERE s.REALM_ID=1 AND s.SUPPLIER_ID IS NOT NULL";
         this.jdbcTemplate.update(sqlString);
 
+        // TODO: change code below to insert into the draft planning unit table instead of the suppler so
+        // that we can allow the user to merge the planning unit with an existing unit manually
+
         sqlString = "SELECT s.SUPPLIER_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
                 + " s.LABEL_ID, s.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
                 + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
@@ -1291,6 +1306,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " procurment units already existed");
         sb.append(rows).append(" procurment units already existed").append(br);
+
+        // TODO: change code below to insert into the draft planning unit table instead of the procurement agent procurement unit table so
+        // that we can allow the user to merge the procurement unit with an existing unit manually
 
         sqlString = "SELECT tpu.* FROM tmp_procurement_unit tpu WHERE tpu.FOUND=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");

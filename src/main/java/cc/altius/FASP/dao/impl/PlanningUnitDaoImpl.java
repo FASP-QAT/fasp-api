@@ -753,7 +753,33 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 "pud.LAST_MODIFIED_DATE " +
                 "FROM rm_planning_unit_draft pud " +
                 "LEFT JOIN us_user cb ON pud.CREATED_BY = cb.USER_ID " +
-                "LEFT JOIN us_user lmb ON pud.LAST_MODIFIED_BY = lmb.USER_ID ";
+                "LEFT JOIN us_user lmb ON pud.LAST_MODIFIED_BY = lmb.USER_ID " +
+                "WHERE pud.ACTION IS NULL";
         return this.namedParameterJdbcTemplate.query(stringBuilder, new HashMap<>(), new PlanningUnitDraftRowMapper());
+    }
+
+    @Override
+    public int processDraftPlanningUnits(List<PlanningUnitDraft> planningUnitDrafts, CustomUserDetails curUser) {
+        // TODO: Process the draft planning units once the user has indicated the action to be performed.
+        // The UI will send a list of updated PlanningUnitDraft objects
+        // The list will contain the planning unit id, the action to be performed, and the mapping planning unit id (which can be NULL)
+        // The action will be IGNORE, MERGE, CREATE or NULL
+        // If the action is IGNORE, the draft planning unit and forecasting unit will be ignored
+        // If the action is MERGE, the draft planning unit and forecasting unit will be merged with existing units (specified by the mapping planning unit id)
+        // If the action is CREATE, the draft planning unit and forecasting unit will be created as new units
+        // If the action is NULL, then no additional action is performed after the update and the draft planning unit is skipped for now
+        return 0;
+    }
+
+    @Override
+    public int addDraftPlanningUnit(PlanningUnitDraft planningUnitDraft) {
+        // TODO: Insert a record into the rm_planning_unit_draft table when a new planning unit is detected in the import from ARTEMIS
+        return -1;
+    }
+
+    @Override
+    public int updateDraftPlanningUnit(PlanningUnitDraft planningUnitDraft) {
+        // TODO: Update the rm_planning_unit_draft table (for example if an update to a draft planning unit is received from ARTEMIS)
+        return -1;
     }
 }

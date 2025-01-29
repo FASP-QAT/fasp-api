@@ -284,4 +284,19 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     public List<PlanningUnitDraft> getDraftPlanningUnits() {
         return this.planningUnitDao.getDraftPlanningUnits();
     }
+
+    @Override
+    public int processDraftPlanningUnits(List<PlanningUnitDraft> planningUnitDrafts, CustomUserDetails curUser) {
+        return this.planningUnitDao.processDraftPlanningUnits(planningUnitDrafts, curUser);
+    }
+
+    @Override
+    public int addDraftPlanningUnit(PlanningUnitDraft planningUnitDraft) {
+        return this.planningUnitDao.addDraftPlanningUnit(planningUnitDraft);
+    }
+
+    @Override
+    public int updateDraftPlanningUnit(PlanningUnitDraft planningUnitDraft) {
+        return this.planningUnitDao.updateDraftPlanningUnit(planningUnitDraft);
+    }
 }

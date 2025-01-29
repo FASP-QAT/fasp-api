@@ -90,4 +90,10 @@ public interface PlanningUnitDao {
     public List<SimpleCodeObject> getListOfFcProgramsForPlanningUnitId(int planningUnitId, boolean active, CustomUserDetails curUser);
 
     public List<PlanningUnitDraft> getDraftPlanningUnits();
+
+    public int processDraftPlanningUnits(List<PlanningUnitDraft> planningUnitDrafts, CustomUserDetails curUser);
+
+    public int addDraftPlanningUnit(PlanningUnitDraft planningUnitDraft);
+
+    public int updateDraftPlanningUnit(PlanningUnitDraft planningUnitDraft);
 }

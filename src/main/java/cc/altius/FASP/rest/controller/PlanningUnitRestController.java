@@ -10,6 +10,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.PlanningUnitDraft;
 import cc.altius.FASP.model.PlanningUnitWithCount;
 import cc.altius.FASP.model.PlanningUnitWithPrices;
 import cc.altius.FASP.model.ResponseCode;
@@ -910,6 +911,40 @@ public class PlanningUnitRestController {
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
+
+    @PutMapping("/draft")
+    @Operation(
+        summary = "Process Draft Planning Units",
+        description = "Create, merge, or ignore planning units received from ARTEMIS"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "The list of draft planning units to process",
+        required = true,
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            array = @ArraySchema(schema = @Schema(implementation = PlanningUnitDraft.class))
+        )
+    )
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update draft planning units")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating draft planning units")
+    public ResponseEntity processDraftPlanningUnits(@RequestBody List<PlanningUnitDraft> draftPlanningUnits, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
+                ((CustomUserDetails) auth.getPrincipal()).getUserId(),
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI()
+            );
+            this.planningUnitService.processDraftPlanningUnits(draftPlanningUnits, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to process draft planning units", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to process draft planning units", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 }
