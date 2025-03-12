@@ -39,7 +39,9 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
+import cc.altius.FASP.model.DTO.rowMapper.ProgramPlanningUnitDTORowMapper;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.SimpleObjectWithFu;
@@ -2103,7 +2105,9 @@ public class ProgramDaoImpl implements ProgramDao {
 //            int rowsUpdated = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
 //            logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
 //
-////            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
+    
+
+    ////            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
 //            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
 //                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
 //                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
@@ -3016,7 +3020,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    pu.FORECASTING_UNIT_ID "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE "
-                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID " 
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "WHERE FIND_IN_SET(p.PROGRAM_ID, :programIds) AND pu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", ArrayUtils.convertArrayToString(ssvdi.getProgramIds()));
@@ -3045,6 +3049,12 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
+    }
+
+    @Override
+    public List<ProgramPlanningUnitDTO> getProgramPlanningUnitIdsList() {
+        StringBuilder sb = new StringBuilder("SELECT p.PROGRAM_ID, pu.PLANNING_UNIT_ID FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID where p.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE");
+        return this.jdbcTemplate.query(sb.toString(), new ProgramPlanningUnitDTORowMapper());
     }
 
 }

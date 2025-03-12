@@ -22,6 +22,7 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
@@ -629,6 +630,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser) {
         return this.programDao.getFundingSourceIdsForProgramId(programId, curUser);
+    }
+
+    @Override
+    public List<ProgramPlanningUnitDTO> getProgramPlanningUnitIdsList() {
+        return this.programDao.getProgramPlanningUnitIdsList();
     }
 
 }

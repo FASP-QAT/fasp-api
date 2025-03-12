@@ -11,6 +11,7 @@ import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.HealthAreaAndRealmCountryDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.ForecastTree;
@@ -147,5 +148,7 @@ public interface ProgramService {
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
 
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
+    
+    public List<ProgramPlanningUnitDTO> getProgramPlanningUnitIdsList();
 
 }

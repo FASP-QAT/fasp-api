@@ -7,10 +7,13 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramPlanningUnitDTO;
 import cc.altius.FASP.model.ManualIntegration;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.SimpleProgram;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
@@ -48,6 +51,7 @@ import cc.altius.FASP.model.report.ShipmentDetailsInput;
 import cc.altius.FASP.model.report.ShipmentDetailsOutput;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandInput;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandOutput;
+import cc.altius.FASP.model.report.ShipmentInfo;
 import cc.altius.FASP.model.report.ShipmentOverviewInput;
 import cc.altius.FASP.model.report.ShipmentOverviewOutput;
 import cc.altius.FASP.model.report.ShipmentReportInput;
@@ -62,8 +66,9 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
-import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
+import cc.altius.FASP.model.report.StockStatusVertical;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
+import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.UpdateProgramInfoOutput;
@@ -72,6 +77,7 @@ import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.IntegrationProgramService;
+import cc.altius.FASP.service.PlanningUnitService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
@@ -82,6 +88,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +126,8 @@ public class ReportRestController {
     private UserService userService;
     @Autowired
     private ProgramService programService;
+    @Autowired
+    private PlanningUnitService planningUnitService;
     @Autowired
     private IntegrationProgramService integrationProgramService;
 
@@ -731,6 +742,56 @@ public class ReportRestController {
         }
     }
 
+//    //     Report no 16 | Supply Planning -> Supply Plan Report
+//    /**
+//     * <pre>
+//     * Sample JSON
+//     * {"programId":2164, "versionId":1, "startDate":"2019-10-01", "stopDate":"2020-07-01", "unitIds":["152"], viewBy:1}
+//     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":["152"]}
+//     * </pre>
+//     *
+//     * @param ssvi
+//     * @param auth
+//     * @return
+//     */
+//    // ActualConsumption = 0 -- Forecasted Consumption
+//    // ActualConsumption = 1 -- Actual Consumption
+//    // ActualConsumption = null -- No consumption data
+//    @JsonView(Views.ReportView.class)
+//    @PostMapping(value = "/stockStatusVertical")
+//    @Operation(
+//            summary = "Get Stock Status Vertical Report",
+//            description = "Retrieve the stock status vertical report"
+//    )
+//    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//            description = "The stock status vertical input",
+//            required = true,
+//            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusVerticalInput.class))
+//    )
+//    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the stock status vertical report")
+//    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
+//    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+//            if (ssvi.isAggregate()) {
+//                // Respond with Aggregated output
+//                StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
+//                ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
+//                ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
+//                return new ResponseEntity(ssv, HttpStatus.OK);
+//            } else {
+//                // Respond with Individual Program + PU/ARU reports
+//                // Map where Key is ProgramId~ReportingUnitId
+//                return new ResponseEntity(this.reportService.getStockStatusVerticalIndividual(ssvi, curUser), HttpStatus.OK);
+//            }
+//        } catch (AccessControlFailedException e) {
+//            logger.error("/api/report/stockStatusVertical", e);
+//            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
+//        } catch (Exception e) {
+//            logger.error("/api/report/stockStatusVertical", e);
+//            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+//        }
+//    }
     //     Report no 16 | Supply Planning -> Supply Plan Report
     /**
      * <pre>
@@ -759,20 +820,110 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the stock status vertical report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssvi, Authentication auth) {
+    public ResponseEntity getStockStatusVertical(Authentication auth) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
+            FileWriter fw = new FileWriter("/home/ubuntu/QAT/AllSupplyPlans.csv");
+            StringBuilder header = new StringBuilder();
+            header
+                    .append("Program").append("\t")
+                    .append("Planning Unit").append("\t")
+                    .append("Date").append("\t")
+                    .append("Opening Bal").append("\t")
+                    .append("Forecast Qty").append("\t")
+                    .append("Actual Qty").append("\t")
+                    .append("Shipment Qty").append("\t")
+                    .append("Shipment Info").append("\t")
+                    .append("Adjustment Qty").append("\t")
+                    .append("Expired Qty").append("\t")
+                    .append("Closing Bal").append("\t")
+                    .append("AMC").append("\t")
+                    .append("MoS").append("\t")
+                    .append("Unmet demand").append("\t")
+                    .append("AMC (months in future/past)").append("\t")
+                    .append("Min MoS").append("\t")
+                    .append("Shelf life").append("\t")
+                    .append("Max MoS").append("\t")
+                    .append("Reorder interval").append("\r\n");
+            fw.write(header.toString());
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            if (ssvi.isAggregate()) {
-                // Respond with Aggregated output
-                StockStatusVerticalAggregateOutputWithPuList ssv = new StockStatusVerticalAggregateOutputWithPuList();
-                ssv.setProgramPlanningUnitList(this.reportService.getPlanningUnitListForStockStatusVerticalAggregate(ssvi, curUser));
-                ssv.setStockStatusVerticalAggregate(this.reportService.getStockStatusVerticalAggregate(ssvi, curUser));
-                return new ResponseEntity(ssv, HttpStatus.OK);
-            } else {
-                // Respond with Individual Program + PU/ARU reports
-                // Map where Key is ProgramId~ReportingUnitId
-                return new ResponseEntity(this.reportService.getStockStatusVerticalIndividual(ssvi, curUser), HttpStatus.OK);
+            for (ProgramPlanningUnitDTO ppu : this.programService.getProgramPlanningUnitIdsList()) {
+                StockStatusVerticalInput ssvi = new StockStatusVerticalInput();
+                ssvi.setStartDate(sdf.parse("2015-01-01"));
+                ssvi.setStopDate(sdf.parse("2030-12-01"));
+                ssvi.setProgramId(ppu.getProgramId());
+                ssvi.setProgramIds(new int[]{ppu.getProgramId()});
+                ssvi.setReportingUnitId(ppu.getPlanningUnitId());
+                ssvi.setReportingUnitIds(new int[]{ppu.getPlanningUnitId()});
+                ssvi.setVersionId(-1);
+                ssvi.setAggregate(false);
+                ssvi.setEquivalencyUnitId(0);
+                ssvi.setViewBy(1);
+                Map<String, StockStatusVerticalIndividualOutput> ssvo = this.reportService.getStockStatusVerticalIndividual(ssvi, curUser);
+                for (String key : ssvo.keySet()) {
+
+                    StockStatusVerticalIndividualOutput ssvio = ssvo.get(key);
+                    String[] keySplit = key.split("~");
+                    int programId = Integer.parseInt(keySplit[0]);
+                    int planningUnitId = Integer.parseInt(keySplit[1]);
+                    System.out.println("Starting SP for programId=" + programId + " and planningUnitId=" + planningUnitId);
+                    SimpleProgram program = this.programService.getSimpleProgramById(programId, curUser);
+                    PlanningUnit planningUnit = this.planningUnitService.getPlanningUnitById(planningUnitId, curUser);
+                    for (StockStatusVertical ssv : ssvio.getStockStatusVertical()) {
+                        StringBuilder sb = new StringBuilder()
+                                .append(program.getLabel().getLabel_en()).append("\t")
+                                .append(planningUnit.getLabel().getLabel_en()).append("\t")
+                                .append(sdf.format(ssv.getDt())).append("\t")
+                                .append(ssv.getOpeningBalance()).append("\t")
+                                .append(ssv.getForecastedConsumptionQty()).append("\t")
+                                .append(ssv.getActualConsumptionQty()).append("\t")
+                                .append(ssv.getShipmentQty()).append("\t");
+                        boolean isFirstShipment = true;
+                        for (ShipmentInfo si : ssv.getShipmentInfo()) {
+                            StringBuilder ssb = new StringBuilder();
+                            ssb
+                                    .append(si.getShipmentQty()).append(" | ")
+                                    .append(si.getFundingSource().getLabel().getLabel_en()).append(" | ")
+                                    .append(si.getShipmentStatus().getLabel().getLabel_en()).append(" | ")
+                                    .append(si.getProcurementAgent().getLabel().getLabel_en());
+                            if (si.getRoNo() != null && !si.getRoNo().isBlank()) {
+                                ssb.append(" | ").append(si.getRoNo().replaceAll("\n", "").replace("\r", ""));
+                                if (si.getRoPrimeLineNo() != null && !si.getRoPrimeLineNo().isBlank()) {
+                                    ssb.append(" - ").append(si.getRoPrimeLineNo().replaceAll("\n", "").replace("\r", ""));
+                                }
+                            }
+                            if (si.getOrderNo() != null && !si.getOrderNo().isBlank()) {
+                                ssb.append(" | ").append(si.getOrderNo().replaceAll("\n", "").replace("\r", ""));
+                                if (si.getPrimeLineNo() != null && !si.getPrimeLineNo().isBlank()) {
+                                    ssb.append(" - ").append(si.getPrimeLineNo().replaceAll("\n", "").replace("\r", ""));
+                                }
+                            }
+                            if (!isFirstShipment) {
+                                sb.append("; ");
+                            }
+                            sb.append(ssb);
+                            isFirstShipment = false;
+                        }
+                        sb
+                                .append("\t")
+                                .append(ssv.getAdjustment()).append("\t")
+                                .append(ssv.getExpiredStock()).append("\t")
+                                .append(ssv.getClosingBalance()).append("\t")
+                                .append(ssv.getAmc()).append("\t")
+                                .append(ssv.getMos()).append("\t")
+                                .append(ssv.getUnmetDemand()).append("\t")
+                                .append(ssvio.getMonthsInPastForAmc()).append("/").append(ssvio.getMonthsInFutureForAmc()).append("\t")
+                                .append(ssvio.getPlanBasedOn() == 1 ? ssvio.getMinMonthsOfStock() : ssvio.getMinQty()).append("\t")
+                                .append(ssvio.getShelfLife()).append("\t")
+                                .append(ssvio.getPlanBasedOn() == 1 ? ssvio.getMinMonthsOfStock() + ssvio.getReorderFrequencyInMonths() : (ssv.getAmc() != null ? ssvio.getMinQty() + ssvio.getReorderFrequencyInMonths() * ssv.getAmc() : "")).append("\t")
+                                .append(ssvio.getReorderFrequencyInMonths());
+                        sb.append("\r\n");
+                        fw.write(sb.toString());
+                    }
+                }
             }
+            fw.close();
+            return new ResponseEntity(HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
@@ -799,7 +950,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = DropdownsForStockStatusVerticalOutput.class))), responseCode = "200", description = "Returns the list of dropdowns for stock status vertical report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth) {
+    public ResponseEntity getDropdownsForStockStatusVertical(@RequestBody StockStatusVerticalDropdownInput ssvdi, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getDropdownsForStockStatusVertical(ssvdi, curUser), HttpStatus.OK);
@@ -844,7 +996,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusOverTimeOutput.class))), responseCode = "200", description = "Returns the stock status over time report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
+    public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
@@ -889,7 +1042,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrixOutput.class))), responseCode = "200", description = "Returns the stock status matrix report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
+    public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm, curUser), HttpStatus.OK);
@@ -933,7 +1087,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentDetailsOutput.class))), responseCode = "200", description = "Returns the shipment details report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
+    public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
@@ -971,7 +1126,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentOverviewOutput.class))), responseCode = "200", description = "Returns the shipment overview report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
+    public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
@@ -1009,7 +1165,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentGlobalDemandOutput.class))), responseCode = "200", description = "Returns the shipment global demand report")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
+    public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
@@ -1051,7 +1208,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = AnnualShipmentCostOutput.class))), responseCode = "200", description = "Returns the annual shipment cost report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
+    public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
@@ -1096,7 +1254,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ShipmentReportOutput.class))), responseCode = "200", description = "Returns the aggregate shipment by product report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
+    public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getAggregateShipmentByProduct(fsri, curUser), HttpStatus.OK);
@@ -1143,7 +1302,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusForProgramOutput.class))), responseCode = "200", description = "Returns the stock status for program report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
+    public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusForProgram(sspi, curUser), HttpStatus.OK);
@@ -1178,7 +1338,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BudgetReportOutput.class))), responseCode = "200", description = "Returns the budget report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
+    public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getBudgetReport(br, curUser), HttpStatus.OK);
@@ -1225,7 +1386,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusAcrossProductsOutput.class))), responseCode = "200", description = "Returns the stock status across products report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {
+    public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
@@ -1274,7 +1436,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastErrorOutput.class))), responseCode = "200", description = "Returns the forecast error report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getForecastError(@RequestBody ForecastErrorInputNew fei, Authentication auth) {
+    public ResponseEntity getForecastError(@RequestBody ForecastErrorInputNew fei, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
@@ -1313,7 +1476,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = MonthlyForecastOutput.class))), responseCode = "200", description = "Returns the monthly forecast report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getMonthlyForecast(@RequestBody MonthlyForecastInput mf, Authentication auth) {
+    public ResponseEntity getMonthlyForecast(@RequestBody MonthlyForecastInput mf, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getMonthlyForecast(mf, curUser), HttpStatus.OK);
@@ -1348,7 +1512,8 @@ public class ReportRestController {
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ForecastSummaryOutput.class))), responseCode = "200", description = "Returns the forecast summary report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
-    public ResponseEntity getForecastSummary(@RequestBody ForecastSummaryInput fs, Authentication auth) {
+    public ResponseEntity getForecastSummary(@RequestBody ForecastSummaryInput fs, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.reportService.getForecastSummary(fs, curUser), HttpStatus.OK);
@@ -1386,7 +1551,8 @@ public class ReportRestController {
     @Operation(description = "API used to get the report for Manual Json push", summary = "API used to get the report for Manual Json push")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ManualIntegration.class))), responseCode = "200", description = "Returns the report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program")
-    public ResponseEntity getManualJsonReport(@RequestBody ManualJsonPushReportInput mi, Authentication auth) {
+    public ResponseEntity getManualJsonReport(@RequestBody ManualJsonPushReportInput mi, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.integrationProgramService.getManualJsonPushReport(mi, curUser), HttpStatus.OK);
@@ -1413,7 +1579,8 @@ public class ReportRestController {
     @Operation(description = "API used to get the list of Programs that feeds the UpdateProgramInfo page", summary = "API used to get the list of Programs that feeds the UpdateProgramInfo page")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UpdateProgramInfoOutput.class))), responseCode = "200", description = "Returns the report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error that prevented the retreival of Program list")
-    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth) {
+    public ResponseEntity getUpdateProgramInfoList(@PathVariable(value = "programTypeId", required = true) int programTypeId, @PathVariable(value = "realmCountryId", required = true) int realmCountryId, @PathVariable(value = "active", required = true) int active, Authentication auth
+    ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getUpdateProgramInfoReport(programTypeId, realmCountryId, active, curUser), HttpStatus.OK);
