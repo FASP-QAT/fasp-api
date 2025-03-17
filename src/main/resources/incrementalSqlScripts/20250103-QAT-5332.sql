@@ -427,7 +427,7 @@ BEGIN
     SET @varReportingUnitIds = VAR_REPORTING_UNIT_IDS;
     SET @varViewBy = VAR_VIEW_BY; -- 1 for PU, 2 for ARU
     SET @varEquivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID; -- Non zero if the report is to be showing in terms of equivalencyUnitId
-    SET @versionId = VAR_VERSION_ID;
+    SET @varVersionId = VAR_VERSION_ID;
     SET @varMultiplePrograms = VAR_MULTIPLE_PROGRAMS;
 
     DROP TEMPORARY TABLE IF EXISTS `tmp_supply_plan_amc`;
@@ -505,7 +505,7 @@ BEGIN
         sma.`UNMET_DEMAND`,
         sma.`NATIONAL_ADJUSTMENT`
     FROM vw_program p 
-    LEFT JOIN rm_supply_plan_amc sma  ON p.PROGRAM_ID=sma.PROGRAM_ID AND (((@varMultiplePrograms = 0 AND @versionId = -1) AND sma.VERSION_ID=@versionId) OR (sma.VERSION_ID=p.CURRENT_VERSION_ID))
+    LEFT JOIN rm_supply_plan_amc sma  ON p.PROGRAM_ID=sma.PROGRAM_ID AND (((@varMultiplePrograms = 0 AND @varVersionId = -1) AND sma.VERSION_ID=@varVersionId) OR (sma.VERSION_ID=p.CURRENT_VERSION_ID))
     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=p.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=sma.PLANNING_UNIT_ID
     WHERE 
         FIND_IN_SET(p.PROGRAM_ID, @varProgramIds) 
@@ -552,7 +552,7 @@ BEGIN
             s2.`MIN_STOCK_QTY`, s2.`MIN_STOCK_MOS`, s2.`MAX_STOCK_QTY`, s2.`MAX_STOCK_MOS`
         FROM (
             SELECT 
-                mn.`MONTH` `TRANS_DATE`, GROUP_CONCAT(IF(ppu.`NOTES` IS NOT NULL  AND TRIM(ppu.`NOTES`)!='', CONCAT(p.PROGRAM_CODE, ":", ppu.`NOTES`), null) separator "|") `PPU_NOTES`,
+                mn.`MONTH` `TRANS_DATE`, GROUP_CONCAT(IF(ppu.`NOTES` IS NOT NULL  AND TRIM(ppu.`NOTES`)!='', CONCAT(p.PROGRAM_CODE, ":", ppu.`NOTES`), null) separator '~') `PPU_NOTES`,
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`OPENING_BALANCE`*pu.`MULTIPLIER`/COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`OPENING_BALANCE`)) `FINAL_OPENING_BALANCE`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`ACTUAL_CONSUMPTION_QTY`*pu.`MULTIPLIER`/COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`ACTUAL_CONSUMPTION_QTY`)) `ACTUAL_CONSUMPTION_QTY`, 
                 SUM(IF(@varEquivalencyUnitId != 0, sma.`FORECASTED_CONSUMPTION_QTY`*pu.`MULTIPLIER`/COALESCE(eum1.`CONVERT_TO_EU`,eum2.`CONVERT_TO_EU`,eum3.`CONVERT_TO_EU`), sma.`FORECASTED_CONSUMPTION_QTY`)) `FORECASTED_CONSUMPTION_QTY`, 
@@ -590,7 +590,7 @@ BEGIN
         ) `SHIPMENT_QTY` , st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.SHIPMENT_STATUS_ID, st.NOTES, st.ORDER_NO, st.PRIME_LINE_NO, st.DATA_SOURCE_ID
         FROM 
             (
-            SELECT s.SHIPMENT_ID, p.PROGRAM_ID, MAX(st.VERSION_ID) MAX_VERSION_ID FROM vw_program p LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID WHERE FIND_IN_SET(s.PROGRAM_ID, @varProgramIds) AND FIND_IN_SET(st.PLANNING_UNIT_ID, @varPlanningUnitIds) AND st.VERSION_ID<=@varVersionId AND st.SHIPMENT_TRANS_ID IS NOT NULL AND ppu.ACTIVE GROUP BY s.SHIPMENT_ID 
+            SELECT s.SHIPMENT_ID, p.PROGRAM_ID, MAX(st.VERSION_ID) MAX_VERSION_ID FROM vw_program p LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID WHERE FIND_IN_SET(s.PROGRAM_ID, @varProgramIds) AND FIND_IN_SET(st.PLANNING_UNIT_ID, @varPlanningUnitIds) AND (((@varMultiplePrograms = 0 AND @varVersionId = -1) AND st.VERSION_ID<=@varVersionId) OR (st.VERSION_ID<=p.CURRENT_VERSION_ID)) AND st.SHIPMENT_TRANS_ID IS NOT NULL AND ppu.ACTIVE GROUP BY s.SHIPMENT_ID 
         ) AS s 
         LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
         LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
