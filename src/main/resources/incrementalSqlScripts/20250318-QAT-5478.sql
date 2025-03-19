@@ -1,1 +1,0 @@
-INSERT INTO `fasp`.`ap_security` (`METHOD`, `URL`, `BF`) VALUES ('2', '/api/programPlanningUnit/all', 'ROLE_BF_SP_DASHBOARD');
