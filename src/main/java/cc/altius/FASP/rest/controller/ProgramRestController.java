@@ -839,7 +839,38 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-
+    
+    /**
+     * Gets the list of all Program Planning Units the loaded programs
+     *
+     * @param programIds
+     * @param auth
+     * @return
+     */
+    @PostMapping("/programPlanningUnit/all")
+    @Operation(
+        summary = "Get Program Planning Unit for loaded program",
+        description = "Retrieve a list of program planning unit for program"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = LoadProgram.class))), responseCode = "200", description = "Returns a list of programs for load")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting load program")
+    public ResponseEntity getAllProgramPlanningUnitList(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getProgramPlanningUnitListForSyncProgram(getProgramIds(programIds), curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Program Planning Unit", e);
+            return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Program Planning Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program Planning Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
+    
     private String getProgramIds(String[] programIds) {
         if (programIds == null) {
             return "";
