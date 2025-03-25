@@ -113,7 +113,7 @@
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="info" additivity="false">
         <appender-ref ref="FaspFile" />
-        <!--<appender-ref ref="RootConsole" />-->
+        <appender-ref ref="RootConsole" />
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->

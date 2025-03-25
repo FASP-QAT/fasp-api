@@ -123,7 +123,7 @@ public interface ReportService {
     public List<StockStatusVerticalAggregateOutput> getStockStatusVerticalAggregate(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException;
 
     // Report no 16
-    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException;
+    public Map<String, StockStatusVerticalIndividualOutput> getStockStatusVerticalIndividual(StockStatusVerticalInput ssv, CustomUserDetails curUser) throws AccessControlFailedException;
 
     // Report no 16 Dropdown lists
     public DropdownsForStockStatusVerticalOutput getDropdownsForStockStatusVertical(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser) throws AccessControlFailedException;
