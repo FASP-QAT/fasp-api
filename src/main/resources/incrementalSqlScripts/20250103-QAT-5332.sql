@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `getConsumptionInfoForSSVIndividualReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionInfoForSSVIndividualReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getConsumptionInfoForSSVIndividualReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16a
@@ -52,7 +52,7 @@ DROP procedure IF EXISTS `getInventoryInfoForSSVIndividualReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryInfoForSSVIndividualReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryInfoForSSVIndividualReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16b
@@ -103,7 +103,7 @@ DROP procedure IF EXISTS `fasp`.`getConsumptionInfoForSSVAggregateReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionInfoForSSVAggregateReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getConsumptionInfoForSSVAggregateReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16a
@@ -149,7 +149,7 @@ DROP procedure IF EXISTS `fasp`.`getInventoryInfoForSSVAggregateReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryInfoForSSVAggregateReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryInfoForSSVAggregateReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16b
@@ -196,7 +196,7 @@ DROP procedure IF EXISTS `fasp`.`stockStatusReportVerticalIndividual`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVerticalIndividual`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_REPORTING_UNIT_ID INT(10), VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalIndividual`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_REPORTING_UNIT_ID INT(10), VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16 Individual
@@ -415,7 +415,7 @@ DROP procedure IF EXISTS `fasp`.`stockStatusReportVerticalAggregated`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10), VAR_MULTIPLE_PROGRAMS TINYINT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10), VAR_MULTIPLE_PROGRAMS TINYINT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16 Aggregated
@@ -629,7 +629,7 @@ DROP procedure IF EXISTS `fasp`.`getConsumptionInfoForSSVAggregateReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionInfoForSSVAggregateReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_VERSION_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getConsumptionInfoForSSVAggregateReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16a
@@ -682,7 +682,7 @@ DROP procedure IF EXISTS `fasp`.`getInventoryInfoForSSVAggregateReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryInfoForSSVAggregateReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_VERSION_ID INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryInfoForSSVAggregateReport`  (VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16b
