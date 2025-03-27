@@ -1,4 +1,13 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10), VAR_MULTIPLE_PROGRAMS TINYINT)
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusReportVerticalAggregated`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`stockStatusReportVerticalAggregated`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVerticalAggregated`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_IDS TEXT, VAR_REPORTING_UNIT_IDS TEXT, VAR_VIEW_BY INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_VERSION_ID INT(10), VAR_MULTIPLE_PROGRAMS TINYINT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16 Aggregated
@@ -197,4 +206,7 @@ BEGIN
     LEFT JOIN vw_shipment_status ss ON sh.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID
     LEFT JOIN vw_program p ON sh.PROGRAM_ID=p.PROGRAM_ID
     LEFT JOIN vw_planning_unit pu ON sh.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID;
-END
+END$$
+
+DELIMITER ;
+;
