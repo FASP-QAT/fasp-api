@@ -274,6 +274,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -520,6 +526,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -869,6 +881,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -1296,6 +1314,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_INVENTORY_ID", null);
                 tb.put("BATCH_INVENTORY_TRANS_ID", (b.getBatchInventoryTransId() == 0 ? null : b.getBatchInventoryTransId()));
                 tb.put("PARENT_ID", id);
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -1494,7 +1518,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.clear();
         params.put("programId", pd.getProgramId());
         // To be changed to a custom object
-        List<MissingBatchDTO> missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, new MissingBatchDTORowMapper());
+        List<MissingBatchDTO> missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
         SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
         SimpleJdbcInsert sitb = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
         for (MissingBatchDTO missingBatch : missingBatchList) {
@@ -1524,8 +1548,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Need to check if this should be done for ERP linked shipments or not
         sqlString = "SELECT "
                 + "	p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, null `BATCH_NO`, "
-                + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIERY_DATE`, "
-                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY, SUM(stbi.BATCH_SHIPMENT_QTY) `BATCH_QTY`, st.SHIPMENT_RCPU_QTY-SUM(stbi.BATCH_SHIPMENT_QTY) `TO_CREATE_BATCH_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
+                + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
+                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY, SUM(stbi.BATCH_SHIPMENT_QTY) `BATCH_QTY`, st.SHIPMENT_RCPU_QTY-SUM(stbi.BATCH_SHIPMENT_QTY) `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
                 + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
@@ -1545,7 +1569,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.clear();
         params.put("programId", pd.getProgramId());
         // To be changed to a custom object
-        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, new MissingBatchDTORowMapper());
+        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
         for (MissingBatchDTO missingBatch : missingBatchList) {
             // Check if this Shipment has an existing Auto Batch
             sqlString = "SELECT "
@@ -1557,8 +1581,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "WHERE s.SHIPMENT_ID=:shipmentId AND bi.AUTO_GENERATED=1";
             params.clear();
             params.put("shipmentId", missingBatch.getShipmentId());
-            int existingBatchId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-            if (existingBatchId == 0) {
+            Integer existingBatchId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            if (existingBatchId==null || existingBatchId == 0) {
                 // there is no Auto batch so go ahead and create a new Batch
                 // Step 2 Create the Batch in rm_batch_info table
                 params.clear();
@@ -1578,7 +1602,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
                 sitb.execute(params);
             } else {
-                sqlString = "UPDATED rm_shipment_trans_batch_info stbi SET stbi.`BATCH_SHIPMENT_QTY`=stbi.`BATCH_SHIPMENT_QTY`+:additionalShipmentQty WHERE stbi.SHIPMENT_TRANS_ID=:shipmentTransId aND stbi.BATCH_ID=:batchId";
+                sqlString = "UPDATED rm_shipment_trans_batch_info stbi SET stbi.`BATCH_SHIPMENT_QTY`=stbi.`BATCH_SHIPMENT_QTY`+:additionalShipmentQty WHERE stbi.SHIPMENT_TRANS_ID=:shipmentTransId AND stbi.BATCH_ID=:batchId";
                 params.clear();
                 params.put("shipmentTransId", missingBatch.getShipmentTransId());
                 params.put("batchId", existingBatchId);
@@ -1592,7 +1616,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         sqlString = "SELECT "
                 + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, "
                 + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
-                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY `TO_CREATE_BATCH_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE, bi.BATCH_NO "
+                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE, bi.BATCH_NO "
                 + "FROM vw_program p "
                 + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
                 + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
@@ -1612,7 +1636,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.clear();
         params.put("programId", pd.getProgramId());
         // To be changed to a custom object
-        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, new MissingBatchDTORowMapper());
+        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
         for (MissingBatchDTO missingBatch : missingBatchList) {
             // Step 2 Create the Batch in rm_batch_info table
             params.clear();
@@ -1656,19 +1680,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
          *
          * Change the Created date to make it same as expected delivery date
          */
-        sqlString = "update "
-                + "(select bi.BATCH_ID,min(coalesce(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE)) AS NEW_CREATED_DATE,bi.CREATED_DATE from rm_shipment s "
-                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID "
-                + "left join rm_shipment_trans_batch_info stbi on stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID "
-                + "left join rm_batch_info bi on bi.BATCH_ID=stbi.BATCH_ID "
-                + "where s.PROGRAM_ID=:programId group by bi.BATCH_ID having min(coalesce(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE))!=date(bi.CREATED_DATE)) tmp "
-                + "left join rm_batch_info bi on tmp.BATCH_ID=bi.BATCH_ID "
-                + "set bi.CREATED_DATE=tmp.NEW_CREATED_DATE "
+        sqlString = "UPDATE "
+                + "(SELECT bi.BATCH_ID,MIN(COALESCE(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE)) AS NEW_CREATED_DATE,bi.CREATED_DATE FROM rm_shipment s "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID "
+                + "LEFT JOIN rm_batch_info bi ON bi.BATCH_ID=stbi.BATCH_ID "
+                + "WHERE s.PROGRAM_ID=:programId AND st.ACTIVE=1 AND st.ACCOUNT_FLAG=1 AND st.ERP_FLAG=0 AND st.SHIPMENT_STATUS_ID!=8 GROUP BY bi.BATCH_ID HAVING MIN(COALESCE(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE))!=DATE(bi.CREATED_DATE)) tmp "
+                + "LEFT JOIN rm_batch_info bi ON tmp.BATCH_ID=bi.BATCH_ID "
+                + "SET bi.CREATED_DATE=tmp.NEW_CREATED_DATE "
                 + ";";
         params.clear();
         params.put("programId", pd.getProgramId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        
 
         // #########################  Missing Batches for Shipments ##########################
         // #########################  Problem Report #########################################
