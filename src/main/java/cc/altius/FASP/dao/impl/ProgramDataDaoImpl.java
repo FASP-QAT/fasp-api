@@ -45,6 +45,8 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.DTO.MissingBatchDTO;
+import cc.altius.FASP.model.DTO.rowMapper.MissingBatchDTORowMapper;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.DatasetVersionListInput;
@@ -196,7 +198,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table dropped");
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
-//                        sqlString = "CREATE TABLE `tmp_consumption` ( "
+                //                        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
@@ -272,6 +274,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -281,7 +289,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                     batchParams.put("CREATED_DATE", b.getBatch().getCreatedDate());
                     try {
-                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID", batchParams, Integer.class));
                         logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
                         logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
@@ -518,6 +526,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -527,7 +541,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                     batchParams.put("CREATED_DATE", b.getBatch().getCreatedDate());
                     try {
-                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID", batchParams, Integer.class));
                         logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
                         logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
@@ -698,7 +712,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
-//                        sqlString = "CREATE TABLE `tmp_shipment` ( "
+                //                        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `TEMP_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
@@ -867,6 +881,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -876,8 +896,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("AUTO_GENERATED", b.getBatch().isAutoGenerated());
                     batchParams.put("CREATED_DATE", b.getBatch().getCreatedDate());
                     try {
-                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
-                        sqlString = "UPDATE rm_batch_info bi SET bi.CREATED_DATE=:CREATED_DATE  WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE ";
+                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID", batchParams, Integer.class));
+                        sqlString = "UPDATE rm_batch_info bi SET bi.CREATED_DATE=:CREATED_DATE  WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE  AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID ";
                         this.namedParameterJdbcTemplate.update(sqlString, batchParams);
                         logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
@@ -1294,6 +1314,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_INVENTORY_ID", null);
                 tb.put("BATCH_INVENTORY_TRANS_ID", (b.getBatchInventoryTransId() == 0 ? null : b.getBatchInventoryTransId()));
                 tb.put("PARENT_ID", id);
+                if (b.getBatch().getBatchId() != 0) {
+                    sqlString = "SELECT COUNT(bi.BATCH_ID) FROM rm_batch_info bi WHERE bi.BATCH_ID=?";
+                    if (this.jdbcTemplate.queryForObject(sqlString, Integer.class, b.getBatch().getBatchId()) == 0) {
+                        b.getBatch().setBatchId(0);
+                    }
+                }
                 if (b.getBatch().getBatchId() == 0) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("BATCH_NO", b.getBatch().getBatchNo());
@@ -1303,7 +1329,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("AUTO_GENERATED", b.getBatch().isAutoGenerated());
                     batchParams.put("CREATED_DATE", b.getBatch().getCreatedDate());
                     try {
-                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID", batchParams, Integer.class));
                         logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
                         logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
@@ -1455,16 +1481,219 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         biRows += biCnt;
         logger.info(biCnt + " records inserted into rm_batch_inventory_trans becuase of Case 4");
         logger.info(biRows + " records inserted into rm_batch_inventory and rm_batch_inventory_trans");
-        
+
         sqlString = "UPDATE tmp_batch_inventory tbi "
                 + "LEFT JOIN rm_batch_inventory bi ON tbi.BATCH_INVENTORY_ID=bi.BATCH_INVENTORY_ID "
                 + "LEFT JOIN rm_batch_inventory_trans bt ON bi.BATCH_INVENTORY_ID=bt.BATCH_INVENTORY_ID AND bi.MAX_VERSION_ID=bt.VERSION_ID "
                 + "LEFT JOIN tmp_batch_inventory_trans tbit ON tbi.ID=tbit.PARENT_ID AND tbit.BATCH_ID=bt.BATCH_ID "
                 + "SET bi.MAX_VERSION_ID=:versionId, bi.LAST_MODIFIED_BY=tbi.LAST_MODIFIED_BY, bi.LAST_MODIFIED_DATE=tbi.LAST_MODIFIED_DATE "
                 + "WHERE (tbi.CHANGED=0 AND tbit.BATCH_ID IS NULL AND bt.BATCH_ID IS NOT NULL) OR (tbi.CHANGED=0 AND tbit.CHANGED=2) OR (tbi.CHANGED=0 AND tbit.CHANGED=3) ";
-        this.namedParameterJdbcTemplate.update(sqlString, params);        
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // #########################  Batch Inventory ########################################
+
+        // #########################  Missing Batches for Shipments ##########################
+        // Handling Shipments that are missing Batches
+        // Check for the list of Shipments in this Program that are missing Batches if any are found then we need to create the Batches for them
+        // Step 1 Find the Shipments that do not have batches
+        // Need to check if this should be done for ERP linked shipments or not
+        sqlString = "SELECT "
+                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, null `BATCH_NO`, "
+                + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
+                + "    st.PLANNING_UNIT_ID, st.`SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "WHERE "
+                + "    p.ACTIVE "
+                + "    AND ppu.ACTIVE "
+                + "    AND p.PROGRAM_ID=:programId "
+                + "    AND s.SHIPMENT_ID IS NOT NULL "
+                //                + "    AND st.ERP_FLAG=0 "
+                + "    AND st.ACTIVE=1 AND st.ACCOUNT_FLAG=1 AND st.SHIPMENT_STATUS_ID!=8 "
+                + "    AND st.SHIPMENT_TRANS_ID IS NOT NULL "
+                + "    AND stbi.SHIPMENT_TRANS_ID IS NULL";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        // To be changed to a custom object
+        List<MissingBatchDTO> missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
+        SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
+        SimpleJdbcInsert sitb = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+        for (MissingBatchDTO missingBatch : missingBatchList) {
+            // Step 2 Create the Batch in rm_batch_info table
+            params.clear();
+            params.put("PROGRAM_ID", missingBatch.getProgramId());
+            params.put("PLANNING_UNIT_ID", missingBatch.getPlanningUnitId());
+            params.put("BATCH_NO", Batch.getAutoGeneratedBatchNo(missingBatch.getProgramId(), missingBatch.getPlanningUnitId(), missingBatch.getProjectedExpiryDate()));
+            params.put("EXPIRY_DATE", missingBatch.getProjectedExpiryDate());
+            params.put("CREATED_DATE", missingBatch.getShipmentCreatedDate());
+            params.put("AUTO_GENERATED", 1);
+            logger.info("Creating batch with info params---" + params);
+            int batchId = sib.executeAndReturnKey(params).intValue();
+            logger.info("Batch Id - " + batchId + " created");
+            // Step 3 Make the entry in rm_shipment_trans_batch_info table so everything is matching
+            params.clear();
+            params.put("SHIPMENT_TRANS_ID", missingBatch.getShipmentTransId());
+            params.put("BATCH_ID", batchId);
+            params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
+            sitb.execute(params);
+        }
+
+        // Handling Shipments that have a Batch but the Shipment Qty is higher than Batch Qty
+        // Check for the list of Shipments in this Program that have lower Qty than requiredif any are found then we need to either increase the Batch Qty if the existing Batch is an automated Batch 
+        // Or if the Batch is a manual Batch then we need to Create an auto Batch with the appropriate Qty
+        // Step 1 Find the Shipments that have total Batch Qty lower than Shipment Qty
+        // Need to check if this should be done for ERP linked shipments or not
+        sqlString = "SELECT "
+                + "	p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, null `BATCH_NO`, "
+                + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
+                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY, SUM(stbi.BATCH_SHIPMENT_QTY) `BATCH_QTY`, st.SHIPMENT_RCPU_QTY-SUM(stbi.BATCH_SHIPMENT_QTY) `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID "
+                + "LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID AND bi.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "WHERE "
+                + "	p.ACTIVE "
+                + "    AND p.PROGRAM_ID=:programId "
+                + "    AND s.SHIPMENT_ID IS NOT NULL "
+                //                + "    AND st.ERP_FLAG=0 "
+                + "    AND st.ACTIVE=1 AND st.ACCOUNT_FLAG=1 AND st.SHIPMENT_STATUS_ID!=8 "
+                + "    AND st.SHIPMENT_TRANS_ID IS NOT NULL "
+                + "    AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL "
+                + "group by s.SHIPMENT_ID "
+                + "having (st.SHIPMENT_RCPU_QTY>SUM(stbi.BATCH_SHIPMENT_QTY))";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        // To be changed to a custom object
+        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
+        for (MissingBatchDTO missingBatch : missingBatchList) {
+            // Check if this Shipment has an existing Auto Batch
+            sqlString = "SELECT "
+                    + "	MIN(bi.`BATCH_ID`) `BATCH_ID` "
+                    + "FROM rm_shipment s "
+                    + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                    + "LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID "
+                    + "LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID "
+                    + "WHERE s.SHIPMENT_ID=:shipmentId AND bi.AUTO_GENERATED=1";
+            params.clear();
+            params.put("shipmentId", missingBatch.getShipmentId());
+            Integer existingBatchId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            if (existingBatchId==null || existingBatchId == 0) {
+                // there is no Auto batch so go ahead and create a new Batch
+                // Step 2 Create the Batch in rm_batch_info table
+                params.clear();
+                params.put("PROGRAM_ID", missingBatch.getProgramId());
+                params.put("PLANNING_UNIT_ID", missingBatch.getPlanningUnitId());
+                params.put("BATCH_NO", Batch.getAutoGeneratedBatchNo(missingBatch.getProgramId(), missingBatch.getPlanningUnitId(), missingBatch.getProjectedExpiryDate()));
+                params.put("EXPIRY_DATE", missingBatch.getProjectedExpiryDate());
+                params.put("CREATED_DATE", missingBatch.getShipmentCreatedDate());
+                params.put("AUTO_GENERATED", 1);
+                logger.info("Creating batch with info params---" + params);
+                int batchId = sib.executeAndReturnKey(params).intValue();
+                logger.info("Batch Id - " + batchId + " created");
+                // Step 3 Make the entry in rm_shipment_trans_batch_info table so everything is matching
+                params.clear();
+                params.put("SHIPMENT_TRANS_ID", missingBatch.getShipmentTransId());
+                params.put("BATCH_ID", batchId);
+                params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
+                sitb.execute(params);
+            } else {
+                sqlString = "UPDATED rm_shipment_trans_batch_info stbi SET stbi.`BATCH_SHIPMENT_QTY`=stbi.`BATCH_SHIPMENT_QTY`+:additionalShipmentQty WHERE stbi.SHIPMENT_TRANS_ID=:shipmentTransId AND stbi.BATCH_ID=:batchId";
+                params.clear();
+                params.put("shipmentTransId", missingBatch.getShipmentTransId());
+                params.put("batchId", existingBatchId);
+                params.put("additionalShipmentQty", missingBatch.getShipmentRcpuQty());
+            }
+        }
+        // Handling Shipments that have a batch but that is for the wrong PU
+        // Check for the list of Shipments in this Program that are missing Batches if any are found then we need to create the Batches for them
+        // Step 1 Find the Shipments that do not have batches
+        // Need to check if this should be done for ERP linked shipments or not
+        sqlString = "SELECT "
+                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, "
+                + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
+                + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE, bi.BATCH_NO "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID "
+                + "LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + "WHERE "
+                + "    p.ACTIVE "
+                + "    AND ppu.ACTIVE "
+                + "    AND p.PROGRAM_ID=:programId "
+                + "    AND s.SHIPMENT_ID IS NOT NULL "
+                //                + "    AND st.ERP_FLAG=0 "
+                + "    AND st.ACTIVE=1 AND st.ACCOUNT_FLAG=1 AND st.SHIPMENT_STATUS_ID!=8 "
+                + "    AND st.SHIPMENT_TRANS_ID IS NOT NULL "
+                + "    AND stbi.SHIPMENT_TRANS_ID IS NOT NULL "
+                + "    AND bi.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        // To be changed to a custom object
+        missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
+        for (MissingBatchDTO missingBatch : missingBatchList) {
+            // Step 2 Create the Batch in rm_batch_info table
+            params.clear();
+            params.put("PROGRAM_ID", missingBatch.getProgramId());
+            params.put("PLANNING_UNIT_ID", missingBatch.getPlanningUnitId());
+            params.put("BATCH_NO", missingBatch.getBatchNo());
+            params.put("EXPIRY_DATE", missingBatch.getProjectedExpiryDate());
+            params.put("CREATED_DATE", missingBatch.getShipmentCreatedDate());
+            params.put("AUTO_GENERATED", 1);
+            logger.info("Creating batch with info params---" + params);
+            int batchId = sib.executeAndReturnKey(params).intValue();
+            logger.info("Batch Id - " + batchId + " created");
+            // Step 3 Make the entry in rm_shipment_trans_batch_info table so everything is matching
+            params.clear();
+            params.put("SHIPMENT_TRANS_ID", missingBatch.getShipmentTransId());
+            params.put("BATCH_ID", batchId);
+            params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
+            sitb.execute(params);
+        }
+
+        /**
+         * Case where the Expiry Date of a Batch from this Program is not ending
+         * on "01"
+         *
+         * Change the Expiry date to make it end on "01"
+         */
+        sqlString = "UPDATE rm_batch_info bi "
+                + "SET "
+                + "	bi.EXPIRY_DATE=CONCAT(LEFT(bi.EXPIRY_DATE,7),'-01') "
+                + "WHERE "
+                + "	bi.PROGRAM_ID=:programId "
+                + "	AND bi.EXPIRY_DATE IS NOT NULL "
+                + "    AND RIGHT(bi.EXPIRY_DATE,2)!='01'";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        /**
+         * Case where the Created Date of a Batch from this program is not same
+         * as expected delivery date
+         *
+         * Change the Created date to make it same as expected delivery date
+         */
+        sqlString = "UPDATE "
+                + "(SELECT bi.BATCH_ID,MIN(COALESCE(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE)) AS NEW_CREATED_DATE,bi.CREATED_DATE FROM rm_shipment s "
+                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID "
+                + "LEFT JOIN rm_shipment_trans_batch_info stbi ON stbi.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID "
+                + "LEFT JOIN rm_batch_info bi ON bi.BATCH_ID=stbi.BATCH_ID "
+                + "WHERE s.PROGRAM_ID=:programId AND st.ACTIVE=1 AND st.ACCOUNT_FLAG=1 AND st.ERP_FLAG=0 AND st.SHIPMENT_STATUS_ID!=8 GROUP BY bi.BATCH_ID HAVING MIN(COALESCE(st.EXPECTED_DELIVERY_DATE,st.RECEIVED_DATE))!=DATE(bi.CREATED_DATE)) tmp "
+                + "LEFT JOIN rm_batch_info bi ON tmp.BATCH_ID=bi.BATCH_ID "
+                + "SET bi.CREATED_DATE=tmp.NEW_CREATED_DATE "
+                + ";";
+        params.clear();
+        params.put("programId", pd.getProgramId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // #########################  Missing Batches for Shipments ##########################
         // #########################  Problem Report #########################################
         insertList.clear();
         insertBatchList.clear();
@@ -2292,7 +2521,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("versionId", versionId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ShipmentBudgetAmtRowMapper());
     }
-    
+
     @Override
     public List<BatchInventory> getBatchInventoryList(int programId, int versionId, boolean planningUnitActive, String cutOffDate) {
         Map<String, Object> params = new HashMap<>();
@@ -2886,23 +3115,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         cleanedBatchDataList.add(bd);
                     } else {
                         BatchData tmpBd = cleanedBatchDataList.get(idx);
-                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0.0)+Optional.ofNullable(bd.getActualConsumption()).orElse(0.0));
+                        tmpBd.setActualConsumption(Optional.ofNullable(tmpBd.getActualConsumption()).orElse(0.0) + Optional.ofNullable(bd.getActualConsumption()).orElse(0.0));
                         tmpBd.setUseActualConsumption(tmpBd.isUseActualConsumption() || bd.isUseActualConsumption());
-                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0.0)+Optional.ofNullable(bd.getShipment()).orElse(0.0));
-                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0.0)+Optional.ofNullable(bd.getShipmentWps()).orElse(0.0));
-                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0.0)+Optional.ofNullable(bd.getAdjustment()).orElse(0.0));
-                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0.0)+Optional.ofNullable(bd.getStock()).orElse(0.0));
+                        tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0.0) + Optional.ofNullable(bd.getShipment()).orElse(0.0));
+                        tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0.0) + Optional.ofNullable(bd.getShipmentWps()).orElse(0.0));
+                        tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0.0) + Optional.ofNullable(bd.getAdjustment()).orElse(0.0));
+                        tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0.0) + Optional.ofNullable(bd.getStock()).orElse(0.0));
                         tmpBd.setAllRegionsReportedStock(tmpBd.isAllRegionsReportedStock() || bd.isAllRegionsReportedStock());
-                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalance()).orElse(0.0));
-                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0.0));
-                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStock()).orElse(0.0));
-                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0.0)+Optional.ofNullable(bd.getExpiredStockWps()).orElse(0.0));
-                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0.0));
-                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0));
-                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0.0));
-                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0.0)+Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0));
-                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalance()).orElse(0.0));
-                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0.0)+Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0));
+                        tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0.0) + Optional.ofNullable(bd.getOpeningBalance()).orElse(0.0));
+                        tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0.0) + Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0.0));
+                        tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0.0) + Optional.ofNullable(bd.getExpiredStock()).orElse(0.0));
+                        tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0.0) + Optional.ofNullable(bd.getExpiredStockWps()).orElse(0.0));
+                        tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0.0));
+                        tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0));
+                        tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0.0));
+                        tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0));
+                        tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0.0) + Optional.ofNullable(bd.getClosingBalance()).orElse(0.0));
+                        tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0.0) + Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0));
                         cleanedBatchDataList.set(idx, tmpBd);
                     }
                 });
@@ -2932,7 +3161,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
                 });
-                
+
                 i++;
             }
             sqlString = "DROP TABLE IF EXISTS tmp_supply_plan_amc1";
