@@ -42,8 +42,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @Tag(
-    name = "Realm",
-    description = "Manage realm entities within the system"
+        name = "Realm",
+        description = "Manage realm entities within the system"
 )
 @RequestMapping("/api/realm")
 public class RealmRestController {
@@ -64,13 +64,13 @@ public class RealmRestController {
      */
     @PostMapping(path = "")
     @Operation(
-        summary = "Add a Realm",
-        description = "Add a new realm to the system"
+            summary = "Add a Realm",
+            description = "Add a new realm to the system"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The realm to add",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Realm.class))
+            description = "The realm to add",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Realm.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Realm already exists")
@@ -98,13 +98,13 @@ public class RealmRestController {
      */
     @PutMapping(path = "")
     @Operation(
-        summary = "Update a Realm",
-        description = "Update an existing realm in the system"
+            summary = "Update a Realm",
+            description = "Update an existing realm in the system"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The realm to update",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Realm.class))
+            description = "The realm to update",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Realm.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update a realm")
@@ -135,8 +135,8 @@ public class RealmRestController {
      */
     @GetMapping("")
     @Operation(
-        summary = "Get Realms",
-        description = "Retrieve a list of realms"
+            summary = "Get Realms",
+            description = "Retrieve a list of realms"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Realm.class))), responseCode = "200", description = "Returns the list of realms")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to list realms")
@@ -160,8 +160,8 @@ public class RealmRestController {
      */
     @GetMapping("/{realmId}")
     @Operation(
-        summary = "Get a Realm",
-        description = "Retrieve a realm by its ID"
+            summary = "Get a Realm",
+            description = "Retrieve a realm by its ID"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Realm.class)), responseCode = "200", description = "Returns the realm")
