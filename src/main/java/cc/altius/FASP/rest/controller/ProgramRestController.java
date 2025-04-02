@@ -209,6 +209,43 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
+    
+    /**
+     * Get specific PU mapped to a SP Program
+     *
+     * @param programId
+     * @param planningUnitId 
+     * @param auth
+     * @return
+     */
+    @GetMapping("/program/{programId}/planningUnit/{planningUnitId}")
+    @Operation(
+        summary = "Get specific Planning Unit for Supply Plan Program",
+        description = "Retrieve a specific planning unit for a specific supply plan program"
+    )
+    @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
+    @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve details for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class))), responseCode = "200", description = "Returns a specific planning units for a specific program")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Program not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
+    public ResponseEntity getPlanningUnitForProgramIdAndPlanningUnitId(@PathVariable("programId") int programId,@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.programService.getPlanningUnitForProgramIdAndPlanningUnitId(programId, planningUnitId, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
 
     /**
      * Get list of PU’s mapped to a SP Program filtered by TracerCateogryIds
