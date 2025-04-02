@@ -39,7 +39,7 @@ import java.util.List;
 public interface ProgramDao {
 
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active);
-    
+
     public List<SimpleCodeObject> getProgramListByVersionStatusAndVersionType(String versionStatusIdList, String versionTypeIdList, CustomUserDetails curUser);
 
     public List<SimpleProgram> getProgramWithFilterForHealthAreaAndRealmCountryListForDropdown(int realmId, int programTypeId, HealthAreaAndRealmCountryDTO input, CustomUserDetails curUser);
@@ -63,7 +63,7 @@ public interface ProgramDao {
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
-    
+
     public List<SimpleObjectWithType> getProgramAndPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException;
@@ -125,18 +125,20 @@ public interface ProgramDao {
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
-    
+
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdList(String[] realmCountryIds, CustomUserDetails curUser);
-    
+
     public List<SimpleCodeObject> getSimpleProgramListByRealmCountryIdsAndHealthAreaIds(RealmCountryIdsAndHealthAreaIds realmCountryIdsAndHealthAreaIds, CustomUserDetails curUser);
 
     public List<SimpleCodeObject> getSimpleProgramListByProductCategoryIdList(String[] productCategoryIds, CustomUserDetails curUser);
 
     public List<TreeAnchorOutput> getTreeAnchorForSync(TreeAnchorInput ta, CustomUserDetails curUser);
-    
+
     public List<SimpleObjectWithFu> getSimplePlanningUnitAndForecastingUnits(StockStatusVerticalDropdownInput ssvdi, CustomUserDetails curUser);
-    
+
     public List<Integer> getProcurementAgentIdsForProgramId(int programId, CustomUserDetails curUser);
-    
+
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
+
+    public ProgramPlanningUnit getPlanningUnitForProgramIdAndPlanningUnitId(int programId, int planningUnitId, CustomUserDetails curUser) throws AccessControlFailedException;
 }
