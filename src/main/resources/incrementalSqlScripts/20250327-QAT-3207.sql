@@ -1,0 +1,1 @@
+ALTER TABLE `fasp`.`rm_batch_info` DROP KEY `unq_batchNo`, ADD UNIQUE `unq_batchNo` (`PROGRAM_ID`, `BATCH_NO`, `EXPIRY_DATE`, `PLANNING_UNIT_ID`); 
