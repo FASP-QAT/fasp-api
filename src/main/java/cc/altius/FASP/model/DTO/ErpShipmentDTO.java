@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.DTO;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
@@ -48,7 +49,10 @@ public class ErpShipmentDTO implements Serializable {
     }
 
     public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
+        Calendar c = Calendar.getInstance();
+        c.setTime(expiryDate);
+        c.set(Calendar.DATE, 1);
+        this.expiryDate = c.getTime();
     }
 
     public Long getBatchQty() {
@@ -150,10 +154,7 @@ public class ErpShipmentDTO implements Serializable {
             return false;
         }
         final ErpShipmentDTO other = (ErpShipmentDTO) obj;
-        if (!Objects.equals(this.batchNo, other.batchNo)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.batchNo, other.batchNo);
     }
 
     @Override
