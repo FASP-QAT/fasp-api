@@ -3046,5 +3046,14 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, Integer.class);
     }
+    
+    @Override
+    public ProgramPlanningUnit getPlanningUnitForProgramIdAndPlanningUnitId(int programId, int planningUnitId, CustomUserDetails curUser) {
+        String sqlStringBuilder = this.sqlListStringForProgramPlanningUnit + " AND pg.PROGRAM_ID=:programId AND ppu.PLANNING_UNIT_ID=:planningUnitId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder, params, new ProgramPlanningUnitRowMapper());
+    }
 
 }
