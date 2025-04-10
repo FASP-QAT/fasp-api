@@ -631,4 +631,9 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getFundingSourceIdsForProgramId(programId, curUser);
     }
 
+    @Override
+    public ProgramPlanningUnit getPlanningUnitForProgramIdAndPlanningUnitId(int programId, int planningUnitId, CustomUserDetails curUser) throws AccessControlFailedException {
+        return this.programDao.getPlanningUnitForProgramIdAndPlanningUnitId(programId, planningUnitId, curUser);
+    }
+
 }

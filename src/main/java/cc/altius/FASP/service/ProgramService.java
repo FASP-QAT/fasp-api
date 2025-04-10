@@ -148,4 +148,6 @@ public interface ProgramService {
 
     public List<Integer> getFundingSourceIdsForProgramId(int programId, CustomUserDetails curUser);
 
+    public ProgramPlanningUnit getPlanningUnitForProgramIdAndPlanningUnitId(int programId, int planningUnitId, CustomUserDetails curUser) throws AccessControlFailedException;
+
 }
