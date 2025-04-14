@@ -1582,7 +1582,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.clear();
             params.put("shipmentId", missingBatch.getShipmentId());
             Integer existingBatchId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-            if (existingBatchId==null || existingBatchId == 0) {
+            if (existingBatchId == null || existingBatchId == 0) {
                 // there is no Auto batch so go ahead and create a new Batch
                 // Step 2 Create the Batch in rm_batch_info table
                 params.clear();
@@ -1637,7 +1637,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", pd.getProgramId());
         // To be changed to a custom object
         missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
+        System.out.println("missing Batch list " + missingBatchList);
         for (MissingBatchDTO missingBatch : missingBatchList) {
+            int batchId;
             // Step 2 Create the Batch in rm_batch_info table
             params.clear();
             params.put("PROGRAM_ID", missingBatch.getProgramId());
@@ -1646,8 +1648,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("EXPIRY_DATE", missingBatch.getProjectedExpiryDate());
             params.put("CREATED_DATE", missingBatch.getShipmentCreatedDate());
             params.put("AUTO_GENERATED", 1);
+            try {
+                batchId = this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND LEFT(bi.EXPIRY_DATE,7)=LEFT(:EXPIRY_DATE,7) AND bi.PLANNING_UNIT_ID=:PLANNING_UNIT_ID", params, Integer.class);
+                logger.info("Batch No + Expiry Dt found for this Program");
+            } catch (DataAccessException d) {
+                logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
+                batchId = sib.executeAndReturnKey(params).intValue();
+                logger.info("Batch Id created");
+            }
             logger.info("Creating batch with info params---" + params);
-            int batchId = sib.executeAndReturnKey(params).intValue();
             logger.info("Batch Id - " + batchId + " created");
             // Step 3 Make the entry in rm_shipment_trans_batch_info table so everything is matching
             params.clear();
