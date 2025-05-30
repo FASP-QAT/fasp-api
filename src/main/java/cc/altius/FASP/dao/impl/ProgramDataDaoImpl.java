@@ -1498,7 +1498,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Step 1 Find the Shipments that do not have batches
         // Need to check if this should be done for ERP linked shipments or not
         sqlString = "SELECT "
-                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, null `BATCH_NO`, "
+                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, stbi.SHIPMENT_TRANS_BATCH_INFO_ID, null `BATCH_NO`, "
                 + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
                 + "    st.PLANNING_UNIT_ID, st.`SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
                 + "FROM vw_program p "
@@ -1547,7 +1547,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Step 1 Find the Shipments that have total Batch Qty lower than Shipment Qty
         // Need to check if this should be done for ERP linked shipments or not
         sqlString = "SELECT "
-                + "	p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, null `BATCH_NO`, "
+                + "	p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, stbi.SHIPMENT_TRANS_BATCH_INFO_ID, null `BATCH_NO`, "
                 + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
                 + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY, SUM(stbi.BATCH_SHIPMENT_QTY) `BATCH_QTY`, st.SHIPMENT_RCPU_QTY-SUM(stbi.BATCH_SHIPMENT_QTY) `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE "
                 + "FROM vw_program p "
@@ -1614,7 +1614,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Step 1 Find the Shipments that do not have batches
         // Need to check if this should be done for ERP linked shipments or not
         sqlString = "SELECT "
-                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, "
+                + "    p.PROGRAM_ID, s.SHIPMENT_ID, st.SHIPMENT_TRANS_ID, stbi.SHIPMENT_TRANS_BATCH_INFO_ID, "
                 + "    ADDDATE(CONCAT(LEFT(coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE),7),'-01'), INTERVAL ppu.SHELF_LIFE MONTH) `PROJECTED_EXPIRY_DATE`, "
                 + "    st.PLANNING_UNIT_ID, st.SHIPMENT_RCPU_QTY `SHIPMENT_RCPU_QTY`, coalesce(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE) AS CREATED_DATE, bi.BATCH_NO "
                 + "FROM vw_program p "
@@ -1638,6 +1638,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // To be changed to a custom object
         missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
         System.out.println("missing Batch list " + missingBatchList);
+        sqlString="UPDATE rm_shipment_trans_batch_info stbi SET stbi.BATCH_ID=:BATCH_ID WHERE stbi.SHIPMENT_TRANS_BATCH_INFO_ID=:SHIPMENT_TRANS_BATCH_INFO_ID ";
         for (MissingBatchDTO missingBatch : missingBatchList) {
             int batchId;
             // Step 2 Create the Batch in rm_batch_info table
@@ -1660,10 +1661,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             logger.info("Batch Id - " + batchId + " created");
             // Step 3 Make the entry in rm_shipment_trans_batch_info table so everything is matching
             params.clear();
-            params.put("SHIPMENT_TRANS_ID", missingBatch.getShipmentTransId());
+            params.put("SHIPMENT_TRANS_BATCH_INFO_ID", missingBatch.getShipmentTransBatchInfoId());
             params.put("BATCH_ID", batchId);
-            params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
-            sitb.execute(params);
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+//            params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
+
+//            sitb.execute(params);
         }
 
         /**
