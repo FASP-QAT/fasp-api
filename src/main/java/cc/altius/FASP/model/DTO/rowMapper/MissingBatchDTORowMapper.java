@@ -21,6 +21,7 @@ public class MissingBatchDTORowMapper implements RowMapper<MissingBatchDTO> {
         m.setProgramId(rs.getInt("PROGRAM_ID"));
         m.setShipmentId(rs.getInt("SHIPMENT_ID"));
         m.setShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
+        m.setShipmentTransBatchInfoId(rs.getInt("SHIPMENT_TRANS_BATCH_INFO_ID"));
         m.setProjectedExpiryDate(rs.getDate("PROJECTED_EXPIRY_DATE"));
         m.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
         m.setShipmentRcpuQty(rs.getLong("SHIPMENT_RCPU_QTY"));
