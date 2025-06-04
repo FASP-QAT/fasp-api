@@ -993,7 +993,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 1 Insert int tmpPlanningUnit
-        sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null group by tpc.ProductName";
+        sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null AND length(tpc.ItemID)!=15 group by tpc.ProductName";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " rows instered into the tmp planningUnit table");
         sb.append(rows).append(" rows instered into the tmp planningUnit table").append(br);
