@@ -18,8 +18,6 @@ SET @oldProgramId=2356;
 
 UPDATE rm_budget_program bp SET bp.PROGRAM_ID=@programId1 WHERE bp.PROGRAM_ID=@oldProgramId;
 INSERT INTO rm_budget_program SELECT null, BUDGET_ID, @programId2 FROM rm_budget_program bp WHERE bp.PROGRAM_ID=@programId1;
-SELECT BUDGET_ID into @budgetId1 FROM rm_budget_program pb WHERE pb.PROGRAM_ID=@programId1;
-SELECT BUDGET_ID into @budgetId2 FROM rm_budget_program pb WHERE pb.PROGRAM_ID=@programId2;
 
 UPDATE rm_program_planning_unit ppu SET ppu.PROGRAM_ID=@programId1 WHERE ppu.PROGRAM_ID=2356 AND ppu.PLANNING_UNIT_ID=2760;
 UPDATE rm_supply_plan_amc sma SET sma.PROGRAM_ID=@programId1 WHERE sma.PROGRAM_ID=2356 AND sma.PLANNING_UNIT_ID=2760;
