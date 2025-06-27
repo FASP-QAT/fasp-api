@@ -164,14 +164,14 @@ public class EmailDaoImpl implements EmailDao {
             attempts++;
             status = 2;
             this.updateEmail(status, attempts, reason, emailer.getEmailerId());
-            this.emailLogger.info(ex.getMessage());
+            this.emailLogger.info(ex.getMessage() + " " + ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmailId() +" "+ emailer.getToSend());
             return 0;
         } catch (Exception ex) {
             reason = ex.toString();
             attempts++;
             status = 2;
             this.updateEmail(status, attempts, reason, emailer.getEmailerId());
-            this.emailLogger.info(ex.getMessage());
+            this.emailLogger.info(ex.getMessage() + " " + ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmailId() +" "+ emailer.getToSend());
             return 0;
         }
     }
