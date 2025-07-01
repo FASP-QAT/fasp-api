@@ -16,6 +16,7 @@ public class MissingBatchDTO implements Serializable {
     private int programId;
     private int shipmentId;
     private int shipmentTransId;
+    private int shipmentTransBatchInfoId;
     private int planningUnitId;
     private Date projectedExpiryDate;
     private long shipmentRcpuQty;
@@ -44,6 +45,14 @@ public class MissingBatchDTO implements Serializable {
 
     public void setShipmentTransId(int shipmentTransId) {
         this.shipmentTransId = shipmentTransId;
+    }
+
+    public int getShipmentTransBatchInfoId() {
+        return shipmentTransBatchInfoId;
+    }
+
+    public void setShipmentTransBatchInfoId(int shipmentTransBatchInfoId) {
+        this.shipmentTransBatchInfoId = shipmentTransBatchInfoId;
     }
 
     public int getPlanningUnitId() {

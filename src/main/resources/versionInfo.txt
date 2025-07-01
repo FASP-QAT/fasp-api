@@ -1,3 +1,76 @@
+APP Version: 2.103.5617
+Front End Version: 13547
+Date: 2025-07-01
+QAT-5749
+QAT-5742
+QAT-5738
+
+APP Version: 2.103.5617
+Front End Version: 13547
+Date: 2025-06-17
+QAT-5733
+
+APP Version: 2.102.5616
+Front End Version: 13545
+Date: 2025-06-11
+QAT-5734
+QAT-5729
+
+APP Version: 2.102.5615
+Front End Version: 13539
+Date: 2025-06-04
+QAT-5496
+QAT-5720
+QAT-5721
+
+APP Version: 2.102.5612
+Front End Version: 13533
+Date: 2025-05-30
+Chrome Bug
+
+APP Version: 2.102.5611
+Front End Version: 13524
+Date: 2025-05-21
+QAT-5711
+
+APP Version: 2.102.5610
+Front End Version: 13521
+Date: 2025-05-20
+QAT-5699
+QAT-5693
+
+APP Version: 2.101.5609
+Front End Version: 13518
+Date: 2025-05-12
+QAT-5679
+QAT-5694
+
+APP Version: 2.101.5608
+Front End Version: 13512
+Date: 2025-05-05
+QAT-5678
+QAT-5667
+QAT-5666
+QAT-5503
+QAT-5453
+QAT-4091
+
+APP Version: 2.100.5607
+Front End Version: 13497
+Date: 2025-04-22
+QAT-5525
+QAT-5510
+QAT-5478
+QAT-3735
+
+APP Version: 2.99.5602
+Front End Version: 13483
+Date: 2025-04-15
+QAT-5653
+QAT-5654
+QAT-5652
+QAT-5349
+
 APP Version: 2.99.5600
 Front End Version: 13476
 Date: 2025-04-14
