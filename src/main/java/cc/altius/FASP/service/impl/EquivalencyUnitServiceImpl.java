@@ -51,7 +51,7 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
         for (EquivalencyUnit eu : equivalencyUnitList) {
             if (eu.getProgram() != null && eu.getProgram().getId() != null && eu.getProgram().getId() != 0) {
                 try {
-                    SimpleProgram p = this.programCommonDao.getSimpleProgramById(eu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+                    SimpleProgram p = this.programCommonDao.getSimpleProgramById(eu.getProgram().getId(), 0, curUser);
                 } catch (EmptyResultDataAccessException erda) {
                     throw new AccessControlFailedException();
                 }
