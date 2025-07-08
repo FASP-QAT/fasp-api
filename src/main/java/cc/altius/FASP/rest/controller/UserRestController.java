@@ -453,7 +453,7 @@ public class UserRestController {
                     String token = this.userService.generateTokenForEmailId(user.getEmailId(), 2);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not generate a Token for the new user");
-                        return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
+                        return new ResponseEntity(new ResponseCode("static.message.emailNotTriggered"), HttpStatus.PARTIAL_CONTENT); // 206
                     } else {
                         auditLogger.info("User has been created and credentials link sent on email");
                         return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -471,7 +471,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.CONFLICT); // 409
         } catch (DuplicateKeyException e) {
             auditLogger.error("Duplicate Access Controls", e);
-            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.NOT_ACCEPTABLE); // 406
         } catch (Exception e) {
             auditLogger.error("Error", e);
             auditLogger.info("Failed to add the User");
