@@ -1,3 +1,11 @@
+APP Version: 2.104.5622
+Front End Version: 13564
+Date: 2025-07-09
+QAT-5411
+QAT-5453
+QAT-5738
+QAT-5754
+
 APP Version: 2.103.5617
 Front End Version: 13547
 Date: 2025-07-01
