@@ -1,0 +1,1 @@
+SELECT * FROM us_user LIMIT 10;
