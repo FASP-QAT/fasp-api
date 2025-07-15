@@ -163,7 +163,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("CARRIER_SERVICE_CODE", dataRecordElement.getElementsByTagName("carrier_service_code").item(0).getTextContent());
                     map.put("RECIPIENT_NAME", dataRecordElement.getElementsByTagName("recipient_name").item(0).getTextContent());
                     map.put("RECIPIENT_COUNTRY", dataRecordElement.getElementsByTagName("recipient_country").item(0).getTextContent());
-                    map.put("CHANGE_CODE", dataRecordElement.getElementsByTagName("change_code").item(0).getTextContent());
+                    map.put("CHANGE_CODE", 3);
                     map.put("PROGRAM_ID", (dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != "" ? dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() : null));
                     map.put("SHIPMENT_ID", (dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != "" && !dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent().equals("-99") ? dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() : null));
                     batchParams[x] = new MapSqlParameterSource(map);
@@ -256,7 +256,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("ACTUAL_SHIPMENT_DATE", dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent());
                     map.put("ACTUAL_DELIVERY_DATE", dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent());
                     map.put("ARRIVAL_AT_DESTINATION_DATE", dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent());
-                    map.put("CHANGE_CODE", dataRecordElement.getElementsByTagName("change_code").item(0).getTextContent());
+                    map.put("CHANGE_CODE", 3);
                     batchParams[x] = new MapSqlParameterSource(map);
                     x++;
                 }
