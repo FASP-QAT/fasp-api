@@ -1602,11 +1602,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("BATCH_SHIPMENT_QTY", missingBatch.getShipmentRcpuQty());
                 sitb.execute(params);
             } else {
-                sqlString = "UPDATED rm_shipment_trans_batch_info stbi SET stbi.`BATCH_SHIPMENT_QTY`=stbi.`BATCH_SHIPMENT_QTY`+:additionalShipmentQty WHERE stbi.SHIPMENT_TRANS_ID=:shipmentTransId AND stbi.BATCH_ID=:batchId";
+                sqlString = "UPDATE rm_shipment_trans_batch_info stbi SET stbi.`BATCH_SHIPMENT_QTY`=stbi.`BATCH_SHIPMENT_QTY`+:additionalShipmentQty WHERE stbi.SHIPMENT_TRANS_ID=:shipmentTransId AND stbi.BATCH_ID=:batchId";
                 params.clear();
                 params.put("shipmentTransId", missingBatch.getShipmentTransId());
                 params.put("batchId", existingBatchId);
                 params.put("additionalShipmentQty", missingBatch.getShipmentRcpuQty());
+                this.namedParameterJdbcTemplate.update(sqlString, params);
             }
         }
         // Handling Shipments that have a batch but that is for the wrong PU
