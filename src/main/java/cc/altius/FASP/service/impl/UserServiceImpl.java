@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BasicUser;
+import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
@@ -132,15 +133,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+    public List<BasicUser> getUserListForProgramAdmin(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         try {
             this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
-            return this.userDao.getUserListForProgram(programId, curUser);
+            return this.userDao.getUserListForProgramAdmin(programId, curUser);
         } catch (EmptyResultDataAccessException erda) {
             throw new AccessDeniedException("Access denied");
         }
-
     }
+
+    @Override
+    public List<BasicUserWithOrgAndCountry> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+        try {
+            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+            return this.userDao.getUserListWithAccessToProgramId(programId, curUser);
+        } catch (EmptyResultDataAccessException erda) {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+    
+    
 
     @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException {

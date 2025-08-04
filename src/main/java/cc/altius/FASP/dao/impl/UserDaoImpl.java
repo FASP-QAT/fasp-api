@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BasicUser;
+import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -21,6 +22,7 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.AclRoleBusinessFunctionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
+import cc.altius.FASP.model.rowMapper.BasicUserWithOrgAndCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorFull;
@@ -328,9 +330,7 @@ public class UserDaoImpl implements UserDao {
         for (int i = 0; i < curUser.getRoles().size(); i++) {
             role[i] = curUser.getRoles().get(i).getRoleId();
         }
-//        if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
         sb.append("AND FIND_IN_SET(c.`ROLE_ID`,'" + String.join(",", role) + "')");
-//        }
         sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
         return this.namedParameterJdbcTemplate.query(sb.toString(), new RoleListResultSetExtractor());
     }
@@ -525,11 +525,19 @@ public class UserDaoImpl implements UserDao {
     // Check if this method is being used anywhere
     // This is used to get the list of Users that can be a Program Admin for a particular Program
     @Override
-    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) {
+    public List<BasicUser> getUserListForProgramAdmin(int programId, CustomUserDetails curUser) {
         String sb = "SELECT u.USER_ID, u.USERNAME FROM us_user u WHERE u.ACTIVE AND  u.USER_ID in (SELECT DISTINCT(u.USER_ID) FROM vw_all_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID LEFT JOIN us_user u ON u.REALM_ID = rc.REALM_ID LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID WHERE p.PROGRAM_ID=:programId) ORDER BY u.USERNAME";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserRowMapper());
+    }
+
+    @Override
+    public List<BasicUserWithOrgAndCountry> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+        String sb = "CALL getUserListWithAccessToProgramId(:programId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserWithOrgAndCountryRowMapper());
     }
 
     @Override
@@ -540,7 +548,6 @@ public class UserDaoImpl implements UserDao {
         StringBuilder sb = new StringBuilder(this.userCommonString)
                 .append(this.userByUserId);
         this.aclService.addUserAclForRealm(sb, params, "realm", curUser);
-//        this.aclService.addFullAclAtUserLevel(sb, params, "acl", curUser);
         sb.append(this.userOrderBy);
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         String sql = "SELECT USER_ID FROM us_user u WHERE u.USER_ID=:userId";
@@ -969,9 +976,6 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE u.USER_ID IN (")
                 .append(sb1)
                 .append(")");
-//        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
-//            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
-//        }
         sb.append(" group by u.`USER_ID`, acl.`ROLE_ID`, aclrc.`REALM_COUNTRY_ID`, aclha.`HEALTH_AREA_ID`, aclo.`ORGANISATION_ID`, aclp.`PROGRAM_ID`, aclfs.`FUNDING_SOURCE_ID`, aclpa.`PROCUREMENT_AGENT_ID` ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserAclRowMapper());

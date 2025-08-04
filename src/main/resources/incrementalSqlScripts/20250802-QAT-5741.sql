@@ -175,3 +175,53 @@ VIEW `vw_all_program` AS
 -- DELETE pfs.* FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID = 2535 AND pfs.FUNDING_SOURCE_ID=4;
 -- DELETE pfs.* FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID = 2537 AND pfs.FUNDING_SOURCE_ID in (1,2,15);
 -- DELETE ppa.* FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=2535 AND ppa.PROCUREMENT_AGENT_ID IN (2);
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getUserListWithAccessToProgramId`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getUserListWithAccessToProgramId`(VAR_PROGRAM_ID INT)
+BEGIN
+    SET @varProgramId = VAR_PROGRAM_ID;
+    SELECT rc.REALM_ID, p.REALM_COUNTRY_ID, p.HEALTH_AREA_ID, p.ORGANISATION_ID, p.FUNDING_SOURCE_ID, p.PROCUREMENT_AGENT_ID, p.PROGRAM_TYPE_ID into @varRealmId, @varRealmCountryId, @varHealthAreaId, @varOrganisationId, @varFundingSourceId, @varProcurementAgentId, @varProgramTypeId FROM vw_all_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID where p.PROGRAM_ID=@varProgramId;
+
+    IF @varProgramTypeId = 1 THEN
+		SELECT group_concat(DISTINCT rbf.ROLE_ID) INTO @varRoleIdList FROM us_role_business_function rbf WHERE rbf.BUSINESS_FUNCTION_ID in ('ROLE_BF_EDIT_PROGRAM', 'ROLE_BF_UPDATE_PROGRAM', 'ROLE_BF_LIST_PROGRAM', 'ROLE_BF_SET_UP_PROGRAM', 'ROLE_BF_CREATE_A_PROGRAM', 'ROLE_BF_SUPPLY_PLANNING_MODULE');
+        SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID 
+		WHERE 
+			u.ACTIVE
+			AND u.REALM_ID=@varRealmId
+            AND FIND_IN_SET(acl.ROLE_ID, @varRoleIdList) AND acl.ROLE_ID != 'ROLE_APPLICATION_ADMIN'
+			AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=@varRealmCountryId)
+			AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID, @varHealthAreaId))
+			AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=@varOrganisationId)
+            AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=@varProgramId)
+			AND (acl.FUNDING_SOURCE_ID IS NULL OR FIND_IN_SET(acl.FUNDING_SOURCE_ID, @varFundingSourceId))
+			AND (acl.PROCUREMENT_AGENT_ID IS NULL OR FIND_IN_SET(acl.PROCUREMENT_AGENT_ID, @varProcurementAgentId))
+		GROUP BY u.USER_ID
+		ORDER BY u.ORG_AND_COUNTRY, u.USER_ID;
+	ELSEIF @varProgramTypeId = 2 THEN
+		SELECT group_concat(DISTINCT rbf.ROLE_ID) INTO @varRoleIdList FROM us_role_business_function rbf WHERE rbf.BUSINESS_FUNCTION_ID in ('ROLE_BF_ADD_DATASET', 'ROLE_BF_EDIT_DATASET', 'ROLE_BF_LIST_DATASET', 'ROLE_BF_COMMIT_DATASET', 'ROLE_BF_IMPORT_DATASET', 'ROLE_BF_EXPORT_DATASET', 'ROLE_BF_LOAD_DELETE_DATASET', 'ROLE_BF_FORECASTING_MODULE');
+		SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID 
+		WHERE 
+			u.ACTIVE
+            AND u.REALM_ID=@varRealmId
+			AND FIND_IN_SET(acl.ROLE_ID, @varRoleIdList) AND acl.ROLE_ID != 'ROLE_APPLICATION_ADMIN'
+			AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=@varRealmCountryId)
+			AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID, @varHealthAreaId))
+			AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=@varOrganisationId)
+            AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=@varProgramId)
+		GROUP BY u.USER_ID
+		ORDER BY u.ORG_AND_COUNTRY, u.USER_ID;
+	END IF;
+END$$
+
+DELIMITER ;
+;
+
+
+INSERT INTO ap_security VALUES (null, '1', '/api/program/userList/{programId}', 'ROLE_BF_EDIT_PROGRAM');
+INSERT INTO ap_security VALUES (null, '1', '/api/program/userList/{programId}', 'ROLE_BF_EDIT_DATASET');

@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
+import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.LoadProgram;
@@ -61,8 +62,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RestController
 @RequestMapping("/api")
 @Tag(
-    name = "Program",
-    description = "Manage supply plan programs with support for planning units, procurement agents, and realm-based access control"
+        name = "Program",
+        description = "Manage supply plan programs with support for planning units, procurement agents, and realm-based access control"
 )
 public class ProgramRestController {
 
@@ -86,13 +87,13 @@ public class ProgramRestController {
      */
     @PutMapping(path = "/program")
     @Operation(
-        summary = "Update Program",
-        description = "Update an existing supply plan program"
+            summary = "Update Program",
+            description = "Update an existing supply plan program"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The input object containing program details",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramInitialize.class))
+            description = "The input object containing program details",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramInitialize.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update a program")
@@ -119,16 +120,6 @@ public class ProgramRestController {
         }
     }
 
-//    @PostMapping("/program/programIds")
-//    public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-//            return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
     /**
      * Get list of active SP Programs
      *
@@ -137,8 +128,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program")
     @Operation(
-        summary = "Get Supply Plan Programs",
-        description = "Retrieve a list of active supply plan programs"
+            summary = "Get Supply Plan Programs",
+            description = "Retrieve a list of active supply plan programs"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Program.class))), responseCode = "200", description = "Returns a list of active supply plan programs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting program list")
@@ -160,8 +151,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/all")
     @Operation(
-        summary = "Get Supply Plan Programs (All)",
-        description = "Retrieve a list of all supply plan programs"
+            summary = "Get Supply Plan Programs (All)",
+            description = "Retrieve a list of all supply plan programs"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Program.class))), responseCode = "200", description = "Returns a list of all supply plan programs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting program list")
@@ -184,8 +175,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}/planningUnit")
     @Operation(
-        summary = "Get Planning Units for Supply Plan Program",
-        description = "Retrieve a list of planning units for a specific supply plan program"
+            summary = "Get Planning Units for Supply Plan Program",
+            description = "Retrieve a list of planning units for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class))), responseCode = "200", description = "Returns a list of planning units for a specific program")
@@ -209,26 +200,26 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Get specific PU mapped to a SP Program
      *
      * @param programId
-     * @param planningUnitId 
+     * @param planningUnitId
      * @param auth
      * @return
      */
     @GetMapping("/program/{programId}/planningUnit/{planningUnitId}")
     @Operation(
-        summary = "Get specific Planning Unit for Supply Plan Program",
-        description = "Retrieve a specific planning unit for a specific supply plan program"
+            summary = "Get specific Planning Unit for Supply Plan Program",
+            description = "Retrieve a specific planning unit for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @Parameter(name = "planningUnitId", description = "The ID of the planning unit to retrieve details for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class))), responseCode = "200", description = "Returns a specific planning units for a specific program")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Program not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting planning unit list")
-    public ResponseEntity getPlanningUnitForProgramIdAndPlanningUnitId(@PathVariable("programId") int programId,@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
+    public ResponseEntity getPlanningUnitForProgramIdAndPlanningUnitId(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
             return new ResponseEntity(this.programService.getPlanningUnitForProgramIdAndPlanningUnitId(programId, planningUnitId, curUser), HttpStatus.OK);
@@ -248,6 +239,40 @@ public class ProgramRestController {
     }
 
     /**
+     *
+     * @param programId - The ID of the program to get the User list for
+     * @param auth
+     * @return - List of Users with their OrgAndCountry
+     */
+    @GetMapping("/program/userList/{programId}")
+    @Operation(
+            summary = "Get the list of Users that have access to a Program",
+            description = "Get the list of Users that have access to a Program. Only Active users are returned."
+    )
+    @Parameter(name = "programId", description = "The ID of the program to get the User list for", required = true)
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BasicUserWithOrgAndCountry.class))), responseCode = "200", description = "List of Users with their OrgAndCountry")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Program not found")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the User list")
+    public ResponseEntity getUserListByProgramId(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.userService.getUserListWithAccessToProgramId(programId, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("Error while trying to list User access to Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.CONFLICT);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list User access to Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list User access to Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to list User access to Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
+
+    /**
      * Get list of PU’s mapped to a SP Program filtered by TracerCateogryIds
      *
      * @param programId
@@ -257,8 +282,8 @@ public class ProgramRestController {
      */
     @PostMapping("/program/{programId}/tracerCategory/planningUnit")
     @Operation(
-        summary = "Get Planning Units for Program and Tracer Category",
-        description = "Retrieve a list of planning units for a specific program and tracer categories"
+            summary = "Get Planning Units for Program and Tracer Category",
+            description = "Retrieve a list of planning units for a specific program and tracer categories"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class))), responseCode = "200", description = "Returns a list of planning units for a specific program and tracer categories")
@@ -295,8 +320,8 @@ public class ProgramRestController {
      */
     @PostMapping("/program/{programId}/tracerCategory/simple/planningUnit")
     @Operation(
-        summary = "Get Simple Planning Units for Program and Tracer Category",
-        description = "Retrieve a list of simple planning units for a specific program and tracer categories"
+            summary = "Get Simple Planning Units for Program and Tracer Category",
+            description = "Retrieve a list of simple planning units for a specific program and tracer categories"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimplePlanningUnitObject.class))), responseCode = "200", description = "Returns a list of simple planning units for a specific program and tracer categories")
@@ -331,8 +356,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}/planningUnit/all")
     @Operation(
-        summary = "Get Planning Units for Supply Plan Program",
-        description = "Retrieve a list of all planning units for a specific supply plan program"
+            summary = "Get Planning Units for Supply Plan Program",
+            description = "Retrieve a list of all planning units for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class))), responseCode = "200", description = "Returns a list of all planning units for a specific program")
@@ -363,13 +388,13 @@ public class ProgramRestController {
      */
     @PutMapping("/program/planningUnit")
     @Operation(
-        summary = "Save Planning Unit for Program",
-        description = "Add and update planning units for a specific program"
+            summary = "Save Planning Unit for Program",
+            description = "Add and update planning units for a specific program"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of program planning units to save",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class)))
+            description = "The list of program planning units to save",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnit.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update this program")
@@ -406,13 +431,13 @@ public class ProgramRestController {
     // List of Programs and List of PlanningUnitIds instead of single select
     @PostMapping("/program/planningUnit/procurementAgent/")
     @Operation(
-        summary = "Get Procurement Agents for Program Planning Unit",
-        description = "Retrieve a list of procurement agents for a specific supply plan program planning unit"
+            summary = "Get Procurement Agents for Program Planning Unit",
+            description = "Retrieve a list of procurement agents for a specific supply plan program planning unit"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The input object containing program planning unit procurement agent data",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramPlanningUnitProcurementAgentInput.class))
+            description = "The input object containing program planning unit procurement agent data",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramPlanningUnitProcurementAgentInput.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnitProcurementAgentPrice.class))), responseCode = "200", description = "Returns a list of program planning unit procurement agents")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Program not found")
@@ -440,13 +465,13 @@ public class ProgramRestController {
 //    Allow for -1 in PlanningUnit
     @PutMapping("/program/planningUnit/procurementAgent")
     @Operation(
-        summary = "Save Procurement Agent Prices for Program Planning Unit",
-        description = "Save procurement agent prices for a specific supply plan program planning unit"
+            summary = "Save Procurement Agent Prices for Program Planning Unit",
+            description = "Save procurement agent prices for a specific supply plan program planning unit"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of program planning unit procurement agent prices to save",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnitProcurementAgentPrice.class)))
+            description = "The list of program planning unit procurement agent prices to save",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProgramPlanningUnitProcurementAgentPrice.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to update this program")
@@ -481,13 +506,13 @@ public class ProgramRestController {
      */
     @PostMapping("/planningUnit/programs")
     @Operation(
-        summary = "Get Planning Units mapped to Supply Plan Programs",
-        description = "Retrieve a list of planning units for a list of supply plan programs"
+            summary = "Get Planning Units mapped to Supply Plan Programs",
+            description = "Retrieve a list of planning units for a list of supply plan programs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of program IDs to retrieve planning units for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
+            description = "The list of program IDs to retrieve planning units for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleObject.class))), responseCode = "200", description = "Returns a list of planning units for a list of programs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access these programs")
@@ -518,13 +543,13 @@ public class ProgramRestController {
     @JsonView(Views.DropDownView.class)
     @PostMapping("/programAndPlanningUnit/programs")
     @Operation(
-        summary = "Get Program and Planning Units",
-        description = "Retrieve a list of programs and planning units given a list of supply plan programs"
+            summary = "Get Program and Planning Units",
+            description = "Retrieve a list of programs and planning units given a list of supply plan programs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of program IDs to retrieve programs and planning units for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
+            description = "The list of program IDs to retrieve programs and planning units for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleObjectWithType.class))), responseCode = "200", description = "Returns a list of programs and planning units for a list of programs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access these programs")
@@ -561,8 +586,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/realmId/{realmId}")
     @Operation(
-        summary = "Get Supply Plan Programs for Realm",
-        description = "Retrieve a list of supply plan programs for a specific realm"
+            summary = "Get Supply Plan Programs for Realm",
+            description = "Retrieve a list of supply plan programs for a specific realm"
     )
     @Parameter(name = "realmId", description = "The ID of the realm to retrieve programs for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Program.class))), responseCode = "200", description = "Returns a list of programs for a specific realm")
@@ -594,8 +619,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}")
     @Operation(
-        summary = "Get Supply Plan Program Details",
-        description = "Retrieve details for a specific supply plan program"
+            summary = "Get Supply Plan Program Details",
+            description = "Retrieve details for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve details for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ProgramInitialize.class)), responseCode = "200", description = "Returns details for a specific program")
@@ -632,8 +657,8 @@ public class ProgramRestController {
      */
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
     @Operation(
-        summary = "Get Planning Units for Supply Plan Program and Product Category",
-        description = "Retrieve a list of planning units for a specific supply plan program and product category"
+            summary = "Get Planning Units for Supply Plan Program and Product Category",
+            description = "Retrieve a list of planning units for a specific supply plan program and product category"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve planning units for", required = true)
     @Parameter(name = "productCategory", description = "The ID of the product category to retrieve planning units for", required = true)
@@ -669,13 +694,13 @@ public class ProgramRestController {
      */
     @PostMapping(path = "/program/initialize")
     @Operation(
-        summary = "Add Supply Plan Program",
-        description = "Initialize a new supply plan program"
+            summary = "Add Supply Plan Program",
+            description = "Initialize a new supply plan program"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The program initialize object to add",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramInitialize.class))
+            description = "The program initialize object to add",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProgramInitialize.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to add this program")
@@ -710,8 +735,8 @@ public class ProgramRestController {
     @GetMapping("/loadProgram")
     @JsonView(Views.InternalView.class)
     @Operation(
-        summary = "Get Supply Plan Programs (load)",
-        description = "Retrieve a list of supply plan programs for load"
+            summary = "Get Supply Plan Programs (load)",
+            description = "Retrieve a list of supply plan programs for load"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = LoadProgram.class))), responseCode = "200", description = "Returns a list of programs for load")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
@@ -746,8 +771,8 @@ public class ProgramRestController {
     @GetMapping("/loadProgram/programId/{programId}/page/{page}")
     @JsonView(Views.InternalView.class)
     @Operation(
-        summary = "Get Version List for Supply Plan Program (load)",
-        description = "Retrieve a list of versions for a specific supply plan program"
+            summary = "Get Version List for Supply Plan Program (load)",
+            description = "Retrieve a list of versions for a specific supply plan program"
     )
     @Parameter(name = "programId", description = "The ID of the program to retrieve programs for", required = true)
     @Parameter(name = "page", description = "The page number to retrieve programs for", required = true)
@@ -770,48 +795,6 @@ public class ProgramRestController {
     }
 
     /**
-     * Used to confirm if the ProgarmCode is not a duplicate for this Realm
-     *
-     * @param realmId
-     * @param programId
-     * @param programCode
-     * @param auth
-     * @return
-     */
-    /*
-    * returns true if the ProgramCode is not present and is a valid entry
-    * returns false if the ProgramCode exists and cannot be used again
-     */
-//    @GetMapping("program/validate/realmId/{realmId}/programId/{programId}/programCode/{programCode}")
-//    public ResponseEntity validateProgramCode(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("programCode") String programCode, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-//            return new ResponseEntity(this.programService.validateProgramCode(realmId, programId, programCode, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException e) {
-//            return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to list Programs", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list Programs", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//    @GetMapping("program/supplyPlanReviewer/programId/{programId}")
-//    public ResponseEntity getSupplyPlanReviewerListForProgram(@PathVariable("programId") int programId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-//            return new ResponseEntity(this.programService.getSupplyPlanReviewerList(programId, curUser), HttpStatus.OK);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to list Programs", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list Programs", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    /**
      * Get Simple list of Programs for list fo a RealmCountries
      *
      * @param realmCountryIds
@@ -820,13 +803,13 @@ public class ProgramRestController {
      */
     @PostMapping("/program/realmCountryList")
     @Operation(
-        summary = "Get Supply Plan Programs for Realm Countries",
-        description = "Retrieve a simple list of supply plan programs by realm country IDs"
+            summary = "Get Supply Plan Programs for Realm Countries",
+            description = "Retrieve a simple list of supply plan programs by realm country IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of realm country IDs to retrieve programs for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+            description = "The list of realm country IDs to retrieve programs for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns a list of programs by realm country IDs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
@@ -853,13 +836,13 @@ public class ProgramRestController {
      */
     @PostMapping("/program/productCategoryList")
     @Operation(
-        summary = "Get Programs by Product Categories",
-        description = "Retrieve a simple list of programs by product category IDs"
+            summary = "Get Programs by Product Categories",
+            description = "Retrieve a simple list of programs by product category IDs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The list of product category IDs to retrieve programs for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+            description = "The list of product category IDs to retrieve programs for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = SimpleCodeObject.class))), responseCode = "200", description = "Returns a list of programs by product category IDs")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this product category")
@@ -876,7 +859,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     /**
      * Gets the list of all Program Planning Units the loaded programs
      *
@@ -886,8 +869,8 @@ public class ProgramRestController {
      */
     @PostMapping("/programPlanningUnit/all")
     @Operation(
-        summary = "Get Program Planning Unit for loaded program",
-        description = "Retrieve a list of program planning unit for program"
+            summary = "Get Program Planning Unit for loaded program",
+            description = "Retrieve a list of program planning unit for program"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = LoadProgram.class))), responseCode = "200", description = "Returns a list of programs for load")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have rights to access this realm")
@@ -907,7 +890,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
-    
+
     private String getProgramIds(String[] programIds) {
         if (programIds == null) {
             return "";
@@ -921,42 +904,4 @@ public class ProgramRestController {
         }
     }
 
-//    @PostMapping("/program/{programId}/updateProcurementAgents")
-//    public ResponseEntity updateProcurementAgentsForProgram(@PathVariable("programId") int programId, @RequestBody Integer[] procurementAgentIds, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-//            return new ResponseEntity(this.procurementAgentService.updateProcurementAgentsForProgram(programId, procurementAgentIds, curUser), HttpStatus.OK);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to update Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.FORBIDDEN);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to updated Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to update Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updatedFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @GetMapping("/program/{programId}/updateProcurementAgents")
-//    @JsonView(Views.InternalView.class)
-//    public ResponseEntity getDataForUpdateProcurementAgentsForProgram(@PathVariable("programId") int programId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-//            Map<String, Object> outputData = new HashMap<>();
-//            outputData.put("program", this.programService.getSimpleSupplyPlanProgramByProgramId(programId, curUser));
-//            outputData.put("selectedProcurementAgentList", this.procurementAgentService.getProcurementAgentDropdownListForFilterMultiplePrograms(Integer.toString(programId), curUser));
-//            outputData.put("procurementAgentList", this.procurementAgentService.getProcurementAgentDropdownList(curUser));
-//            return new ResponseEntity(outputData, HttpStatus.OK);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to list Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to list Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to list Program", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }
