@@ -94,7 +94,9 @@ public class UserDaoImpl implements UserDao {
             + "            (cuacl.REALM_COUNTRY_ID=acl.REALM_COUNTRY_ID OR cuacl.REALM_COUNTRY_ID is null) AND  "
             + "            (cuacl.HEALTH_AREA_ID=acl.HEALTH_AREA_ID OR cuacl.HEALTH_AREA_ID is null) AND "
             + "            (cuacl.ORGANISATION_ID=acl.ORGANISATION_ID OR cuacl.ORGANISATION_ID is null) AND "
-            + "            (cuacl.PROGRAM_ID=acl.PROGRAM_ID OR cuacl.PROGRAM_ID is null) "
+            + "            (cuacl.PROGRAM_ID=acl.PROGRAM_ID OR cuacl.PROGRAM_ID is null) AND "
+            + "            (cuacl.FUNDING_SOURCE_ID=acl.FUNDING_SOURCE_ID OR cuacl.FUNDING_SOURCE_ID is null) AND "
+            + "            (cuacl.PROCUREMENT_AGENT_ID=acl.PROCUREMENT_AGENT_ID OR cuacl.PROCUREMENT_AGENT_ID is null) "
             + "        , 1,0)) access "
             + "FROM us_user `user`      "
             + "LEFT JOIN us_user_acl acl ON `user`.`USER_ID`=acl.`USER_ID`      "
@@ -120,6 +122,8 @@ public class UserDaoImpl implements UserDao {
             + " acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
             + " acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
             + " acl.`PROGRAM_ID` `ACL_PROGRAM_ID`, acl_program_lb.`LABEL_ID` `ACL_PROGRAM_LABEL_ID`, acl_program_lb.`LABEL_EN` `ACL_PROGRAM_LABEL_EN`, acl_program_lb.`LABEL_FR` `ACL_PROGRAM_LABEL_FR`, acl_program_lb.`LABEL_SP` `ACL_PROGRAM_LABEL_SP`, acl_program_lb.`LABEL_PR` `ACL_PROGRAM_LABEL_PR`,acl_program.`PROGRAM_CODE` `ACL_PROGRAM_CODE`,acl_program.`PROGRAM_TYPE_ID` `ACL_PROGRAM_TYPE_ID`, "
+            + " acl.`FUNDING_SOURCE_ID` `ACL_FUNDING_SOURCE_ID`, acl_funding_source_lb.`LABEL_ID` `ACL_FUNDING_SOURCE_LABEL_ID`, acl_funding_source_lb.`LABEL_EN` `ACL_FUNDING_SOURCE_LABEL_EN`, acl_funding_source_lb.`LABEL_FR` `ACL_FUNDING_SOURCE_LABEL_FR`, acl_funding_source_lb.`LABEL_SP` `ACL_FUNDING_SOURCE_LABEL_SP`, acl_funding_source_lb.`LABEL_PR` `ACL_FUNDING_SOURCE_LABEL_PR`, "
+            + " acl.`PROCUREMENT_AGENT_ID` `ACL_PROCUREMENT_AGENT_ID`, acl_procurement_agent_lb.`LABEL_ID` `ACL_PROCUREMENT_AGENT_LABEL_ID`, acl_procurement_agent_lb.`LABEL_EN` `ACL_PROCUREMENT_AGENT_LABEL_EN`, acl_procurement_agent_lb.`LABEL_FR` `ACL_PROCUREMENT_AGENT_LABEL_FR`, acl_procurement_agent_lb.`LABEL_SP` `ACL_PROCUREMENT_AGENT_LABEL_SP`, acl_procurement_agent_lb.`LABEL_PR` `ACL_PROCUREMENT_AGENT_LABEL_PR`, "
             + " DATE_FORMAT(acl.`LAST_MODIFIED_DATE`, '%Y-%m-%d %h:%i:%s') `ACL_LAST_MODIFIED_DATE` "
             + " FROM us_user `user` "
             + " LEFT JOIN rm_realm `realm` ON realm.`REALM_ID`=user.`REALM_ID` "
@@ -142,6 +146,10 @@ public class UserDaoImpl implements UserDao {
             + " LEFT JOIN ap_label acl_health_area_lb ON acl_health_area.`LABEL_ID`=acl_health_area_lb.`LABEL_ID` "
             + " LEFT JOIN rm_organisation acl_organisation ON acl.`ORGANISATION_ID`=acl_organisation.`ORGANISATION_ID` "
             + " LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
+            + " LEFT JOIN rm_funding_source acl_funding_source ON acl.`FUNDING_SOURCE_ID`=acl_funding_source.`FUNDING_SOURCE_ID` "
+            + " LEFT JOIN ap_label acl_funding_source_lb ON acl_funding_source.`LABEL_ID`=acl_funding_source_lb.`LABEL_ID` "
+            + " LEFT JOIN rm_procurement_agent acl_procurement_agent ON acl.`PROCUREMENT_AGENT_ID`=acl_procurement_agent.`PROCUREMENT_AGENT_ID` "
+            + " LEFT JOIN ap_label acl_procurement_agent_lb ON acl_procurement_agent.`LABEL_ID`=acl_procurement_agent_lb.`LABEL_ID` "
             + " LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + " LEFT JOIN ap_label acl_program_lb ON acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` ";
     private final static String whereClauseAclCheck = " WHERE (FIND_IN_SET(user_role.ROLE_ID, :allowedRoleList) OR user_role.ROLE_ID IS NULL) ";
@@ -163,6 +171,8 @@ public class UserDaoImpl implements UserDao {
             + "    acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
             + "    acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
             + "    acl.`PROGRAM_ID` `ACL_PROGRAM_ID`, acl_program_lb.`LABEL_ID` `ACL_PROGRAM_LABEL_ID`, acl_program_lb.`LABEL_EN` `ACL_PROGRAM_LABEL_EN`, acl_program_lb.`LABEL_FR` `ACL_PROGRAM_LABEL_FR`, acl_program_lb.`LABEL_SP` `ACL_PROGRAM_LABEL_SP`, acl_program_lb.`LABEL_PR` `ACL_PROGRAM_LABEL_PR`,acl_program.PROGRAM_CODE `ACL_PROGRAM_CODE`,acl_program.`PROGRAM_TYPE_ID` `ACL_PROGRAM_TYPE_ID`, "
+            + "    acl.`FUNDING_SOURCE_ID` `ACL_FUNDING_SOURCE_ID`, acl_funding_source_lb.`LABEL_ID` `ACL_FUNDING_SOURCE_LABEL_ID`, acl_funding_source_lb.`LABEL_EN` `ACL_FUNDING_SOURCE_LABEL_EN`, acl_funding_source_lb.`LABEL_FR` `ACL_FUNDING_SOURCE_LABEL_FR`, acl_funding_source_lb.`LABEL_SP` `ACL_FUNDING_SOURCE_LABEL_SP`, acl_funding_source_lb.`LABEL_PR` `ACL_FUNDING_SOURCE_LABEL_PR`, "
+            + "    acl.`PROCUREMENT_AGENT_ID` `ACL_PROCUREMENT_AGENT_ID`, acl_procurement_agent_lb.`LABEL_ID` `ACL_PROCUREMENT_AGENT_LABEL_ID`, acl_procurement_agent_lb.`LABEL_EN` `ACL_PROCUREMENT_AGENT_LABEL_EN`, acl_procurement_agent_lb.`LABEL_FR` `ACL_PROCUREMENT_AGENT_LABEL_FR`, acl_procurement_agent_lb.`LABEL_SP` `ACL_PROCUREMENT_AGENT_LABEL_SP`, acl_procurement_agent_lb.`LABEL_PR` `ACL_PROCUREMENT_AGENT_LABEL_PR`, "
             + "    DATE_FORMAT(acl.`LAST_MODIFIED_DATE`, '%Y-%m-%d %h:%i:%s') `ACL_LAST_MODIFIED_DATE` "
             + " FROM us_user `user` "
             + "    LEFT JOIN rm_realm `realm` ON realm.`REALM_ID`=user.`REALM_ID` "
@@ -186,6 +196,10 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
             + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
+            + "    LEFT JOIN rm_funding_source acl_funding_source ON acl.`FUNDING_SOURCE_ID`=acl_funding_source.`FUNDING_SOURCE_ID` "
+            + "    LEFT JOIN ap_label acl_funding_source_lb ON acl_funding_source.`LABEL_ID`=acl_funding_source_lb.`LABEL_ID` "
+            + "    LEFT JOIN rm_procurement_agent acl_procurement_agent ON acl.`PROCUREMENT_AGENT_ID`=acl_procurement_agent.`PROCUREMENT_AGENT_ID` "
+            + "    LEFT JOIN ap_label acl_procurement_agent_lb ON acl_procurement_agent.`LABEL_ID`=acl_procurement_agent_lb.`LABEL_ID` "
             + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID ";
     private static final String userByUserId = "    WHERE user.USER_ID=:userId ";
     private static final String userList = "    WHERE user_role.ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_user_role ur LEFT JOIN us_can_create_role ccr ON ur.ROLE_ID=ccr.ROLE_ID where ur.USER_ID=:curUser) ";
@@ -371,7 +385,7 @@ public class UserDaoImpl implements UserDao {
         params.clear();
         paramArray = null;
         paramArray = new HashMap[user.getUserAcls().length];
-        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, FUNDING_SOURCE_ID, PROCUREMENT_AGENT_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :fundingSourceId, :procurementAgentId, :curUser, :curDate, :curUser, :curDate)";
         paramArray = new HashMap[user.getUserAcls().length];
         for (UserAcl userAcl : user.getUserAcls()) {
             params = new HashMap<>();
@@ -381,6 +395,8 @@ public class UserDaoImpl implements UserDao {
             params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
             params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
             params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+            params.put("fundingSourceId", (userAcl.getFundingSourceId() == -1 ? null : userAcl.getFundingSourceId()));
+            params.put("procurementAgentId", (userAcl.getProcurementAgentId() == -1 ? null : userAcl.getProcurementAgentId()));
             params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
@@ -593,7 +609,7 @@ public class UserDaoImpl implements UserDao {
         sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
         params.put("userId", user.getUserId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+        sqlString = "INSERT INTO us_user_acl (USER_ID, ROLE_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, FUNDING_SOURCE_ID, PROCUREMENT_AGENT_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :roleId, :realmCountryId, :healthAreaId, :organisationId, :programId, :fundingSourceId, :procurementAgentId, :curUser, :curDate, :curUser, :curDate)";
         paramArray = new HashMap[user.getUserAcls().length];
         for (UserAcl userAcl : user.getUserAcls()) {
             params = new HashMap<>();
@@ -603,6 +619,8 @@ public class UserDaoImpl implements UserDao {
             params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
             params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
             params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+            params.put("fundingSourceId", (userAcl.getFundingSourceId() == -1 ? null : userAcl.getFundingSourceId()));
+            params.put("procurementAgentId", (userAcl.getProcurementAgentId() == -1 ? null : userAcl.getProcurementAgentId()));
             params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             paramArray[x] = params;
@@ -932,6 +950,8 @@ public class UserDaoImpl implements UserDao {
                 + "   aclha.`HEALTH_AREA_ID` `HEALTH_AREA_ID`, aclha.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, aclha.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, aclha.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, aclha.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, aclha.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
                 + "   aclo.`ORGANISATION_ID` `ORGANISATION_ID`, aclo.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, aclo.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, aclo.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, aclo.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, aclo.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
                 + "   aclp.`PROGRAM_ID` `PROGRAM_ID`, aclp.`LABEL_ID` `ACL_PROGRAM_LABEL_ID`, aclp.`LABEL_EN` `ACL_PROGRAM_LABEL_EN`, aclp.`LABEL_FR` `ACL_PROGRAM_LABEL_FR`, aclp.`LABEL_SP` `ACL_PROGRAM_LABEL_SP`, aclp.`LABEL_PR` `ACL_PROGRAM_LABEL_PR`, "
+                + "   aclfs.`FUNDING_SOURCE_ID` `FUNDING_SOURCE_ID`, aclp.`LABEL_ID` `ACL_FUNDING_SOURCE_LABEL_ID`, aclp.`LABEL_EN` `ACL_FUNDING_SOURCE_LABEL_EN`, aclp.`LABEL_FR` `ACL_FUNDING_SOURCE_LABEL_FR`, aclp.`LABEL_SP` `ACL_FUNDING_SOURCE_LABEL_SP`, aclp.`LABEL_PR` `ACL_FUNDING_SOURCE_LABEL_PR`, "
+                + "   aclpa.`PROCUREMENT_AGENT_ID` `PROCUREMENT_AGENT_ID`, aclp.`LABEL_ID` `ACL_PROCUREMENT_AGENT_LABEL_ID`, aclp.`LABEL_EN` `ACL_PROCUREMENT_AGENT_LABEL_EN`, aclp.`LABEL_FR` `ACL_PROCUREMENT_AGENT_LABEL_FR`, aclp.`LABEL_SP` `ACL_PROCUREMENT_AGENT_LABEL_SP`, aclp.`LABEL_PR` `ACL_PROCUREMENT_AGENT_LABEL_PR`, "
                 + "   acl.`LAST_MODIFIED_DATE` "
                 + "FROM us_user u "
                 + "LEFT JOIN rm_realm r ON u.REALM_ID=r.REALM_ID "
@@ -944,13 +964,15 @@ public class UserDaoImpl implements UserDao {
                 + "LEFT JOIN vw_health_area aclha ON acl.`HEALTH_AREA_ID`=aclha.`HEALTH_AREA_ID` "
                 + "LEFT JOIN vw_organisation aclo ON acl.`ORGANISATION_ID`=aclo.`ORGANISATION_ID` "
                 + "LEFT JOIN vw_all_program aclp ON acl.`PROGRAM_ID`=aclp.`PROGRAM_ID` "
+                + "LEFT JOIN vw_funding_source aclfs ON acl.`FUNDING_SOURCE_ID`=aclfs.`FUNDING_SOURCE_ID` "
+                + "LEFT JOIN vw_procurement_agent aclpa ON acl.`PROCUREMENT_AGENT_ID`=aclpa.`PROCUREMENT_AGENT_ID` "
                 + "WHERE u.USER_ID IN (")
                 .append(sb1)
                 .append(")");
 //        if (!curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BF_ADD_REALM"))) {
 //            sb.append(" AND u.REALM_ID=").append(curUser.getRealm().getRealmId());
 //        }
-        sb.append(" group by u.`USER_ID`,acl.`ROLE_ID`,aclrc.`REALM_COUNTRY_ID`,aclha.`HEALTH_AREA_ID`,aclo.`ORGANISATION_ID`,aclp.`PROGRAM_ID` ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
+        sb.append(" group by u.`USER_ID`, acl.`ROLE_ID`, aclrc.`REALM_COUNTRY_ID`, aclha.`HEALTH_AREA_ID`, aclo.`ORGANISATION_ID`, aclp.`PROGRAM_ID`, aclfs.`FUNDING_SOURCE_ID`, aclpa.`PROCUREMENT_AGENT_ID` ORDER BY u.`USER_ID`, acl.`ROLE_ID` ");
         logger.info(LogUtils.buildStringForLog(sb.toString(), params));
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new UserAclRowMapper());
     }
@@ -978,7 +1000,13 @@ public class UserDaoImpl implements UserDao {
                 if (userAcl.getProgramId() == -1) {
                     count++;
                 }
-                if (count == 4) {
+                if (userAcl.getFundingSourceId() == -1) {
+                    count++;
+                }
+                if (userAcl.getProcurementAgentId() == -1) {
+                    count++;
+                }
+                if (count == 6) {
                     return -2;
                 }
             }
@@ -988,7 +1016,7 @@ public class UserDaoImpl implements UserDao {
             sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
             params.put("userId", user.getUserId());
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, FUNDING_SOURCE_ID, PROCUREMENT_AGENT_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :fundingSourceId, :procurementAgentId, :curUser, :curDate, :curUser, :curDate)";
             paramArray = new HashMap[user.getUserAcls().length];
             for (UserAcl userAcl : user.getUserAcls()) {
                 params = new HashMap<>();
@@ -997,6 +1025,8 @@ public class UserDaoImpl implements UserDao {
                 params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
                 params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
                 params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+                params.put("fundingSourceId", (userAcl.getFundingSourceId() == -1 ? null : userAcl.getFundingSourceId()));
+                params.put("procurementAgentId", (userAcl.getProcurementAgentId() == -1 ? null : userAcl.getProcurementAgentId()));
                 params.put("curUser", curUser.getUserId());
                 params.put("curDate", curDate);
                 paramArray[x] = params;

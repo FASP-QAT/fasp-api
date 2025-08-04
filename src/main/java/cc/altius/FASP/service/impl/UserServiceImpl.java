@@ -73,10 +73,6 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getCustomUserByUserId(userId);
     }
 
-//    @Override
-//    public Map<String, Object> checkIfUserExists(String username, String password) {
-//        return this.userDao.checkIfUserExists(username, password);
-//    }
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         return this.userDao.resetFailedAttemptsByUsername(emailId);
@@ -164,7 +160,7 @@ public class UserServiceImpl implements UserService {
         List<UserAcl> expandedUserAcl = new LinkedList<>();
         for (UserAcl acl : user.getUserAclList()) {
             if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
-                throw new AccessControlFailedException("You do not have the rights to create a User with - " + acl.getRoleId());
+                throw new AccessControlFailedException("You do not have the rights to updated a User with - " + acl.getRoleId());
             }
             List<UserAcl> tmpUserAcl = aclService.expandUserAccess(acl, curUser);
             if (tmpUserAcl == null || tmpUserAcl.isEmpty()) {
