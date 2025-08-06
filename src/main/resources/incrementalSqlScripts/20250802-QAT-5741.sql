@@ -178,6 +178,9 @@ VIEW `vw_all_program` AS
 
 
 USE `fasp`;
+DROP procedure IF EXISTS `getUserListWithAccessToProgramId`;
+
+USE `fasp`;
 DROP procedure IF EXISTS `fasp`.`getUserListWithAccessToProgramId`;
 ;
 
@@ -190,7 +193,8 @@ BEGIN
 
     IF @varProgramTypeId = 1 THEN
 		SELECT group_concat(DISTINCT rbf.ROLE_ID) INTO @varRoleIdList FROM us_role_business_function rbf WHERE rbf.BUSINESS_FUNCTION_ID in ('ROLE_BF_EDIT_PROGRAM', 'ROLE_BF_UPDATE_PROGRAM', 'ROLE_BF_LIST_PROGRAM', 'ROLE_BF_SET_UP_PROGRAM', 'ROLE_BF_CREATE_A_PROGRAM', 'ROLE_BF_SUPPLY_PLANNING_MODULE');
-        SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID 
+        SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY, r.ROLE_ID, l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR 
+        FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID LEFT JOIN us_role r ON ur.ROLE_ID=r.ROLE_ID LEFT JOIN ap_label l ON r.LABEL_ID=l.LABEL_ID
 		WHERE 
 			u.ACTIVE
 			AND u.REALM_ID=@varRealmId
@@ -200,12 +204,11 @@ BEGIN
 			AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=@varOrganisationId)
             AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=@varProgramId)
 			AND (acl.FUNDING_SOURCE_ID IS NULL OR FIND_IN_SET(acl.FUNDING_SOURCE_ID, @varFundingSourceId))
-			AND (acl.PROCUREMENT_AGENT_ID IS NULL OR FIND_IN_SET(acl.PROCUREMENT_AGENT_ID, @varProcurementAgentId))
-		GROUP BY u.USER_ID
-		ORDER BY u.ORG_AND_COUNTRY, u.USER_ID;
+			AND (acl.PROCUREMENT_AGENT_ID IS NULL OR FIND_IN_SET(acl.PROCUREMENT_AGENT_ID, @varProcurementAgentId));
 	ELSEIF @varProgramTypeId = 2 THEN
 		SELECT group_concat(DISTINCT rbf.ROLE_ID) INTO @varRoleIdList FROM us_role_business_function rbf WHERE rbf.BUSINESS_FUNCTION_ID in ('ROLE_BF_ADD_DATASET', 'ROLE_BF_EDIT_DATASET', 'ROLE_BF_LIST_DATASET', 'ROLE_BF_COMMIT_DATASET', 'ROLE_BF_IMPORT_DATASET', 'ROLE_BF_EXPORT_DATASET', 'ROLE_BF_LOAD_DELETE_DATASET', 'ROLE_BF_FORECASTING_MODULE');
-		SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID 
+		SELECT u.USER_ID, u.USERNAME, u.ORG_AND_COUNTRY, r.ROLE_ID, l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR  
+        FROM us_user u LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID LEFT JOIN us_role r ON ur.ROLE_ID=r.ROLE_ID LEFT JOIN ap_label l ON r.LABEL_ID=l.LABEL_ID
 		WHERE 
 			u.ACTIVE
             AND u.REALM_ID=@varRealmId
@@ -213,14 +216,14 @@ BEGIN
 			AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=@varRealmCountryId)
 			AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID, @varHealthAreaId))
 			AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=@varOrganisationId)
-            AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=@varProgramId)
-		GROUP BY u.USER_ID
-		ORDER BY u.ORG_AND_COUNTRY, u.USER_ID;
+            AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=@varProgramId);
 	END IF;
 END$$
 
 DELIMITER ;
 ;
+
+
 
 
 INSERT INTO ap_security VALUES (null, '1', '/api/program/userList/{programId}', 'ROLE_BF_EDIT_PROGRAM');

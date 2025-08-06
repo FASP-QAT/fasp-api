@@ -22,7 +22,7 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.AclRoleBusinessFunctionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
-import cc.altius.FASP.model.rowMapper.BasicUserWithOrgAndCountryRowMapper;
+import cc.altius.FASP.model.rowMapper.BasicUserWithOrgAndCountryResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorFull;
@@ -537,7 +537,7 @@ public class UserDaoImpl implements UserDao {
         String sb = "CALL getUserListWithAccessToProgramId(:programId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserWithOrgAndCountryRowMapper());
+        return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserWithOrgAndCountryResultSetExtractor());
     }
 
     @Override
