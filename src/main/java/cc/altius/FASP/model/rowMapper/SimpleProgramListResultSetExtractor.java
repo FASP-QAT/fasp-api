@@ -51,6 +51,16 @@ public class SimpleProgramListResultSetExtractor implements ResultSetExtractor<L
             if (idx == -1) {
                 p.getRegionList().add(r);
             }
+            SimpleCodeObject fs = new SimpleCodeObjectRowMapper("FS_").mapRow(rs, 1);
+            idx = p.getFundingSourceList().indexOf(fs);
+            if (idx == -1) {
+                p.getFundingSourceList().add(fs);
+            }
+            SimpleCodeObject pa = new SimpleCodeObjectRowMapper("PA_").mapRow(rs, 1);
+            idx = p.getProcurementAgentList().indexOf(pa);
+            if (idx == -1) {
+                p.getProcurementAgentList().add(pa);
+            }
         }
         return pList;
     }

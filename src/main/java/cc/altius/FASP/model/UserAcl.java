@@ -43,6 +43,14 @@ public class UserAcl implements Serializable {
     @JsonView(Views.UserListView.class)
     private Label organisationName;
     @JsonView(Views.UserListView.class)
+    private int fundingSourceId;
+    @JsonView(Views.UserListView.class)
+    private Label fundingSourceName;
+    @JsonView(Views.UserListView.class)
+    private int procurementAgentId;
+    @JsonView(Views.UserListView.class)
+    private Label procurementAgentName;
+    @JsonView(Views.UserListView.class)
     private int programId;
     @JsonView(Views.UserListView.class)
     private Label programName;
@@ -58,29 +66,35 @@ public class UserAcl implements Serializable {
     public UserAcl() {
     }
 
-    public UserAcl(int userId, String roleId, int realmCountryId, int healthAreaId, int organisationId, int programId, String lastModifiedDate) {
+    public UserAcl(int userId, String roleId, int realmCountryId, int healthAreaId, int organisationId, int programId, int fundingSourceId, int procurementAgentId, String lastModifiedDate) {
         this.userId = userId;
         this.roleId = roleId;
         this.setRealmCountryId(realmCountryId);
         this.setHealthAreaId(healthAreaId);
         this.setOrganisationId(organisationId);
         this.setProgramId(programId);
+        this.setFundingSourceId(fundingSourceId);
+        this.setProcurementAgentId(procurementAgentId);
         this.lastModifiedDate = this.lastModifiedDate;
     }
 
-    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String programCode, int programTypeId, Date lastModifiedDate) {
+    public UserAcl(int userId, String roleId, Label roleDesc, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String programCode, int fundingSourceId, Label fundingSourceName, int procurementAgentId, Label procurementAgentName, int programTypeId, Date lastModifiedDate) {
         this.userId = userId;
         this.roleId = roleId;
         this.setRealmCountryId(realmCountryId);
         this.setHealthAreaId(healthAreaId);
         this.setOrganisationId(organisationId);
         this.setProgramId(programId);
+        this.setFundingSourceId(fundingSourceId);
+        this.setProcurementAgentId(procurementAgentId);
         this.roleDesc = roleDesc;
         this.countryName = countryName;
         this.healthAreaName = healthAreaName;
         this.organisationName = organisationName;
         this.programName = programName;
         this.programCode = programCode;
+        this.fundingSourceName = fundingSourceName;
+        this.procurementAgentName = procurementAgentName;
         this.programTypeId = programTypeId;
         this.lastModifiedDate = lastModifiedDate;
     }
@@ -197,6 +211,38 @@ public class UserAcl implements Serializable {
         this.programCode = programCode;
     }
 
+    public int getFundingSourceId() {
+        return fundingSourceId;
+    }
+
+    public void setFundingSourceId(int fundingSourceId) {
+        this.fundingSourceId = fundingSourceId == 0 ? -1 : fundingSourceId;
+    }
+
+    public Label getFundingSourceName() {
+        return fundingSourceName;
+    }
+
+    public void setFundingSourceName(Label fundingSourceName) {
+        this.fundingSourceName = fundingSourceName;
+    }
+
+    public int getProcurementAgentId() {
+        return procurementAgentId;
+    }
+
+    public void setProcurementAgentId(int procurementAgentId) {
+        this.procurementAgentId = procurementAgentId == 0 ? -1 : procurementAgentId;
+    }
+
+    public Label getProcurementAgentName() {
+        return procurementAgentName;
+    }
+
+    public void setProcurementAgentName(Label procurementAgentName) {
+        this.procurementAgentName = procurementAgentName;
+    }
+
     public int getProgramTypeId() {
         return programTypeId;
     }
@@ -252,12 +298,18 @@ public class UserAcl implements Serializable {
         if (this.programId != other.programId) {
             return false;
         }
+        if (this.fundingSourceId != other.fundingSourceId) {
+            return false;
+        }
+        if (this.procurementAgentId != other.procurementAgentId) {
+            return false;
+        }
         return Objects.equals(this.roleId, other.roleId);
     }
 
     @Override
     public String toString() {
-        return "UserAcl{" + "userId=" + userId + ", roleId=" + roleId + ", realmCountryId=" + realmCountryId + ", healthAreaId=" + healthAreaId + ", organisationId=" + organisationId + ", programId=" + programId + '}';
+        return "UserAcl{" + "userId=" + userId + ", roleId=" + roleId + ", realmCountryId=" + realmCountryId + ", healthAreaId=" + healthAreaId + ", organisationId=" + organisationId + ", programId=" + programId + ", fundingSourceId=" + fundingSourceId + ", procurementAgentId=" + procurementAgentId + '}';
     }
 
 }
