@@ -3050,7 +3050,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int i = 0;
             logger.info("Building the records fpr batch insert");
             for (NewSupplyPlan nsp : msp.getNspList()) {
-                logger.info("nsp "+nsp.toString());
                 MapSqlParameterSource a1 = new MapSqlParameterSource();
                 a1.addValue("PROGRAM_ID", msp.getProgramId());
                 a1.addValue("VERSION_ID", msp.getVersionId());

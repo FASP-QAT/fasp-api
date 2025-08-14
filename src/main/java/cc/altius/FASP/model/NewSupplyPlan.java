@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  *
  * @author akil
@@ -69,8 +67,6 @@ public class NewSupplyPlan implements Serializable {
     private List<RegionData> regionDataList;
     private List<BatchData> batchDataList;
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public NewSupplyPlan() {
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
@@ -687,7 +683,7 @@ public class NewSupplyPlan implements Serializable {
             }
 
             if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0) {
-                logger.info("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
+                System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
                 BatchData bdNew = new BatchData();
                 bdNew.setBatchId(newBatchCounter);
                 bdNew.setShelfLife(this.shelfLife);
@@ -763,16 +759,11 @@ public class NewSupplyPlan implements Serializable {
     }
 
     String calculateExpiryDate(String transDate) {
-        logger.info("Trans date"+transDate);
         Calendar cal = Calendar.getInstance();
         try {
             cal.setTime(DateUtils.getDateFromString(transDate, DateUtils.YMD));
-            logger.info("Time"+DateUtils.getDateFromString(transDate, DateUtils.YMD));
         } catch (Exception e) {
-            logger.info("Time Exception"+e.getMessage());
         }
-        logger.info("Month"+Calendar.MONTH);
-        logger.info("Shelf life"+this.shelfLife);
         cal.add(Calendar.MONTH, this.shelfLife);
         return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
     }
@@ -805,10 +796,4 @@ public class NewSupplyPlan implements Serializable {
         }
         return true;
     }
-
-    @Override
-    public String toString() {
-        return "NewSupplyPlan{" + "planningUnitId=" + planningUnitId + ", transDate=" + transDate + ", shelfLife=" + shelfLife + ", actualConsumptionQty=" + actualConsumptionQty + ", forecastedConsumptionQty=" + forecastedConsumptionQty + ", adjustedConsumptionQty=" + adjustedConsumptionQty + ", finalConsumptionQty=" + finalConsumptionQty + ", actualConsumptionFlag=" + actualConsumptionFlag + ", plannedShipmentsTotalData=" + plannedShipmentsTotalData + ", submittedShipmentsTotalData=" + submittedShipmentsTotalData + ", approvedShipmentsTotalData=" + approvedShipmentsTotalData + ", shippedShipmentsTotalData=" + shippedShipmentsTotalData + ", receivedShipmentsTotalData=" + receivedShipmentsTotalData + ", onholdShipmentsTotalData=" + onholdShipmentsTotalData + ", plannedErpShipmentsTotalData=" + plannedErpShipmentsTotalData + ", submittedErpShipmentsTotalData=" + submittedErpShipmentsTotalData + ", approvedErpShipmentsTotalData=" + approvedErpShipmentsTotalData + ", shippedErpShipmentsTotalData=" + shippedErpShipmentsTotalData + ", receivedErpShipmentsTotalData=" + receivedErpShipmentsTotalData + ", onholdErpShipmentsTotalData=" + onholdErpShipmentsTotalData + ", adjustmentQty=" + adjustmentQty + ", stockQty=" + stockQty + ", regionCountForStock=" + regionCountForStock + ", regionCount=" + regionCount + ", openingBalance=" + openingBalance + ", expiredStock=" + expiredStock + ", expectedStock=" + expectedStock + ", nationalAdjustment=" + nationalAdjustment + ", closingBalance=" + closingBalance + ", unmetDemand=" + unmetDemand + ", openingBalanceWps=" + openingBalanceWps + ", expiredStockWps=" + expiredStockWps + ", expectedStockWps=" + expectedStockWps + ", nationalAdjustmentWps=" + nationalAdjustmentWps + ", closingBalanceWps=" + closingBalanceWps + ", unmetDemandWps=" + unmetDemandWps + ", regionDataList=" + regionDataList + ", batchDataList=" + batchDataList + '}';
-    }
-
 }
