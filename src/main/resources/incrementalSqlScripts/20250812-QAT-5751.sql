@@ -1,3 +1,25 @@
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  altius
+ * Created: 12-Aug-2025
+ */
+
+ALTER TABLE `fasp`.`rm_inventory_trans` ADD COLUMN `ADD_NEW_BATCH` TINYINT(3) UNSIGNED DEFAULT '0' NOT NULL AFTER `ACTIVE`; 
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getInventoryDataNew`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getInventoryDataNew`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
@@ -65,4 +87,7 @@ BEGIN
     LEFT JOIN rm_program_planning_unit ppu ON a.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
     WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND a.INVENTORY_DATE>=@cutOffDate))
     ORDER BY a.PLANNING_UNIT_ID, a.REALM_COUNTRY_PLANNING_UNIT_ID, a.REGION_ID, a.INVENTORY_DATE, bi.EXPIRY_DATE, bi.BATCH_ID;
-END
+END$$
+
+DELIMITER ;
+;

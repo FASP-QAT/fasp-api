@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class InventoryListResultSetExtractor implements ResultSetExtractor<List<Inventory>> {
-
+    
     @Override
     public List<Inventory> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<Inventory> inventoryList = new LinkedList<>();
@@ -62,6 +62,7 @@ public class InventoryListResultSetExtractor implements ResultSetExtractor<List<
             i.setNotes(rs.getString("NOTES"));
             i.setVersionId(rs.getInt("VERSION_ID"));
             i.setActive(rs.getBoolean("ACTIVE"));
+            i.setAddNewBatch(rs.getBoolean("ADD_NEW_BATCH"));
             i.setActualQty(rs.getDouble("ACTUAL_QTY"));
             if (rs.wasNull()) {
                 i.setActualQty(null);
