@@ -247,8 +247,8 @@ public class ProgramRestController {
     @JsonView(Views.UserListView.class)
     @GetMapping("/program/userList/{programId}")
     @Operation(
-            summary = "Get the list of Users that have access to a Program",
-            description = "Get the list of Users that have access to a Program. Only Active users are returned."
+            summary = "Get the list of Users that have access to a Program incluiding the ACL that has access to this Program",
+            description = "Get the list of Users that have access to a Program incluiding the ACL that has access to this Program. Only Active users are returned."
     )
     @Parameter(name = "programId", description = "The ID of the program to get the User list for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UserWithSimpleAcl.class))), responseCode = "200", description = "List of Users with their OrgAndCountry")
