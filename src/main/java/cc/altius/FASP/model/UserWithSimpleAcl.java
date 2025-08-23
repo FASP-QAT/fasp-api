@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author akil
  */
-public class BasicUserWithOrgAndCountry implements Serializable {
+public class UserWithSimpleAcl implements Serializable {
 
     @JsonView({Views.UserListView.class})
     private int userId;
@@ -22,17 +22,10 @@ public class BasicUserWithOrgAndCountry implements Serializable {
     @JsonView({Views.UserListView.class})
     private String orgAndCountry;
     @JsonView({Views.UserListView.class})
-    private List<SimpleObjectStringId> roleList;
+    private List<SimpleUserAcl> aclList;
 
-    public BasicUserWithOrgAndCountry() {
-        this.roleList = new LinkedList<>();
-    }
-
-    public BasicUserWithOrgAndCountry(int userId, String username, String orgAndCountry, List<SimpleObjectStringId> roleList) {
-        this.userId = userId;
-        this.username = username;
-        this.orgAndCountry = orgAndCountry;
-        this.roleList = roleList;
+    public UserWithSimpleAcl() {
+        this.aclList = new LinkedList<>();
     }
 
     public int getUserId() {
@@ -59,12 +52,12 @@ public class BasicUserWithOrgAndCountry implements Serializable {
         this.orgAndCountry = orgAndCountry;
     }
 
-    public List<SimpleObjectStringId> getRoleList() {
-        return roleList;
+    public List<SimpleUserAcl> getAclList() {
+        return aclList;
     }
 
-    public void setRoleList(List<SimpleObjectStringId> roleList) {
-        this.roleList = roleList;
+    public void setAclList(List<SimpleUserAcl> aclList) {
+        this.aclList = aclList;
     }
 
     @Override
@@ -85,7 +78,7 @@ public class BasicUserWithOrgAndCountry implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final BasicUserWithOrgAndCountry other = (BasicUserWithOrgAndCountry) obj;
+        final UserWithSimpleAcl other = (UserWithSimpleAcl) obj;
         return this.userId == other.userId;
     }
 

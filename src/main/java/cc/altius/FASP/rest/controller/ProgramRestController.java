@@ -7,7 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
-import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
+import cc.altius.FASP.model.UserWithSimpleAcl;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramPlanningUnitProcurementAgentInput;
 import cc.altius.FASP.model.LoadProgram;
@@ -244,13 +244,14 @@ public class ProgramRestController {
      * @param auth
      * @return - List of Users with their OrgAndCountry
      */
+    @JsonView(Views.UserListView.class)
     @GetMapping("/program/userList/{programId}")
     @Operation(
-            summary = "Get the list of Users that have access to a Program",
-            description = "Get the list of Users that have access to a Program. Only Active users are returned."
+            summary = "Get the list of Users that have access to a Program incluiding the ACL that has access to this Program",
+            description = "Get the list of Users that have access to a Program incluiding the ACL that has access to this Program. Only Active users are returned."
     )
     @Parameter(name = "programId", description = "The ID of the program to get the User list for", required = true)
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BasicUserWithOrgAndCountry.class))), responseCode = "200", description = "List of Users with their OrgAndCountry")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = UserWithSimpleAcl.class))), responseCode = "200", description = "List of Users with their OrgAndCountry")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "404", description = "Program not found")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the User list")
     public ResponseEntity getUserListByProgramId(@PathVariable("programId") int programId, Authentication auth) {

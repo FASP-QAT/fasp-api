@@ -11,7 +11,7 @@ import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BasicUser;
-import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
+import cc.altius.FASP.model.UserWithSimpleAcl;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BasicUserWithOrgAndCountry> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+    public List<UserWithSimpleAcl> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         try {
             this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
             return this.userDao.getUserListWithAccessToProgramId(programId, curUser);
