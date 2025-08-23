@@ -244,6 +244,7 @@ public class ProgramRestController {
      * @param auth
      * @return - List of Users with their OrgAndCountry
      */
+    @JsonView(Views.UserListView.class)
     @GetMapping("/program/userList/{programId}")
     @Operation(
             summary = "Get the list of Users that have access to a Program",
