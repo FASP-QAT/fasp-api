@@ -10,7 +10,7 @@ import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BasicUser;
-import cc.altius.FASP.model.BasicUserWithOrgAndCountry;
+import cc.altius.FASP.model.UserWithSimpleAcl;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
@@ -22,7 +22,7 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.AclRoleBusinessFunctionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
-import cc.altius.FASP.model.rowMapper.BasicUserWithOrgAndCountryResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.UserWithSimpleAclResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorFull;
@@ -533,11 +533,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<BasicUserWithOrgAndCountry> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+    public List<UserWithSimpleAcl> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         String sb = "CALL getUserListWithAccessToProgramId(:programId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sb, params, new BasicUserWithOrgAndCountryResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sb, params, new UserWithSimpleAclResultSetExtractor());
     }
 
     @Override
