@@ -91,3 +91,19 @@ END$$
 
 DELIMITER ;
 ;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.addNewBatch','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Input New Batch and Expiry Information');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisir les informations relatives au nouveau lot et à la date d`expiration');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese la información del nuevo lote y la fecha de vencimiento.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Introduza o novo lote e as informações de validade');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.expiryDateMustBeGreaterThanAdjustmentDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Expiry date must be greater than Inventory Date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La date d`expiration doit être supérieure à la date d`inventaire.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La fecha de vencimiento debe ser posterior a la fecha de inventario.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A data de validade deve ser posterior à data de stock.');-- pr
