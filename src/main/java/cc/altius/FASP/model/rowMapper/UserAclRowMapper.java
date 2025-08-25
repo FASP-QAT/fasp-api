@@ -22,6 +22,7 @@ public class UserAclRowMapper implements RowMapper<UserAcl> {
         userAcl.setUserAclId(rs.getInt("USER_ACL_ID"));
         userAcl.setUserId(rs.getInt("USER_ID"));
         userAcl.setUsername(rs.getString("USERNAME"));
+        userAcl.setOrgAndCountry(rs.getString("ORG_AND_COUNTRY"));
         userAcl.setRoleId(rs.getString("ROLE_ID"));
         userAcl.setRoleDesc(new LabelRowMapper("ACL_ROLE_").mapRow(rs, rowNum));
         userAcl.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
