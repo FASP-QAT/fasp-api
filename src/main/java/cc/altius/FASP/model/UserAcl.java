@@ -27,6 +27,8 @@ public class UserAcl implements Serializable {
     @JsonView(Views.UserListView.class)
     private String username;
     @JsonView(Views.UserListView.class)
+    private String orgAndCountry;
+    @JsonView(Views.UserListView.class)
     private String roleId;
     @JsonView(Views.UserListView.class)
     private Label roleDesc;
@@ -123,6 +125,14 @@ public class UserAcl implements Serializable {
         this.username = username;
     }
 
+    public String getOrgAndCountry() {
+        return orgAndCountry;
+    }
+
+    public void setOrgAndCountry(String orgAndCountry) {
+        this.orgAndCountry = orgAndCountry;
+    }
+    
     public String getRoleId() {
         return roleId;
     }
@@ -309,7 +319,7 @@ public class UserAcl implements Serializable {
 
     @Override
     public String toString() {
-        return "UserAcl{" + "userId=" + userId + ", roleId=" + roleId + ", realmCountryId=" + realmCountryId + ", healthAreaId=" + healthAreaId + ", organisationId=" + organisationId + ", programId=" + programId + ", fundingSourceId=" + fundingSourceId + ", procurementAgentId=" + procurementAgentId + '}';
+        return "UserAcl{" + "userAclId=" + userAclId + ", userId=" + userId + ", username=" + username + ", orgAndCountry=" + orgAndCountry + ", roleId=" + roleId + ", roleDesc=" + roleDesc + ", realmCountryId=" + realmCountryId + ", countryName=" + countryName + ", healthAreaId=" + healthAreaId + ", healthAreaName=" + healthAreaName + ", organisationId=" + organisationId + ", organisationName=" + organisationName + ", fundingSourceId=" + fundingSourceId + ", fundingSourceName=" + fundingSourceName + ", procurementAgentId=" + procurementAgentId + ", procurementAgentName=" + procurementAgentName + ", programId=" + programId + ", programName=" + programName + ", programCode=" + programCode + ", programTypeId=" + programTypeId + ", lastModifiedDate=" + lastModifiedDate + '}';
     }
 
 }
