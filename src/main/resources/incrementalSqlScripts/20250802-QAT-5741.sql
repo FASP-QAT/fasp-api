@@ -239,6 +239,7 @@ BEGIN
     WHERE 
         FIND_IN_SET (acl.ROLE_ID, @varRoleIdList)
         AND u.REALM_ID=@varRealmId 
+        AND u.ACTIVE
         AND FIND_IN_SET(acl.ROLE_ID, @varRoleIdList)
         AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=@varRealmCountryId)
         AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID, @varHealthAreaId))
