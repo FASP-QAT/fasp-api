@@ -68,6 +68,8 @@ public class Inventory implements Serializable {
     private Date lastModifiedDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private boolean active;
+    @JsonView(Views.InternalView.class)
+    private boolean addNewBatch;
 
     public boolean isActive() {
         return active;
@@ -112,7 +114,6 @@ public class Inventory implements Serializable {
     public SimpleObject getAlternateReportingUnit() {
         return alternateReportingUnit;
     }
-    
 
     public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
@@ -237,6 +238,14 @@ public class Inventory implements Serializable {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean isAddNewBatch() {
+        return addNewBatch;
+    }
+
+    public void setAddNewBatch(boolean addNewBatch) {
+        this.addNewBatch = addNewBatch;
     }
 
     @Override

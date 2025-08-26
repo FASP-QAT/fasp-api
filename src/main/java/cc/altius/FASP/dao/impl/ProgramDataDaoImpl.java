@@ -473,6 +473,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
                 + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `ADD_NEW_BATCH` TINYINT UNSIGNED NOT NULL DEFAULT 0, "
                 + "  `VERSION_ID` INT(10) NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
                 + "  PRIMARY KEY (`ID`), "
@@ -522,6 +523,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_BY", i.getLastModifiedBy().getUserId());
             tp.put("LAST_MODIFIED_DATE", i.getLastModifiedDate());
             tp.put("ACTIVE", i.isActive());
+            tp.put("ADD_NEW_BATCH", i.isAddNewBatch());
             tp.put("VERSION_ID", i.getVersionId());
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
@@ -563,7 +565,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(id + " inventory records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :VERSION_ID)";
+        sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, ADD_NEW_BATCH, VERSION_ID) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :ADD_NEW_BATCH, :VERSION_ID)";
 //        try {
         int iCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory)).length;
         logger.info(iCnt + " records imported into the tmp table");
@@ -588,7 +590,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND i.MAX_VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND i.MAX_VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE  OR ti.ADD_NEW_BATCH!=it.ADD_NEW_BATCH OR ti.INVENTORY_ID IS NULL";
 //        try {
         iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info(iCnt + " records updated in tmp as changed where a direct inventory record has changed");
@@ -633,7 +635,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             params.put("versionId", version.getVersionId());
             // Insert the rows where Inventory Id is not null
-            sqlString = "INSERT INTO rm_inventory_trans SELECT null, ti.INVENTORY_ID, ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, ti.LAST_MODIFIED_BY, ti.LAST_MODIFIED_DATE, :versionId"
+            sqlString = "INSERT INTO rm_inventory_trans SELECT null, ti.INVENTORY_ID, ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, ti.ADD_NEW_BATCH, ti.LAST_MODIFIED_BY, ti.LAST_MODIFIED_DATE, :versionId"
                     + " FROM tmp_inventory ti "
                     + " WHERE ti.CHANGED=1 AND ti.INVENTORY_ID!=0";
 //            try {
@@ -687,7 +689,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    logger.info("Failed to insert into the consumption table");
 //                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
 //                }
-                sqlString = "INSERT INTO rm_inventory_trans SELECT null, LAST_INSERT_ID(), ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_inventory ti WHERE ti.ID=:id";
+                sqlString = "INSERT INTO rm_inventory_trans SELECT null, LAST_INSERT_ID(), ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, ti.ADD_NEW_BATCH, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_inventory ti WHERE ti.ID=:id";
 //                try {
                 inventoryRows += this.namedParameterJdbcTemplate.update(sqlString, params);
 //                } catch (Exception e) {
@@ -1639,7 +1641,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // To be changed to a custom object
         missingBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new MissingBatchDTORowMapper());
         System.out.println("missing Batch list " + missingBatchList);
-        sqlString="UPDATE rm_shipment_trans_batch_info stbi SET stbi.BATCH_ID=:BATCH_ID WHERE stbi.SHIPMENT_TRANS_BATCH_INFO_ID=:SHIPMENT_TRANS_BATCH_INFO_ID ";
+        sqlString = "UPDATE rm_shipment_trans_batch_info stbi SET stbi.BATCH_ID=:BATCH_ID WHERE stbi.SHIPMENT_TRANS_BATCH_INFO_ID=:SHIPMENT_TRANS_BATCH_INFO_ID ";
         for (MissingBatchDTO missingBatch : missingBatchList) {
             int batchId;
             // Step 2 Create the Batch in rm_batch_info table
