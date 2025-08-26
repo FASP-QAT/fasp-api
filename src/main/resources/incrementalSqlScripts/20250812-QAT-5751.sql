@@ -1,3 +1,25 @@
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  altius
+ * Created: 12-Aug-2025
+ */
+
+ALTER TABLE `fasp`.`rm_inventory_trans` ADD COLUMN `ADD_NEW_BATCH` TINYINT(3) UNSIGNED DEFAULT '0' NOT NULL AFTER `ACTIVE`; 
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getInventoryDataNew`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getInventoryDataNew`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryDataNew`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_ACTIVE TINYINT(1), CUT_OFF_DATE DATE)
 BEGIN
     SET @programId = PROGRAM_ID;
@@ -65,4 +87,23 @@ BEGIN
     LEFT JOIN rm_program_planning_unit ppu ON a.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=@programId
     WHERE (@planningUnitActive = FALSE OR ppu.ACTIVE) AND (@useCutOff = FALSE OR (@useCutOff = TRUE AND a.INVENTORY_DATE>=@cutOffDate))
     ORDER BY a.PLANNING_UNIT_ID, a.REALM_COUNTRY_PLANNING_UNIT_ID, a.REGION_ID, a.INVENTORY_DATE, bi.EXPIRY_DATE, bi.BATCH_ID;
-END
+END$$
+
+DELIMITER ;
+;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.addNewBatch','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Input New Batch and Expiry Information');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisir les informations relatives au nouveau lot et à la date d`expiration');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese la información del nuevo lote y la fecha de vencimiento.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Introduza o novo lote e as informações de validade');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.expiryDateMustBeGreaterThanAdjustmentDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Expiry date must be greater than Inventory Date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La date d`expiration doit être supérieure à la date d`inventaire.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La fecha de vencimiento debe ser posterior a la fecha de inventario.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A data de validade deve ser posterior à data de stock.');-- pr
