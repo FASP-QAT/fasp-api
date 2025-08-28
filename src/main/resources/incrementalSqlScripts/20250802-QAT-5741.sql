@@ -26,10 +26,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por padrão, os usuár
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.roleAcl','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please see Annex 3, User Role Matrix for more information.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez consulter l\'annexe 3, Matrice des rôles des utilisateurs pour plus d\'informations.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consulte el Anexo 3, Matriz de roles de usuario para obtener más información.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consulte o Anexo 3, Matriz de Funções do Usuário, para obter mais informações.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please see User Manual Annex 3, User Role Matrix for more information.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez consulter l\'annexe 3 du manuel d\'utilisation, Matrice des rôles d\'utilisateur pour plus d\'informations.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consulte el Anexo 3 del Manual del usuario, Matriz de roles de usuario para obtener más información.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consulte o Anexo 3 do Manual do Usuário, Matriz de Funções do Usuário, para obter mais informações.');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.nestedHeader','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
