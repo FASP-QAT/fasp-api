@@ -23,6 +23,22 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Par défaut, les utili
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'De forma predeterminada, los usuarios reciben acceso según el/los Agente(s) de Adquisiciones y el/los Financiador(es) seleccionados en la pantalla "Información del Programa" (arriba). Se pueden agregar usuarios adicionales manualmente si lo solicita un administrador del programa. Si tiene alguna pregunta o solicitud sobre el acceso de los usuarios, envíe un ticket a través del servicio de ');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por padrão, os usuários recebem acesso com base no(s) Agente(s) de Compras e Financiador(es) selecionados na tela de Informações do Programa acima. Usuários adicionais podem ser adicionados manualmente, conforme solicitado pelo Administrador do Programa. Se você tiver dúvidas ou solicitações relacionadas ao acesso de usuários, envie um ticket pelo ');-- pr
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.roleAcl','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please see User Manual Annex 3, User Role Matrix for more information.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez consulter l\'annexe 3 du manuel d\'utilisation, Matrice des rôles d\'utilisateur pour plus d\'informations.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consulte el Anexo 3 del Manual del usuario, Matriz de roles de usuario para obtener más información.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consulte o Anexo 3 do Manual do Usuário, Matriz de Funções do Usuário, para obter mais informações.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.nestedHeader','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Access control based on the following:');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Contrôle d\'accès basé sur les éléments suivants :');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Control de acceso basado en lo siguiente:');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Controle de acesso baseado no seguinte:');-- pr
+
 ALTER TABLE `fasp`.`us_user_acl` 
 ADD COLUMN `FUNDING_SOURCE_ID` INT UNSIGNED NULL AFTER `PROGRAM_ID`,
 ADD COLUMN `PROCUREMENT_AGENT_ID` INT UNSIGNED NULL AFTER `FUNDING_SOURCE_ID`,
@@ -239,6 +255,7 @@ BEGIN
     WHERE 
         FIND_IN_SET (acl.ROLE_ID, @varRoleIdList)
         AND u.REALM_ID=@varRealmId 
+        AND u.ACTIVE
         AND FIND_IN_SET(acl.ROLE_ID, @varRoleIdList)
         AND (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=@varRealmCountryId)
         AND (acl.HEALTH_AREA_ID IS NULL OR FIND_IN_SET(acl.HEALTH_AREA_ID, @varHealthAreaId))
