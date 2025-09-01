@@ -4,12 +4,7 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +25,10 @@ public class SimpleProgram extends SimpleCodeObject {
     private SimpleCodeObject organisation;
     @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
     private List<SimpleObject> regionList;
+    @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
+    private List<SimpleCodeObject> fundingSourceList;
+    @JsonView({Views.DropDown2View.class, Views.ExportApiView.class})
+    private List<SimpleCodeObject> procurementAgentList;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class, Views.ExportApiView.class})
     private int currentVersionId;
     @JsonView({Views.DropDownView.class, Views.DropDown2View.class})
@@ -44,6 +43,8 @@ public class SimpleProgram extends SimpleCodeObject {
     public SimpleProgram() {
         super();
         this.healthAreaList = new LinkedList<>();
+        this.fundingSourceList = new LinkedList<>();
+        this.procurementAgentList = new LinkedList<>();
         this.regionList = new LinkedList<>();
     }
 
@@ -51,6 +52,8 @@ public class SimpleProgram extends SimpleCodeObject {
         super();
         this.setId(id);
         this.healthAreaList = new LinkedList<>();
+        this.fundingSourceList = new LinkedList<>();
+        this.procurementAgentList = new LinkedList<>();
         this.regionList = new LinkedList<>();
     }
 
@@ -59,6 +62,8 @@ public class SimpleProgram extends SimpleCodeObject {
         this.currentVersionId = currentVersionId;
         this.programTypeId = programTypeId;
         this.healthAreaList = new LinkedList<>();
+        this.fundingSourceList = new LinkedList<>();
+        this.procurementAgentList = new LinkedList<>();
         this.regionList = new LinkedList<>();
     }
 
@@ -120,6 +125,30 @@ public class SimpleProgram extends SimpleCodeObject {
 
     public void setRegionList(List<SimpleObject> regionList) {
         this.regionList = regionList;
+    }
+
+    public List<SimpleCodeObject> getFundingSourceList() {
+        return fundingSourceList;
+    }
+
+    public void setFundingSourceList(List<SimpleCodeObject> fundingSourceList) {
+        this.fundingSourceList = fundingSourceList;
+    }
+
+    public List<Integer> getFundingSourceIdList() {
+        return fundingSourceList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
+    }
+    
+    public List<SimpleCodeObject> getProcurementAgentList() {
+        return procurementAgentList;
+    }
+
+    public void setProcurementAgentList(List<SimpleCodeObject> procurementAgentList) {
+        this.procurementAgentList = procurementAgentList;
+    }
+    
+    public List<Integer> getProcurementAgentIdList() {
+        return procurementAgentList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
     }
 
     public boolean isActive() {

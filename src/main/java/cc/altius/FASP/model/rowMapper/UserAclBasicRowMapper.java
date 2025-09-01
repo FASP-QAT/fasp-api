@@ -17,7 +17,7 @@ public class UserAclBasicRowMapper implements RowMapper<UserAcl> {
 
     @Override
     public UserAcl mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new UserAcl(0, rs.getString("ROLE_ID"), rs.getInt("REALM_COUNTRY_ID"), rs.getInt("HEALTH_AREA_ID"), rs.getInt("ORGANISATION_ID"), rs.getInt("PROGRAM_ID"), null);
+        return new UserAcl(0, rs.getString("ROLE_ID"), rs.getInt("REALM_COUNTRY_ID"), rs.getInt("HEALTH_AREA_ID"), rs.getInt("ORGANISATION_ID"), rs.getInt("PROGRAM_ID"), rs.getInt("FUNDING_SOURCE_ID"), rs.getInt("PROCUREMENT_AGENT_ID"), null);
     }
 
 }

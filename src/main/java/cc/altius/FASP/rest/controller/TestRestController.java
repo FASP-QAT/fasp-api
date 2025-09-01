@@ -50,8 +50,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RestController
 @Tag(
-    name = "Test",
-    description = "Test endpoints for ACL permissions and email functionality"
+        name = "Test",
+        description = "Test endpoints for ACL permissions and email functionality"
 )
 @RequestMapping("/api/test")
 public class TestRestController {
@@ -68,23 +68,25 @@ public class TestRestController {
 
     @PostMapping(path = "/aclTest")
     @Operation(
-        summary = "Check access to programs",
-        description = "Check access to programs"
+            summary = "Check access to programs",
+            description = "Check access to programs"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The program IDs to check access for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
+            description = "The program IDs to check access for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Integer.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the access check results")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while checking access")
     public ResponseEntity postCheckAccessToProgram(@RequestBody Integer[] programIdList, Authentication auth) {
         StringBuffer url = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURL();
-        System.out.println(url.toString());
+        System.out.println("URL-> " + url.toString());
         StringBuilder sb = new StringBuilder();
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            // SOUT
+            logger.info(curUser.toString());
             for (int p : programIdList) {
                 sb.append("\nChecking for access to " + p + "\n");
                 try {
@@ -95,33 +97,42 @@ public class TestRestController {
                             prog.getRealmCountry().getId(),
                             prog.getHealthAreaIdList(),
                             prog.getOrganisation().getId(),
-                            prog.getId());
+                            prog.getId(),
+                            prog.getFundingSourceIdList(),
+                            prog.getProcurementAgentIdList()
+                    );
                     sb.append(p + " access = " + access + "\n");
                 } catch (AccessDeniedException ae) {
                     sb.append("Could not get the Program so cant check for access");
+                } catch (AccessControlFailedException acfe) {
+                    sb.append(p + " access = false\n");
                 }
             }
             return new ResponseEntity(sb.toString(), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Supplier", ae);
+            logger.error("Error occurred while running Test", ae);
             sb.append(ae.getMessage());
             return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN); // 403
+//        } catch (AccessControlFailedException afe) {
+//            logger.error("Error occurred while running Test", afe);
+//            sb.append(afe.getMessage());
+//            return new ResponseEntity(sb.toString(), HttpStatus.FORBIDDEN); // 403
         } catch (Exception e) {
             sb.append(e.getMessage());
-            logger.error("Error while trying to add Supplier", e);
+            logger.error("Error occurred while running Test", e);
             return new ResponseEntity(sb.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @PostMapping(path = "/aclTestQuery")
     @Operation(
-        summary = "Check access to programs via query",
-        description = "Check access to programs via query"
+            summary = "Check access to programs via query",
+            description = "Check access to programs via query"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The program IDs to check access for",
-        required = true,
-        content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
+            description = "The program IDs to check access for",
+            required = true,
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class)))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the access check results")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
@@ -144,8 +155,8 @@ public class TestRestController {
 
     @GetMapping(path = "/buildSecurity")
     @Operation(
-        summary = "Build security",
-        description = "Build security"
+            summary = "Build security",
+            description = "Build security"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the build security result")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while building security")
@@ -160,8 +171,8 @@ public class TestRestController {
 
     @GetMapping(path = "/sendTestEmail/{emailerId}")
     @Operation(
-        summary = "Send a test email",
-        description = "Send a test email"
+            summary = "Send a test email",
+            description = "Send a test email"
     )
     @Parameter(name = "emailerId", description = "The ID of the emailer to send the test email for", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns success code")
@@ -174,8 +185,8 @@ public class TestRestController {
 
     @GetMapping(path = "/retrieveData")
     @Operation(
-        summary = "Retrieve data",
-        description = "Retrieve data"
+            summary = "Retrieve data",
+            description = "Retrieve data"
     )
     @Parameter(name = "var", description = "The variable to retrieve data for", required = false)
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the data retrieved")
@@ -194,8 +205,8 @@ public class TestRestController {
 
     @GetMapping(path = "/canEdit/{userId}")
     @Operation(
-        summary = "Check user edit permissions",
-        description = "Check if a user can edit another user"
+            summary = "Check user edit permissions",
+            description = "Check if a user can edit another user"
     )
     @Parameter(name = "userId", description = "The ID of the user to check if the current user can edit", required = true)
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = String.class)), responseCode = "200", description = "Returns the edit check result")
