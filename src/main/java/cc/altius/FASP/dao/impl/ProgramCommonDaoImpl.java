@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -44,7 +42,6 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -61,6 +58,8 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
             + "	r.`REGION_ID` `R_ID`, r.`LABEL_ID` `R_LABEL_ID`, r.`LABEL_EN` `R_LABEL_EN`, r.`LABEL_FR` `R_LABEL_FR`, r.`LABEL_SP` `R_LABEL_SP`, r.`LABEL_PR` `R_LABEL_PR`, "
             + "	ha.`HEALTH_AREA_ID` `HA_ID`, ha.`HEALTH_AREA_CODE` `HA_CODE`, ha.`LABEL_ID` `HA_LABEL_ID`, ha.`LABEL_EN` `HA_LABEL_EN`, ha.`LABEL_FR` `HA_LABEL_FR`, ha.`LABEL_SP` `HA_LABEL_SP`, ha.`LABEL_PR` `HA_LABEL_PR`, "
             + "	o.`ORGANISATION_ID` `O_ID`, o.`ORGANISATION_CODE` `O_CODE`, o.`LABEL_ID` `O_LABEL_ID`, o.`LABEL_EN` `O_LABEL_EN`, o.`LABEL_FR` `O_LABEL_FR`, o.`LABEL_SP` `O_LABEL_SP`, o.`LABEL_PR` `O_LABEL_PR`, "
+            + "	fs.`FUNDING_SOURCE_ID` `FS_ID`, fs.`FUNDING_SOURCE_CODE` `FS_CODE`, fs.`LABEL_ID` `FS_LABEL_ID`, fs.`LABEL_EN` `FS_LABEL_EN`, fs.`LABEL_FR` `FS_LABEL_FR`, fs.`LABEL_SP` `FS_LABEL_SP`, fs.`LABEL_PR` `FS_LABEL_PR`, "
+            + "	pa.`PROCUREMENT_AGENT_ID` `PA_ID`, pa.`PROCUREMENT_AGENT_CODE` `PA_CODE`, pa.`LABEL_ID` `PA_LABEL_ID`, pa.`LABEL_EN` `PA_LABEL_EN`, pa.`LABEL_FR` `PA_LABEL_FR`, pa.`LABEL_SP` `PA_LABEL_SP`, pa.`LABEL_PR` `PA_LABEL_PR`, "
             + "	p.CURRENT_VERSION_ID, p.ACTIVE, p.PROGRAM_TYPE_ID, rc.REALM_ID,rm_realm.NO_OF_MONTHS_IN_PAST_FOR_BOTTOM_DASHBOARD, rm_realm.NO_OF_MONTHS_IN_FUTURE_FOR_BOTTOM_DASHBOARD  "
             + "FROM vw_all_program p "
             + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
@@ -70,6 +69,8 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
             + "LEFT JOIN vw_region r ON pr.REGION_ID=r.REGION_ID "
             + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
             + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + "LEFT JOIN vw_funding_source fs ON FIND_IN_SET(fs.FUNDING_SOURCE_ID, p.FUNDING_SOURCE_ID) "
+            + "LEFT JOIN vw_procurement_agent pa ON FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, p.PROCUREMENT_AGENT_ID) "
             + "WHERE TRUE ";
 
     /**
@@ -121,17 +122,7 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         if (p == null) {
             throw new AccessControlFailedException("You do not have access to this resource");
         }
-//        if (p == null) {
-//            return null;
-//        }
-//        logger.info("p=" + p);
-//        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
-//            logger.info("Going to return the Program object");
         return p;
-//        } else {
-//            logger.info("Going to return null");
-//            return null;
-//        }
     }
 
     /**
@@ -166,30 +157,6 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
         return sp;
     }
 
-//    @Override
-//    public Program getBasicProgramById(int programId, int programTypeId, CustomUserDetails curUser) {
-//        StringBuilder sqlStringBuilder;
-//        if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
-//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlProgramListBasicString);
-//        } else if (programTypeId == GlobalConstants.PROGRAM_TYPE_DATASET) {
-//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlDatasetListBasicString);
-//        } else {
-//            sqlStringBuilder = new StringBuilder(ProgramDaoImpl.sqlAllProgramListBasicString);
-//        }
-//        sqlStringBuilder.append(" AND p.PROGRAM_ID=:programId");
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("programId", programId);
-//        sqlStringBuilder.append(ProgramDaoImpl.sqlOrderByBasic);
-//        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramBasicResultSetExtractor());
-//        if (p == null) {
-//            throw new EmptyResultDataAccessException(1);
-//        }
-//        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-//            return p;
-//        } else {
-//            return null;
-//        }
-//    }
     @Override
     public List<Version> getVersionListForProgramId(int programTypeId, int programId, CustomUserDetails curUser) {
         StringBuilder stringBuilder = new StringBuilder("SELECT pv.VERSION_ID, vt.VERSION_TYPE_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vs.LABEL_ID `VERSION_STATUS_LABEL_ID`, vs.LABEL_EN `VERSION_STATUS_LABEL_EN`, vs.LABEL_FR `VERSION_STATUS_LABEL_FR`, vs.LABEL_SP `VERSION_STATUS_LABEL_SP`, vs.LABEL_PR `VERSION_STATUS_LABEL_PR`, pv.CREATED_DATE FROM ");
@@ -245,7 +212,9 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
                 + "		r.REALM_ID `R_ID`, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "		rc.REALM_COUNTRY_ID `RC_ID`, c.LABEL_ID `RC_LABEL_ID`, c.LABEL_EN `RC_LABEL_EN`, c.LABEL_FR `RC_LABEL_FR`, c.LABEL_SP `RC_LABEL_SP`, c.LABEL_PR `RC_LABEL_PR`, "
                 + "		o.ORGANISATION_ID `O_ID`, o.LABEL_ID `O_LABEL_ID`, o.LABEL_EN `O_LABEL_EN`, o.LABEL_FR `O_LABEL_FR`, o.LABEL_SP `O_LABEL_SP`, o.LABEL_PR `O_LABEL_PR`, "
-                + "		null `HA_ID`, null HA_LABEL_ID, GROUP_CONCAT(ha.LABEL_EN SEPARATOR ', ') `HA_LABEL_EN`, GROUP_CONCAT(ha.LABEL_FR SEPARATOR ', ') `HA_LABEL_FR`, GROUP_CONCAT(ha.LABEL_SP SEPARATOR ', ') `HA_LABEL_SP`, GROUP_CONCAT(ha.LABEL_PR SEPARATOR ', ') `HA_LABEL_PR`, "
+                + "		null `HA_ID`, null HA_LABEL_ID, GROUP_CONCAT(DISTINCT ha.LABEL_EN SEPARATOR ', ') `HA_LABEL_EN`, GROUP_CONCAT(DISTINCT ha.LABEL_FR SEPARATOR ', ') `HA_LABEL_FR`, GROUP_CONCAT(DISTINCT ha.LABEL_SP SEPARATOR ', ') `HA_LABEL_SP`, GROUP_CONCAT(DISTINCT ha.LABEL_PR SEPARATOR ', ') `HA_LABEL_PR`, "
+                + "		null `FS_ID`, null FS_LABEL_ID, GROUP_CONCAT(DISTINCT fs.LABEL_EN SEPARATOR ', ') `FS_LABEL_EN`, GROUP_CONCAT(DISTINCT fs.LABEL_FR SEPARATOR ', ') `FS_LABEL_FR`, GROUP_CONCAT(DISTINCT fs.LABEL_SP SEPARATOR ', ') `FS_LABEL_SP`, GROUP_CONCAT(DISTINCT fs.LABEL_PR SEPARATOR ', ') `FS_LABEL_PR`, "
+                + "		null `PA_ID`, null PA_LABEL_ID, GROUP_CONCAT(DISTINCT pa.LABEL_EN SEPARATOR ', ') `PA_LABEL_EN`, GROUP_CONCAT(DISTINCT pa.LABEL_FR SEPARATOR ', ') `PA_LABEL_FR`, GROUP_CONCAT(DISTINCT pa.LABEL_SP SEPARATOR ', ') `PA_LABEL_SP`, GROUP_CONCAT(DISTINCT pa.LABEL_PR SEPARATOR ', ') `PA_LABEL_PR`, "
                 + "             p.PROGRAM_NOTES, pm.USER_ID `PM_USER_ID`, pm.USERNAME `PM_USERNAME`,  "
                 + "             lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE, p.ACTIVE ");
         if (programTypeId == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
@@ -258,6 +227,8 @@ public class ProgramCommonDaoImpl implements ProgramCommonDao {
                 + "	LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID "
                 + "	LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
                 + "     LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+                + "     LEFT JOIN vw_funding_source fs ON FIND_IN_SET(fs.FUNDING_SOURCE_ID, p.FUNDING_SOURCE_ID) "
+                + "     LEFT JOIN vw_procurement_agent pa ON FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, p.PROCUREMENT_AGENT_ID) "
                 + "     LEFT JOIN us_user lmb ON lmb.USER_ID=p.LAST_MODIFIED_BY "
                 + "     LEFT JOIN us_user pm ON pm.USER_ID=p.PROGRAM_MANAGER_USER_ID "
                 + "	WHERE (p.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1) AND (:active=p.ACTIVE OR :active=-1) "

@@ -22,6 +22,7 @@ public class UserAclRowMapper implements RowMapper<UserAcl> {
         userAcl.setUserAclId(rs.getInt("USER_ACL_ID"));
         userAcl.setUserId(rs.getInt("USER_ID"));
         userAcl.setUsername(rs.getString("USERNAME"));
+        userAcl.setOrgAndCountry(rs.getString("ORG_AND_COUNTRY"));
         userAcl.setRoleId(rs.getString("ROLE_ID"));
         userAcl.setRoleDesc(new LabelRowMapper("ACL_ROLE_").mapRow(rs, rowNum));
         userAcl.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
@@ -40,6 +41,15 @@ public class UserAclRowMapper implements RowMapper<UserAcl> {
         if (userAcl.getProgramId() != -1) {
             userAcl.setProgramName(new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, rowNum));
         }
+        userAcl.setFundingSourceId(rs.getInt("FUNDING_SOURCE_ID"));
+        if (userAcl.getFundingSourceId()!= -1) {
+            userAcl.setFundingSourceName(new LabelRowMapper("ACL_FUNDING_SOURCE_").mapRow(rs, rowNum));
+        }
+        userAcl.setProcurementAgentId(rs.getInt("PROCUREMENT_AGENT_ID"));
+        if (userAcl.getProcurementAgentId()!= -1) {
+            userAcl.setProcurementAgentName(new LabelRowMapper("ACL_PROCUREMENT_AGENT_").mapRow(rs, rowNum));
+        }
+        
         userAcl.setLastModifiedDate(rs.getDate("LAST_MODIFIED_DATE"));
         return userAcl;
     }

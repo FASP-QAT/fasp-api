@@ -10,7 +10,6 @@ import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.SecurityRequestMatcherRowMapper;
 import cc.altius.FASP.model.rowMapper.UserAclBasicRowMapper;
-import cc.altius.FASP.model.rowMapper.UserAclRowMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +81,8 @@ public class AclDaoImpl implements AclDao {
                 + "    , IF(:newHealthAreaId=-1, curUserAcl.HEALTH_AREA_ID, :newHealthAreaId) `HEALTH_AREA_ID` "
                 + "    , IF(:newOrganisationId=-1, curUserAcl.ORGANISATION_ID, :newOrganisationId) `ORGANISATION_ID` "
                 + "    , IF(:newProgramId=-1, curUserAcl.PROGRAM_ID, :newProgramId) `PROGRAM_ID` "
+                + "    , IF(:newFundingSourceId=-1, curUserAcl.FUNDING_SOURCE_ID, :newFundingSourceId) `FUNDING_SOURCE_ID` "
+                + "    , IF(:newProcurementAgentId=-1, curUserAcl.PROCUREMENT_AGENT_ID, :newProcurementAgentId) `PROCUREMENT_AGENT_ID` "
                 + "FROM us_user_acl curUserAcl  "
                 + "LEFT JOIN us_can_create_role ccr ON curUserAcl.ROLE_ID=ccr.ROLE_ID  "
                 + "WHERE  "
@@ -90,13 +91,17 @@ public class AclDaoImpl implements AclDao {
                 + "    AND (curUserAcl.REALM_COUNTRY_ID is null OR curUserAcl.REALM_COUNTRY_ID=:newRealmCountryId OR :newRealmCountryId=-1)  "
                 + "    AND (curUserAcl.HEALTH_AREA_ID IS NULL OR curUserAcl.HEALTH_AREA_ID=:newHealthAreaId OR :newHealthAreaId=-1)  "
                 + "    AND (curUserAcl.ORGANISATION_ID IS NULL OR curUserAcl.ORGANISATION_ID=:newOrganisationId OR :newOrganisationId=-1)  "
-                + "    AND (curUserAcl.PROGRAM_ID IS NULL OR curUserAcl.PROGRAM_ID=:newProgramId OR :newProgramId=-1)";
+                + "    AND (curUserAcl.PROGRAM_ID IS NULL OR curUserAcl.PROGRAM_ID=:newProgramId OR :newProgramId=-1)"
+                + "    AND (curUserAcl.FUNDING_SOURCE_ID IS NULL OR curUserAcl.FUNDING_SOURCE_ID=:newFundingSourceId OR :newFundingSourceId=-1)"
+                + "    AND (curUserAcl.PROCUREMENT_AGENT_ID IS NULL OR curUserAcl.PROCUREMENT_AGENT_ID=:newProcurementAgentId OR :newProcurementAgentId=-1)";
         Map<String, Object> params = new HashMap<>();
         params.put("newRoleId", acl.getRoleId());
         params.put("newRealmCountryId", acl.getRealmCountryId());
         params.put("newHealthAreaId", acl.getHealthAreaId());
         params.put("newOrganisationId", acl.getOrganisationId());
         params.put("newProgramId", acl.getProgramId());
+        params.put("newFundingSourceId", acl.getFundingSourceId());
+        params.put("newProcurementAgentId", acl.getProcurementAgentId());
         params.put("curUser", curUser.getUserId());
         return this.namedParameterJdbcTemplate.query(sql, params, new UserAclBasicRowMapper());
     }
