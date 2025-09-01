@@ -361,7 +361,7 @@ public class UserRestController {
     public ResponseEntity getUserListForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            return new ResponseEntity(this.userService.getUserListForProgram(programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.userService.getUserListForProgramAdmin(programId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Could not get User list for ProgramId=" + programId, e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND); // 404

@@ -142,7 +142,9 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getRealmCountry().getRealmCountryId(),
                 p.getHealthAreaIdList(),
                 p.getOrganisation().getId(),
-                0)) {
+                0,
+                null,
+                null))  {
             RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
             StringBuilder healthAreaCode = new StringBuilder();
             for (int haId : p.getHealthAreaIdList()) {
@@ -195,20 +197,7 @@ public class ProgramServiceImpl implements ProgramService {
             }
         }
         SimpleProgram curProg = this.programCommonDao.getSimpleProgramById(p.getProgramId(), p.getProgramTypeId(), curUser);
-//        if (curProg == null) {
-//            throw new EmptyResultDataAccessException(1);
-//        }
-//        if (this.aclService.checkAccessForUser(
-//                curUser,
-//                curProg.getRealmId(),
-//                curProg.getRealmCountry().getId(),
-//                curProg.getHealthAreaIdList(),
-//                curProg.getOrganisation().getId(),
-//                curProg.getId())) {
         return this.programDao.updateProgram(p, curUser);
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
@@ -237,14 +226,6 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public Program getFullProgramById(int programId, int programTypeId, CustomUserDetails curUser) throws AccessControlFailedException {
         return this.programCommonDao.getFullProgramById(programId, programTypeId, curUser);
-//        if (p == null) {
-//            throw new AccessDeniedException("Access denied");
-//        }
-//        if (this.aclService.checkAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getRealmCountry().getRealmCountryId(), p.getHealthAreaIdList(), p.getOrganisation().getId(), p.getProgramId())) {
-//            return p;
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
@@ -260,31 +241,19 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
         return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
         return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
     public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
         return this.programDao.getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
@@ -292,11 +261,7 @@ public class ProgramServiceImpl implements ProgramService {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//            if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
             programList.append("'").append(programId).append("',");
-//            } else {
-//                throw new AccessDeniedException("Access denied");
-//            }
         }
         if (programList.length() > 0) {
             programList.setLength(programList.length() - 1);
@@ -311,11 +276,7 @@ public class ProgramServiceImpl implements ProgramService {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//            if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
             programList.append("'").append(programId).append("',");
-//            } else {
-//                throw new AccessDeniedException("Access denied");
-//            }
         }
         if (programList.length() > 0) {
             programList.setLength(programList.length() - 1);
@@ -328,14 +289,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) throws AccessControlFailedException {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
-//            try {
             SimpleProgram sp = this.programCommonDao.getSimpleProgramById(ppu.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//                if (!this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), sp.getId())) {
-//                    throw new AccessControlFailedException();
-//                }
-//            } catch (EmptyResultDataAccessException e) {
-//                throw new AccessControlFailedException();
-//            }
         }
         return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
     }
@@ -353,11 +307,7 @@ public class ProgramServiceImpl implements ProgramService {
                 throw new AccessDeniedException("Access denied");
             }
             if (papup != null && papup.getProgram().getId() != null && papup.getProgram().getId() != 0) {
-//                try {
                 this.programCommonDao.getSimpleProgramById(papup.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//                } catch (EmptyResultDataAccessException e) {
-//                    throw new AccessControlFailedException();
-//                }
             }
         }
         return this.programDao.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);
@@ -376,11 +326,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) throws AccessControlFailedException {
         SimpleProgram sp = this.programCommonDao.getSimpleProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-//        if (this.aclService.checkAccessForUser(curUser, sp.getRealmId(), sp.getRealmCountry().getId(), sp.getHealthAreaIdList(), sp.getOrganisation().getId(), programId)) {
         return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
-//        } else {
-//            throw new AccessDeniedException("Access denied");
-//        }
     }
 
     @Override
@@ -448,9 +394,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
-//            System.out.println("length---" + manualTaggingOrderDTO.length);
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
-//                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
                     int id = 0;
                     int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
@@ -467,7 +411,6 @@ public class ProgramServiceImpl implements ProgramService {
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
-//                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
                     this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
                 }
             }

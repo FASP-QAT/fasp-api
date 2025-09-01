@@ -30,30 +30,8 @@ public class AclServiceImpl implements AclService {
     @Autowired
     private AclDao aclDao;
 
-//    @Override
-//    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId) {
-//        logger.info("Going to check if userId:" + curUser.getUserId() + " has access to RealmId:" + realmId + ", realmCountryId:" + realmCountryId + ", healthAreaIdList:" + healthAreaIdList + ", organisationId:" + organisationId + ", programId:" + programId);
-//        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
-//            // Is not an Application level user and also does not have access to this Realm
-//            logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
-//            return false;
-//        }
-//        logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
-//        for (UserAcl acl : curUser.getAclList()) {
-//            logger.info(acl.toString());
-//            if ((acl.getRealmCountryId() == -1 || acl.getRealmCountryId() == realmCountryId || realmCountryId == 0)
-//                    && (acl.getHealthAreaId() == -1 || healthAreaIdList == null || healthAreaIdList.isEmpty() || healthAreaIdList.indexOf(acl.getHealthAreaId()) >= 0)
-//                    && (acl.getOrganisationId() == -1 || acl.getOrganisationId() == organisationId || organisationId == 0)
-//                    && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)) {
-//                logger.info("Check passed");
-//                return true;
-//            }
-//        }
-//        logger.info("Access not allowed");
-//        return false;
-//    }
     @Override
-    public boolean userHasAccessToResources(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId) {
+    public boolean userHasAccessToResources(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId, List<Integer> fundingSourceIdList, List<Integer> procurementAgentIdList) {
         logger.info("Going to check if userId:" + curUser.getUserId() + " has access to RealmId:" + realmId + ", realmCountryId:" + realmCountryId + ", healthAreaIdList:" + healthAreaIdList + ", organisationId:" + organisationId + ", programId:" + programId);
         if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
             // Is not an Application level user and also does not have access to this Realm
@@ -66,7 +44,9 @@ public class AclServiceImpl implements AclService {
             if ((acl.getRealmCountryId() == -1 || acl.getRealmCountryId() == realmCountryId || realmCountryId == 0)
                     && (acl.getHealthAreaId() == -1 || healthAreaIdList == null || healthAreaIdList.isEmpty() || healthAreaIdList.indexOf(acl.getHealthAreaId()) >= 0)
                     && (acl.getOrganisationId() == -1 || acl.getOrganisationId() == organisationId || organisationId == 0)
-                    && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)) {
+                    && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)
+                    && (acl.getFundingSourceId() == -1 || fundingSourceIdList == null || fundingSourceIdList.isEmpty() || fundingSourceIdList.indexOf(acl.getFundingSourceId()) >= 0)
+                    && (acl.getProcurementAgentId() == -1 || procurementAgentIdList == null || procurementAgentIdList.isEmpty() || procurementAgentIdList.indexOf(acl.getProcurementAgentId()) >= 0)) {
                 logger.info("Check passed");
                 return true;
             }
@@ -92,34 +72,6 @@ public class AclServiceImpl implements AclService {
         return this.aclDao.expandUserAccess(acl, curUser);
     }
 
-//    @Override
-//    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int programId, List<Integer> healthAreaIdList, int organisationId) {
-//        boolean hasAccess = false;
-//        for (Integer ha : healthAreaIdList) {
-//            logger.info("Going to check if userId:" + curUser.getUserId() + " has access to ProgramId:" + programId);
-////        Program p = this.programService.getProgramById(programId, curUser);
-//            if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
-//                // Is not an Application level user and also does not have access to this Realm
-//                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
-//                return false;
-//            } else {
-//                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
-//                for (UserAcl ua : curUser.getAclList()) {
-//                    if (
-//                            (ua.getRealmCountryId() == -1 || ua.getRealmCountryId() == realmCountryId)
-//                            && (ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == ha)
-//                            && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == organisationId)
-//                            && (ua.getProgramId() == -1 || ua.getProgramId() == programId)) {
-//                        logger.info("Access allowed since he has access to " + ua);
-//                        return true;
-//                    } else {
-//                        hasAccess = false;
-//                    }
-//                }
-//            }
-//        }
-//        return hasAccess;
-//    }
     @Override
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
         if (curUser.getRealm().getRealmId() != -1) {
@@ -166,11 +118,15 @@ public class AclServiceImpl implements AclService {
                     .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR FIND_IN_SET(:healthAreaId").append(count).append(", ").append(programAlias).append(".HEALTH_AREA_ID))")
                     .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
                     .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :programId").append(count).append("=-1 OR ").append(programAlias).append(".PROGRAM_ID=:programId").append(count).append(")")
+                    .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :fundingSourceId").append(count).append("=-1 OR FIND_IN_SET(:fundingSourceId").append(count).append(", ").append(programAlias).append(".FUNDING_SOURCE_ID))")
+                    .append(" AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :procurementAgentId").append(count).append("=-1 OR FIND_IN_SET(:procurementAgentId").append(count).append(", ").append(programAlias).append(".PROCUREMENT_AGENT_ID))")
                     .append(")");
             params.put("realmCountryId" + count, userAcl.getRealmCountryId());
             params.put("healthAreaId" + count, userAcl.getHealthAreaId());
             params.put("organisationId" + count, userAcl.getOrganisationId());
             params.put("programId" + count, userAcl.getProgramId());
+            params.put("fundingSourceId" + count, userAcl.getFundingSourceId());
+            params.put("procurementAgentId" + count, userAcl.getProcurementAgentId());
             count++;
         }
         localSb.append(")");
@@ -226,23 +182,57 @@ public class AclServiceImpl implements AclService {
     }
 
     @Override
+    public void addUserAclForFundingSource(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append("(").append(haAlias).append(".FUNDING_SOURCE_ID IS NULL OR :fundingSourceIdFs").append(count).append("=-1 OR ").append(haAlias).append(".FUNDING_SOURCE_ID=:fundingSourceIdFs").append(count).append(")")
+                    .append(")");
+            params.put("fundingSourceIdFs" + count, userAcl.getFundingSourceId());
+            count++;
+        }
+        localSb.append(")");
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addUserAclForProcurementAgent(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append("(").append(haAlias).append(".PROCUREMENT_AGENT_ID IS NULL OR :procurementAgentIdPa").append(count).append("=-1 OR ").append(haAlias).append(".PROCUREMENT_AGENT_ID=:procurementAgentIdPa").append(count).append(")")
+                    .append(")");
+            params.put("procurementAgentIdPa" + count, userAcl.getProcurementAgentId());
+            count++;
+        }
+        localSb.append(")");
+        sb.append(localSb);
+    }
+
+    @Override
     public void addFullAclAtUserLevel(StringBuilder sb, Map<String, Object> params, String userAclAlias, CustomUserDetails curUser) {
         int count = 1;
         StringBuilder localSb = new StringBuilder();
         localSb.append(" AND (FALSE ");
         for (UserAcl userAcl : curUser.getAclList()) {
             localSb.append(" OR (")
-                    //                    .append(userAclAlias).append(".ROLE_ID IN (SELECT ccr.CAN_CREATE_ROLE FROM us_can_create_role ccr WHERE ccr.ROLE_ID=:roleId").append(count).append(")")
                     .append(" (:realmCountryId").append(count).append("=-1 OR ").append(userAclAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(" OR ").append(userAclAlias).append(".REALM_COUNTRY_ID IS NULL ").append(")")
                     .append(" AND (:healthAreaId").append(count).append("=-1 OR ").append(userAclAlias).append(".HEALTH_AREA_ID=:healthAreaId").append(count).append(" OR ").append(userAclAlias).append(".HEALTH_AREA_ID IS NULL ").append(")")
                     .append(" AND (:organisationId").append(count).append("=-1 OR ").append(userAclAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(" OR ").append(userAclAlias).append(".ORGANISATION_ID IS NULL ").append(")")
                     .append(" AND (:programId").append(count).append("=-1 OR ").append(userAclAlias).append(".PROGRAM_ID=:programId").append(count).append(" OR ").append(userAclAlias).append(".PROGRAM_ID IS NULL ").append(")")
+                    .append(" AND (:fundingSourceId").append(count).append("=-1 OR ").append(userAclAlias).append(".FUNDING_SOURCE_ID=:fundingSourceId").append(count).append(" OR ").append(userAclAlias).append(".FUNDING_SOURCE_ID IS NULL ").append(")")
+                    .append(" AND (:procurementAgentId").append(count).append("=-1 OR ").append(userAclAlias).append(".PROCUREMENT_AGENT_ID=:procurementAgentId").append(count).append(" OR ").append(userAclAlias).append(".PROCUREMENT_AGENT_ID IS NULL ").append(")")
                     .append(")");
-//            params.put("roleId" + count, userAcl.getRoleId());
             params.put("realmCountryId" + count, userAcl.getRealmCountryId());
             params.put("healthAreaId" + count, userAcl.getHealthAreaId());
             params.put("organisationId" + count, userAcl.getOrganisationId());
             params.put("programId" + count, userAcl.getProgramId());
+            params.put("fundingSourceId" + count, userAcl.getFundingSourceId());
+            params.put("procurementAgentId" + count, userAcl.getProcurementAgentId());
             count++;
         }
 
@@ -267,7 +257,9 @@ public class AclServiceImpl implements AclService {
                     if ((curUserAcl.getRealmCountryId() == -1 || curUserAcl.getRealmCountryId() == checkUserAcl.getRealmCountryId())
                             && (curUserAcl.getHealthAreaId() == -1 || curUserAcl.getHealthAreaId() == checkUserAcl.getHealthAreaId())
                             && (curUserAcl.getOrganisationId() == -1 || curUserAcl.getOrganisationId() == checkUserAcl.getOrganisationId())
-                            && (curUserAcl.getProgramId() == -1 || curUserAcl.getProgramId() == checkUserAcl.getProgramId())) {
+                            && (curUserAcl.getProgramId() == -1 || curUserAcl.getProgramId() == checkUserAcl.getProgramId())
+                            && (curUserAcl.getFundingSourceId() == -1 || curUserAcl.getFundingSourceId() == checkUserAcl.getFundingSourceId())
+                            && (curUserAcl.getProcurementAgentId() == -1 || curUserAcl.getProcurementAgentId() == checkUserAcl.getProcurementAgentId())) {
                         pendingAclList.remove(checkUserAcl);
                     }
                 }

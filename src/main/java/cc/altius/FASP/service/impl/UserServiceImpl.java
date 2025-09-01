@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.BasicUser;
+import cc.altius.FASP.model.UserWithSimpleAcl;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
@@ -73,10 +74,6 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getCustomUserByUserId(userId);
     }
 
-//    @Override
-//    public Map<String, Object> checkIfUserExists(String username, String password) {
-//        return this.userDao.checkIfUserExists(username, password);
-//    }
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         return this.userDao.resetFailedAttemptsByUsername(emailId);
@@ -136,15 +133,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BasicUser> getUserListForProgram(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+    public List<BasicUser> getUserListForProgramAdmin(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
         try {
             this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
-            return this.userDao.getUserListForProgram(programId, curUser);
+            return this.userDao.getUserListForProgramAdmin(programId, curUser);
         } catch (EmptyResultDataAccessException erda) {
             throw new AccessDeniedException("Access denied");
         }
-
     }
+
+    @Override
+    public List<UserWithSimpleAcl> getUserListWithAccessToProgramId(int programId, CustomUserDetails curUser) throws AccessControlFailedException {
+        try {
+            this.programCommonDao.getSimpleProgramById(programId, 0, curUser);
+            return this.userDao.getUserListWithAccessToProgramId(programId, curUser);
+        } catch (EmptyResultDataAccessException erda) {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+    
+    
 
     @Override
     public User getUserByUserId(int userId, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -164,7 +172,7 @@ public class UserServiceImpl implements UserService {
         List<UserAcl> expandedUserAcl = new LinkedList<>();
         for (UserAcl acl : user.getUserAclList()) {
             if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
-                throw new AccessControlFailedException("You do not have the rights to create a User with - " + acl.getRoleId());
+                throw new AccessControlFailedException("You do not have the rights to updated a User with - " + acl.getRoleId());
             }
             List<UserAcl> tmpUserAcl = aclService.expandUserAccess(acl, curUser);
             if (tmpUserAcl == null || tmpUserAcl.isEmpty()) {
