@@ -19,14 +19,17 @@ public class DownwardAggregation implements Serializable {
     private int scenarioId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int targetScenarioId;
 
     public DownwardAggregation() {
     }
 
-    public DownwardAggregation(int treeId, int scenarioId, int nodeId) {
+    public DownwardAggregation(int treeId, int scenarioId, int nodeId, int targetScenarioId) {
         this.treeId = treeId;
         this.scenarioId = scenarioId;
         this.nodeId = nodeId;
+        this.targetScenarioId = targetScenarioId;
     }
 
     public int getTreeId() {
@@ -51,6 +54,14 @@ public class DownwardAggregation implements Serializable {
 
     public void setNodeId(int nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public int getTargetScenarioId() {
+        return targetScenarioId;
+    }
+
+    public void setTargetScenarioId(int targetScenarioId) {
+        this.targetScenarioId = targetScenarioId;
     }
 
     @Override
