@@ -2296,6 +2296,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(dt.getTreeId()) + "-" + Integer.toString(n.getPayload().getNodeId())));
                         batchParams.put("SOURCE_TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
                         batchParams.put("SOURCE_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", da.getTreeId() + "-" + da.getScenarioId()));
+                        batchParams.put("TARGET_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + da.getTargetScenarioId()));
                         batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", da.getTreeId() + "-" + da.getNodeId()));
                         batchList.add(new MapSqlParameterSource(batchParams));
                     }
@@ -3427,7 +3428,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_ID`, ttnda.`SOURCE_SCENARIO_ID`, ttnda.`SOURCE_NODE_ID`, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.COLLAPSED, ttn.DOWNWARD_AGGREGATION_ALLOWED, ttnda.`SOURCE_TREE_ID`, ttnda.`SOURCE_SCENARIO_ID`, ttnda.`SOURCE_NODE_ID`, ttnda.`TARGET_SCENARIO_ID`, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
