@@ -2296,8 +2296,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         batchParams.put("TARGET_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(dt.getTreeId()) + "-" + Integer.toString(n.getPayload().getNodeId())));
                         batchParams.put("SOURCE_TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(da.getTreeId())));
                         batchParams.put("SOURCE_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", da.getTreeId() + "-" + da.getScenarioId()));
-                        batchParams.put("TARGET_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + da.getTargetScenarioId()));
-                        logger.info("dt.getTreeId() "+dt.getTreeId()+" da.getTargetScenarioId()"+da.getTargetScenarioId()+" Map Value"+getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + da.getTargetScenarioId())+" Map "+oldAndNewIdMap);
+                        batchParams.put("TARGET_SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", Integer.toString(dt.getTreeId()) + "-" + Integer.toString(da.getTargetScenarioId())));
+                        logger.info("dt.getTreeId() "+dt.getTreeId()+" da.getTargetScenarioId()"+da.getTargetScenarioId()+" Map Value"+getNewId(oldAndNewIdMap, "rm_scenario", Integer.toString(dt.getTreeId()) + "-" + Integer.toString(da.getTargetScenarioId()))+" Map "+oldAndNewIdMap);
                         batchParams.put("SOURCE_NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", da.getTreeId() + "-" + da.getNodeId()));
                         batchList.add(new MapSqlParameterSource(batchParams));
                     }
