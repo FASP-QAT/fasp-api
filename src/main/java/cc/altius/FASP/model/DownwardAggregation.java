@@ -70,6 +70,7 @@ public class DownwardAggregation implements Serializable {
         hash = 37 * hash + this.treeId;
         hash = 37 * hash + this.scenarioId;
         hash = 37 * hash + this.nodeId;
+        hash = 37 * hash + this.targetScenarioId;
         return hash;
     }
 
@@ -89,6 +90,9 @@ public class DownwardAggregation implements Serializable {
             return false;
         }
         if (this.scenarioId != other.scenarioId) {
+            return false;
+        }
+        if (this.targetScenarioId != other.targetScenarioId) {
             return false;
         }
         return this.nodeId == other.nodeId;
