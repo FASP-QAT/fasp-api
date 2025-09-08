@@ -951,7 +951,7 @@ public class UserDaoImpl implements UserDao {
         this.aclService.addFullAclAtUserLevel(sb1, params, "acl", curUser);
 
         StringBuilder sb = new StringBuilder("SELECT "
-                + "   acl.USER_ACL_ID, u.`USER_ID`, u.`USERNAME`, u.ORG_AND_COUNTRY, "
+                + "   acl.USER_ACL_ID, u.`USER_ID`, u.`USERNAME`, u.ORG_AND_COUNTRY, u.ACTIVE, "
                 + "   acl.`ROLE_ID`, aclrl.`LABEL_ID` `ACL_ROLE_LABEL_ID`, aclrl.`LABEL_EN` `ACL_ROLE_LABEL_EN`, aclrl.`LABEL_FR` `ACL_ROLE_LABEL_FR`, aclrl.`LABEL_SP` `ACL_ROLE_LABEL_SP`, aclrl.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
                 + "   aclrc.`REALM_COUNTRY_ID` `REALM_COUNTRY_ID`, aclc.`LABEL_ID` `ACL_REALM_COUNTRY_LABEL_ID`, aclc.`LABEL_EN` `ACL_REALM_COUNTRY_LABEL_EN`, aclc.`LABEL_FR` `ACL_REALM_COUNTRY_LABEL_FR`, aclc.`LABEL_SP` `ACL_REALM_COUNTRY_LABEL_SP`, aclc.`LABEL_PR` `ACL_REALM_COUNTRY_LABEL_PR`, "
                 + "   aclha.`HEALTH_AREA_ID` `HEALTH_AREA_ID`, aclha.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, aclha.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, aclha.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, aclha.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, aclha.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
