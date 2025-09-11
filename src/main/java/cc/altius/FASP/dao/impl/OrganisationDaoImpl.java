@@ -161,7 +161,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     public List<Organisation> getOrganisationList(CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlListString, params, "o", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "o", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
     }
 
