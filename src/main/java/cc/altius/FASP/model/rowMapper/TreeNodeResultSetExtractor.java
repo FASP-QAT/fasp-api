@@ -90,8 +90,12 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         if (rs.wasNull()) {
                             sourceScenarioId = null;
                         }
+                        Integer targetScenarioId = rs.getInt("TARGET_SCENARIO_ID");
+                        if (rs.wasNull()) {
+                            targetScenarioId = null;
+                        }
                         if (sourceTreeId != null && sourceScenarioId != null && sourceNodeId != null) {
-                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId);
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, sourceScenarioId, sourceNodeId, targetScenarioId);
                             int idx = tn.getDownwardAggregationList().indexOf(da);
                             if (idx == -1) {
                                 tn.getDownwardAggregationList().add(da);
@@ -99,7 +103,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         }
                     } else {
                         if (sourceTreeId != null && sourceNodeId != null) {
-                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, 0, sourceNodeId);
+                            DownwardAggregation da = new DownwardAggregation(sourceTreeId, 0, sourceNodeId, 0);
                             int idx = tn.getDownwardAggregationList().indexOf(da);
                             if (idx == -1) {
                                 tn.getDownwardAggregationList().add(da);
