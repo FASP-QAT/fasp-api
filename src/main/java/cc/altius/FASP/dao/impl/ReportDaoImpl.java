@@ -689,7 +689,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
                 + "LEFT JOIN ( "
                 + "	SELECT "
-                + "		st.BUDGET_ID, "
+                + "		st.BUDGET_ID,s.SHIPMENT_ID, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET` "
                 + "FROM rm_shipment s "
@@ -706,6 +706,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "WHERE "
                 + "	TRUE AND b.ACTIVE "
                 + "     AND (:programIds='' OR FIND_IN_SET(bp.PROGRAM_ID, :programIds)) "
+                + "     AND (:programIds='' OR FIND_IN_SET(stc.PROGRAM_ID, :programIds)) "
                 + "     AND (:fundingSourceIds='' OR FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds)) "
                 + "     AND (b.START_DATE BETWEEN :startDate AND :stopDate OR b.STOP_DATE BETWEEN :startDate AND :stopDate OR :startDate BETWEEN b.START_DATE AND b.STOP_DATE) ");
         this.aclService.addUserAclForRealm(sb, params, "b", curUser);
