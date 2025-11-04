@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusMatrix`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`stockStatusMatrix`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrix`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_TRACER_CATEGORY_IDS VARCHAR(255), VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,4 +94,7 @@ LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID
     WHERE mn.MONTH BETWEEN @varStartDate AND @varStopDate
     GROUP BY ssm.PLANNING_UNIT_ID, YEAR(mn.MONTH);
    
-END
+END$$
+
+DELIMITER ;
+;
