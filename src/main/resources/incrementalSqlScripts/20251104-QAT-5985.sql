@@ -1,0 +1,1 @@
+UPDATE `fasp`.`ap_security` SET `BF` = 'ROLE_BF_SP_DASHBOARD' WHERE (`SECURITY_ID` = '504');
