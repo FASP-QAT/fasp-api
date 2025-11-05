@@ -1,3 +1,12 @@
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`forecastMetricsComparision`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`( 
 	VAR_USER_ID INT(10), 
 	VAR_REALM_ID INT(10), 
@@ -146,4 +155,7 @@ BEGIN
     GROUP BY fm.PROGRAM_ID, fm.VERSION_ID, fm.PLANNING_UNIT_ID;
 
     -- INSERT INTO log VALUES (null, now(), "Main query completed");
-END
+END$$
+
+DELIMITER ;
+;
