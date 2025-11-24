@@ -118,7 +118,7 @@ public class DashboardDaoImpl implements DashboardDao {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_realm_country r WHERE r.`ACTIVE`");
         this.aclService.addUserAclForRealm(sb, params, "r", curUser);
-        this.aclService.addUserAclForRealmCountry(sb, params, "r", curUser);
+//        this.aclService.addUserAclForRealmCountry(sb, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, Integer.class);
     }
 
@@ -358,7 +358,8 @@ public class DashboardDaoImpl implements DashboardDao {
                 + "WHERE st.ACCOUNT_FLAG AND st.ACTIVE AND st.ERP_FLAG and ppu.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        this.aclService.addFullAclForProgram(sb1, params, "p", curUser);
+        this.aclService.addUserAclForRealm(sb1, params, "p", curUser);
+//        this.aclService.addFullAclForProgram(sb1, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb1.toString(), params, Integer.class);
     }
     
@@ -366,6 +367,7 @@ public class DashboardDaoImpl implements DashboardDao {
     public ProgramCount getFullProgramCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT SUM(IF(p.PROGRAM_TYPE_ID=1, 1, 0)) PROGRAM_COUNT, SUM(IF(p.PROGRAM_TYPE_ID=2, 1, 0)) DATASET_COUNT FROM rm_program p WHERE p.`ACTIVE`");
+        this.aclService.addUserAclForRealm(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new ProgramCountRowMapper());
     }
 
