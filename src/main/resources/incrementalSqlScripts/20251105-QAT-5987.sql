@@ -130,7 +130,7 @@ BEGIN
     INSERT INTO tmp_forecastMetrics1 
     SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, spa.ACTUAL, spa.ACTUAL_CONSUMPTION_QTY, spa.FORECASTED_CONSUMPTION_QTY
     FROM tmp_allowedPlanningUnits au 
-    LEFT JOIN rm_supply_plan_amc spa ON spa.PROGRAM_ID=au.PROGRAM_ID AND spa.VERSION_ID=au.VERSION_ID AND spa.PLANNING_UNIT_ID=au.PLANNING_UNIT_ID AND spa.TRANS_DATE BETWEEN @varStartDate AND @varStopDate WHERE spa.PROGRAM_ID IS NOT NULL;
+    LEFT JOIN rm_supply_plan_amc spa ON spa.PROGRAM_ID=au.PROGRAM_ID AND spa.VERSION_ID=au.VERSION_ID AND spa.PLANNING_UNIT_ID=au.PLANNING_UNIT_ID WHERE spa.PROGRAM_ID IS NOT NULL AND spa.TRANS_DATE BETWEEN @varStartDate AND @varStopDate;
 
     -- INSERT INTO log VALUES (null, now(), "tmp_forecastMetrics1 completed");
     INSERT INTO tmp_forecastMetrics2 SELECT * FROM tmp_forecastMetrics1;
