@@ -43,6 +43,12 @@ public class FileController {
     private String PIPELINE_CONVERTOR_WINDOWS;
     @Value("${qat.userGuideFileName}")
     private String QAT_USER_GUIDE;
+    @Value("${qat.touFileName}")
+    private String QAT_TOU;
+    @Value("${qat.privacyNoticeFileName}")
+    private String QAT_PRIVACY_NOTICE;
+    @Value("${qat.dpaFileName}")
+    private String QAT_DPA;
     @Value("${qat.consumptionDataEntryTemplate}")
     private String CONSUMPTION_DATA_ENTRY_TEMPLATE;
     @Value("${qat.inventoryDataEntryTemplate}")
@@ -117,6 +123,24 @@ public class FileController {
                 response.setHeader("Content-Disposition", "attachment;filename=" + SHIPMENT_DATA_ENTRY_TEMPLATE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + SHIPMENT_DATA_ENTRY_TEMPLATE));
+                break;
+            case "qatTou":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_TOU);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_TOU));
+                break;
+            case "qatPrivacyNotice":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_PRIVACY_NOTICE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_PRIVACY_NOTICE));
+                break;
+            case "qatDpa":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_DPA);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_DPA));
                 break;
         }
         return IOUtils.toByteArray(fin);
