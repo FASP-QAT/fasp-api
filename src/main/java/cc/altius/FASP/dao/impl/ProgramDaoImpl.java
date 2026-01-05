@@ -539,13 +539,13 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<SimpleProgram> getProgramListForDropdown(int realmId, int programTypeId, boolean aclFilter, CustomUserDetails curUser, boolean active) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
+        StringBuilder sqlStringBuilder = new StringBuilder(ProgramCommonDaoImpl.SQL_SIMPLE_PROGRAM_STRING).append(" AND (rc.REALM_ID=:realmId OR :realmId=-1 OR rc.REALM_ID IS NULL) AND (p.PROGRAM_TYPE_ID=:programTypeId OR :programTypeId=0) ");
         if (active) {
             sqlStringBuilder.append(" AND p.ACTIVE ");
         }
         params.put("realmId", realmId);
         params.put("programTypeId", programTypeId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         if (aclFilter) {
             this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         }
