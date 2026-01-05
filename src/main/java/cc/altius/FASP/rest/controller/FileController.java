@@ -65,7 +65,6 @@ public class FileController {
      * @param fileName
      * @param response
      * @param auth
-     * @return
      * @throws FileNotFoundException
      * @throws IOException
      */
@@ -79,7 +78,7 @@ public class FileController {
                                                 "shipmentDataEntryTemplate")
     @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "200", description = "Returns the requested file")
     @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "500", description = "Internal error that prevented the retrieval of the requested file")
-    public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
+    public void getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
         FileInputStream fin = null;
         switch (fileName) {
             case "qatUserGuide":
@@ -126,24 +125,25 @@ public class FileController {
                 break;
             case "qatTou":
                 response.setContentType("application/pdf");
-                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_TOU);
+                response.setHeader("Content-Disposition", "inline;filename=" + QAT_TOU);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_TOU));
                 break;
             case "qatPrivacyNotice":
                 response.setContentType("application/pdf");
-                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_PRIVACY_NOTICE);
+                response.setHeader("Content-Disposition", "inline;filename=" + QAT_PRIVACY_NOTICE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_PRIVACY_NOTICE));
                 break;
             case "qatDpa":
                 response.setContentType("application/pdf");
-                response.setHeader("Content-Disposition", "attachment;filename=" + QAT_DPA);
+                response.setHeader("Content-Disposition", "inline;filename=" + QAT_DPA);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + QAT_DPA));
                 break;
         }
-        return IOUtils.toByteArray(fin);
+        IOUtils.copy(fin, response.getOutputStream());
+        response.flushBuffer();
     }
 
 }
