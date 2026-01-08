@@ -184,7 +184,8 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         }
     }
 
-    private String addJiraCustomer(CustomUserDetails curUser) {
+    @Override
+    public String addJiraCustomer(CustomUserDetails curUser) {
         JSONObject obj = new JSONObject();
         String accountId = "";
         obj.put("email", curUser.getEmailId());
