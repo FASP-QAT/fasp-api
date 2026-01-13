@@ -120,7 +120,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
-        
+
         String jiraAccountId = "";
         JiraServiceDeskIssuesDTO issuesDTO = new JiraServiceDeskIssuesDTO();
         jiraAccountId = this.userService.getUserJiraAccountId(curUser.getUserId());
@@ -130,7 +130,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             jqlSearchString_Open.append("project=").append(JIRA_PROJECT_NAME)
                     .append(" AND reporter=").append(jiraAccountId)
                     .append(" AND (statusCategory='To Do' OR statusCategory='In Progress')");
-            
+
             StringBuilder jqlSearchString_Done = new StringBuilder("");
             jqlSearchString_Done.append("project=").append(JIRA_PROJECT_NAME)
                     .append(" AND reporter=").append(jiraAccountId)
@@ -143,32 +143,31 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
             JSONObject obj = new JSONObject();           
             obj.put("jql", jqlSearchString_Open.toString());
-            obj.put("maxResults", 100);
             HttpEntity<String> entity_Open = new HttpEntity<String>(obj.toJSONString(), headers);
-            
+
             response = restTemplate.exchange(
-                    JIRA_API_URL + "/search", HttpMethod.POST, entity_Open, String.class);
+                    JIRA_API_URL + "/search/approximate-count", HttpMethod.POST, entity_Open, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
-                JsonElement element = jsonObject.get("total");
-                issuesDTO.setOpenIssues(element.getAsInt());                
-            }    
-            
+                JsonElement element = jsonObject.get("count");
+                issuesDTO.setOpenIssues(element.getAsInt());
+            }
+
             obj.put("jql", jqlSearchString_Done.toString());            
             HttpEntity<String> entity_Done = new HttpEntity<String>(obj.toJSONString(), headers);
-            
+
             response = restTemplate.exchange(
-                    JIRA_API_URL + "/search", HttpMethod.POST, entity_Done, String.class);
-            
+                    JIRA_API_URL + "/search/approximate-count", HttpMethod.POST, entity_Done, String.class);
+
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
-                JsonElement element = jsonObject.get("total");
-                issuesDTO.setAddressedIssues(element.getAsInt());                       
+                JsonElement element = jsonObject.get("count");
+                issuesDTO.setAddressedIssues(element.getAsInt());
             }
             
-        } 
-        
+        }
+
         return issuesDTO;
     }
 
@@ -184,7 +183,8 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         }
     }
 
-    private String addJiraCustomer(CustomUserDetails curUser) {
+    @Override
+    public String addJiraCustomer(CustomUserDetails curUser) {
         JSONObject obj = new JSONObject();
         String accountId = "";
         obj.put("email", curUser.getEmailId());
@@ -199,16 +199,16 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
         try {
             response = restTemplate.exchange(
-                JIRA_SERVICE_DESK_API_URL + "/customer", HttpMethod.POST, entity, String.class);
+                    JIRA_SERVICE_DESK_API_URL + "/customer", HttpMethod.POST, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
             JsonElement element = jsonObject.get("accountId");
             accountId = element.getAsString();
             this.userService.addUserJiraAccountId(curUser.getUserId(), accountId);
             return accountId;
-        } catch (Exception e) {            
+        } catch (Exception e) {
             this.syncUserJiraAccountId(curUser.getEmailId());
             return this.userService.getUserJiraAccountId(curUser.getUserId());
-        }               
+        }
     }
 
     private HttpHeaders getCommonHeaders() {
@@ -224,9 +224,9 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
     @Override
     public String syncUserJiraAccountId(String emailId) {
-                
+
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response;  
+        ResponseEntity<String> response;
         int total = 0;
         JsonArray jsonArray = null;
         StringBuilder sb = new StringBuilder();
@@ -238,40 +238,40 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         HttpEntity<String> entity = new HttpEntity<String>("", headers);
 
         response = restTemplate.exchange(
-                JIRA_SERVICE_DESK_API_URL + "/servicedesk/" + JIRA_PROJECT_NAME + "/customer?query="+emailId, HttpMethod.GET, entity, String.class);
+                JIRA_SERVICE_DESK_API_URL + "/servicedesk/" + JIRA_PROJECT_NAME + "/customer?query=" + emailId, HttpMethod.GET, entity, String.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
-            
+
             JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
             JsonElement element = jsonObject.get("size");
             total = element.getAsInt();
-            
-            if(total > 0) {
+
+            if (total > 0) {
                 List<String> userEmails = new ArrayList<>();
-                if(!emailId.equals("")) {
+                if (!emailId.equals("")) {
                     userEmails.add(emailId);
                 } else {
                     userEmails = this.userService.getUserListForUpdateJiraAccountId();
                 }
                 jsonArray = jsonObject.getAsJsonArray("values");
                 sb.append("{");
-                for(int i=0 ; i < total ; i++) {
+                for (int i = 0; i < total; i++) {
                     String jiraEmailAddress = "", jiraAccountId = "";
                     JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
                     jiraEmailAddress = jsonObject1.get("emailAddress").getAsString();
                     jiraAccountId = jsonObject1.get("accountId").getAsString();
-                    for(int j=0 ; j<userEmails.size() ; j++) {                        
+                    for (int j = 0; j < userEmails.size(); j++) {
 //                        if(userEmails.get(j).equalsIgnoreCase(jiraEmailAddress)) {
-                            this.userService.updateUserJiraAccountId(userEmails.get(j), jiraAccountId);
-                            sb.append(jsonObject1);
+                        this.userService.updateUserJiraAccountId(userEmails.get(j), jiraAccountId);
+                        sb.append(jsonObject1);
 //                        }
                     }
                 }
                 sb.append("}");
-            }            
+            }
         }
 
-        return sb.toString() ;
-                
+        return sb.toString();
+
     }
 }

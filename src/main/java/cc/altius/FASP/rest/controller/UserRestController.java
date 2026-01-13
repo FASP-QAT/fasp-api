@@ -21,6 +21,7 @@ import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
@@ -66,8 +67,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RestController
 @RequestMapping("/api")
 @Tag(
-    name = "User",
-    description = "Manage users, authentication, roles and access controls"
+        name = "User",
+        description = "Manage users, authentication, roles and access controls"
 )
 public class UserRestController {
 
@@ -80,6 +81,8 @@ public class UserRestController {
     private ProgramService programService;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private JiraServiceDeskApiService jiraServiceDeskApiService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Value("${session.expiry.time}")
@@ -96,8 +99,8 @@ public class UserRestController {
     @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role")
     @Operation(
-        summary = "Get Roles",
-        description = "Get role list"
+            summary = "Get Roles",
+            description = "Get role list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = Role.class))), responseCode = "200", description = "Returns the role list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the role list")
@@ -120,8 +123,8 @@ public class UserRestController {
     @JsonView(Views.ReportView.class)
     @GetMapping(value = "/role/{roleId}")
     @Operation(
-        summary = "Get Role",
-        description = "Get role by ID"
+            summary = "Get Role",
+            description = "Get role by ID"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = Role.class)), responseCode = "200", description = "Returns the role")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the role")
@@ -143,8 +146,8 @@ public class UserRestController {
      */
     @PostMapping(value = "/role")
     @Operation(
-        summary = "Add Role",
-        description = "Add new role"
+            summary = "Add Role",
+            description = "Add new role"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Role already exists")
@@ -178,13 +181,13 @@ public class UserRestController {
      */
     @PutMapping(value = "/role")
     @Operation(
-        summary = "Update Role",
-        description = "Update role"
+            summary = "Update Role",
+            description = "Update role"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The role to update",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Role.class))
+            description = "The role to update",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Role.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Role already exists")
@@ -216,8 +219,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/businessFunction")
     @Operation(
-        summary = "Get business function list",
-        description = "Get business function list"
+            summary = "Get business function list",
+            description = "Get business function list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = BusinessFunction.class))), responseCode = "200", description = "Returns the business function list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the business function list")
@@ -239,8 +242,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/details")
     @Operation(
-        summary = "Get user details",
-        description = "Get user details including ACL"
+            summary = "Get user details",
+            description = "Get user details including ACL"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user details")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user details")
@@ -292,8 +295,8 @@ public class UserRestController {
     @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user")
     @Operation(
-        summary = "Get User List",
-        description = "Get user list"
+            summary = "Get User List",
+            description = "Get user list"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = User.class))), responseCode = "200", description = "Returns the user list")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while getting the user list")
@@ -317,8 +320,8 @@ public class UserRestController {
     @JsonView(Views.UserListView.class)
     @GetMapping(value = "/user/realmId/{realmId}")
     @Operation(
-        summary = "Get User List for Realm",
-        description = "Get user list for realm"
+            summary = "Get User List for Realm",
+            description = "Get user list for realm"
     )
     @Parameter(name = "realmId", description = "The realm ID")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = User.class))), responseCode = "200", description = "Returns the user list for realm")
@@ -350,8 +353,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/programId/{programId}")
     @Operation(
-        summary = "Get Users for Program",
-        description = "Get list of Users that have access to a Program"
+            summary = "Get Users for Program",
+            description = "Get list of Users that have access to a Program"
     )
     @Parameter(name = "programId", description = "The program ID")
     @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = User.class))), responseCode = "200", description = "Returns the user list for program")
@@ -383,8 +386,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/user/{userId}")
     @Operation(
-        summary = "Get User",
-        description = "Get user by ID"
+            summary = "Get User",
+            description = "Get user by ID"
     )
     @Parameter(name = "userId", description = "The user ID")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = User.class)), responseCode = "200", description = "Returns the user by user ID")
@@ -426,13 +429,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user")
     @Operation(
-        summary = "Add User",
-        description = "Add user"
+            summary = "Add User",
+            description = "Add user"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The user to add",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            description = "The user to add",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
@@ -449,6 +452,8 @@ public class UserRestController {
             String msg = this.userService.checkIfUserExistsByEmailId(user, 1);
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user, curUser);
+                CustomUserDetails curUserForJira = new CustomUserDetails(userId, user.getUsername(), user.getEmailId());
+                this.jiraServiceDeskApiService.addJiraCustomer(curUserForJira);
                 if (userId > 0) {
                     String token = this.userService.generateTokenForEmailId(user.getEmailId(), 2);
                     if (token == null || token.isEmpty()) {
@@ -489,13 +494,13 @@ public class UserRestController {
      */
     @PutMapping(value = "/user")
     @Operation(
-        summary = "Update User",
-        description = "Update user"
+            summary = "Update User",
+            description = "Update user"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The user to edit",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            description = "The user to edit",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "409", description = "The user has partial acccess to the request")
@@ -536,13 +541,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/updateExpiredPassword")
     @Operation(
-        summary = "Update expired password",
-        description = "Update expired password"
+            summary = "Update expired password",
+            description = "Update expired password"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The password to update",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Password.class))
+            description = "The password to update",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Password.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "New password is same as old password")
@@ -586,13 +591,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/changePassword")
     @Operation(
-        summary = "Change password",
-        description = "Change password"
+            summary = "Change password",
+            description = "Change password"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The password to change",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Password.class))
+            description = "The password to change",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Password.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "412", description = "New password is same as old password")
@@ -630,13 +635,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/forgotPassword")
     @Operation(
-        summary = "Get forgot password token",
-        description = "Generates a forgot password token and sends it via email"
+            summary = "Get forgot password token",
+            description = "Generates a forgot password token and sends it via email"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The email id to forgot password",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
+            description = "The email id to forgot password",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User is disabled")
@@ -682,13 +687,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/confirmForgotPasswordToken")
     @Operation(
-        summary = "Confirm forgot password token",
-        description = "Confirm forgot password token"
+            summary = "Confirm forgot password token",
+            description = "Confirm forgot password token"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The email id and token to confirm",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
+            description = "The email id and token to confirm",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while confirming the forgot password token")
@@ -715,13 +720,13 @@ public class UserRestController {
      */
     @PostMapping("/user/updatePassword")
     @Operation(
-        summary = "Update password",
-        description = "Update password from forgot password"
+            summary = "Update password",
+            description = "Update password from forgot password"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The email id and token to update password",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
+            description = "The email id and token to update password",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailUser.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Invalid token")
@@ -767,8 +772,8 @@ public class UserRestController {
      */
     @GetMapping(value = "/logout")
     @Operation(
-        summary = "Logout",
-        description = "Logout"
+            summary = "Logout",
+            description = "Logout"
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Invalid token")
@@ -825,13 +830,13 @@ public class UserRestController {
      */
     @PutMapping(value = "/user/accessControls")
     @Operation(
-        summary = "Update access controls",
-        description = "Update user access controls"
+            summary = "Update access controls",
+            description = "Update user access controls"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The user to update access controls",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            description = "The user to update access controls",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the access controls")
@@ -867,13 +872,13 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/language")
     @Operation(
-        summary = "Update user language",
-        description = "Update user default language"
+            summary = "Update user language",
+            description = "Update user default language"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "The language to update",
-        required = true,
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = LanguageUser.class))
+            description = "The language to update",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LanguageUser.class))
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the preferred language")
@@ -899,8 +904,8 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/module/{moduleId}")
     @Operation(
-        summary = "Update user module",
-        description = "Update user default module"
+            summary = "Update user module",
+            description = "Update user default module"
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the default module")
@@ -926,8 +931,8 @@ public class UserRestController {
      */
     @PostMapping("/user/theme/{themeId}")
     @Operation(
-        summary = "Update user theme",
-        description = "Update user default theme"
+            summary = "Update user theme",
+            description = "Update user default theme"
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the default theme")
@@ -946,8 +951,8 @@ public class UserRestController {
 
     @PostMapping("/user/decimalPreference/{showDecimals}")
     @Operation(
-        summary = "Update user decimal preference",
-        description = "Update user decimal preference"
+            summary = "Update user decimal preference",
+            description = "Update user decimal preference"
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the decimal preference")
@@ -972,8 +977,8 @@ public class UserRestController {
      */
     @PostMapping(value = "/user/agreement")
     @Operation(
-        summary = "Accept user agreement",
-        description = "Accept user agreement"
+            summary = "Accept user agreement",
+            description = "Accept user agreement"
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns an empty response if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating the agreement")
