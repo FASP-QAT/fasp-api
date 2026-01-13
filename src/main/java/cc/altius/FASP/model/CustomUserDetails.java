@@ -71,6 +71,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.businessFunction = new LinkedList<>();
     }
 
+    public CustomUserDetails(int userId, String username, String emailId) {
+        this.userId = userId;
+        this.username = username;
+        this.emailId = emailId;
+    }
+    
+    
+
     public List<SimpleGrantedAuthority> getBusinessFunction() {
         return businessFunction;
     }

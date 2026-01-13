@@ -23,4 +23,6 @@ public interface JiraServiceDeskApiService {
     public JiraServiceDeskIssuesDTO getIssuesSummary(CustomUserDetails curUser);
 
     public String syncUserJiraAccountId(String emailId);
+    
+    public String addJiraCustomer(CustomUserDetails curUser);
 }
