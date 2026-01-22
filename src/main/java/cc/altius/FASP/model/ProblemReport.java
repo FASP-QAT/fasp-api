@@ -38,6 +38,8 @@ public class ProblemReport implements Serializable {
     @JsonView(Views.InternalView.class)
     private Integer shipmentId;         // data4
     @JsonView(Views.InternalView.class)
+    private Integer tempShipmentId;
+    @JsonView(Views.InternalView.class)
     private String data5;               // suggestion + description
     @JsonView(Views.InternalView.class)
     private SimpleObject problemCategory;
@@ -134,6 +136,14 @@ public class ProblemReport implements Serializable {
 
     public void setShipmentId(Integer shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public Integer getTempShipmentId() {
+        return tempShipmentId;
+    }
+
+    public void setTempShipmentId(Integer tempShipmentId) {
+        this.tempShipmentId = tempShipmentId;
     }
 
     public String getData5() {
@@ -257,4 +267,4 @@ public class ProblemReport implements Serializable {
         return true;
     }
 
-    }
+}

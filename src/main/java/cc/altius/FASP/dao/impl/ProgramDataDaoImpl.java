@@ -1727,7 +1727,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("DATA1", pr.getDt()); // Dt
             tp.put("DATA2", (pr.getRegion() != null ? pr.getRegion().getId() : null)); // RegionId
             tp.put("DATA3", (pr.getPlanningUnit() != null ? pr.getPlanningUnit().getId() : null)); // PlanningUnitId
-            tp.put("DATA4", pr.getShipmentId()); // ShipmentId
+            tp.put("DATA4", (pr.getShipmentId() == 0 && (pr.getTempShipmentId()!= null && pr.getTempShipmentId() != 0) ? tempAndNewShipmentId.get(pr.getTempShipmentId()) : pr.getShipmentId())); // ShipmentId
             tp.put("DATA5", pr.getData5());
 //            tp.put("REVIWED", pr.isReviewed());
             tp.put("REVIWED", pd.getVersionType().getId() == 2 && (pr.getProblemStatus().getId() == 3 || pr.getProblemStatus().getId() == 1) ? false : pr.isReviewed());
