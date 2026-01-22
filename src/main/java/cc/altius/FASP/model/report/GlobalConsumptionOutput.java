@@ -28,10 +28,10 @@ public class GlobalConsumptionOutput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     Date transDate;
     @JsonView(Views.ReportView.class)
-    Map<String, CountryConsumptionData> countryConsumption;
+    Map<String, CountryOrProgramConsumptionData> consumption;
 
     public GlobalConsumptionOutput() {
-        countryConsumption = new HashMap<>();
+        consumption = new HashMap<>();
     }
 
     public Date getTransDate() {
@@ -42,20 +42,20 @@ public class GlobalConsumptionOutput implements Serializable {
         this.transDate = transDate;
     }
 
-    public Map<String, CountryConsumptionData> getCountryConsumption() {
-        return countryConsumption;
+    public Map<String, CountryOrProgramConsumptionData> getConsumption() {
+        return consumption;
     }
 
-    public void setCountryConsumption(Map<String, CountryConsumptionData> countryConsumption) {
-        this.countryConsumption = countryConsumption;
+    public void setConsumption(Map<String, CountryOrProgramConsumptionData> consumption) {
+        this.consumption = consumption;
     }
 
     public double getTotalForecastedConsumption() {
-        return this.countryConsumption.values().stream().map(x -> x.getForecastedConsumption()).reduce((double)0.0, Double::sum);
+        return this.consumption.values().stream().map(x -> x.getForecastedConsumption()).reduce((double)0.0, Double::sum);
     }
 
     public double getTotalActualConsumption() {
-        return this.countryConsumption.values().stream().map(x -> x.getActualConsumption()).reduce((double)0.0, Double::sum);
+        return this.consumption.values().stream().map(x -> x.getActualConsumption()).reduce((double)0.0, Double::sum);
     }
 
     public double getTotalConsumption() {

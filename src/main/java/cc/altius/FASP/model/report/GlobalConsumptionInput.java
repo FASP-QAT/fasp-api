@@ -20,15 +20,15 @@ public class GlobalConsumptionInput {
     private int realmId;
     private String[] realmCountryIds;
     private String[] programIds;
-    private String[] planningUnitIds;
+    private int equivalencyUnitId; // 0 if not selected or then value if selected
+    private String[] planningUnitIds; // Use list of PU's if an EquivalencyUnit is provided, if no equivalencyUnitId is selected then only use the first PU from the list
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private int reportView; // 1 = Planning Unit, 2 = Forecasting Unit
-    private boolean useApprovedSupplyPlanOnly;
+    private int viewBy; // View by Country = 1, View by Program = 2
 
     public int getRealmId() {
         return realmId;
@@ -38,7 +38,6 @@ public class GlobalConsumptionInput {
         this.realmId = realmId;
     }
 
-    
     public String[] getRealmCountryIds() {
         return realmCountryIds;
     }
@@ -53,6 +52,14 @@ public class GlobalConsumptionInput {
 
     public void setProgramIds(String[] programIds) {
         this.programIds = programIds;
+    }
+
+    public int getEquivalencyUnitId() {
+        return equivalencyUnitId;
+    }
+
+    public void setEquivalencyUnitId(int equivalencyUnitId) {
+        this.equivalencyUnitId = equivalencyUnitId;
     }
 
     public String[] getPlanningUnitIds() {
@@ -79,32 +86,19 @@ public class GlobalConsumptionInput {
         this.stopDate = stopDate;
     }
 
-    public int getReportView() {
-        return reportView;
+    public int getViewBy() {
+        return viewBy;
     }
 
-    public void setReportView(int reportView) {
-        this.reportView = reportView;
-    }
-
-    public boolean isUseApprovedSupplyPlanOnly() {
-        return useApprovedSupplyPlanOnly;
-    }
-
-    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
-        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    public void setViewBy(int viewBy) {
+        this.viewBy = viewBy;
     }
 
     public String getRealmCountryIdString() {
         if (this.realmCountryIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.realmCountryIds);
-            if (this.realmCountryIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.realmCountryIds);
         }
     }
 
@@ -112,12 +106,7 @@ public class GlobalConsumptionInput {
         if (this.programIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.programIds);
-            if (this.programIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.programIds);
         }
     }
 
@@ -125,13 +114,21 @@ public class GlobalConsumptionInput {
         if (this.planningUnitIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.planningUnitIds);
-            if (this.planningUnitIds.length > 0) {
-                return "'" + opt + "'";
+            if (isEquivalencyUnitSelected()) {
+                return String.join(",", this.planningUnitIds);
             } else {
-                return opt;
+                return this.planningUnitIds[0].toString();
             }
         }
+    }
+
+    public boolean isEquivalencyUnitSelected() {
+        return this.equivalencyUnitId != 0;
+    }
+
+    @Override
+    public String toString() {
+        return "GlobalConsumptionInput{" + "realmId=" + realmId + ", realmCountryIds=" + getRealmCountryIdString() + ", programIds=" + getProgramIdString() + ", equivalencyUnitId=" + equivalencyUnitId + ", planningUnitIds=" + getPlanningUnitIdString() + ", startDate=" + startDate + ", stopDate=" + stopDate + ", viewBy=" + viewBy + '}';
     }
 
 }

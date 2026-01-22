@@ -1,3 +1,11 @@
+USE `fasp`;
+DROP procedure IF EXISTS `globalConsumption`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`globalConsumption`;
+;
+
+DELIMITER $$
 USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10))
 BEGIN
@@ -97,4 +105,8 @@ BEGIN
     PREPARE s1 FROM @sqlString;
     EXECUTE s1;
 
-END
+END$$
+
+DELIMITER ;
+;
+

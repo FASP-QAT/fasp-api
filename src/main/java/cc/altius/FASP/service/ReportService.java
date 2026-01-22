@@ -18,7 +18,6 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -30,7 +29,7 @@ import cc.altius.FASP.model.report.ForecastSummaryOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
-import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutputWrapper;
 import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.MonthlyForecastInput;
@@ -84,7 +83,7 @@ public interface ReportService {
     public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) throws AccessControlFailedException;
 
     // Report no 3
-    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) throws AccessControlFailedException;
+    public GlobalConsumptionOutputWrapper getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) throws AccessControlFailedException;
 
     // Report no 4
     public List<ForecastMetricsMonthlyOutput> getForecastMetricsMonthly(ForecastMetricsMonthlyInput fmi, CustomUserDetails curUser) throws AccessControlFailedException;

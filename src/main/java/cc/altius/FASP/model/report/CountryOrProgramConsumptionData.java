@@ -14,16 +14,16 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class CountryConsumptionData implements Serializable {
+public class CountryOrProgramConsumptionData implements Serializable {
 
-    public CountryConsumptionData(SimpleCodeObject country, double forecastedConsumption, double actualConsumption) {
-        this.country = country;
+    public CountryOrProgramConsumptionData(SimpleCodeObject label, double forecastedConsumption, double actualConsumption) {
+        this.label = label;
         this.forecastedConsumption = forecastedConsumption;
         this.actualConsumption = actualConsumption;
     }
-
+    
     @JsonView(Views.ReportView.class)
-    SimpleCodeObject country;
+    SimpleCodeObject label;
     @JsonView(Views.ReportView.class)
     double forecastedConsumption;
     @JsonView(Views.ReportView.class)
@@ -45,12 +45,12 @@ public class CountryConsumptionData implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public SimpleCodeObject getCountry() {
-        return country;
+    public SimpleCodeObject getLabel() {
+        return label;
     }
 
-    public void setCountry(SimpleCodeObject country) {
-        this.country = country;
+    public void setLabel(SimpleCodeObject label) {
+        this.label = label;
     }
 
 }
