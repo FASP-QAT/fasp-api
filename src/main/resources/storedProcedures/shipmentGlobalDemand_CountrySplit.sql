@@ -1,17 +1,61 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountrySplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS TEXT)
 BEGIN
+
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    -- Report no 21 Part 2
+    -- Report no 21 Part 1 
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
     DECLARE curRealmCountryId INT;
     DECLARE curHealthAreaId INT;
     DECLARE curOrganisationId INT;
     DECLARE curProgramId INT;
+    DECLARE finished INTEGER DEFAULT 0;
+    DECLARE fspaId INT(10) DEFAULT 0;
+    DECLARE fspaCode VARCHAR(10) DEFAULT '';
     DECLARE done INT DEFAULT FALSE;
     DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+    DECLARE fspa_cursor CURSOR FOR 
+        SELECT 
+            CASE @reportView
+                WHEN 1 THEN fs.FUNDING_SOURCE_ID
+                WHEN 2 THEN pa.PROCUREMENT_AGENT_ID
+                WHEN 3 THEN fst.FUNDING_SOURCE_TYPE_ID
+                WHEN 4 THEN pat.PROCUREMENT_AGENT_TYPE_ID
+            END AS `FSPA_ID`,
+            CASE @reportView
+                WHEN 1 THEN fs.FUNDING_SOURCE_CODE
+                WHEN 2 THEN pa.PROCUREMENT_AGENT_CODE
+                WHEN 3 THEN fst.FUNDING_SOURCE_TYPE_CODE
+                WHEN 4 THEN pat.PROCUREMENT_AGENT_TYPE_CODE
+            END AS `FSPA_CODE`
+        FROM vw_program p 
+        LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID
+        LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID AND s.MAX_VERSION_ID<=p.CURRENT_VERSION_ID
+        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID
+        LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID
+        LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+        LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
+        LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID
+        LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID
+        LEFT JOIN vw_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID
+        WHERE 
+            TRUE AND ppu.ACTIVE AND pu.ACTIVE AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL 
+            AND (LENGTH(@realmCountryIds)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, @realmCountryIds))
+            AND (LENGTH(@programIds)=0 OR FIND_IN_SET(p.PROGRAM_ID, @programIds)) 
+            AND FIND_IN_SET(st.PLANNING_UNIT_ID, @planningUnitIds)
+            AND st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8
+            AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate
+            AND (
+                (@reportView=1 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceProcurementAgentIds))) OR 
+                (@reportView=2 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds))) OR 
+                (@reportView=3 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds))) OR 
+                (@reportView=4 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds)))
+            )
+        GROUP BY `FSPA_ID`;
+
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
+    SET @realmCountryIds = VAR_REALM_COUNTRY_IDS;
+    SET @fundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
     SET @aclSqlString = CONCAT("       AND (FALSE ");
     OPEN cursor_acl;
         read_loop: LOOP
@@ -29,9 +73,7 @@ BEGIN
     END LOOP;
     CLOSE cursor_acl;
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
-    
-    SET @realmCountryIds = VAR_REALM_COUNTRY_IDS;
-    SET @fundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
+
     SET @realmId = VAR_REALM_ID;
     SET @programIds = VAR_PROGRAM_IDS;
     SET @equivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID;
@@ -39,18 +81,30 @@ BEGIN
     SET @reportView = VAR_REPORT_VIEW;
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
-    SET @sqlString = "";
-    
+    SET @sqlStringFSPA = "";
+
+    SET done = 0;
+    OPEN fspa_cursor;
+    getFSPA: LOOP
+        FETCH fspa_cursor into fspaId, fspaCode;
+        IF done THEN 
+            LEAVE getFSPA;
+        END IF;
+        IF @reportView = 1 THEN
+            SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(st.FUNDING_SOURCE_ID=",fspaId,", IF(@equivalencyUnitId=0,st.SHIPMENT_QTY,st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `FSPA_",fspaCode,"` ");
+        ELSEIF @reportView = 2 THEN
+            SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(st.PROCUREMENT_AGENT_ID=",fspaId,", IF(@equivalencyUnitId=0,st.SHIPMENT_QTY,st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `FSPA_",fspaCode,"` ");
+        ELSEIF @reportView = 3 THEN
+            SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(fs.FUNDING_SOURCE_TYPE_ID=",fspaId,", IF(@equivalencyUnitId=0,st.SHIPMENT_QTY,st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `FSPA_",fspaCode,"` ");
+        ELSEIF @reportView = 4 THEN
+            SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(pa.PROCUREMENT_AGENT_TYPE_ID=",fspaId,", IF(@equivalencyUnitId=0,st.SHIPMENT_QTY,st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `FSPA_",fspaCode,"` ");
+        END IF;
+    END LOOP;
+	CLOSE fspa_cursor;
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "       rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 1, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `PLANNED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 3, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SUBMITTED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 4, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `APPROVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 5, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SHIPPED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 6, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ARRIVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 7, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `RECEIVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 9, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ONHOLD_SHIPMENT_QTY` ");
+    SET @sqlString = CONCAT(@sqlString, "       rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR` ");
+    SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
     SET @sqlString = CONCAT(@sqlString, "FROM vw_program p  ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
@@ -63,7 +117,9 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum2 ON eum2.REALM_ID=@realmId AND pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.EQUIVALENCY_UNIT_ID=@equivalencyUnitId AND eum2.PROGRAM_ID is null ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit eu2 ON eum2.EQUIVALENCY_UNIT_ID=eu2.EQUIVALENCY_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent_type pat ON pa.PROCUREMENT_AGENT_TYPE_ID=pat.PROCUREMENT_AGENT_TYPE_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE  ");
     SET @sqlString = CONCAT(@sqlString, "    TRUE AND ppu.ACTIVE AND pu.ACTIVE AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL  ");
     SET @sqlString = CONCAT(@sqlString, "    AND (LENGTH(@realmCountryIds)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, @realmCountryIds)) ");
@@ -79,7 +135,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "    ) ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
     SET @sqlString = CONCAT(@sqlString, "GROUP BY rc.REALM_COUNTRY_ID");
-    
-    PREPARE S1 FROM @sqlString; 
+
+    PREPARE S1 FROM @sqlString;
     EXECUTE S1;
 END

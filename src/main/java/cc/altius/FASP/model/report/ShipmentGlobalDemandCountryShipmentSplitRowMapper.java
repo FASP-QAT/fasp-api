@@ -21,8 +21,13 @@ public class ShipmentGlobalDemandCountryShipmentSplitRowMapper implements RowMap
     public ShipmentGlobalDemandCountryShipmentSplit mapRow(ResultSet rs, int i) throws SQLException {
         ShipmentGlobalDemandCountryShipmentSplit sgd = new ShipmentGlobalDemandCountryShipmentSplit();
         sgd.setCountry(new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, i), rs.getString("COUNTRY_CODE")));
-        sgd.setPlannedShipmentAmt(rs.getDouble("PLANNED_SHIPMENT_AMT"));
-        sgd.setOrderedShipmentAmt(rs.getDouble("ORDERED_SHIPMENT_AMT"));
+        sgd.setPlannedShipmentQty(rs.getDouble("PLANNED_SHIPMENT_QTY"));
+        sgd.setSubmittedShipmentQty(rs.getDouble("SUBMITTED_SHIPMENT_QTY"));
+        sgd.setApprovedShipmentQty(rs.getDouble("APPROVED_SHIPMENT_QTY"));
+        sgd.setShippedShipmentQty(rs.getDouble("SHIPPED_SHIPMENT_QTY"));
+        sgd.setArrivedShipmentQty(rs.getDouble("ARRIVED_SHIPMENT_QTY"));
+        sgd.setReceivedShipmentQty(rs.getDouble("RECEIVED_SHIPMENT_QTY"));
+        sgd.setOnholdShipmentQty(rs.getDouble("ONHOLD_SHIPMENT_QTY"));
         return sgd;
     }
 

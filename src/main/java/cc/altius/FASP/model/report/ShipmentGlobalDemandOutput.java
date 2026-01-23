@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
@@ -16,29 +17,36 @@ import java.util.List;
  */
 public class ShipmentGlobalDemandOutput implements Serializable {
 
+//    @JsonView(Views.ReportView.class)
+//    private List<ShipmentGlobalDemandShipmentList> shipmentList;
+//    @JsonView(Views.ReportView.class)
+//    private List<ShipmentGlobalDemandDateSplit> dateSplitList;
     @JsonView(Views.ReportView.class)
-    private List<ShipmentGlobalDemandShipmentList> shipmentList;
-    @JsonView(Views.ReportView.class)
-    private List<ShipmentGlobalDemandDateSplit> dateSplitList;
+    private SimpleObject product;
     @JsonView(Views.ReportView.class)
     private List<ShipmentGlobalDemandCountrySplit> countrySplitList;
     @JsonView(Views.ReportView.class)
     private List<ShipmentGlobalDemandCountryShipmentSplit> countryShipmentSplitList;
 
-    public List<ShipmentGlobalDemandShipmentList> getShipmentList() {
-        return shipmentList;
+    public SimpleObject getProduct() {
+        return product;
     }
 
-    public void setShipmentList(List<ShipmentGlobalDemandShipmentList> shipmentList) {
-        this.shipmentList = shipmentList;
-    }
-
-    public List<ShipmentGlobalDemandDateSplit> getDateSplitList() {
-        return dateSplitList;
-    }
-
-    public void setDateSplitList(List<ShipmentGlobalDemandDateSplit> dateSplitList) {
-        this.dateSplitList = dateSplitList;
+//    public List<ShipmentGlobalDemandShipmentList> getShipmentList() {
+//        return shipmentList;
+//    }
+//    public void setShipmentList(List<ShipmentGlobalDemandShipmentList> shipmentList) {
+//        this.shipmentList = shipmentList;
+//    }
+//    public List<ShipmentGlobalDemandDateSplit> getDateSplitList() {
+//        return dateSplitList;
+//    }
+//
+//    public void setDateSplitList(List<ShipmentGlobalDemandDateSplit> dateSplitList) {
+//        this.dateSplitList = dateSplitList;
+//    }
+    public void setProduct(SimpleObject product) {
+        this.product = product;
     }
 
     public List<ShipmentGlobalDemandCountrySplit> getCountrySplitList() {

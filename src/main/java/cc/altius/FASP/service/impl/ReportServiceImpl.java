@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
+import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmCountryDao;
@@ -13,7 +14,10 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EquivalencyUnit;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.BudgetReportInput;
@@ -26,7 +30,6 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -105,6 +108,8 @@ public class ReportServiceImpl implements ReportService {
     ProgramDao programDao;
     @Autowired
     EquivalencyUnitDao equivalencyUnitDao;
+    @Autowired
+    PlanningUnitDao planningUnitDao;
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -490,7 +495,15 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-        return this.reportDao.getShipmentGlobalDemand(sgd, curUser);
+        ShipmentGlobalDemandOutput sgdo = this.reportDao.getShipmentGlobalDemand(sgd, curUser);
+        if (sgd.isEquivalencyUnitSelected()) {
+            EquivalencyUnit eu = this.equivalencyUnitDao.getEquivalencyUnitById(sgd.getEquivalencyUnitId(), curUser);
+            sgdo.setProduct(new SimpleObject(eu.getEquivalencyUnitId(), eu.getLabel()));
+        } else {
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(Integer.parseInt(sgd.getPlanningUnitIdsString()), curUser);
+            sgdo.setProduct(new SimpleObject(pu.getPlanningUnitId(), pu.getLabel()));
+        }
+        return sgdo;
     }
 
     @Override

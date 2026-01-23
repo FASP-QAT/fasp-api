@@ -579,47 +579,51 @@ public class ReportDaoImpl implements ReportDao {
         params.put("startDate", sgd.getStartDate());
         params.put("stopDate", sgd.getStopDate());
         params.put("realmCountryIds", sgd.getRealmCountryIdsString());
-        params.put("planningUnitId", sgd.getPlanningUnitId());
+        params.put("programIds", sgd.getProgramIdsString());
+        params.put("equivalencyUnitId", sgd.getEquivalencyUnitId());
+        params.put("planningUnitIds", sgd.getPlanningUnitIdsString());
         params.put("fundingSourceProcurementAgentIds", sgd.getFundingSourceProcurementAgentIdsString());
         params.put("reportView", sgd.getReportView());
-        params.put("approvedSupplyPlanOnly", sgd.isUseApprovedSupplyPlanOnly());
-        params.put("includePlannedShipments", sgd.isIncludePlannedShipments());
+        params.put("includePlannedShipments", true);
         params.put("curUser", curUser.getUserId());
         ShipmentGlobalDemandOutput sgdo = new ShipmentGlobalDemandOutput();
-        String sql = "CALL shipmentGlobalDemand_ShipmentList(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-        sgdo.setShipmentList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandShipmentListRowMapper()));
-        switch (sgd.getReportView()) {
-            case 1: //Funding Source
-                sql = "CALL shipmentGlobalDemand_FundingSourceDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 2: // Procurement Agent
-                sql = "CALL shipmentGlobalDemand_ProcurementAgentDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 3: // Procurement Agent Type
-                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 4: // Funding Source Type
-                sql = "CALL shipmentGlobalDemand_FundingSourceTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-        }
-        sgdo.setDateSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandDateSplitRowMapper()));
-
-        switch (sgd.getReportView()) {
-            case 1: //Funding Source
-                sql = "CALL shipmentGlobalDemand_FundingSourceCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 2: // Procurement Agent
-                sql = "CALL shipmentGlobalDemand_ProcurementAgentCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 3: // Procurement Agent Type
-                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-            case 4: // Funding Source Type
-                sql = "CALL shipmentGlobalDemand_FundingSourceTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-                break;
-        }
+//        String sql = "CALL shipmentGlobalDemand_ShipmentList(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+//        sgdo.setShipmentList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandShipmentListRowMapper()));
+//        switch (sgd.getReportView()) {
+//            case 1: //Funding Source
+//                sql = "CALL shipmentGlobalDemand_FundingSourceDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+//                break;
+//            case 2: // Procurement Agent
+//                sql = "CALL shipmentGlobalDemand_ProcurementAgentDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+//                break;
+//            case 3: // Procurement Agent Type
+//                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+//                break;
+//            case 4: // Funding Source Type
+//                sql = "CALL shipmentGlobalDemand_FundingSourceTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+//                break;
+//        }
+//        sgdo.setDateSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandDateSplitRowMapper()));
+//        String sql = "";
+//        switch (sgd.getReportView()) {
+//            case 1: //Funding Source
+//                sql = "CALL shipmentGlobalDemand_FundingSourceCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
+//                break;
+//            case 2: // Procurement Agent
+//                sql = "CALL shipmentGlobalDemand_ProcurementAgentCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
+//                break;
+//            case 3: // Procurement Agent Type
+//                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
+//                break;
+//            case 4: // Funding Source Type
+//                sql = "CALL shipmentGlobalDemand_FundingSourceTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
+//                break;
+//        }
+//        sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
+//        
+        String sql = "CALL shipmentGlobalDemand_CountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds)";
         sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
-        sql = "CALL shipmentGlobalDemand_CountryShipmentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
+        sql = "CALL shipmentGlobalDemand_CountryShipmentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds)";
         sgdo.setCountryShipmentSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountryShipmentSplitRowMapper()));
         return sgdo;
     }
