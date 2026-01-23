@@ -61,7 +61,7 @@ import cc.altius.FASP.model.report.ProgramLeadTimesOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutputRowMapper;
-import cc.altius.FASP.model.report.ShipmentDetailsFundingSourceRowMapper;
+import cc.altius.FASP.model.report.ShipmentDetailsFundingSourceProcurementAgentRowMapper;
 import cc.altius.FASP.model.report.ShipmentDetailsInput;
 import cc.altius.FASP.model.report.ShipmentDetailsOutput;
 import cc.altius.FASP.model.report.ShipmentDetailsListRowMapper;
@@ -505,17 +505,22 @@ public class ReportDaoImpl implements ReportDao {
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         ShipmentDetailsOutput sdo = new ShipmentDetailsOutput();
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("programId", sd.getProgramId());
-        params.put("versionId", sd.getVersionId());
-        params.put("planningUnitIds", sd.getPlanningUnitIdsString());
-        params.put("fundingSourceIds", sd.getFundingSourceIdsString());
-        params.put("budgetIds", sd.getBudgetIdsString());
+        params.put("curUser", curUser.getUserId());
         params.put("startDate", sd.getStartDate());
         params.put("stopDate", sd.getStopDate());
+        params.put("realmCountryIds", sd.getRealmCountryIdsString());
+        params.put("programIds", sd.getProgramIdsString());
+        if (sd.getProgramIds().length > 1) {
+            sd.setVersionId(null);
+        }
+        params.put("versionId", sd.getVersionId());
+        params.put("planningUnitIds", sd.getPlanningUnitIdsString());
         params.put("reportView", sd.getReportView());
-        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
-        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
-        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
+        params.put("fundingSourceProcurementAgentIds", sd.getFundingSourceProcurementAgentIdsString());
+        params.put("budgetIds", sd.getBudgetIdsString());
+        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
+        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsFundingSourceProcurementAgentRowMapper()));
+        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
         return sdo;
     }
 
@@ -688,7 +693,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID "
                 + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
                 + "LEFT JOIN ( "
-                + "	SELECT " 
+                + "	SELECT "
                 + "		st.BUDGET_ID,s.PROGRAM_ID, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET` "

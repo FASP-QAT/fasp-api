@@ -27,9 +27,7 @@ public class ShipmentDetailsList implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private SimpleObject forecastingUnit;
-    @JsonView(Views.ReportView.class)
-    private int multiplier;
+    private SimpleObject program;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
@@ -75,6 +73,14 @@ public class ShipmentDetailsList implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public SimpleObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleObject program) {
+        this.program = program;
     }
 
     public SimpleCodeObject getProcurementAgent() {
@@ -157,28 +163,12 @@ public class ShipmentDetailsList implements Serializable {
         this.notes = notes;
     }
 
-    public SimpleObject getForecastingUnit() {
-        return forecastingUnit;
-    }
-
-    public void setForecastingUnit(SimpleObject forecastingUnit) {
-        this.forecastingUnit = forecastingUnit;
-    }
-
     public String getOrderNo() {
         return orderNo;
     }
 
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
-    }
-
-    public int getMultiplier() {
-        return multiplier;
-    }
-
-    public void setMultiplier(int multiplier) {
-        this.multiplier = multiplier;
     }
 
     public boolean isEmergencyOrder() {
