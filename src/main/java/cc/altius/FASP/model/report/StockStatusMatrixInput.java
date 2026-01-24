@@ -18,33 +18,21 @@ import java.util.Date;
  */
 public class StockStatusMatrixInput implements Serializable {
 
-    private int programId;
-    private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] planningUnitIds;
-    private String[] tracerCategoryIds;
-    private boolean includePlannedShipments;
-
-    public int getProgramId() {
-        return programId;
-    }
-
-    public void setProgramId(int programId) {
-        this.programId = programId;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
-    }
+    private int programId;
+    private int versionId;
+    private String[] planningUnitIds; // Empty means all selected
+    private String[] stockStatusConditions; // Empty means all conditions selected
+    private boolean removePlannedShipments; // remove all planned shipments in the calculation
+    private boolean removePlannedShipmentsThatFailLeadTime; // remove only those planned shipments that fail the Lead Times. Only for those FS and PA that are provided below
+    private String[] fundingSourceIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
+    private String[] procurementAgentIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
+    private boolean showByQty;
 
     public Date getStartDate() {
         return startDate;
@@ -62,12 +50,20 @@ public class StockStatusMatrixInput implements Serializable {
         this.stopDate = stopDate;
     }
 
-    public boolean isIncludePlannedShipments() {
-        return includePlannedShipments;
+    public int getProgramId() {
+        return programId;
     }
 
-    public void setIncludePlannedShipments(boolean includePlannedShipments) {
-        this.includePlannedShipments = includePlannedShipments;
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
     public String[] getPlanningUnitIds() {
@@ -78,25 +74,83 @@ public class StockStatusMatrixInput implements Serializable {
         this.planningUnitIds = planningUnitIds;
     }
 
-    public String[] getTracerCategoryIds() {
-        return tracerCategoryIds;
+    public String[] getStockStatusConditions() {
+        return stockStatusConditions;
     }
 
-    public void setTracerCategoryIds(String[] tracerCategoryIds) {
-        this.tracerCategoryIds = tracerCategoryIds;
+    public void setStockStatusConditions(String[] stockStatusConditions) {
+        this.stockStatusConditions = stockStatusConditions;
     }
 
-//    public String getPlanningUnitIdsString() {
-//        if (this.planningUnitIds == null) {
-//            return "";
-//        } else {
-//            String opt = String.join("','", this.planningUnitIds);
-//            if (this.planningUnitIds.length > 0) {
-//                return "'" + opt + "'";
-//            } else {
-//                return opt;
-//            }
-//        }
-//    }
+    public boolean isRemovePlannedShipments() {
+        return removePlannedShipments;
+    }
 
+    public void setRemovePlannedShipments(boolean removePlannedShipments) {
+        this.removePlannedShipments = removePlannedShipments;
+    }
+
+    public boolean isRemovePlannedShipmentsThatFailLeadTime() {
+        return removePlannedShipmentsThatFailLeadTime;
+    }
+
+    public void setRemovePlannedShipmentsThatFailLeadTime(boolean removePlannedShipmentsThatFailLeadTime) {
+        this.removePlannedShipmentsThatFailLeadTime = removePlannedShipmentsThatFailLeadTime;
+    }
+
+    public String[] getFundingSourceIds() {
+        return fundingSourceIds;
+    }
+
+    public void setFundingSourceIds(String[] fundingSourceIds) {
+        this.fundingSourceIds = fundingSourceIds;
+    }
+
+    public String[] getProcurementAgentIds() {
+        return procurementAgentIds;
+    }
+
+    public void setProcurementAgentIds(String[] procurementAgentIds) {
+        this.procurementAgentIds = procurementAgentIds;
+    }
+
+    public boolean isShowByQty() {
+        return showByQty;
+    }
+
+    public void setShowByQty(boolean showByQty) {
+        this.showByQty = showByQty;
+    }
+
+    public String getPlanningUnitIdsString() {
+        if (this.planningUnitIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.planningUnitIds);
+        }
+    }
+    
+    public String getStockStatusConditioinsString() {
+        if (this.stockStatusConditions == null) {
+            return "";
+        } else {
+            return String.join(",", this.stockStatusConditions);
+        }
+    }
+    
+    public String getFundingSourceIdsString() {
+        if (this.fundingSourceIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.fundingSourceIds);
+        }
+    }
+    
+    public String getProcurementAgentIdsString() {
+        if (this.procurementAgentIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.procurementAgentIds);
+        }
+    }
 }

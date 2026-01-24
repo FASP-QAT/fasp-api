@@ -26,7 +26,6 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -106,18 +105,6 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     EquivalencyUnitDao equivalencyUnitDao;
 
-    @Override
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
-        if (ssm.getProgramId() != 0) {
-            try {
-                this.programCommonDao.getSimpleProgramById(ssm.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            } catch (EmptyResultDataAccessException e) {
-                throw new AccessControlFailedException();
-            }
-        }
-        return this.reportDao.getStockStatusMatrix(ssm);
-    }
-
     // Report no 1
     @Override
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -187,6 +174,19 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getForecastMetricsComparision(fmi, curUser);
     }
 
+    @Override
+    public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssm.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(ssm.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        return this.reportDao.getStockStatusMatrix(ssm);
+    }
+    
+    
     @Override
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) throws AccessControlFailedException {
         if (ssot.getProgramId() != 0) {

@@ -147,7 +147,7 @@ public interface ReportDao {
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);
 
     // Report no 18
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm);
+    public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm);
 
     // Report no 19
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser);

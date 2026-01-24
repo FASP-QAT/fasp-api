@@ -88,6 +88,8 @@ import cc.altius.FASP.model.report.StockStatusAcrossProductsForProgramRowMapper;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsOutput;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsOutputResultsetExtractor;
+import cc.altius.FASP.model.report.StockStatusDetails;
+import cc.altius.FASP.model.report.StockStatusDetailsRowMapper;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutputRowMapper;
@@ -96,7 +98,7 @@ import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
-import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusMatrixRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
@@ -113,6 +115,7 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -487,17 +490,33 @@ public class ReportDaoImpl implements ReportDao {
 
     // Report no 18
     @Override
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sql = "CALL stockStatusMatrix(:programId, :versionId, :tracerCategoryIds, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
+    public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm) {
+        String sqlStockStatusMatrix = "CALL stockStatusMatrix(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds)";
+        String sqlStockStatusDetails = "CALL stockStatusDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds)";
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("programId", ssm.getProgramId());
-        params.put("versionId", ssm.getVersionId());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
-        params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
-        params.put("planningUnitIds", String.join(",", ssm.getPlanningUnitIds()));
-        params.put("tracerCategoryIds", String.join(",", ssm.getTracerCategoryIds()));
-        return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
+        params.put("programId", ssm.getProgramId());
+        params.put("versionId", ssm.getVersionId());
+        params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
+        params.put("stockStatusConditions", ssm.getStockStatusConditioinsString());
+        params.put("removePlannedShipments", ssm.isRemovePlannedShipments());
+        params.put("removePlannedShipmentsThatFailLeadTime", ssm.isRemovePlannedShipmentsThatFailLeadTime());
+        params.put("fundingSourceIds", ssm.getFundingSourceIdsString());
+        params.put("procurementAgentIds", ssm.getProcurementAgentIdsString());
+        StockStatusMatrixOutput ssmo = new StockStatusMatrixOutput();
+        ssmo.setStockStatusMatrix(this.namedParameterJdbcTemplate.query(sqlStockStatusMatrix, params, new StockStatusMatrixRowMapper(ssm.getStartDate(), ssm.getStopDate())));
+        List<StockStatusDetails> ssdList = this.namedParameterJdbcTemplate.query(sqlStockStatusDetails, params, new StockStatusDetailsRowMapper());
+        if (ssm.getStockStatusConditions().length > 0) {
+            ssmo.setStockStatusDetails(ssdList
+                    .stream()
+                    .filter((t) -> 
+                            Arrays.asList(ssm.getStockStatusConditions()).indexOf(Integer.toString(t.getStockStatusId())) != -1)
+                    .collect(Collectors.toList()));
+        } else {
+            ssmo.setStockStatusDetails(ssdList);
+        }
+        return ssmo;
     }
 
     // Report no 19
@@ -688,7 +707,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID "
                 + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
                 + "LEFT JOIN ( "
-                + "	SELECT " 
+                + "	SELECT "
                 + "		st.BUDGET_ID,s.PROGRAM_ID, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET` "

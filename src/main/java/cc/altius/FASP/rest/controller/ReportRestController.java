@@ -61,7 +61,7 @@ import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
-import cc.altius.FASP.model.report.StockStatusMatrixOutput;
+import cc.altius.FASP.model.report.StockStatusMatrix;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
@@ -887,7 +887,7 @@ public class ReportRestController {
             required = true,
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusMatrixInput.class))
     )
-    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrixOutput.class))), responseCode = "200", description = "Returns the stock status matrix report")
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrix.class))), responseCode = "200", description = "Returns the stock status matrix report")
     @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
