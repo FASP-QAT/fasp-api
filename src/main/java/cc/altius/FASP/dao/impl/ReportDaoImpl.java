@@ -96,6 +96,9 @@ import cc.altius.FASP.model.report.StockStatusOverTimeOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalInput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixRowMapper;
@@ -488,7 +491,7 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query(sqlString, params, new StockStatusOverTimeOutputRowMapper());
     }
 
-    // Report no 18
+    // Report no 18a
     @Override
     public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm) {
         String sqlStockStatusMatrix = "CALL stockStatusMatrix(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds)";
@@ -510,13 +513,36 @@ public class ReportDaoImpl implements ReportDao {
         if (ssm.getStockStatusConditions().length > 0) {
             ssmo.setStockStatusDetails(ssdList
                     .stream()
-                    .filter((t) -> 
-                            Arrays.asList(ssm.getStockStatusConditions()).indexOf(Integer.toString(t.getStockStatusId())) != -1)
+                    .filter((t)
+                            -> Arrays.asList(ssm.getStockStatusConditions()).indexOf(Integer.toString(t.getStockStatusId())) != -1)
                     .collect(Collectors.toList()));
         } else {
             ssmo.setStockStatusDetails(ssdList);
         }
         return ssmo;
+    }
+
+    // Report no 18b
+    @Override
+    public StockStatusMatrixGlobalOutput getStockStatusMatrixGlobal(StockStatusMatrixGlobalInput ssmg) {
+        String sql = "CALL stockStatusMatrixGlobal(:startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :equivalencyUnitId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds, :reportView)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssmg.getStartDate());
+        params.put("stopDate", ssmg.getStopDate());
+        params.put("realmCountryIds", ssmg.getRealmCountryIdsString());
+        params.put("programIds", ssmg.getProgramIdsString());
+        params.put("versionId", ssmg.getVersionId());
+        params.put("equivalencyUnitId", ssmg.getEquivalencyUnitId());
+        params.put("planningUnitIds", ssmg.getPlanningUnitIdsString());
+        params.put("stockStatusConditions", ssmg.getStockStatusConditioinsString());
+        params.put("removePlannedShipments", ssmg.isRemovePlannedShipments());
+        params.put("removePlannedShipmentsThatFailLeadTime", ssmg.isRemovePlannedShipmentsThatFailLeadTime());
+        params.put("fundingSourceIds", ssmg.getFundingSourceIdsString());
+        params.put("procurementAgentIds", ssmg.getProcurementAgentIdsString());
+        params.put("reportView", ssmg.getReportView());
+        StockStatusMatrixGlobalOutput ssmgo = new StockStatusMatrixGlobalOutput();
+        ssmgo.setDataList(this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixGlobalRowMapper(ssmg.getStartDate(), ssmg.getStopDate())));
+        return ssmgo;
     }
 
     // Report no 19

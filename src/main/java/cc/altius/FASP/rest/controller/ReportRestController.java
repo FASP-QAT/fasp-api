@@ -62,6 +62,7 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrix;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputWithPuList;
 import cc.altius.FASP.model.report.StockStatusVerticalDropdownInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
@@ -857,7 +858,7 @@ public class ReportRestController {
         }
     }
 
-    // Report no 18 | Reports -> Stock Status -> Stock Status Matrix
+    // Report no 18a | Reports -> Stock Status -> Stock Status Matrix
     /**
      * <pre>
      * Sample JSON
@@ -898,6 +899,58 @@ public class ReportRestController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
         } catch (Exception e) {
             logger.error("/api/report/stockStatusMatrix", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+
+    }
+
+    // Report no 18b | Reports -> Stock Status -> Stock Status Matrix Global
+    /**
+     * <pre>
+     * Sample JSON
+     * {"startDate": "2025-01-01","stopDate": "2025-12-01","realmCountryIds": [5,50,51],"programIds": [],"versionId": 0,"equivalencyUnitId": 0,"planningUnitIds": [2735],"stockStatusConditions": [],"removePlannedShipments": false,"removePlannedShipmentsThatFailLeadTime": false,"fundingSourceIds": [],"procurementAgentIds": [],"showByQty": false,"reportView": 1}
+     * {"startDate": "2025-01-01","stopDate": "2025-12-01","realmCountryIds": [5,50,51],"programIds": [],"versionId": 0,"equivalencyUnitId": 0,"planningUnitIds": [2735],"stockStatusConditions": [],"removePlannedShipments": false,"removePlannedShipmentsThatFailLeadTime": false,"fundingSourceIds": [],"procurementAgentIds": [],"showByQty": false,"reportView": 2}
+     * {"startDate": "2025-01-01","stopDate": "2025-12-01","realmCountryIds": [5,50,51],"programIds": [],"versionId": 0,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,3731],"stockStatusConditions": [],"removePlannedShipments": false,"removePlannedShipmentsThatFailLeadTime": false,"fundingSourceIds": [],"procurementAgentIds": [],"showByQty": false,"reportView": 1}
+     * {"startDate": "2025-01-01","stopDate": "2025-12-01","realmCountryIds": [5,50,51],"programIds": [],"versionId": 0,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,3731],"stockStatusConditions": [],"removePlannedShipments": false,"removePlannedShipmentsThatFailLeadTime": false,"fundingSourceIds": [],"procurementAgentIds": [],"showByQty": false,"reportView": 2}
+     * -- programId must be a single Program cannot be muti-program select or -1 for all programs
+     * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
+     * -- planningUnitList is the list of Planning Units that you want to include in the report. If you want to include all the Planning Units in this Program leave it as empty
+     * -- startDate and stopDate are the period for which you want to run the report
+     * -- includePlannedShipments = 1 means that you want to include the shipments that are still in the Planned stage while running this report.
+     * -- includePlannedShipments = 0 means that you want to exclude the shipments that are still in the Planned stage while running this report.
+     * -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
+     * -- Current month is always included in AMC
+     * </pre>
+     *
+     * @param ssm
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/stockStatusMatrixGlobal")
+    @Operation(
+            summary = "Get Stock Status Matrix Global Report",
+            description = "Retrieve the stock status matrix report but for multiple Countries and Programs"
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "The stock status matrix global input",
+            required = true,
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StockStatusMatrixInput.class))
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", array = @ArraySchema(schema = @Schema(implementation = StockStatusMatrix.class))), responseCode = "200", description = "Returns the stock status matrix report")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while generating the report")
+    public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixGlobalInput ssmg, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            if (ssmg.getProgramIds().length == 0 || ssmg.getProgramIds().length > 1) {
+                ssmg.setVersionId(0);
+            }
+            return new ResponseEntity(this.reportService.getStockStatusMatrixGlobal(ssmg, curUser), HttpStatus.OK);
+        } catch (AccessControlFailedException e) {
+            logger.error("/api/report/stockStatusMatrixGlobal", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            logger.error("/api/report/stockStatusMatrixGlobal", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
 

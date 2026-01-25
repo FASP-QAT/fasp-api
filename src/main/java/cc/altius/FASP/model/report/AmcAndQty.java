@@ -28,6 +28,8 @@ public class AmcAndQty implements Serializable {
     private double amc;
     @JsonView(Views.ReportView.class)
     private int stockStatusId;  // -1 = NA, 0 = Stock out, 1 = Below Min, 2 = Stocked to plan, 3 = Above Max
+    @JsonView(Views.ReportView.class)
+    private String planningUnitIds;
 
     public Double getMos() {
         return mos;
@@ -85,7 +87,26 @@ public class AmcAndQty implements Serializable {
         this.stockStatusId = stockStatusId;
     }
 
+    public String getPlanningUnitIds() {
+        return planningUnitIds;
+    }
+
+    public void setPlanningUnitIds(String planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
+    }
+
     public AmcAndQty(Double mos, Double closingBalance, boolean actualStock, double shipmentQty, double expiredQty, double amc, int stockStatusId) {
+        this.mos = mos;
+        this.closingBalance = closingBalance;
+        this.actualStock = actualStock;
+        this.shipmentQty = shipmentQty;
+        this.expiredQty = expiredQty;
+        this.amc = amc;
+        this.stockStatusId = stockStatusId;
+    }
+    
+    public AmcAndQty(String planningUnitIds, Double mos, Double closingBalance, boolean actualStock, double shipmentQty, double expiredQty, double amc, int stockStatusId) {
+        this.planningUnitIds = planningUnitIds;
         this.mos = mos;
         this.closingBalance = closingBalance;
         this.actualStock = actualStock;

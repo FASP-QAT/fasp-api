@@ -59,6 +59,8 @@ import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalInput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
@@ -146,8 +148,11 @@ public interface ReportDao {
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);
 
-    // Report no 18
+    // Report no 18a
     public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm);
+    
+    // Report no 18b
+    public StockStatusMatrixGlobalOutput getStockStatusMatrixGlobal(StockStatusMatrixGlobalInput ssmg);
 
     // Report no 19
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser);

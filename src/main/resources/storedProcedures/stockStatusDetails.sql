@@ -2,7 +2,7 @@ CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusDetails`(VAR_START_D
 BEGIN
     
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    -- Report no 18 Part 2
+    -- Report no 18a Part 2
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     -- programId must be a single Program cannot be muti-program select

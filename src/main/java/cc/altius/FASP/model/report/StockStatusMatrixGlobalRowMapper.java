@@ -1,11 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,26 +20,21 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class StockStatusMatrixRowMapper implements RowMapper<StockStatusMatrix> {
+public class StockStatusMatrixGlobalRowMapper implements RowMapper<StockStatusMatrixGlobal> {
 
     private final LocalDate startDate;
     private final LocalDate stopDate;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public StockStatusMatrixRowMapper(Date startDate, Date stopDate) {
+    public StockStatusMatrixGlobalRowMapper(Date startDate, Date stopDate) {
         this.startDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         this.stopDate = stopDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     @Override
-    public StockStatusMatrix mapRow(ResultSet rs, int i) throws SQLException {
-        StockStatusMatrix ssmo = new StockStatusMatrix(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)));
-        ssmo.setPlanBasedOn(rs.getInt("PLAN_BASED_ON"));
-        ssmo.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
-        ssmo.setReorderFrequency(rs.getInt("REORDER_FREQUENCY_IN_MONTHS"));
-        ssmo.setMaxStock(rs.getInt("MAX_STOCK_QTY"));
-        ssmo.setMinStock(rs.getInt("MIN_STOCK_QTY"));
-        ssmo.setNotes(rs.getString("NOTES"));
+    public StockStatusMatrixGlobal mapRow(ResultSet rs, int i) throws SQLException {
+        StockStatusMatrixGlobal ssmgo = new StockStatusMatrixGlobal(new SimpleCodeObject(rs.getInt("ID"), new LabelRowMapper("").mapRow(rs, 1), rs.getString("CODE")));
+
         Map<String, AmcAndQty> dataMap = new HashMap<>();
         LocalDate current = this.startDate;
         while (!current.isAfter(this.stopDate)) {
@@ -53,28 +47,21 @@ public class StockStatusMatrixRowMapper implements RowMapper<StockStatusMatrix> 
             if (rs.wasNull()) {
                 stockQty = null;
             }
-            int closingBalance = rs.getInt("CLOSING_BALANCE_" + dt);
-            double amc = rs.getDouble("AMC_" + dt);
             dataMap.put(dt, new AmcAndQty(
+                    rs.getString("PLANNING_UNIT_IDS_" + dt),
                     mos,
                     rs.getDouble("CLOSING_BALANCE_" + dt),
                     (stockQty != null),
                     rs.getInt("SHIPMENT_QTY_" + dt),
                     rs.getInt("EXPIRED_STOCK_QTY_" + dt),
-                    amc,
-                    AmcAndQty.getStockStatusId(
-                            ssmo.getPlanBasedOn(), 
-                            ssmo.getMinMonthsOfStock(), 
-                            ssmo.getReorderFrequency(), 
-                            ssmo.getMinStock(), 
-                            ssmo.getMaxStock(), 
-                            mos, 
-                            closingBalance)
+                    rs.getDouble("AMC_" + dt),
+                    rs.getInt("STOCK_STATUS_ID_" + dt)
             )
             );
             current = current.plusMonths(1);
         }
-        ssmo.setDataMap(dataMap);
-        return ssmo;
+        ssmgo.setDataMap(dataMap);
+        return ssmgo;
     }
+
 }
