@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `getShipmentLinkingNotifications`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @procurementAgentId = 1;
