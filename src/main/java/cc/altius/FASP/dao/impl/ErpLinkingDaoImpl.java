@@ -1788,7 +1788,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         sql = "SELECT COUNT(*) FROM ( "
                 + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
-                + " WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
+                + " WHERE n.`ACTIVE` AND s.ACTIVE AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
@@ -1818,7 +1818,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + " FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
                 + " LEFT JOIN vw_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
-                + " WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 "
+                + " WHERE n.`ACTIVE` AND s.ACTIVE AND n.`ADDRESSED`=0 "
                 + " AND s.`PROGRAM_ID` IN (" + programIds + ") "
                 + " GROUP BY s.`PROGRAM_ID` ;";
         return this.jdbcTemplate.query(sql, new NotificationSummaryDTORowMapper());
