@@ -7,3 +7,5 @@ INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REPORT_USER','ROLE_BF_VIEW_COUNTRY_SPECIFIC_PRICES','1',NOW(),'1',NOW());
 
 insert into ap_security values (null,2,'/api/programAndPlanningUnit/programs','ROLE_BF_VIEW_COUNTRY_SPECIFIC_PRICES');
+insert into ap_security values (null,2,'/api/program/planningUnit/procurementAgent','ROLE_BF_VIEW_COUNTRY_SPECIFIC_PRICES');
+insert into ap_security values (null,2,'/api/program/**','ROLE_BF_VIEW_COUNTRY_SPECIFIC_PRICES');
