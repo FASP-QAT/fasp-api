@@ -1,3 +1,11 @@
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.consumptionGlobal.onlyShowPUsThatArePartOfAllPrograms','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only show PUs that are available in ALL selected programs'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher uniquement les unités pédagogiques disponibles dans TOUS les programmes sélectionnés.'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar solo las unidades de procesamiento que están disponibles en TODOS los programas seleccionados.'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibir apenas as unidades de produção que estão disponíveis em TODOS os programas selecionados.'); -- pr
+
 USE `fasp`;
 DROP procedure IF EXISTS `globalConsumption`;
 
