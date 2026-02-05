@@ -52,6 +52,7 @@ BEGIN
     IF @equivalencyUnitId = 0 && @commaLocation != 0 THEN
         SET @planningUnitIds = LEFT(@planningUnitIds, @commaLocation-1);
     END IF;
+    SET @varVersionId = VAR_VERSION_ID;
     
     
     SET @sqlString = "";
@@ -70,7 +71,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN ");
     SET @sqlString = CONCAT(@sqlString, "    ( ");
     SET @sqlString = CONCAT(@sqlString, "    SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, p.CURRENT_VERSION_ID MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, IF(@varVersionId=-1,p.CURRENT_VERSION_ID,@varVersionId) MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
     IF LENGTH(@varProgramIds)>0 THEN
         SET @sqlString = CONCAT(@sqlString, "		AND p.PROGRAM_ID in (",@varProgramIds,") ");
     END IF;

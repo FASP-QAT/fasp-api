@@ -15,7 +15,7 @@ DROP procedure IF EXISTS `fasp`.`globalConsumption`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10), VAR_VERSION_ID INT(10))
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	-- Report no 3
@@ -68,6 +68,7 @@ BEGIN
     IF @equivalencyUnitId = 0 && @commaLocation != 0 THEN
         SET @planningUnitIds = LEFT(@planningUnitIds, @commaLocation-1);
     END IF;
+    SET @varVersionId = VAR_VERSION_ID;
     
     
     SET @sqlString = "";
@@ -86,7 +87,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN ");
     SET @sqlString = CONCAT(@sqlString, "    ( ");
     SET @sqlString = CONCAT(@sqlString, "    SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, p.CURRENT_VERSION_ID MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, IF(@varVersionId=-1,p.CURRENT_VERSION_ID,@varVersionId) MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
     IF LENGTH(@varProgramIds)>0 THEN
         SET @sqlString = CONCAT(@sqlString, "		AND p.PROGRAM_ID in (",@varProgramIds,") ");
     END IF;

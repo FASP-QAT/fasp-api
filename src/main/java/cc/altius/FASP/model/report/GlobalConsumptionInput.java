@@ -20,6 +20,7 @@ public class GlobalConsumptionInput {
     private int realmId;
     private String[] realmCountryIds;
     private String[] programIds;
+    private int versionId;
     private int equivalencyUnitId; // 0 if not selected or then value if selected
     private String[] planningUnitIds; // Use list of PU's if an EquivalencyUnit is provided, if no equivalencyUnitId is selected then only use the first PU from the list
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -52,6 +53,14 @@ public class GlobalConsumptionInput {
 
     public void setProgramIds(String[] programIds) {
         this.programIds = programIds;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
     public int getEquivalencyUnitId() {

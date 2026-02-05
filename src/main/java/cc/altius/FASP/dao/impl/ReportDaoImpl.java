@@ -184,7 +184,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitIds", gc.getPlanningUnitIdString());
         params.put("viewBy", gc.getViewBy());
         params.put("curUser", curUser.getUserId());
-        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:curUser, :realmId, :realmCountryIds, :equivalencyUnitId, :programIds, :planningUnitIds, :startDate, :stopDate, :viewBy)", params, new GlobalConsumptionOutputResultSetExtractor());
+        params.put("versionId", (gc.getProgramIds().length > 1 ? -1 : gc.getVersionId()));
+        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:curUser, :realmId, :realmCountryIds, :equivalencyUnitId, :programIds, :planningUnitIds, :startDate, :stopDate, :viewBy, :versionId)", params, new GlobalConsumptionOutputResultSetExtractor());
     }
 
     // Report no 4
