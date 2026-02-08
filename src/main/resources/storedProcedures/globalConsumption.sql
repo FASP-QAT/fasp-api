@@ -1,18 +1,18 @@
-USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10))
 BEGIN
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	-- Report no 3
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 3
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
-	-- realmId must be a valid realm that you want to run this Global report for
-        -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
-        -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
-        -- EquivalencyUnitId 0 means Run based on Planning Units, a non 0 value means sum for Equivalency Units
-        -- PlanningUnitIds Only when the Equvalency Unit Id is non 0 then the list of PlanningUnits that you want to run the report for must be provided. If Equivalency Unit Id is 0 then only one PU can be selected and the first item in the list is taken
-        -- startDate and stopDate are the range between which you want to run the report for`
-        -- viewBy = 1 shows the report grouped by Country
-        -- viewBy = 2 shows the report grouped by Program
+    -- realmId must be a valid realm that you want to run this Global report for
+    -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
+    -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
+    -- VersionId should be 0 when Multiple Programs are selected. VersionId will be picked only when Single Program is selected. -1 to get the latest Version of that Program
+    -- EquivalencyUnitId 0 means Run based on Planning Units, a non 0 value means sum for Equivalency Units
+    -- PlanningUnitIds Only when the Equvalency Unit Id is non 0 then the list of PlanningUnits that you want to run the report for must be provided. If Equivalency Unit Id is 0 then only one PU can be selected and the first item in the list is taken
+    -- startDate and stopDate are the range between which you want to run the report for`
+    -- viewBy = 1 shows the report grouped by Country
+    -- viewBy = 2 shows the report grouped by Program
 	
     DECLARE curRealmCountryId INT;
     DECLARE curHealthAreaId INT;
@@ -41,27 +41,41 @@ BEGIN
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
     
     SET @varProgramIds = VAR_PROGRAM_IDS;
+    SET @varVersionId = VAR_VERSION_ID;
     SET @varRealmCountryIds = VAR_REALM_COUNTRY_IDS;
-    SET @startDate = VAR_START_DATE;
-    SET @stopDate = VAR_STOP_DATE;
-    SET @realmId = VAR_REALM_ID;
-    SET @viewBy = VAR_VIEW_BY;
-    SET @equivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID;
-    SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
-    SELECT LOCATE(",", @planningUnitIds) INTO @commaLocation;
-    IF @equivalencyUnitId = 0 && @commaLocation != 0 THEN
-        SET @planningUnitIds = LEFT(@planningUnitIds, @commaLocation-1);
+    SET @varStartDate = VAR_START_DATE;
+    SET @varStopDate = VAR_STOP_DATE;
+    SET @varRealmId = VAR_REALM_ID;
+    SET @varViewBy = VAR_VIEW_BY;
+    SET @varEquivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID;
+    SET @varPlanningUnitIds = VAR_PLANNING_UNIT_IDS;
+    SELECT LOCATE(",", @varPlanningUnitIds) INTO @varCommaLocation;
+    IF @varEquivalencyUnitId = 0 && @varCommaLocation != 0 THEN
+        SET @varPlanningUnitIds = LEFT(@varPlanningUnitIds, @varCommaLocation-1);
     END IF;
-    
+    SELECT LOCATE(",", @varProgramIds) INTO @varCommaLocation;
+
+    IF LENGTH(@varProgramIds) <> 0 AND @varCommaLocation = 0 THEN
+        -- VersionId is relevant
+        IF @varVersionId = -1 THEN
+            -- Take latest so therefore set VersionId to null
+            SET @varVersionId = null;
+        END IF;
+    ELSE
+        -- VersionId is not relevant and therefore set to null
+        SET @varVersionId = null;
+    END IF;
     
     SET @sqlString = "";
     SET @initialSelect = "";
     SET @groupBy = "";
-    IF @viewBy = 1 THEN -- View by Country
-        SET @initialSelect = CONCAT(@sqlString, "SELECT sma.TRANS_DATE, rc.REALM_COUNTRY_ID `ID`, c.COUNTRY_CODE `CODE`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, SUM(IF(@equivalencyUnitId=0, sma.FORECASTED_CONSUMPTION_QTY, sma.FORECASTED_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `FORECASTED_CONSUMPTION`, SUM(IF(@equivalencyUnitId=0, sma.ACTUAL_CONSUMPTION_QTY, sma.ACTUAL_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `ACTUAL_CONSUMPTION` ");
+    IF @varViewBy = 1 THEN 
+        -- View by Country
+        SET @initialSelect = CONCAT(@sqlString, "SELECT sma.TRANS_DATE, rc.REALM_COUNTRY_ID `ID`, c.COUNTRY_CODE `CODE`, c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, SUM(IF(@varEquivalencyUnitId=0, sma.FORECASTED_CONSUMPTION_QTY, sma.FORECASTED_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `FORECASTED_CONSUMPTION`, SUM(IF(@varEquivalencyUnitId=0, sma.ACTUAL_CONSUMPTION_QTY, sma.ACTUAL_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `ACTUAL_CONSUMPTION` ");
         SET @groupBy = "GROUP BY sma.TRANS_DATE, rc.REALM_COUNTRY_ID";
-    ELSE  -- View by Program
-        SET @initialSelect = CONCAT(@sqlString, "SELECT sma.TRANS_DATE, p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, SUM(IF(@equivalencyUnitId=0, sma.FORECASTED_CONSUMPTION_QTY, sma.FORECASTED_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `FORECASTED_CONSUMPTION`, SUM(IF(@equivalencyUnitId=0, sma.ACTUAL_CONSUMPTION_QTY, sma.ACTUAL_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `ACTUAL_CONSUMPTION` ");
+    ELSE  
+        -- View by Program
+        SET @initialSelect = CONCAT(@sqlString, "SELECT sma.TRANS_DATE, p.PROGRAM_ID `ID`, p.PROGRAM_CODE `CODE`, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_PR, p.LABEL_SP, SUM(IF(@varEquivalencyUnitId=0, sma.FORECASTED_CONSUMPTION_QTY, sma.FORECASTED_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `FORECASTED_CONSUMPTION`, SUM(IF(@varEquivalencyUnitId=0, sma.ACTUAL_CONSUMPTION_QTY, sma.ACTUAL_CONSUMPTION_QTY*pu.MULTIPLIER/eum.CONVERT_TO_EU)) `ACTUAL_CONSUMPTION` ");
         SET @groupBy = "GROUP BY sma.TRANS_DATE, sma.PROGRAM_ID";
     END IF;
     
@@ -70,7 +84,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN ");
     SET @sqlString = CONCAT(@sqlString, "    ( ");
     SET @sqlString = CONCAT(@sqlString, "    SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, p.CURRENT_VERSION_ID MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, "        p.PROGRAM_ID, COALESCE(@varVersionId, p.CURRENT_VERSION_ID) MAX_VERSION FROM vw_program p WHERE p.ACTIVE ");
     IF LENGTH(@varProgramIds)>0 THEN
         SET @sqlString = CONCAT(@sqlString, "		AND p.PROGRAM_ID in (",@varProgramIds,") ");
     END IF;
@@ -85,15 +99,16 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON c.COUNTRY_ID=rc.COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_planning_unit pu ON sma.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON sma.PROGRAM_ID=ppu.PROGRAM_ID AND sma.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum ON pu.FORECASTING_UNIT_ID=eum.FORECASTING_UNIT_ID AND eum.ACTIVE AND eum.EQUIVALENCY_UNIT_ID=@equivalencyUnitId ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum ON pu.FORECASTING_UNIT_ID=eum.FORECASTING_UNIT_ID AND eum.ACTIVE AND eum.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit eu ON eu.EQUIVALENCY_UNIT_ID=eum.EQUIVALENCY_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE ");
-    SET @sqlString = CONCAT(@sqlString, "    sma.TRANS_DATE BETWEEN @startDate AND @stopDate ");
+    SET @sqlString = CONCAT(@sqlString, "    sma.TRANS_DATE BETWEEN @varStartDate AND @varStopDate ");
     SET @sqlString = CONCAT(@sqlString, "    AND ppu.ACTIVE AND pu.ACTIVE");
     SET @sqlString = CONCAT(@sqlString, "    AND f.PROGRAM_ID IS NOT NULL ");
-    SET @sqlString = CONCAT(@sqlString, "    AND sma.PLANNING_UNIT_ID IN (",@planningUnitIds,") ");
+    SET @sqlString = CONCAT(@sqlString, "    AND sma.PLANNING_UNIT_ID IN (",@varPlanningUnitIds,") ");
     SET @sqlString = CONCAT(@sqlString, @groupBy);
     SET @sqlString = CONCAT(@sqlString, " ORDER BY `CODE`, `TRANS_DATE`");
+
     PREPARE s1 FROM @sqlString;
     EXECUTE s1;
 
