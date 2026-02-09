@@ -706,7 +706,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "WHERE "
                 + "	TRUE AND b.ACTIVE "
                 + "     AND (:programIds='' OR FIND_IN_SET(bp.PROGRAM_ID, :programIds)) "
-//                + "     AND (:programIds='' OR FIND_IN_SET(stc.PROGRAM_ID, :programIds)) "
+                + "     AND st.BUDGET_ID IS NOT NULL "
                 + "     AND (:fundingSourceIds='' OR FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds)) "
                 + "     AND (b.START_DATE BETWEEN :startDate AND :stopDate OR b.STOP_DATE BETWEEN :startDate AND :stopDate OR :startDate BETWEEN b.START_DATE AND b.STOP_DATE) ");
         this.aclService.addUserAclForRealm(sb, params, "b", curUser);
