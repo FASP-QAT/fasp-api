@@ -20,7 +20,7 @@ public class GlobalConsumptionInput {
     private int realmId;
     private String[] realmCountryIds;
     private String[] programIds;
-    private int versionId;
+    private int versionId; // If a Single Program is selected then versionId is relevant. When Multiple Programs are selected this should be 0. If single program is selected then cannot be 0. -1 for latest versionId
     private int equivalencyUnitId; // 0 if not selected or then value if selected
     private String[] planningUnitIds; // Use list of PU's if an EquivalencyUnit is provided, if no equivalencyUnitId is selected then only use the first PU from the list
     @JsonDeserialize(using = JsonDateDeserializer.class)
