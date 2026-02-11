@@ -9,8 +9,11 @@ import cc.altius.FASP.dao.BudgetDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.DTO.AddBudgetResponse;
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.SimpleCodeObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.BudgetListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.BudgetResultSetExtractor;
@@ -21,6 +24,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
@@ -91,10 +96,44 @@ public class BudgetDaoImpl implements BudgetDao {
 
     @Override
     @Transactional
-    public int addBudget(Budget b, CustomUserDetails curUser) {
+    public AddBudgetResponse addBudget(Budget b, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingColumns("BUDGET_CODE", "FUNDING_SOURCE_ID", "REALM_ID", "BUDGET_AMT", "CURRENCY_ID", "CONVERSION_RATE_TO_USD", "START_DATE", "STOP_DATE", "NOTES", "LABEL_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
+        
+        String sql = "SELECT DISTINCT p.PROGRAM_ID, p.PROGRAM_CODE, l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR " +
+            "FROM rm_budget b " +
+            "LEFT JOIN rm_budget_program bp ON b.BUDGET_ID = bp.BUDGET_ID " +
+            "LEFT JOIN rm_program p ON p.PROGRAM_ID = bp.PROGRAM_ID " +
+            "LEFT JOIN ap_label l ON l.LABEL_ID = p.LABEL_ID " +
+            "WHERE b.BUDGET_CODE = :budgetCode " +
+            "AND bp.PROGRAM_ID IN (:programIds)";
+
+        params.put("budgetCode", b.getBudgetCode());
+        params.put("programIds", b.getPrograms().stream().map(SimpleCodeObject::getId).toList());
+
+        List<SimpleCodeObject> duplicates = namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            SimpleCodeObject sc = new SimpleCodeObject();
+            sc.setId(rs.getInt("PROGRAM_ID"));
+
+            Label label = new Label();
+            label.setLabelId(rs.getInt("LABEL_ID"));
+            label.setLabel_en(rs.getString("LABEL_EN"));
+            label.setLabel_sp(rs.getString("LABEL_SP"));
+            label.setLabel_fr(rs.getString("LABEL_FR"));
+            label.setLabel_pr(rs.getString("LABEL_PR"));
+
+            sc.setLabel(label);
+            return sc;
+        });
+        
+        if (!duplicates.isEmpty()) {
+            List<Label> labels = duplicates.stream()
+                    .map(SimpleCodeObject::getLabel)
+                    .filter(Objects::nonNull)
+                    .toList();
+            return new AddBudgetResponse(null, labels);
+        }
         params.put("BUDGET_CODE", b.getBudgetCode());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), LabelConstants.RM_BUDGET, curUser.getUserId());
@@ -122,7 +161,7 @@ public class BudgetDaoImpl implements BudgetDao {
             paramList.add(paramMap);
         }
         si.executeBatch(paramList.toArray(new MapSqlParameterSource[paramList.size()]));
-        return budgetId;
+        return new AddBudgetResponse(budgetId, List.of());
     }
 
     /**
