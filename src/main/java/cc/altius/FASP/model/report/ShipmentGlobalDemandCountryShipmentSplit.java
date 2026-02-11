@@ -32,6 +32,8 @@ public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
     private double receivedShipmentQty;
     @JsonView(Views.ReportView.class)
     private double onholdShipmentQty;
+    @JsonView(Views.ReportView.class)
+    private int group;
 
     public SimpleCodeObject getCountry() {
         return country;
@@ -95,6 +97,14 @@ public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
 
     public void setOnholdShipmentQty(double onholdShipmentQty) {
         this.onholdShipmentQty = onholdShipmentQty;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
     }
 
     @JsonView(Views.ReportView.class)

@@ -63,6 +63,26 @@ public class ShipmentGlobalDemandOutput implements Serializable {
 
     public void setCountryShipmentSplitList(List<ShipmentGlobalDemandCountryShipmentSplit> countryShipmentSplitList) {
         this.countryShipmentSplitList = countryShipmentSplitList;
+        double maxShipmentQty = this.countryShipmentSplitList.stream()
+                .mapToDouble(ShipmentGlobalDemandCountryShipmentSplit::getTotalShipmentQty)
+                .max()
+                .orElse(0);
+        if (maxShipmentQty != 0) {
+            double step = maxShipmentQty / 5;
+            for (ShipmentGlobalDemandCountryShipmentSplit c : this.countryShipmentSplitList) {
+                if (c.getTotalShipmentQty() >= 0 && c.getTotalShipmentQty() <= 0 + step) {
+                    c.setGroup(0);
+                } else if (c.getTotalShipmentQty() >= step && c.getTotalShipmentQty() <= step * 2) {
+                    c.setGroup(1);
+                } else if (c.getTotalShipmentQty() >= step * 2 && c.getTotalShipmentQty() <= step * 3) {
+                    c.setGroup(2);
+                } else if (c.getTotalShipmentQty() >= step * 3 && c.getTotalShipmentQty() <= step * 4) {
+                    c.setGroup(3);
+                } else {
+                    c.setGroup(4);
+                }
+            }
+        }
     }
 
 }
