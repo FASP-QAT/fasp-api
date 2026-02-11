@@ -17,17 +17,26 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class ShipmentGlobalDemandCountryShipmentSplitRowMapper implements RowMapper<ShipmentGlobalDemandCountryShipmentSplit> {
 
+    private final boolean includePlannedShipments;
+
+    public ShipmentGlobalDemandCountryShipmentSplitRowMapper(boolean includePlannedShipments) {
+        this.includePlannedShipments = includePlannedShipments;
+    }
+
     @Override
     public ShipmentGlobalDemandCountryShipmentSplit mapRow(ResultSet rs, int i) throws SQLException {
         ShipmentGlobalDemandCountryShipmentSplit sgd = new ShipmentGlobalDemandCountryShipmentSplit();
         sgd.setCountry(new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, i), rs.getString("COUNTRY_CODE")));
-        sgd.setPlannedShipmentQty(rs.getDouble("PLANNED_SHIPMENT_QTY"));
+        if (includePlannedShipments) {
+            sgd.setPlannedShipmentQty(rs.getDouble("PLANNED_SHIPMENT_QTY"));
+            sgd.setOnholdShipmentQty(rs.getDouble("ONHOLD_SHIPMENT_QTY"));
+        }
         sgd.setSubmittedShipmentQty(rs.getDouble("SUBMITTED_SHIPMENT_QTY"));
         sgd.setApprovedShipmentQty(rs.getDouble("APPROVED_SHIPMENT_QTY"));
         sgd.setShippedShipmentQty(rs.getDouble("SHIPPED_SHIPMENT_QTY"));
         sgd.setArrivedShipmentQty(rs.getDouble("ARRIVED_SHIPMENT_QTY"));
         sgd.setReceivedShipmentQty(rs.getDouble("RECEIVED_SHIPMENT_QTY"));
-        sgd.setOnholdShipmentQty(rs.getDouble("ONHOLD_SHIPMENT_QTY"));
+
         return sgd;
     }
 

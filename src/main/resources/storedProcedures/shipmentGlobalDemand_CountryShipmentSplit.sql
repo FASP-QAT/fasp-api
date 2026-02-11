@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     -- Report no 21 Part 2
@@ -30,27 +30,28 @@ BEGIN
     CLOSE cursor_acl;
     SET @aclSqlString = CONCAT(@aclSqlString, ") ");
     
-    SET @realmCountryIds = VAR_REALM_COUNTRY_IDS;
-    SET @fundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
-    SET @realmId = VAR_REALM_ID;
-    SET @programIds = VAR_PROGRAM_IDS;
-    SET @equivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID;
-    SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
-    SET @reportView = VAR_REPORT_VIEW;
-    SET @startDate = VAR_START_DATE;
-    SET @stopDate = VAR_STOP_DATE;
+    SET @varRealmCountryIds = VAR_REALM_COUNTRY_IDS;
+    SET @varFundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
+    SET @varRealmId = VAR_REALM_ID;
+    SET @varProgramIds = VAR_PROGRAM_IDS;
+    SET @varEquivalencyUnitId = VAR_EQUIVALENCY_UNIT_ID;
+    SET @varPlanningUnitIds = VAR_PLANNING_UNIT_IDS;
+    SET @varReportView = VAR_REPORT_VIEW;
+    SET @varStartDate = VAR_START_DATE;
+    SET @varStopDate = VAR_STOP_DATE;
+    SET @varIncludePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
     SET @sqlString = "";
     
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
     SET @sqlString = CONCAT(@sqlString, "       rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 1, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `PLANNED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 3, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SUBMITTED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 4, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `APPROVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 5, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SHIPPED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 6, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ARRIVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 7, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `RECEIVED_SHIPMENT_QTY`, ");
-    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 9, IF(@equivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ONHOLD_SHIPMENT_QTY` ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 1, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `PLANNED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 3, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SUBMITTED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 4, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `APPROVED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 5, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `SHIPPED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 6, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ARRIVED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 7, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `RECEIVED_SHIPMENT_QTY`, ");
+    SET @sqlString = CONCAT(@sqlString, "       SUM(IF(st.SHIPMENT_STATUS_ID = 9, IF(@varEquivalencyUnitId=0, st.SHIPMENT_QTY, st.SHIPMENT_QTY*pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)), null)) `ONHOLD_SHIPMENT_QTY` ");
     SET @sqlString = CONCAT(@sqlString, "FROM vw_program p  ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
@@ -58,24 +59,25 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum1 ON eum1.REALM_ID=@realmId AND pu.FORECASTING_UNIT_ID=eum1.FORECASTING_UNIT_ID AND eum1.EQUIVALENCY_UNIT_ID=@equivalencyUnitId AND eum1.PROGRAM_ID=p.PROGRAM_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum1 ON eum1.REALM_ID=@varRealmId AND pu.FORECASTING_UNIT_ID=eum1.FORECASTING_UNIT_ID AND eum1.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId AND eum1.PROGRAM_ID=p.PROGRAM_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit eu1 ON eum1.EQUIVALENCY_UNIT_ID=eu1.EQUIVALENCY_UNIT_ID ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum2 ON eum2.REALM_ID=@realmId AND pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.EQUIVALENCY_UNIT_ID=@equivalencyUnitId AND eum2.PROGRAM_ID is null ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit_mapping eum2 ON eum2.REALM_ID=@varRealmId AND pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.EQUIVALENCY_UNIT_ID=@varEquivalencyUnitId AND eum2.PROGRAM_ID is null ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_equivalency_unit eu2 ON eum2.EQUIVALENCY_UNIT_ID=eu2.EQUIVALENCY_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE  ");
     SET @sqlString = CONCAT(@sqlString, "    TRUE AND ppu.ACTIVE AND pu.ACTIVE AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL  ");
-    SET @sqlString = CONCAT(@sqlString, "    AND (LENGTH(@realmCountryIds)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, @realmCountryIds)) ");
-    SET @sqlString = CONCAT(@sqlString, "    AND (LENGTH(@programIds)=0 OR FIND_IN_SET(p.PROGRAM_ID, @programIds))  ");
-    SET @sqlString = CONCAT(@sqlString, "    AND FIND_IN_SET(st.PLANNING_UNIT_ID, @planningUnitIds) ");
+    SET @sqlString = CONCAT(@sqlString, "    AND (LENGTH(@varRealmCountryIds)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, @varRealmCountryIds)) ");
+    SET @sqlString = CONCAT(@sqlString, "    AND (LENGTH(@varProgramIds)=0 OR FIND_IN_SET(p.PROGRAM_ID, @varProgramIds))  ");
+    SET @sqlString = CONCAT(@sqlString, "    AND FIND_IN_SET(st.PLANNING_UNIT_ID, @varPlanningUnitIds) ");
     SET @sqlString = CONCAT(@sqlString, "    AND st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 ");
-    SET @sqlString = CONCAT(@sqlString, "    AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+    SET @sqlString = CONCAT(@sqlString, "    AND (@varIncludePlannedShipments=1 OR st.SHIPMENT_STATUS_ID in (3,4,5,6,7)) ");
+    SET @sqlString = CONCAT(@sqlString, "    AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @varStartDate AND @varStopDate ");
     SET @sqlString = CONCAT(@sqlString, "    AND ( ");
-    SET @sqlString = CONCAT(@sqlString, "            (@reportView=1 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceProcurementAgentIds))) OR  ");
-    SET @sqlString = CONCAT(@sqlString, "            (@reportView=2 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds))) OR  ");
-    SET @sqlString = CONCAT(@sqlString, "            (@reportView=3 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @fundingSourceProcurementAgentIds))) OR  ");
-    SET @sqlString = CONCAT(@sqlString, "            (@reportView=4 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds))) ");
+    SET @sqlString = CONCAT(@sqlString, "            (@varReportView=1 AND (LENGTH(@varFundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @varFundingSourceProcurementAgentIds))) OR  ");
+    SET @sqlString = CONCAT(@sqlString, "            (@varReportView=2 AND (LENGTH(@varFundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @varFundingSourceProcurementAgentIds))) OR  ");
+    SET @sqlString = CONCAT(@sqlString, "            (@varReportView=3 AND (LENGTH(@varFundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(fs.FUNDING_SOURCE_TYPE_ID, @varFundingSourceProcurementAgentIds))) OR  ");
+    SET @sqlString = CONCAT(@sqlString, "            (@varReportView=4 AND (LENGTH(@varFundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, @varFundingSourceProcurementAgentIds))) ");
     SET @sqlString = CONCAT(@sqlString, "    ) ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
     SET @sqlString = CONCAT(@sqlString, "GROUP BY rc.REALM_COUNTRY_ID");

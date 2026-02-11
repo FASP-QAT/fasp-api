@@ -31,6 +31,7 @@ public class ShipmentGlobalDemandInput implements Serializable {
     private String[] planningUnitIds;
     private int reportView; // 1 = Funding Source, 2 = Procurement Agent, 3 = Procurement Agent Type, 4 = Funding Source Type
     private String[] fundingSourceProcurementAgentIds;
+    private boolean includePlannedShipments;
 
     public int getRealmId() {
         return realmId;
@@ -139,9 +140,17 @@ public class ShipmentGlobalDemandInput implements Serializable {
             }
         }
     }
-    
+
     public boolean isEquivalencyUnitSelected() {
         return this.equivalencyUnitId != 0;
+    }
+
+    public boolean isIncludePlannedShipments() {
+        return includePlannedShipments;
+    }
+
+    public void setIncludePlannedShipments(boolean includePlannedShipments) {
+        this.includePlannedShipments = includePlannedShipments;
     }
 
 }

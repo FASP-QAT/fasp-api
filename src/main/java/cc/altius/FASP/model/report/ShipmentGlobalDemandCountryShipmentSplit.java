@@ -97,4 +97,14 @@ public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
         this.onholdShipmentQty = onholdShipmentQty;
     }
 
+    @JsonView(Views.ReportView.class)
+    public double getTotalShipmentQty() {
+        return getPlannedShipmentQty()
+                + getSubmittedShipmentQty()
+                + getApprovedShipmentQty()
+                + getOnholdShipmentQty()
+                + getShippedShipmentQty()
+                + getArrivedShipmentQty()
+                + getReceivedShipmentQty();
+    }
 }
