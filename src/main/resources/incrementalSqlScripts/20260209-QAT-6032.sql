@@ -2,10 +2,10 @@ update rm_realm_problem r set r.ACTIVE=0,r.LAST_MODIFIED_DATE=now() where r.REAL
 
 update rm_problem_report r set r.PROBLEM_STATUS_ID=2,r.LAST_MODIFIED_DATE=now() where r.REALM_PROBLEM_ID IN (22,23,28);
 
-insert into ap_label values (NULL,"In the next 18 months, this supply plan
-<%PROBLEM_DESCRIPTION%>","Au cours des 18 prochains mois, ce plan d'approvisionnement
-<%PROBLEM_DESCRIPTION%>","En los próximos 18 meses, usted
-<%PROBLEM_DESCRIPTION%>","Nos próximos 18 meses, este plano de fornecimento
+insert into ap_label values (NULL,"In the next 18 months, this supply plan is
+<%PROBLEM_DESCRIPTION%>","Au cours des 18 prochains mois, ce plan d'approvisionnement est
+<%PROBLEM_DESCRIPTION%>","En los próximos 18 meses, este plan de suministro es
+<%PROBLEM_DESCRIPTION%>","Nos próximos 18 meses, este plano de fornecimento será
 <%PROBLEM_DESCRIPTION%>",1,now(),1,now(),22);
 
 set @maxid4=(select max(al.LABEL_ID) from ap_label al);
@@ -23,31 +23,31 @@ insert into  rm_realm_problem values(null,1,@maxid6,2,18,null,null,1,1,1,now(),1
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.minMaxProblemDescOverMax','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * is over MAX for {{count}} month(s) ({{monthNames}})\n');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * dépasse le MAX pendant {{count}} mois) ({{months Names}})\n');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * ha superado el MÁXIMO durante {{count}} meses) ({{months Names}})\n');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * é superior ao MÁXIMO por {{count}} meses) ({{months Names}})\n');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * OVER MAX for {{count}} month(s) ({{monthNames}})\n');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * DÉPASSÉ LE MAXIMUM pour {{count}} mois(s) ({{monthNames}})\n');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * SUPERIOR AL MÁXIMO para {{count}} mes(es) ({{monthNames}})\n');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * ACIMA DO MÁXIMO para {{count}} mês(es) ({{monthNames}})\n');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.minMaxProblemDescUnderMin','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * est inférieur à MIN pour {{count}} mois ({{monthNames}})\n');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * est inférieur à MIN pour {{count}} mois ({{monthNames}})\n');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * está por debajo del MIN durante {{count}} mes(es) ({{monthNames}})\n');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * está abaixo de MIN durante {{count}} mês(es) ({{monthNames}})\n');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * UNDER MIN for {{count}} month(s) ({{monthNames}})\n');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * SOUS LE MIN pour {{count}} mois(s) ({{monthNames}})\n');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * MENOS DEL MÍNIMO durante {{count}} mes(es) ({{monthNames}})\n');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * ABAIXO DO MÍNIMO por {{count}} mês(es) ({{monthNames}})\n');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.minMaxProblemDescStockedOut','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * is STOCKED OUT for {{count}} month(s) ({{monthNames}})\n');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * est en rupture de stock depuis {{count}} mois ({{monthNames}})\n');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * está AGOTADO desde hace {{count}} mes(es) ({{monthNames}})\n');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * * está ESGOTADO por {{count}} mês(es) ({{monthNames}})\n');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * STOCKED OUT for {{count}} month(s) ({{monthNames}})\n');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * EN RUPTURE DE STOCK depuis {{count}} mois ({{monthNames}})\n');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * AGOTADO durante {{count}} mes(es) ({{monthNames}})\n');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * ESGOTADO por {{count}} mês(es) ({{monthNames}})\n');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.minMaxProblemDescShipments','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * has shipments in {{monthNames}}');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * a des livraisons en {{monthNames}}');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * tiene envíos en {{monthNames}}');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * tem remessas em {{monthNames}}');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * There are shipments in {{monthNames}}');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * Des livraisons sont prévues pour le mois {{monthNames}}.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * *Hay envíos en {{monthNames}}');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * Existem remessas em {{monthNames}}');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.suggestion1','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
