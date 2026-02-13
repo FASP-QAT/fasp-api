@@ -44,10 +44,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * ESGOTADO por {{coun
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.minMaxProblemDescShipments','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' * There are shipments in {{monthNames}}');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' * Des livraisons sont prévues pour le mois {{monthNames}}.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' * *Hay envíos en {{monthNames}}');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' * Existem remessas em {{monthNames}}');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'\nThere are shipments in {{monthNames}}');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'\nDes livraisons sont prévues pour le mois {{monthNames}}.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'\nHay envíos en {{monthNames}}');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'\nExistem remessas em {{monthNames}}');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.suggestion1','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
