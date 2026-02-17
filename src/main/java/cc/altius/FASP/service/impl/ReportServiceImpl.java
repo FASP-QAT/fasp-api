@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
+import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmCountryDao;
@@ -13,7 +14,10 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EquivalencyUnit;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.BudgetReportInput;
@@ -26,7 +30,6 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.DropdownsForStockStatusVerticalOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorInputNew;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
@@ -38,7 +41,7 @@ import cc.altius.FASP.model.report.ForecastSummaryOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
-import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutputWrapper;
 import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryTurnsInput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
@@ -105,6 +108,8 @@ public class ReportServiceImpl implements ReportService {
     ProgramDao programDao;
     @Autowired
     EquivalencyUnitDao equivalencyUnitDao;
+    @Autowired
+    PlanningUnitDao planningUnitDao;
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
@@ -146,7 +151,7 @@ public class ReportServiceImpl implements ReportService {
 
     // Report no 3
     @Override
-    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) throws AccessControlFailedException {
+    public GlobalConsumptionOutputWrapper getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) throws AccessControlFailedException {
         if (gci.getProgramIds() != null) {
             for (String program : gci.getProgramIds()) {
                 try {
@@ -156,7 +161,13 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-        return this.reportDao.getGlobalConsumption(gci, curUser);
+        if (gci.isEquivalencyUnitSelected()) {
+            EquivalencyUnit eu = this.equivalencyUnitDao.getEquivalencyUnitById(gci.getEquivalencyUnitId(), curUser);
+            return new GlobalConsumptionOutputWrapper(new SimpleObject(eu.getEquivalencyUnitId(), eu.getLabel()), this.reportDao.getGlobalConsumption(gci, curUser));
+        } else {
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(Integer.parseInt(gci.getPlanningUnitIdString()), curUser);
+            return new GlobalConsumptionOutputWrapper(new SimpleObject(pu.getPlanningUnitId(), pu.getLabel()), this.reportDao.getGlobalConsumption(gci, curUser));
+        }
     }
 
     // Report no 4
