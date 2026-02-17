@@ -104,7 +104,7 @@ BEGIN
         IF done THEN 
             LEAVE getFSPA;
         END IF;
-        SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(st.FUNDING_SOURCE_ID=",fspaId,", ((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD), 0)) `FSPA_",fspaCode,"` ");
+        SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(st.FUNDING_SOURCE_ID=",fspaId,", st.SHIPMENT_QTY, 0)) `FSPA_",fspaCode,"` ");
     END LOOP getFSPA;
     
     SET @sqlString = "";

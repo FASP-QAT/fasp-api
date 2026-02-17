@@ -26,10 +26,11 @@ public class ShipmentGlobalDemandInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private String[] realmCountryIds;
-    private int planningUnitId;
+    private String[] programIds;
+    private int equivalencyUnitId; // 0 - Means no Equivalency Unit; Valid number means there is an Equivalency Unit and therefore PU becomes Multi-select
+    private String[] planningUnitIds;
     private int reportView; // 1 = Funding Source, 2 = Procurement Agent, 3 = Procurement Agent Type, 4 = Funding Source Type
     private String[] fundingSourceProcurementAgentIds;
-    private boolean useApprovedSupplyPlanOnly;
     private boolean includePlannedShipments;
 
     public int getRealmId() {
@@ -64,12 +65,28 @@ public class ShipmentGlobalDemandInput implements Serializable {
         this.realmCountryIds = realmCountryIds;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
+    }
+
+    public int getEquivalencyUnitId() {
+        return equivalencyUnitId;
+    }
+
+    public void setEquivalencyUnitId(int equivalencyUnitId) {
+        this.equivalencyUnitId = equivalencyUnitId;
+    }
+
+    public String[] getPlanningUnitIds() {
+        return planningUnitIds;
+    }
+
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
     }
 
     public int getReportView() {
@@ -104,12 +121,28 @@ public class ShipmentGlobalDemandInput implements Serializable {
         }
     }
 
-    public boolean isUseApprovedSupplyPlanOnly() {
-        return useApprovedSupplyPlanOnly;
+    public String getProgramIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.programIds);
+        }
     }
 
-    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
-        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    public String getPlanningUnitIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            if (isEquivalencyUnitSelected()) {
+                return String.join(",", this.planningUnitIds);
+            } else {
+                return this.planningUnitIds[0];
+            }
+        }
+    }
+
+    public boolean isEquivalencyUnitSelected() {
+        return this.equivalencyUnitId != 0;
     }
 
     public boolean isIncludePlannedShipments() {
@@ -119,4 +152,5 @@ public class ShipmentGlobalDemandInput implements Serializable {
     public void setIncludePlannedShipments(boolean includePlannedShipments) {
         this.includePlannedShipments = includePlannedShipments;
     }
+
 }
