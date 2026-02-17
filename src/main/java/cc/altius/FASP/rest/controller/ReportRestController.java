@@ -209,14 +209,26 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId": 1, "realmCountryIds": [5,51], "programIds": [2028,2029,2535], "planningUnitIds": [778,2692], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1, "useApprovedSupplyPlanOnly":0}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [2535],"versionId":-1,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [2535],"versionId":148,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [2535,2512,2570],"versionId":0,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 1,"planningUnitIds": [2735,2733,2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 2}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2735],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2733],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 1}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2735],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 2}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2733],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 2}
+     * {"realmId": 1,"realmCountryIds": [5,50,51],"programIds": [],"versionId":0,"equivalencyUnitId": 0,"planningUnitIds": [2731],"startDate": "2025-01-01","stopDate": "2025-12-01","viewBy": 2}
      * -- realmId must be a valid realm that you want to run this Global report for
      * -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
      * -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
-     * -- PlanningUnitIds is the list of PlanningUnits that you want to run the report for. Empty means all Planning Units
+     * -- VersionId should be 0 when Multiple Programs are selected. VersionId will be picked only when Single Program is selected. -1 to get the latest Version of that Program
+     * -- EquivalencyUnitId is the list of EquivalencyUnit that you want to view the output in terms of. 0 Means not selected and Positive integer value means selected
+     * -- PlanningUnitIds is the list of PlanningUnits that you want to run the report for (Single select if EquivalencyUnitId=0, Multi-select only if Equivalency Unit Id is selected)
      * -- startDate and stopDate are the range between which you want to run the report for`
-     * -- reportView = 1 shows the Consumption in PlanningUnits
-     * -- reportView = 2 shows the Consumption in ForecastingUnits
+     * -- viewBy = 1 shows the report in terms of Country
+     * -- viewBy = 2 shows the report in terms of Program
      * </pre>
      *
      * @param gci
