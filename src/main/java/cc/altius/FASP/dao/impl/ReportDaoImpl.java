@@ -113,6 +113,7 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -179,11 +180,12 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", gc.getStopDate());
         params.put("realmCountryIds", gc.getRealmCountryIdString());
         params.put("programIds", gc.getProgramIdString());
+        params.put("versionId", gc.getVersionId());
+        params.put("equivalencyUnitId", gc.getEquivalencyUnitId());
         params.put("planningUnitIds", gc.getPlanningUnitIdString());
-        params.put("reportView", gc.getReportView());
-        params.put("approvedSupplyPlanOnly", gc.isUseApprovedSupplyPlanOnly());
+        params.put("viewBy", gc.getViewBy());
         params.put("curUser", curUser.getUserId());
-        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:curUser, :realmId, :realmCountryIds, :programIds, :planningUnitIds, :startDate, :stopDate, :reportView, :approvedSupplyPlanOnly)", params, new GlobalConsumptionOutputResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:curUser, :realmId, :realmCountryIds, :equivalencyUnitId, :programIds, :planningUnitIds, :startDate, :stopDate, :viewBy, :versionId)", params, new GlobalConsumptionOutputResultSetExtractor());
     }
 
     // Report no 4

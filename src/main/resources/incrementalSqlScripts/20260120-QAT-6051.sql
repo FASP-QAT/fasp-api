@@ -1,3 +1,37 @@
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.consumptionGlobal.onlyShowPUsThatArePartOfAllPrograms','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only show PUs that are available in ALL selected programs'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher uniquement les unités pédagogiques disponibles dans TOUS les programmes sélectionnés.'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar solo las unidades de procesamiento que están disponibles en TODOS los programas seleccionados.'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibir apenas as unidades de produção que estão disponíveis em TODOS os programas selecionados.'); -- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showAggregatedQuantities','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Aggregated Quantities'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les quantités agrégées'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar cantidades agregadas'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar quantidades agregadas'); -- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.showAggregatedQuantities','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, the data table will provide the total consumption quantity across programs/countries'); -- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette option est cochée, le tableau de données indiquera la quantité totale consommée par programme/pays.'); -- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se marca, la tabla de datos proporcionará la cantidad total de consumo en todos los programas/países.'); -- sp 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se selecionada, a tabela de dados fornecerá a quantidade total de consumo entre programas/países.'); -- pr
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `globalConsumption`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`globalConsumption`;
+;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_VIEW_BY INT(10))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,4 +146,8 @@ BEGIN
     PREPARE s1 FROM @sqlString;
     EXECUTE s1;
 
-END
+END$$
+
+DELIMITER ;
+;
+
