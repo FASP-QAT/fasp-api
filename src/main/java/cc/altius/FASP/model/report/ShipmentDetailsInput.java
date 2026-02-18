@@ -17,34 +17,19 @@ import java.util.Date;
  */
 public class ShipmentDetailsInput {
 
-    private int programId;
-    private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] fundingSourceIds;
-    private String[] budgetIds;
+    private String[] realmCountryIds;
+    private String[] programIds;
+    private Integer versionId; // Only to be used if Single Program is selected, if more than 1 Program is selected it should be null
     private String[] planningUnitIds;
-    private int reportView; // 1 = Planning Units, 2 = Forecasting Units
-
-    public int getProgramId() {
-        return programId;
-    }
-
-    public void setProgramId(int programId) {
-        this.programId = programId;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
-    }
+    private int reportView; // 1 - Funding Source, 2 - Procurement Agent
+    private String[] fundingSourceProcurementAgentIds;
+    private String[] budgetIds; // Only to be considered if reportView=1
 
     public Date getStartDate() {
         return startDate;
@@ -62,36 +47,28 @@ public class ShipmentDetailsInput {
         this.stopDate = stopDate;
     }
 
-    public String[] getFundingSourceIds() {
-        return fundingSourceIds;
+    public String[] getRealmCountryIds() {
+        return realmCountryIds;
     }
 
-    public void setFundingSourceIds(String[] fundingSourceIds) {
-        this.fundingSourceIds = fundingSourceIds;
+    public void setRealmCountryIds(String[] realmCountryIds) {
+        this.realmCountryIds = realmCountryIds;
     }
 
-    public String getFundingSourceIdsString() {
-        if (this.fundingSourceIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.fundingSourceIds);
-        }
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public String[] getBudgetIds() {
-        return budgetIds;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
-    public void setBudgetIds(String[] budgetIds) {
-        this.budgetIds = budgetIds;
+    public Integer getVersionId() {
+        return versionId;
     }
 
-    public String getBudgetIdsString() {
-        if (this.budgetIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.budgetIds);
-        }
+    public void setVersionId(Integer versionId) {
+        this.versionId = versionId;
     }
 
     public String[] getPlanningUnitIds() {
@@ -102,6 +79,46 @@ public class ShipmentDetailsInput {
         this.planningUnitIds = planningUnitIds;
     }
 
+    public int getReportView() {
+        return reportView;
+    }
+
+    public void setReportView(int reportView) {
+        this.reportView = reportView;
+    }
+
+    public String[] getFundingSourceProcurementAgentIds() {
+        return fundingSourceProcurementAgentIds;
+    }
+
+    public void setFundingSourceProcurementAgentIds(String[] fundingSourceProcurementAgentIds) {
+        this.fundingSourceProcurementAgentIds = fundingSourceProcurementAgentIds;
+    }
+
+    public String[] getBudgetIds() {
+        return budgetIds;
+    }
+
+    public void setBudgetIds(String[] budgetIds) {
+        this.budgetIds = budgetIds;
+    }
+
+    public String getRealmCountryIdsString() {
+        if (this.realmCountryIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.realmCountryIds);
+        }
+    }
+    
+    public String getProgramIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.programIds);
+        }
+    }
+    
     public String getPlanningUnitIdsString() {
         if (this.planningUnitIds == null) {
             return "";
@@ -109,13 +126,21 @@ public class ShipmentDetailsInput {
             return String.join(",", this.planningUnitIds);
         }
     }
-
-    public int getReportView() {
-        return reportView;
+    
+    public String getFundingSourceProcurementAgentIdsString() {
+        if (this.fundingSourceProcurementAgentIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.fundingSourceProcurementAgentIds);
+        }
     }
-
-    public void setReportView(int reportView) {
-        this.reportView = reportView;
+    
+    public String getBudgetIdsString() {
+        if (this.budgetIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.budgetIds);
+        }
     }
 
 }
