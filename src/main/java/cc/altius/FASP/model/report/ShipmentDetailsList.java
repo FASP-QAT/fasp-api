@@ -27,7 +27,7 @@ public class ShipmentDetailsList implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private SimpleObject program;
+    private SimpleCodeObject program;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
@@ -75,11 +75,11 @@ public class ShipmentDetailsList implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public SimpleObject getProgram() {
+    public SimpleCodeObject getProgram() {
         return program;
     }
 
-    public void setProgram(SimpleObject program) {
+    public void setProgram(SimpleCodeObject program) {
         this.program = program;
     }
 

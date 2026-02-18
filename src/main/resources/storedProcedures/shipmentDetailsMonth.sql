@@ -104,7 +104,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "           (@reportView=1 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceProcurementAgentIds))) OR ");
     SET @sqlString = CONCAT(@sqlString, "           (@reportView=2 AND (LENGTH(@fundingSourceProcurementAgentIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID, @fundingSourceProcurementAgentIds))) ");
     SET @sqlString = CONCAT(@sqlString, "       ) ");
-    SET @sqlString = CONCAT(@sqlString, "       AND (@reportView=1 AND (LENGTH(@budgetIds)=0 OR FIND_IN_SET(st.BUDGET_ID, @budgetIds))) ");
+    SET @sqlString = CONCAT(@sqlString, "       AND ((@reportView=1 AND (LENGTH(@budgetIds)=0 OR FIND_IN_SET(st.BUDGET_ID, @budgetIds))) OR @reportView=2) ");
     SET @sqlString = CONCAT(@sqlString, @aclSqlString);
     SET @sqlString = CONCAT(@sqlString, ") AS s1 ON mn.MONTH =s1.DT  ");
     SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN @startDate AND @stopDate  ");
