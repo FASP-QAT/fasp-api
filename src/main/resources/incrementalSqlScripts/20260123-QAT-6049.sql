@@ -366,3 +366,59 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.erpLinkedShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP-linked Shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expéditions liées au système ERP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envíos vinculados a ERP');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessas ligadas ao ERP');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipementDetails.quantityOfShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Quantity of Shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité d\'envois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de envíos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade de remessas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipementDetails.costOfShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Cost of Shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût des expéditions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo de los envíos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo dos Remessas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.planningUnitInfo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'When PU is single‑select, the graph shows shipment quantity by status. When PU is multi‑select, it shows shipment cost by status.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'En mode de sélection unique, le graphique affiche la quantité expédiée par statut. En mode de sélection multiple, il affiche le coût de l\'expédition par statut.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'En mode de sélection unique, le graphique affiche la quantité expédiée par statut. En mode de sélection multiple, il affiche le coût de l\'expédition par statut.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quando a unidade de compra (PU) é de seleção única, o gráfico mostra a quantidade de envios por estado. Quando a unidade de compra (PU) é de seleção múltipla, mostra o custo da expedição por estado.');-- pr"
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.costUSDFS','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total cost per Funding Source across all programs and PUs selected');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total par source de financement pour l'ensemble des programmes et des unités de programme sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total por fuente de financiamiento en todos los programas y unidades de gestión seleccionadas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total por fonte de financiamento em todos os programas e unidades de investigação selecionadas.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.costUSDPA','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total cost per Procurement Agent across all programs and PUs selected');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total par agent d\'approvisionnement pour l\'ensemble des programmes et unités de production sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total por agente de adquisiciones en todos los programas y PU seleccionados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total por agente de compras em todos os programas e unidades de compras selecionadas.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.totalCostUSD','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Cost = Planning Unit Cost + Freight Cost');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total = Coût unitaire de planification + Frais de transport');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total = Costo unitario de planificación + Costo de flete');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total = Custo unitário de planeamento + Custo do frete');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.noData','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'There is no available shipment data for the planning unit(s) during the selected report period');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune donnée d\'expédition n\'est disponible pour la ou les unités de planification pendant la période de rapport sélectionnée.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No hay datos de envío disponibles para las unidades de planificación durante el período del informe seleccionado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Não existem dados de expedição disponíveis para a(s) unidade(s) de planeamento durante o período de relatório selecionado.');-- pr"
