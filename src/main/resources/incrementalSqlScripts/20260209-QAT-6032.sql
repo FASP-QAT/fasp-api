@@ -69,3 +69,21 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please consider adjust
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez envisager de modifier les quantités expédiées. Indiquez si l\'une de ces mesures a été ou sera prise, et si vous rencontrez des difficultés.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Considere ajustar las cantidades de envío. Indique si se ha implementado o se implementará alguna de estas medidas y si enfrenta algún obstáculo.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, considere ajustar as quantidades de envio. Indique se alguma destas ações foi/será tomada e se enfrenta algum obstáculo.');-- pr
+
+insert into ap_label values (NULL,"Critical","Critique","Crítica","Crítica",1,now(),1,now(),21);
+
+set @maxid5=(select max(al.LABEL_ID) from ap_label al);
+
+insert into ap_problem_criticality VALUES (NULL,@maxid5,'FF3333');
+
+update rm_realm_problem r set r.CRITICALITY_ID=4,r.LAST_MODIFIED_DATE=now() where r.CRITICALITY_ID=3;
+
+update rm_realm_problem r set r.CRITICALITY_ID=3,r.LAST_MODIFIED_DATE=now() where r.REALM_PROBLEM_ID=29;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.problemList.critical','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Critical');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Critique');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Critique');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Crítica');-- pr
