@@ -19,7 +19,7 @@ public class ShipmentDetailsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     List<ShipmentDetailsList> shipmentDetailsList;
     @JsonView(Views.ReportView.class)
-    List<ShipmentDetailsFundingSource> shipmentDetailsFundingSourceList;
+    List<ShipmentDetailsFundingSourceProcurementAgent> shipmentDetailsFundingSourceList;
     @JsonView(Views.ReportView.class)
     List<ShipmentDetailsMonth> shipmentDetailsMonthList;
 
@@ -31,11 +31,11 @@ public class ShipmentDetailsOutput implements Serializable {
         this.shipmentDetailsList = shipmentDetailsList;
     }
 
-    public List<ShipmentDetailsFundingSource> getShipmentDetailsFundingSourceList() {
+    public List<ShipmentDetailsFundingSourceProcurementAgent> getShipmentDetailsFundingSourceList() {
         return shipmentDetailsFundingSourceList;
     }
 
-    public void setShipmentDetailsFundingSourceList(List<ShipmentDetailsFundingSource> shipmentDetailsFundingSourceList) {
+    public void setShipmentDetailsFundingSourceList(List<ShipmentDetailsFundingSourceProcurementAgent> shipmentDetailsFundingSourceList) {
         this.shipmentDetailsFundingSourceList = shipmentDetailsFundingSourceList;
     }
 

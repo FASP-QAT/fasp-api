@@ -55,7 +55,7 @@ public class ProblemDaoImpl implements ProblemDao {
             + "LEFT JOIN us_user lmb ON rp.LAST_MODIFIED_BY=lmb.USER_ID "
             + "LEFT JOIN vw_realm r ON rp.REALM_ID=r.REALM_ID "
             + "LEFT JOIN vw_problem_type pt ON rp.PROBLEM_TYPE_ID=pt.PROBLEM_TYPE_ID "
-            + "WHERE rp.ACTIVE AND p.ACTIVE ";
+            + "WHERE TRUE ";
 
     private static final String problemReportSql = "SELECT  "
             + "	prr.PROBLEM_REPORT_ID,  "
@@ -95,7 +95,7 @@ public class ProblemDaoImpl implements ProblemDao {
             + "     LEFT JOIN vw_problem_status pst ON prt.PROBLEM_STATUS_ID=pst.PROBLEM_STATUS_ID "
             + "     LEFT JOIN us_user cbt ON prt.CREATED_BY=cbt.USER_ID "
             + "     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-            + "WHERE prr.PROGRAM_ID=:programId AND prr.VERSION_ID<=:versionId AND pu.ACTIVE AND ppu.ACTIVE AND rp.ACTIVE ";
+            + "WHERE prr.PROGRAM_ID=:programId AND prr.VERSION_ID<=:versionId AND pu.ACTIVE AND ppu.ACTIVE ";
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -105,7 +105,7 @@ public class ProblemDaoImpl implements ProblemDao {
 
     @Override
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
-        String sql = this.problemMasterSql + " AND rp.REALM_ID=:realmId ";
+        String sql = this.problemMasterSql + " AND rp.ACTIVE AND p.ACTIVE AND rp.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
@@ -113,7 +113,7 @@ public class ProblemDaoImpl implements ProblemDao {
 
     @Override
     public List<ProblemReport> getProblemReportList(int programId, int versionId, CustomUserDetails curUser) {
-        String sql = this.problemReportSql + " ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
+        String sql = this.problemReportSql + " AND rp.ACTIVE ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);

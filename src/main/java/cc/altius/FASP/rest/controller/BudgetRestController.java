@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.exception.AccessControlFailedException;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AddBudgetResponse;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.BudgetService;
@@ -84,7 +85,13 @@ public class BudgetRestController {
     public ResponseEntity postBudget(@RequestBody Budget budget, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
-            this.budgetService.addBudget(budget, curUser);
+            AddBudgetResponse response = this.budgetService.addBudget(budget, curUser);
+            if (response.hasDuplicates()) {
+                return new ResponseEntity<>(
+                    response,
+                    HttpStatus.NOT_ACCEPTABLE
+                );
+            }
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessControlFailedException e) {
             logger.error("Error while trying to add Budget", e);
