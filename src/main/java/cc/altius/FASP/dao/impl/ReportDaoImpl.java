@@ -61,7 +61,7 @@ import cc.altius.FASP.model.report.ProgramLeadTimesOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutputRowMapper;
-import cc.altius.FASP.model.report.ShipmentDetailsFundingSourceRowMapper;
+import cc.altius.FASP.model.report.ShipmentDetailsFundingSourceProcurementAgentRowMapper;
 import cc.altius.FASP.model.report.ShipmentDetailsInput;
 import cc.altius.FASP.model.report.ShipmentDetailsOutput;
 import cc.altius.FASP.model.report.ShipmentDetailsListRowMapper;
@@ -507,17 +507,22 @@ public class ReportDaoImpl implements ReportDao {
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         ShipmentDetailsOutput sdo = new ShipmentDetailsOutput();
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("programId", sd.getProgramId());
-        params.put("versionId", sd.getVersionId());
-        params.put("planningUnitIds", sd.getPlanningUnitIdsString());
-        params.put("fundingSourceIds", sd.getFundingSourceIdsString());
-        params.put("budgetIds", sd.getBudgetIdsString());
+        params.put("curUser", curUser.getUserId());
         params.put("startDate", sd.getStartDate());
         params.put("stopDate", sd.getStopDate());
+        params.put("realmCountryIds", sd.getRealmCountryIdsString());
+        params.put("programIds", sd.getProgramIdsString());
+        if (sd.getProgramIds().length > 1) {
+            sd.setVersionId(null);
+        }
+        params.put("versionId", sd.getVersionId());
+        params.put("planningUnitIds", sd.getPlanningUnitIdsString());
         params.put("reportView", sd.getReportView());
-        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
-        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
-        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
+        params.put("fundingSourceProcurementAgentIds", sd.getFundingSourceProcurementAgentIdsString());
+        params.put("budgetIds", sd.getBudgetIdsString());
+        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
+        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsFundingSourceProcurementAgentRowMapper()));
+        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:curUser, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
         return sdo;
     }
 

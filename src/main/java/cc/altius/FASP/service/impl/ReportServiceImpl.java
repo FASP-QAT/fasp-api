@@ -464,9 +464,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) throws AccessControlFailedException {
-        if (sd.getProgramId() != 0) {
+        for (String programId : sd.getProgramIds()) {
             try {
-                this.programCommonDao.getSimpleProgramById(sd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                this.programCommonDao.getSimpleProgramById(Integer.parseInt(programId), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
