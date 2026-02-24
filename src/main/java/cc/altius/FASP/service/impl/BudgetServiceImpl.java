@@ -14,6 +14,7 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.DTO.AddBudgetResponse;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -52,7 +53,7 @@ public class BudgetServiceImpl implements BudgetService {
     private ProgramCommonDao programCommonDao;
 
     @Override
-    public int addBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
+    public AddBudgetResponse addBudget(Budget b, CustomUserDetails curUser) throws AccessControlFailedException {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(b.getFundingSource().getFundingSourceId(), curUser);
         b.setFundingSource(fs);
         Currency c = this.currencyDao.getCurrencyById(b.getCurrency().getCurrencyId(), curUser);
