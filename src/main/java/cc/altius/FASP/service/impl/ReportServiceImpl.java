@@ -464,9 +464,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) throws AccessControlFailedException {
-        if (sd.getProgramId() != 0) {
+        for (String programId : sd.getProgramIds()) {
             try {
-                this.programCommonDao.getSimpleProgramById(sd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                this.programCommonDao.getSimpleProgramById(Integer.parseInt(programId), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             } catch (EmptyResultDataAccessException e) {
                 throw new AccessControlFailedException();
             }
@@ -501,7 +501,15 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-        return this.reportDao.getShipmentGlobalDemand(sgd, curUser);
+        ShipmentGlobalDemandOutput sgdo = this.reportDao.getShipmentGlobalDemand(sgd, curUser);
+        if (sgd.isEquivalencyUnitSelected()) {
+            EquivalencyUnit eu = this.equivalencyUnitDao.getEquivalencyUnitById(sgd.getEquivalencyUnitId(), curUser);
+            sgdo.setProduct(new SimpleObject(eu.getEquivalencyUnitId(), eu.getLabel()));
+        } else {
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(Integer.parseInt(sgd.getPlanningUnitIdsString()), curUser);
+            sgdo.setProduct(new SimpleObject(pu.getPlanningUnitId(), pu.getLabel()));
+        }
+        return sgdo;
     }
 
     @Override

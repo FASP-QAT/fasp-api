@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.AddBudgetResponse;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface BudgetDao {
 
-    public int addBudget(Budget b, CustomUserDetails curUser);
+    public AddBudgetResponse addBudget(Budget b, CustomUserDetails curUser);
 
     public int updateBudget(Budget b, CustomUserDetails curUser);
 

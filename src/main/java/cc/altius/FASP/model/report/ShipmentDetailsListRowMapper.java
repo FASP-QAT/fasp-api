@@ -16,15 +16,14 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsList>{
+public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsList> {
 
     @Override
     public ShipmentDetailsList mapRow(ResultSet rs, int i) throws SQLException {
         ShipmentDetailsList sd = new ShipmentDetailsList();
         sd.setShipmentId(rs.getInt("SHIPMENT_ID"));
+        sd.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         sd.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
-        sd.setForecastingUnit(new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, i)));
-        sd.setMultiplier(rs.getInt("MULTIPLIER"));
         sd.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
         sd.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
         sd.setBudget(new SimpleCodeObject(rs.getInt("BUDGET_ID"), new LabelRowMapper("BUDGET_").mapRow(rs, i), rs.getString("BUDGET_CODE")));
@@ -41,5 +40,5 @@ public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsLi
         sd.setNotes(rs.getString("NOTES"));
         return sd;
     }
-    
+
 }
