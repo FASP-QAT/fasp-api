@@ -398,7 +398,7 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total cost per Funding Source across all programs and PUs selected');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total par source de financement pour l'ensemble des programmes et des unités de programme sélectionnés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total par source de financement pour l\'ensemble des programmes et des unités de programme sélectionnés');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total por fuente de financiamiento en todos los programas y unidades de gestión seleccionadas');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total por fonte de financiamento em todos os programas e unidades de investigação selecionadas.');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDetails.costUSDPA','1'); 
