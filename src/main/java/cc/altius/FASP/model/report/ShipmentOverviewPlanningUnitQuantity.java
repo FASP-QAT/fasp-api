@@ -22,7 +22,7 @@ public class ShipmentOverviewPlanningUnitQuantity implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private Map<SimpleObject, Double> fspaQuantity = new HashMap<>();
+    private Map<String, Double> fspaQuantity = new HashMap<>();
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -32,11 +32,11 @@ public class ShipmentOverviewPlanningUnitQuantity implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Map<SimpleObject, Double> getFspaQuantity() {
+    public Map<String, Double> getFspaQuantity() {
         return fspaQuantity;
     }
 
-    public void setFspaQuantity(Map<SimpleObject, Double> fspaQuantity) {
+    public void setFspaQuantity(Map<String, Double> fspaQuantity) {
         this.fspaQuantity = fspaQuantity;
     }
 

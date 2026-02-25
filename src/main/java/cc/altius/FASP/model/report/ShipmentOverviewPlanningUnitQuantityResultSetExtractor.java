@@ -32,7 +32,7 @@ public class ShipmentOverviewPlanningUnitQuantityResultSetExtractor implements R
             } else {
                 item = puList.get(idx);
             }
-            SimpleCodeObject fspa = new SimpleCodeObject(rs.getInt("FSPA_ID"), new LabelRowMapper("FSPA_").mapRow(rs, idx), rs.getString("FSPA_CODE"));
+            String fspa = rs.getString("FSPA_CODE");
             if (item.getFspaQuantity().containsKey(fspa)) {
                 item.getFspaQuantity().put(fspa, item.getFspaQuantity().get(fspa) + rs.getDouble("SHIPMENT_QTY"));
             } else {
