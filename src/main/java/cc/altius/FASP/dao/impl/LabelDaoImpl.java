@@ -78,7 +78,7 @@ public class LabelDaoImpl implements LabelDao {
     public List<DatabaseTranslationsDTO> getDatabaseLabelsList(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sb = new StringBuilder("SELECT l2.LABEL_ID, l2.LABEL_EN, l2.LABEL_FR, l2.LABEL_SP, l2.LABEL_PR, l2.LABEL_FOR, l2.ID, l2.REALM_ID, l2.PROGRAM_ID, l2.RELATED_TO_LABEL_ID, l2.RELATED_TO_LABEL_EN, l2.RELATED_TO_LABEL_FR, l2.RELATED_TO_LABEL_SP, l2.RELATED_TO_LABEL_PR FROM (SELECT  "
-                + "	l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR, "
+                + "	l.LABEL_ID, l.LABEL_EN, l.LABEL_FR, l.LABEL_SP, l.LABEL_PR, l.SOURCE_ID, "
                 + "    ls.`SOURCE_DESC` AS `LABEL_FOR`, "
                 + "    IFNULL(COALESCE( "
                 + "         c.COUNTRY_ID, r.REALM_ID, c2.CURRENCY_ID, d.DIMENSION_ID, vt.VERSION_TYPE_ID,  "
@@ -168,7 +168,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "LEFT JOIN vw_tree_template tt3 ON ttl.TREE_TEMPLATE_ID=tt3.TREE_TEMPLATE_ID "
                 + ") AS l2 "
                 + "LEFT JOIN rm_program p ON l2.PROGRAM_ID=p.PROGRAM_ID "
-                + "WHERE l2.ID IS NOT NULL AND l2.LABEL_FOR IS NOT NULL ");
+                + "WHERE l2.SOURCE_ID NOT IN (45,46,48,49,50,53,54) AND l2.ID IS NOT NULL AND l2.LABEL_FOR IS NOT NULL ");
         if (curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BUSINESS_FUNCTION_EDIT_APPLICATION_LABELS"))) {
             sb.append(" AND l2.REALM_ID = 0 ");
         } else if (curUser.getBusinessFunction().contains(new SimpleGrantedAuthority("ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS"))) {
