@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -17,34 +18,62 @@ import java.util.List;
 public class ShipmentOverviewOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
-    List<ShipmentOverviewFundingSourceSplit> fundingSourceSplit;
+    List<ShipmentOverviewPlanningUnitQuantity> planningUnitQuantity;
     @JsonView(Views.ReportView.class)
-    List<ShipmentOverviewPlanningUnitSplit> planningUnitSplit;
+    List<ShipmentOverviewFspaCostAndPerc> fspaCostAndPerc;
     @JsonView(Views.ReportView.class)
-    List<ShipmentOverviewProcurementAgentSplit> procurementAgentSplit;
+    List<ShipmentOverviewFspaSplit> fspaProgramSplit;
+    @JsonView(Views.ReportView.class)
+    List<ShipmentOverviewFspaSplit> fspaCountrySplit;
 
-    public List<ShipmentOverviewFundingSourceSplit> getFundingSourceSplit() {
-        return fundingSourceSplit;
+    public List<ShipmentOverviewPlanningUnitQuantity> getPlanningUnitQuantity() {
+        return planningUnitQuantity;
     }
 
-    public void setFundingSourceSplit(List<ShipmentOverviewFundingSourceSplit> fundingSourceSplit) {
-        this.fundingSourceSplit = fundingSourceSplit;
+    public void setPlanningUnitQuantity(List<ShipmentOverviewPlanningUnitQuantity> planningUnitQuantity) {
+        this.planningUnitQuantity = planningUnitQuantity;
     }
 
-    public List<ShipmentOverviewPlanningUnitSplit> getPlanningUnitSplit() {
-        return planningUnitSplit;
+    public List<ShipmentOverviewFspaCostAndPerc> getFspaCostAndPerc() {
+        return fspaCostAndPerc;
     }
 
-    public void setPlanningUnitSplit(List<ShipmentOverviewPlanningUnitSplit> planningUnitSplit) {
-        this.planningUnitSplit = planningUnitSplit;
+    public void setFspaCostAndPerc(List<ShipmentOverviewFspaCostAndPerc> fspaCostAndPerc) {
+        this.fspaCostAndPerc = fspaCostAndPerc;
+        double totalCost = this.fspaCostAndPerc.stream()
+                .mapToDouble(ShipmentOverviewFspaCostAndPerc::getCost)
+                .sum();
+        this.fspaCostAndPerc.stream().forEach(i -> {
+            i.setPerc(i.getCost() / totalCost);
+        });
     }
 
-    public List<ShipmentOverviewProcurementAgentSplit> getProcurementAgentSplit() {
-        return procurementAgentSplit;
+    public List<ShipmentOverviewFspaSplit> getFspaProgramSplit() {
+        return fspaProgramSplit;
     }
 
-    public void setProcurementAgentSplit(List<ShipmentOverviewProcurementAgentSplit> procurementAgentSplit) {
-        this.procurementAgentSplit = procurementAgentSplit;
+    public void setFspaProgramSplit(List<ShipmentOverviewFspaSplit> fspaProgramSplit) {
+        this.fspaProgramSplit = fspaProgramSplit;
+        double totalCost = this.fspaProgramSplit.stream()
+                .mapToDouble(ShipmentOverviewFspaSplit::getTotalCost)
+                .sum();
+        this.fspaProgramSplit.stream().forEach(i -> {
+            i.setPerc(i.getTotalCost() / totalCost);
+        });
+    }
+
+    public List<ShipmentOverviewFspaSplit> getFspaCountrySplit() {
+        return fspaCountrySplit;
+    }
+
+    public void setFspaCountrySplit(List<ShipmentOverviewFspaSplit> fspaCountrySplit) {
+        this.fspaCountrySplit = fspaCountrySplit;
+        double totalCost = this.fspaCountrySplit.stream()
+                .mapToDouble(ShipmentOverviewFspaSplit::getTotalCost)
+                .sum();
+        this.fspaCountrySplit.stream().forEach(i -> {
+            i.setPerc(i.getTotalCost() / totalCost);
+        });
     }
 
 }
