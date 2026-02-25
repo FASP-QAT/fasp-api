@@ -68,7 +68,7 @@ BEGIN
     ELSEIF @fspa = "PA" THEN
         SET @sqlString = CONCAT(@sqlString, "fspa.PROCUREMENT_AGENT_ID `FSPA_ID`, fspa.PROCUREMENT_AGENT_CODE `FSPA_CODE`, fspa.LABEL_ID `FSPA_LABEL_ID`, fspa.LABEL_EN `FSPA_LABEL_EN`, fspa.LABEL_FR `FSPA_LABEL_FR`, fspa.LABEL_SP `FSPA_LABEL_SP`, fspa.LABEL_PR `FSPA_LABEL_PR`, ");
     END IF;
-    SET @sqlString = CONCAT(@sqlString, "rcpu.REALM_COUNTRY_ID `P_ID`, c.COUNTRY_CODE `P_CODE`, c.LABEL_ID `P_LABEL_ID`, c.LABEL_EN `P_LABEL_EN`, c.LABEL_FR `P_LABEL_FR`, c.LABEL_SP `P_LABEL_SP`, c.LABEL_PR `P_LABEL_PR`, ");
+    SET @sqlString = CONCAT(@sqlString, "rc.REALM_COUNTRY_ID `P_ID`, c.COUNTRY_CODE `P_CODE`, c.LABEL_ID `P_LABEL_ID`, c.LABEL_EN `P_LABEL_EN`, c.LABEL_FR `P_LABEL_FR`, c.LABEL_SP `P_LABEL_SP`, c.LABEL_PR `P_LABEL_PR`, ");
     SET @sqlString = CONCAT(@sqlString, "pu.PLANNING_UNIT_ID `PU_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, ");
     SET @sqlString = CONCAT(@sqlString, "SUM(st.SHIPMENT_QTY) `SHIPMENT_QTY`, SUM(st.PRODUCT_COST*s.CONVERSION_RATE_TO_USD) `COST`, SUM(st.FREIGHT_COST*s.CONVERSION_RATE_TO_USD) `FREIGHT_COST` ");
     
@@ -103,7 +103,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "	AND (LENGTH(@shipmentStatusIds)=0 OR FIND_IN_SET(st.SHIPMENT_STATUS_ID,@shipmentStatusIds)) ");
     SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
     SET @sqlString = CONCAT(@sqlString, "	AND ((@fspa='FS' AND (LENGTH(@fspaIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID,@fspaIds))) OR (@fspa='PA' AND (LENGTH(@fspaIds)=0 OR FIND_IN_SET(st.PROCUREMENT_AGENT_ID,@fspaIds)))) ");
-    SET @sqlString = CONCAT(@sqlString, "GROUP BY FSPA_ID, rcpu.REALM_COUNTRY_ID, pu.PLANNING_UNIT_ID");
+    SET @sqlString = CONCAT(@sqlString, "GROUP BY FSPA_ID, rc.REALM_COUNTRY_ID, pu.PLANNING_UNIT_ID");
 
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
