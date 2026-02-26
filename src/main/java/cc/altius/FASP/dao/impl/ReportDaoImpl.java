@@ -702,7 +702,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "	SELECT " 
                 + "		st.BUDGET_ID, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
-                + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET` "
+                + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET`, SUM(IF(:programIds='' OR FIND_IN_SET(s.PROGRAM_ID, :programIds), 1, 0))  AS MATCH_COUNT "
                 + "FROM rm_shipment s "
                 + "LEFT JOIN rm_shipment_trans st ON "
                 + "	s.SHIPMENT_ID=st.SHIPMENT_ID "
@@ -712,12 +712,12 @@ public class ReportDaoImpl implements ReportDao {
                 + "    AND st.ACTIVE "
                 + "    LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=s.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
                 + "    LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
-                + "    WHERE ppu.ACTIVE AND pu.ACTIVE AND (:programIds='' OR FIND_IN_SET(s.PROGRAM_ID, :programIds)) "
+                + "    WHERE ppu.ACTIVE AND pu.ACTIVE "
                 + "GROUP BY st.BUDGET_ID) stc ON stc.BUDGET_ID=b.BUDGET_ID "
                 + "WHERE "
                 + "	TRUE AND b.ACTIVE "
                 + "     AND (:programIds='' OR FIND_IN_SET(bp.PROGRAM_ID, :programIds)) "
-                + "     AND stc.BUDGET_ID IS NOT NULL "
+                + "     AND stc.MATCH_COUNT > 0 "
                 + "     AND (:fundingSourceIds='' OR FIND_IN_SET(b.FUNDING_SOURCE_ID, :fundingSourceIds)) "
                 + "     AND (b.START_DATE BETWEEN :startDate AND :stopDate OR b.STOP_DATE BETWEEN :startDate AND :stopDate OR :startDate BETWEEN b.START_DATE AND b.STOP_DATE) ");
         this.aclService.addUserAclForRealm(sb, params, "b", curUser);
