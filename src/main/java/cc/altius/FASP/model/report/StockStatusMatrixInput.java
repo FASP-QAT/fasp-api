@@ -28,8 +28,7 @@ public class StockStatusMatrixInput implements Serializable {
     private int versionId;
     private String[] planningUnitIds; // Empty means all selected
     private String[] stockStatusConditions; // Empty means all conditions selected
-    private boolean removePlannedShipments; // remove all planned shipments in the calculation
-    private boolean removePlannedShipmentsThatFailLeadTime; // remove only those planned shipments that fail the Lead Times. Only for those FS and PA that are provided below
+    private int removePlannedShipments; // 0 - Retain all Planned Shipments, 1 - Remove all Planned Shipments, 2 - Remove all Planned Shipments that have Funding Source TBD
     private String[] fundingSourceIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
     private String[] procurementAgentIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
     private boolean showByQty;
@@ -82,20 +81,12 @@ public class StockStatusMatrixInput implements Serializable {
         this.stockStatusConditions = stockStatusConditions;
     }
 
-    public boolean isRemovePlannedShipments() {
+    public int getRemovePlannedShipments() {
         return removePlannedShipments;
     }
 
-    public void setRemovePlannedShipments(boolean removePlannedShipments) {
+    public void setRemovePlannedShipments(int removePlannedShipments) {
         this.removePlannedShipments = removePlannedShipments;
-    }
-
-    public boolean isRemovePlannedShipmentsThatFailLeadTime() {
-        return removePlannedShipmentsThatFailLeadTime;
-    }
-
-    public void setRemovePlannedShipmentsThatFailLeadTime(boolean removePlannedShipmentsThatFailLeadTime) {
-        this.removePlannedShipmentsThatFailLeadTime = removePlannedShipmentsThatFailLeadTime;
     }
 
     public String[] getFundingSourceIds() {

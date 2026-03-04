@@ -494,8 +494,8 @@ public class ReportDaoImpl implements ReportDao {
     // Report no 18a
     @Override
     public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sqlStockStatusMatrix = "CALL stockStatusMatrix(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds)";
-        String sqlStockStatusDetails = "CALL stockStatusDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :removePlannedShipmentsThatFailLeadTime, :fundingSourceIds, :procurementAgentIds)";
+        String sqlStockStatusMatrix = "CALL stockStatusMatrix(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds)";
+        String sqlStockStatusDetails = "CALL stockStatusDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
@@ -503,8 +503,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("versionId", ssm.getVersionId());
         params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
         params.put("stockStatusConditions", ssm.getStockStatusConditioinsString());
-        params.put("removePlannedShipments", ssm.isRemovePlannedShipments());
-        params.put("removePlannedShipmentsThatFailLeadTime", ssm.isRemovePlannedShipmentsThatFailLeadTime());
+        params.put("removePlannedShipments", ssm.getRemovePlannedShipments());
         params.put("fundingSourceIds", ssm.getFundingSourceIdsString());
         params.put("procurementAgentIds", ssm.getProcurementAgentIdsString());
         StockStatusMatrixOutput ssmo = new StockStatusMatrixOutput();

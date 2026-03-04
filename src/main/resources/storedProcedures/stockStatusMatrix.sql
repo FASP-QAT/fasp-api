@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrix`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_REMOVE_PLANNED_SHIPMENTS_THAT_FAIL_LEAD_TIME TINYINT(1), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrix`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS INT(10), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT)
 BEGIN
     
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -10,10 +10,9 @@ BEGIN
     -- planningUnitId is the list of Planning Units that you want to include in the report
     -- empty means you want to see the report for all Planning Units
     -- startDate and stopDate are the period for which you want to run the report
-    -- removePlannedShipments = 1 means that you want to remove the shipments that are in the Planned stage while running this report.
-    -- removePlannedShipments = 0 means that you want to retain the shipments that are in the Planned stage while running this report.
-    -- removePlannedShipmentsThatFailLeadTime = 1 means that you want to remove the shipments that are in the Planned stage and fail the Lead Time while running this report.
-    -- removePlannedShipmentsThatFailLeadTime = 0 means that you want to retain the shipments that are in the Planned stage and fail the Lead Time while running this report.
+    -- removePlannedShipments = 0 means that you want to retain all Shipments in the Planned stage when the Version was saved.
+    -- removePlannedShipments = 1 means that you want to remove all Shipments in the Planned stage when the Version was saved.
+    -- removePlannedShipments = 2 means that you want to remove the shipments that have Funding Source as TBD and are in the Planned stage when the Version was saved.
     -- fundingSourceIds are those specific FundingSources that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed
     -- procurementAgentIds are those specific ProcurementAgents that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed
     -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
@@ -25,6 +24,7 @@ BEGIN
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
     SET @mnSqlString = "";
+    SET @varRemovePlannedShipments = VAR_REMOVE_PLANNED_SHIPMENTS;
     OPEN cursor_mn;
         read_loop: LOOP
         FETCH cursor_mn INTO curMn;
@@ -32,10 +32,10 @@ BEGIN
             LEAVE read_loop;
         END IF;
         -- For each loop build the sql for acl
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', IF(",VAR_REMOVE_PLANNED_SHIPMENTS,", tssm.CLOSING_BALANCE_WPS, tssm.CLOSING_BALANCE), null)) `CLOSING_BALANCE_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', IF(",VAR_REMOVE_PLANNED_SHIPMENTS,", IF(tssm.PLAN_BASED_ON=1, tssm.MOS_WPS, tssm.MAX_STOCK_QTY), IF(tssm.PLAN_BASED_ON=1, tssm.MOS, tssm.MAX_STOCK_QTY)), null)) `MOS_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', tssm.SHIPMENT_QTY, null)) `SHIPMENT_QTY_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', IF(",VAR_REMOVE_PLANNED_SHIPMENTS,", tssm.EXPIRED_STOCK_WPS, tssm.EXPIRED_STOCK), null)) `EXPIRED_STOCK_QTY_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', CASE @varRemovePlannedShipments WHEN 0 THEN tssm.CLOSING_BALANCE WHEN 1 THEN tssm.CLOSING_BALANCE_WPS WHEN 2 THEN tssm.CLOSING_BALANCE_WTBDPS END, null)) `CLOSING_BALANCE_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', CASE @varRemovePlannedShipments WHEN 0 THEN IF(tssm.PLAN_BASED_ON=1, tssm.MOS, tssm.MAX_STOCK_QTY) WHEN 1 THEN IF(tssm.PLAN_BASED_ON=1, tssm.MOS_WPS, tssm.MAX_STOCK_QTY) WHEN 2 THEN IF(tssm.PLAN_BASED_ON=1, tssm.MOS_WTBDPS, tssm.MAX_STOCK_QTY) END, null)) `MOS_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', CASE @varRemovePlannedShipments WHEN 0 THEN tssm.SHIPMENT_QTY WHEN 1 THEN tssm.SHIPMENT_QTY-tssm.MANUAL_PLANNED_SHIPMENT_QTY-tssm.ERP_PLANNED_SHIPMENT_QTY WHEN 2 THEN tssm.SHIPMENT_QTY-tssm.MANUAL_PLANNED_SHIPMENT_QTY-tssm.ERP_PLANNED_SHIPMENT_QTY+tssm.MANUAL_PLANNED_SHIPMENT_WTBD_QTY+tssm.ERP_PLANNED_SHIPMENT_WTBD_QTY END, null)) `SHIPMENT_QTY_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', CASE @varRemovePlannedShipments WHEN 0 THEN tssm.EXPIRED_STOCK WHEN 1 THEN tssm.EXPIRED_STOCK_WPS WHEN 2 THEN tssm.EXPIRED_STOCK_WTBDPS END, null)) `EXPIRED_STOCK_QTY_",curMn,"` ");
         SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', tssm.AMC, null)) `AMC_",curMn,"` ");
 		SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', tssm.STOCK_MULTIPLIED_QTY, null)) `STOCK_QTY_",curMn,"` ");
     END LOOP;
@@ -48,7 +48,7 @@ BEGIN
     DROP TEMPORARY TABLE IF EXISTS tmp_stock_status_matrix;
     CREATE TEMPORARY TABLE tmp_stock_status_matrix
     SELECT
-        amc.TRANS_DATE, amc.PLANNING_UNIT_ID, ppu.MIN_MONTHS_OF_STOCK, ppu.MIN_QTY `MIN_STOCK_QTY`, ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.PLAN_BASED_ON, amc.MAX_STOCK_QTY, amc.CLOSING_BALANCE, amc.CLOSING_BALANCE_WPS, amc.MOS, amc.MOS_WPS, ppu.NOTES, amc.SHIPMENT_QTY, amc.EXPIRED_STOCK, amc.EXPIRED_STOCK_WPS, amc.AMC, amc.STOCK_MULTIPLIED_QTY
+        amc.TRANS_DATE, amc.PLANNING_UNIT_ID, ppu.MIN_MONTHS_OF_STOCK, ppu.MIN_QTY `MIN_STOCK_QTY`, ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.PLAN_BASED_ON, amc.MAX_STOCK_QTY, amc.CLOSING_BALANCE, amc.CLOSING_BALANCE_WPS, amc.CLOSING_BALANCE_WTBDPS, amc.MOS, amc.MOS_WPS, amc.MOS_WTBDPS, ppu.NOTES, amc.SHIPMENT_QTY, amc.MANUAL_PLANNED_SHIPMENT_QTY, amc.ERP_PLANNED_SHIPMENT_QTY, amc.MANUAL_PLANNED_SHIPMENT_WTBD_QTY, amc.ERP_PLANNED_SHIPMENT_WTBD_QTY, amc.EXPIRED_STOCK, amc.EXPIRED_STOCK_WPS, amc.EXPIRED_STOCK_WTBDPS, amc.AMC, amc.STOCK_MULTIPLIED_QTY
     FROM rm_supply_plan_amc amc
     LEFT JOIN rm_program_planning_unit ppu ON amc.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND amc.PROGRAM_ID=ppu.PROGRAM_ID
     LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  
@@ -69,7 +69,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_planning_unit pu ON tssm.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN '",VAR_START_DATE,"' AND '",VAR_STOP_DATE,"' ");
     SET @sqlString = CONCAT(@sqlString, "GROUP BY tssm.PLANNING_UNIT_ID ");
-    
+
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
 END
