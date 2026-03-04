@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_REMOVE_PLANNED_SHIPMENTS_THAT_FAIL_LEAD_TIME TINYINT(1), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_REPORT_VIEW INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_REPORT_VIEW INT(10))
 BEGIN
     
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,10 +13,9 @@ BEGIN
     -- equivalencyUnitId When passed as 0 it means that No EquivalencyUnitId was selected and therefore only a single PlanningUnit can be selected; If an EquivalencyUnitId is selected it means that multiple PlanningUnits can be selected since the report is to be showing in terms of EU
     -- planningUnitIds is the list of Planning Units that you want to include in the report; Empty means all PlanningUnitIds; When EU is 0 then only a single PU can be selected
     -- stockStatusIds is the list of Stock Statuses that you want to show in the report; For now this is not possible need to go back to FASP about this option.
-    -- removePlannedShipments = 1 means that you want to remove the shipments that are in the Planned stage while running this report.
-    -- removePlannedShipments = 0 means that you want to retain the shipments that are in the Planned stage while running this report.
-    -- removePlannedShipmentsThatFailLeadTime = 1 means that you want to remove the shipments that are in the Planned stage and fail the Lead Time while running this report.; For now this is not possible need to go back to FASP about this option.
-    -- removePlannedShipmentsThatFailLeadTime = 0 means that you want to retain the shipments that are in the Planned stage and fail the Lead Time while running this report.; For now this is not possible need to go back to FASP about this option.
+    -- removePlannedShipments = 0 means that you want to retain all Shipments in the Planned stage when the Version was saved.
+    -- removePlannedShipments = 1 means that you want to remove all Shipments in the Planned stage when the Version was saved.
+    -- removePlannedShipments = 2 means that you want to remove the shipments that have Funding Source as TBD and are in the Planned stage when the Version was saved.
     -- fundingSourceIds are those specific FundingSources that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
     -- procurementAgentIds are those specific ProcurementAgents that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
     -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
@@ -28,7 +27,10 @@ BEGIN
     DECLARE cursor_mn CURSOR FOR SELECT mn.MONTH FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE and VAR_STOP_DATE;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
+    SET @varRemovePlannedShipments = VAR_REMOVE_PLANNED_SHIPMENTS;
+    SET @varReportView = VAR_REPORT_VIEW;
     SET @mnSqlString = "";
+    
     OPEN cursor_mn;
         read_loop: LOOP
         FETCH cursor_mn INTO curMn;
@@ -38,18 +40,19 @@ BEGIN
         -- For each loop build the sql for acl
         SET @mnSqlString = CONCAT(@mnSqlString, "   	, GROUP_CONCAT(IF(mn.MONTH='",curMn,"', amc2.PLANNING_UNIT_IDS, null)) `PLANNING_UNIT_IDS_",curMn,"` ");
         SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.MOS, null)) `MOS_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.AMC, null)) `AMC_",curMn,"` ");
         SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.STOCK_STATUS_ID, null)) `STOCK_STATUS_ID_",curMn,"` ");
         SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.CLOSING_BALANCE, null)) `CLOSING_BALANCE_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.STOCK_MULTIPLIED_QTY, null)) `STOCK_MULTIPLIED_QTY_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.STOCK_MULTIPLIED_QTY, null)) `STOCK_QTY_",curMn,"` ");
         SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.SHIPMENT_QTY, null)) `SHIPMENT_QTY_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.EXPIRED_STOCK, null)) `EXPIRED_STOCK_",curMn,"` ");
+        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.EXPIRED_STOCK_QTY, null)) `EXPIRED_STOCK_QTY_",curMn,"` ");
     END LOOP;
     CLOSE cursor_mn;
     
     SET @varVersionId = VAR_VERSION_ID;
     IF VAR_VERSION_ID = 0 THEN 
-		SET @varVersionId = null;
-	ELSEIF VAR_VERSION_ID = -1 THEN
+	SET @varVersionId = null;
+    ELSEIF VAR_VERSION_ID = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @varVersionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=VAR_PROGRAM_ID;
     END IF;
     -- SELECT @varVersionId;
@@ -57,11 +60,11 @@ BEGIN
     CREATE TABLE tmp_amc
     SELECT 
         amc.TRANS_DATE, p.PROGRAM_ID, p.REALM_COUNTRY_ID,
-        amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MAX_STOCK_QTY, 
-        IF(VAR_REMOVE_PLANNED_SHIPMENTS, amc.CLOSING_BALANCE_WPS, amc.CLOSING_BALANCE) `CLOSING_BALANCE`,
-        IF(VAR_REMOVE_PLANNED_SHIPMENTS, amc.MOS_WPS, amc.MOS) `MOS`,
-        IF(VAR_REMOVE_PLANNED_SHIPMENTS, (amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY), amc.SHIPMENT_QTY) `SHIPMENT_QTY`,
-        IF(VAR_REMOVE_PLANNED_SHIPMENTS, amc.EXPIRED_STOCK_WPS, amc.EXPIRED_STOCK) `EXPIRED_STOCK_QTY`,
+        amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MAX_STOCK_QTY,
+        CASE @varRemovePlannedShipments WHEN 0 THEN amc.CLOSING_BALANCE WHEN 1 THEN amc.CLOSING_BALANCE_WPS WHEN 2 THEN amc.CLOSING_BALANCE_WTBDPS END `CLOSING_BALANCE`,
+        CASE @varRemovePlannedShipments WHEN 0 THEN amc.MOS WHEN 1 THEN amc.MOS_WPS WHEN 2 THEN amc.MOS_WTBDPS END `MOS`,
+        CASE @varRemovePlannedShipments WHEN 0 THEN amc.SHIPMENT_QTY WHEN 1 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY WHEN 2 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY+amc.MANUAL_PLANNED_SHIPMENT_WTBD_QTY+amc.ERP_PLANNED_SHIPMENT_WTBD_QTY END `SHIPMENT_QTY`,
+        CASE @varRemovePlannedShipments WHEN 0 THEN amc.EXPIRED_STOCK WHEN 1 THEN amc.EXPIRED_STOCK_WPS WHEN 2 THEN amc.EXPIRED_STOCK_WTBDPS END `EXPIRED_STOCK_QTY`,
         amc.AMC, amc.STOCK_MULTIPLIED_QTY, IF(VAR_EQUIVALENCY_UNIT_ID=0, 1, pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)) `CONVERSION`
     FROM vw_program p 
     LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND (LENGTH(VAR_PLANNING_UNIT_IDS)=0 OR FIND_IN_SET(ppu.PLANNING_UNIT_ID, VAR_PLANNING_UNIT_IDS))
@@ -75,8 +78,8 @@ BEGIN
         AND ppu.PLANNING_UNIT_ID is not null;
 
 	SET @interimSql = "SELECT 
-                                IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
-                                amc.TRANS_DATE,
+                                IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
+                                amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
                                 GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
                                 CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
                                 IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
@@ -97,7 +100,7 @@ BEGIN
                                     END
                                 ) `STOCK_STATUS_ID`,
                                 SUM(amc.CLOSING_BALANCE*amc.CONVERSION) `CLOSING_BALANCE`,
-                                CASE WHEN COUNT(amc.STOCK_MULTIPLIED_QTY)=count(*) THEN SUM(amc.STOCK_MULTIPLIED_QTY*amc.CONVERSION) ELSE NULL END `STOCK_QTY`,
+                                CASE WHEN COUNT(amc.STOCK_MULTIPLIED_QTY)=count(*) THEN SUM(amc.STOCK_MULTIPLIED_QTY*amc.CONVERSION) ELSE NULL END `STOCK_MULTIPLIED_QTY`,
                                 SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
                                 SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
                             FROM tmp_amc amc
@@ -115,8 +118,8 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, @mnSqlString);
     SET @sqlString = CONCAT(@sqlString, "FROM mn ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN (",@interimSql,") amc2 ON mn.MONTH=amc2.TRANS_DATE ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON amc2.ID=p.PROGRAM_ID AND @reportView=1 ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON amc2.ID=rc.REALM_COUNTRY_ID AND @reportView=2 ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON amc2.ID=p.PROGRAM_ID AND @varReportView=1 ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON amc2.ID=rc.REALM_COUNTRY_ID AND @varReportView=2 ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN '",VAR_START_DATE,"' AND '",VAR_STOP_DATE,"' ");
     SET @sqlString = CONCAT(@sqlString, "GROUP BY amc2.ID ");
