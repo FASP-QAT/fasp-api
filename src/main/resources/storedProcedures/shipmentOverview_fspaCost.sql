@@ -94,7 +94,7 @@ BEGIN
     END IF;
     SET @sqlString = CONCAT(@sqlString, "WHERE ");
     SET @sqlString = CONCAT(@sqlString, "	pu.ACTIVE AND ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL AND ppu.ACTIVE AND ");
-    SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 ");
+    SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND st.ACCOUNT_FLAG ");
     SET @sqlString = CONCAT(@sqlString, "	AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) ");
     SET @sqlString = CONCAT(@sqlString, "	AND (LENGTH(@shipmentStatusIds)=0 OR FIND_IN_SET(st.SHIPMENT_STATUS_ID,@shipmentStatusIds)) ");
     SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
