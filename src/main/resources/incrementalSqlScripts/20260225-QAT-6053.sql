@@ -492,3 +492,101 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentOverview.planningUnitQuantityByPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planning Unit Quantity by');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité de l\'unité de planification par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de unidad de planificación por');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade de unidades de planejamento por');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.aggregateByCountry','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Aggregate by Country');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégation par pays');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregado por país');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agregado por país');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.hideCalculations','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Hide Calculations');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Masquer les calculs');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocultar cálculos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocultar cálculos');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.collapsePlanningUnits','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Collapse Planning Units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unités de planification de l\'effondrement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidades de planificación de colapso');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidades de Planejamento de Colapso');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.totalPUCost','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Planning Unit Cost');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total de l\'unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo unitario total de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo unitário total de planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.totalFreightCost','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Freight Cost');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total du transport');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total del flete');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total do frete');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.totalCostPerc','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Cost (%)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total (%)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total (%)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total (%)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.shipmentByPlanningUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipments (by Planning Unit)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expéditions (par unité de planification)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envíos (por Unidad de Planificación)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessas (por unidade de planejamento)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipment.note','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'All cost calculations are displayed in USD and any percentage below 2% cannot be displayed in the pie chart.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Tous les calculs de coûts sont affichés en dollars américains et tout pourcentage inférieur à 2 % ne peut pas être affiché dans le graphique circulaire.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Todos los cálculos de costos se muestran en USD y cualquier porcentaje inferior al 2 % no se puede mostrar en el gráfico circular.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Todos os cálculos de custos são exibidos em dólares americanos (USD) e qualquer porcentagem abaixo de 2% não pode ser exibida no gráfico de pizza.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.qtyMayRepresentMultipleShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'May represent one or multiple shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Peut représenter un ou plusieurs envois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puede representar uno o varios envíos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pode representar uma ou várias remessas.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.totalPlanningUnitCost','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Planning Unit Cost = Quantity * Planning Unit Cost (user-entered), at the shipment-level');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût unitaire de planification total = Quantité * Coût unitaire de planification (saisi par l\'utilisateur), au niveau de l\'expédition');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo unitario de planificación total = Cantidad * Costo unitario de planificación (ingresado por el usuario), a nivel de envío');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo Unitário Total de Planejamento = Quantidade * Custo Unitário de Planejamento (inserido pelo usuário), no nível da remessa');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.totalFreightCost','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Freight Cost is calculated based on Transportation Mode and Planning Unit Cost (automatic or entered manually), at the shipment-level.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le coût total du fret est calculé en fonction du mode de transport et du coût unitaire de planification (automatique ou saisi manuellement), au niveau de l\'expédition.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El costo total del flete se calcula en función del modo de transporte y el costo unitario de planificación (automático o ingresado manualmente), a nivel de envío.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O custo total do frete é calculado com base no modal de transporte e no custo unitário de planejamento (automático ou inserido manualmente), no nível da remessa.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.totalCostGlobalDemand','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Cost = Total Freight Cost + Total Planning Unit Cost');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût total = Coût total du transport + Coût total de l\'unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo total = costo total del flete + costo total de la unidad de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo total = Custo total do frete + Custo unitário total de planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.totalCostPercGlobalDemand','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For Procurement Agents/Funders, this is the percentage across all Procurement Agents/Funders. \n\nFor Programs/Countries, this is the percentage within the specific Procurement Agent/Funder. \n\nFor Planning Units, this is the percentage within the Program/Country');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour les organismes d\'achat/financeurs, il s\'agit du pourcentage pour l\'ensemble des organismes d\'achat/financeurs. \n\nPour les programmes/pays, il s\'agit du pourcentage au sein de l\'organisme d\'achat/financeur concerné. \n\nPour les unités de planification, il s\'agit du pourcentage au sein du programme/pays.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para los agentes de adquisiciones/financiadores, este es el porcentaje de todos los agentes de adquisiciones/financiadores. Para los programas/países, este es el porcentaje dentro del agente de adquisiciones/financiador específico. Para las unidades de planificación, este es el porcentaje dentro del programa/país.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para Agentes/Financiadores de Compras, esta é a porcentagem em todos os Agentes/Financiadores de Compras. \n\nPara Programas/Países, esta é a porcentagem dentro do Agente/Financiador de Compras específico. \n\nPara Unidades de Planejamento, esta é a porcentagem dentro do Programa/País.');-- pr
