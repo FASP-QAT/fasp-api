@@ -963,7 +963,10 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * {"curUser":20, "realmId":1,  "startDate":"2019-10-01", "stopDate":"2021-07-01", "shipmentStatusIds":[],"planningUnitIds":[], "fundingSourceIds":[], "procurementAgentIds":[], "useApprovedSupplyPlansOnly":0}
+     * {"curUser": 9,"realmId": 1,"startDate": "2026-01-01","stopDate": "2026-12-01","realmCountryIds": [5,50,51],"programIds": [2512,2535,2537,2570],"versionId": -1,"reportView": 1,"fspaIds": [],"planningUnitIds": [2727,2722,2724],"shipmentStatusIds": []}
+     * {"curUser": 9,"realmId": 1,"startDate": "2026-01-01","stopDate": "2026-12-01","realmCountryIds": [5,50,51],"programIds": [2512,2535,2537,2570],"versionId": -1,"reportView": 2,"fspaIds": [],"planningUnitIds": [2727,2722,2724],"shipmentStatusIds": []}
+     * {"curUser": 9,"realmId": 1,"startDate": "2026-01-01","stopDate": "2026-12-01","realmCountryIds": [],"programIds": [2512],"versionId": -1,"reportView": 1,"fspaIds": [],"planningUnitIds": [2727,2722,2724],"shipmentStatusIds": []}
+     * {"curUser": 9,"realmId": 1,"startDate": "2025-01-01","stopDate": "2026-12-01","realmCountryIds": [],"programIds": [2512],"versionId": 200,"reportView": 1,"fspaIds": [],"planningUnitIds": [2727,2722,2724],"shipmentStatusIds": [1,2]}
      * </pre>
      *
      * @param so

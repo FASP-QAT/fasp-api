@@ -1,0 +1,7 @@
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.budgetReport.budgetForMultiProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For multi-program budgets, the numbers in the graph/table represent the total budget amounts, regardless of which programs are selected in the program dropdown.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour les budgets multiprogrammes, les chiffres du graphique/tableau représentent les montants budgétaires totaux, quels que soient les programmes sélectionnés dans la liste déroulante des programmes.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para presupuestos multiprograma, los números en el gráfico/tabla representan los montos totales del presupuesto, independientemente de qué programas estén seleccionados en el menú desplegable de programas.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para orçamentos com vários programas, os números no gráfico/tabela representam os valores totais do orçamento, independentemente dos programas selecionados no menu suspenso de programas.');-- pr
