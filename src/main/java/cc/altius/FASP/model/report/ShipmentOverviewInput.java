@@ -27,12 +27,11 @@ public class ShipmentOverviewInput implements Serializable {
     private Date stopDate;
     private String[] realmCountryIds;
     private String[] programIds;
+    private int versionId; // If a Single Program is selected then versionId is relevant. When Multiple Programs are selected this should be 0. If single program is selected then cannot be 0. -1 for latest versionId
     private String[] planningUnitIds;
     private String[] fundingSourceIds;
     private String[] shipmentStatusIds;
-    private boolean useApprovedSupplyPlanOnly;
-    private boolean groupByProcurementAgentType;
-    private boolean groupByFundingSourceType;
+    private int reportView; // 1 = Funding Source, 2 = Procurement Agent
 
     public int getRealmId() {
         return realmId;
@@ -138,28 +137,31 @@ public class ShipmentOverviewInput implements Serializable {
         }
     }
 
-    public boolean isUseApprovedSupplyPlanOnly() {
-        return useApprovedSupplyPlanOnly;
+    public int getVersionId() {
+        return versionId;
     }
 
-    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
-        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
-    public boolean isGroupByProcurementAgentType() {
-        return groupByProcurementAgentType;
+    public int getReportView() {
+        return reportView;
     }
 
-    public void setGroupByProcurementAgentType(boolean groupByProcurementAgentType) {
-        this.groupByProcurementAgentType = groupByProcurementAgentType;
+    public void setReportView(int reportView) {
+        this.reportView = reportView;
     }
 
-    public boolean isGroupByFundingSourceType() {
-        return groupByFundingSourceType;
-    }
-
-    public void setGroupByFundingSourceType(boolean groupByFundingSourceType) {
-        this.groupByFundingSourceType = groupByFundingSourceType;
+    public String getFspa() {
+        if (this.reportView == 1) {
+            return "FS";
+        }
+        if (this.reportView == 2) {
+            return "PA";
+        } else {
+            return "XX";
+        }
     }
 
 }

@@ -68,16 +68,13 @@ import cc.altius.FASP.model.report.ShipmentDetailsListRowMapper;
 import cc.altius.FASP.model.report.ShipmentDetailsMonthRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandCountryShipmentSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandCountrySplitRowMapper;
-import cc.altius.FASP.model.report.ShipmentGlobalDemandDateSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandInput;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandOutput;
-import cc.altius.FASP.model.report.ShipmentGlobalDemandShipmentListRowMapper;
-import cc.altius.FASP.model.report.ShipmentOverviewFundindSourceSplitRowMapper;
+import cc.altius.FASP.model.report.ShipmentOverviewFspaCostAndPercRowMapper;
+import cc.altius.FASP.model.report.ShipmentOverviewFspaSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentOverviewInput;
 import cc.altius.FASP.model.report.ShipmentOverviewOutput;
-import cc.altius.FASP.model.report.ShipmentOverviewPlanningUnitSplitRowMapper;
-import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplit;
-import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplitRowMapper;
+import cc.altius.FASP.model.report.ShipmentOverviewPlanningUnitQuantityResultSetExtractor;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.ShipmentReportOutputRowMapper;
@@ -113,10 +110,8 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -530,51 +525,27 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<String, Object>();
+        params.put("curUser", curUser.getUserId());
         params.put("realmId", so.getRealmId());
         params.put("startDate", so.getStartDate());
         params.put("stopDate", so.getStopDate());
         params.put("realmCountryIds", so.getRealmCountryIdsString());
         params.put("programIds", so.getProgramIdsString());
+        params.put("versionId", so.getVersionId());
+        params.put("fspa", so.getFspa());
+        params.put("fspaIds", so.getFundingSourceIdsString());
         params.put("planningUnitIds", so.getPlanningUnitIdsString());
-        params.put("fundingSourceIds", so.getFundingSourceIdsString());
         params.put("shipmentStatusIds", so.getShipmentStatusIdsString());
-        params.put("approvedSupplyPlanOnly", so.isUseApprovedSupplyPlanOnly());
-        params.put("groupByProcurementAgentType", so.isGroupByProcurementAgentType());
-        params.put("curUser", curUser.getUserId());
+
         ShipmentOverviewOutput soo = new ShipmentOverviewOutput();
-        String sql = "";
-        if (!so.isGroupByFundingSourceType()) {
-            sql = "CALL shipmentOverview_FundingSourceSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        } else {
-            sql = "CALL shipmentOverview_FundingSourceTypeSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        }
-        soo.setFundingSourceSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFundindSourceSplitRowMapper()));
-        sql = "CALL shipmentOverview_PlanningUnitSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        soo.setPlanningUnitSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitSplitRowMapper()));
-        if (!so.isGroupByProcurementAgentType()) {
-            sql = "CALL shipmentOverview_ProcurementAgentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        } else {
-            sql = "CALL shipmentOverview_ProcurementAgentTypeSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        }
-        List<ShipmentOverviewProcurementAgentSplit> sopList = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper());
-        if (!sopList.isEmpty()) {
-            List<String> keyListToRemove = new LinkedList<>();
-            for (String key : sopList.get(0).getProcurementAgentQty().keySet()) {
-                Double total = sopList.stream()
-                        .map(x -> (Double) x.getProcurementAgentQty().get(key))
-                        .collect(Collectors.summingDouble(Double::doubleValue));
-                if (total.doubleValue() == 0) {
-                    // Add to the remove List
-                    keyListToRemove.add(key);
-                }
-            }
-            keyListToRemove.forEach(key -> {
-                sopList.forEach(sop -> {
-                    sop.getProcurementAgentQty().remove(key);
-                });
-            });
-        }
-        soo.setProcurementAgentSplit(sopList);
+        String sql = "CALL shipmentOverview_planningUnitQuantity(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :fspa, :fspaIds, :planningUnitIds, :shipmentStatusIds)";
+        soo.setPlanningUnitQuantity(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitQuantityResultSetExtractor()));
+        sql = "CALL shipmentOverview_fspaCost(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :fspa, :fspaIds, :planningUnitIds, :shipmentStatusIds)";
+        soo.setFspaCostAndPerc(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFspaCostAndPercRowMapper()));
+        sql = "CALL shipmentOverview_fspaProgramSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :fspa, :fspaIds, :planningUnitIds, :shipmentStatusIds)";
+        soo.setFspaProgramSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFspaSplitRowMapper()));
+        sql = "CALL shipmentOverview_fspaCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :fspa, :fspaIds, :planningUnitIds, :shipmentStatusIds)";
+        soo.setFspaCountrySplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewFspaSplitRowMapper()));
         return soo;
     }
 
@@ -594,44 +565,11 @@ public class ReportDaoImpl implements ReportDao {
         params.put("includePlannedShipments", sgd.isIncludePlannedShipments());
         params.put("curUser", curUser.getUserId());
         ShipmentGlobalDemandOutput sgdo = new ShipmentGlobalDemandOutput();
-//        String sql = "CALL shipmentGlobalDemand_ShipmentList(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-//        sgdo.setShipmentList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandShipmentListRowMapper()));
-//        switch (sgd.getReportView()) {
-//            case 1: //Funding Source
-//                sql = "CALL shipmentGlobalDemand_FundingSourceDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-//                break;
-//            case 2: // Procurement Agent
-//                sql = "CALL shipmentGlobalDemand_ProcurementAgentDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-//                break;
-//            case 3: // Procurement Agent Type
-//                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-//                break;
-//            case 4: // Funding Source Type
-//                sql = "CALL shipmentGlobalDemand_FundingSourceTypeDateSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :reportView, :fundingSourceProcurementAgentIds, :planningUnitId, :approvedSupplyPlanOnly, :includePlannedShipments)";
-//                break;
-//        }
-//        sgdo.setDateSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandDateSplitRowMapper()));
-//        String sql = "";
-//        switch (sgd.getReportView()) {
-//            case 1: //Funding Source
-//                sql = "CALL shipmentGlobalDemand_FundingSourceCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
-//                break;
-//            case 2: // Procurement Agent
-//                sql = "CALL shipmentGlobalDemand_ProcurementAgentCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
-//                break;
-//            case 3: // Procurement Agent Type
-//                sql = "CALL shipmentGlobalDemand_ProcurementAgentTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
-//                break;
-//            case 4: // Funding Source Type
-//                sql = "CALL shipmentGlobalDemand_FundingSourceTypeCountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
-//                break;
-//        }
-//        sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
-//        
         String sql = "CALL shipmentGlobalDemand_CountrySplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
         sgdo.setCountrySplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountrySplitRowMapper()));
         sql = "CALL shipmentGlobalDemand_CountryShipmentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :equivalencyUnitId, :planningUnitIds, :reportView, :fundingSourceProcurementAgentIds, :includePlannedShipments)";
         sgdo.setCountryShipmentSplitList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentGlobalDemandCountryShipmentSplitRowMapper(sgd.isIncludePlannedShipments())));
+        
         return sgdo;
     }
 
@@ -699,7 +637,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_funding_source_type fst ON fs.FUNDING_SOURCE_TYPE_ID=fst.FUNDING_SOURCE_TYPE_ID "
                 + "LEFT JOIN vw_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
                 + "LEFT JOIN ( "
-                + "	SELECT " 
+                + "	SELECT "
                 + "		st.BUDGET_ID, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (1), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `PLANNED_BUDGET`, "
                 + "        SUM(IF(st.SHIPMENT_STATUS_ID IN (3,4,5,6,7,9), ((IFNULL(st.FREIGHT_COST,0)+IFNULL(st.PRODUCT_COST,0))*s.CONVERSION_RATE_TO_USD),0)) `ORDERED_BUDGET`, SUM(IF(:programIds='' OR FIND_IN_SET(s.PROGRAM_ID, :programIds), 1, 0))  AS MATCH_COUNT "

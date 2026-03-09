@@ -12,7 +12,6 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForAdjustPlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleFundingSourceObject;
-import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.TreeTemplate;
