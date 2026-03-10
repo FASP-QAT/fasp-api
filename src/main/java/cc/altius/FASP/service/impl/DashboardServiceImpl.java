@@ -113,6 +113,8 @@ public class DashboardServiceImpl implements DashboardService {
             db.setVersionStatus(p.getCurrentVersion().getVersionStatus());
             db.setVersionType(p.getCurrentVersion().getVersionType());
             db.setVersionNotes(p.getCurrentVersion().getNotes());
+            db.setVersionCreatedDate(p.getCurrentVersion().getCreatedDate());
+            db.setVersionLastModifiedDate(p.getCurrentVersion().getLastModifiedDate());
             db.setRealmCountry(new SimpleObject(p.getRealmCountry().getRealmCountryId(), p.getRealmCountry().getCountry().getLabel()));
             db.setHealthAreaList(p.getHealthAreaList());
             dashboardList.add(db);

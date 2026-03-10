@@ -235,6 +235,21 @@ public class DashboardDaoImpl implements DashboardDao {
             } catch (Exception e) {
 
             }
+
+            String sqlString = "CALL getDashboardStockStatus(:curMonth, :endMonth, :programId)";
+            ed.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardStockStatusRowMapper()));
+            
+            sqlString = "CALL getDashboardForecastConsumptionProblems(:programId)";
+            ed.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardActualConsumptionList(:programId)";
+            ed.setActualConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardInventoryProblems(:programId)";
+            ed.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardShipmentProblems(:programId)";
+            ed.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
         });
         return edList;
     }

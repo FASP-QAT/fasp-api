@@ -4,11 +4,16 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +33,14 @@ public class DashboardBottom implements Serializable {
     private SimpleObject versionType;
     @JsonView(Views.ReportView.class)
     private String versionNotes;
+    @JsonView(Views.ReportView.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date versionCreatedDate;
+    @JsonView(Views.ReportView.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date versionLastModifiedDate;
     @JsonView(Views.ReportView.class)
     private SimpleObject realmCountry;
     @JsonView(Views.ReportView.class)
@@ -190,6 +203,22 @@ public class DashboardBottom implements Serializable {
 
     public void setVersionNotes(String versionNotes) {
         this.versionNotes = versionNotes;
+    }
+
+    public Date getVersionCreatedDate() {
+        return versionCreatedDate;
+    }
+
+    public void setVersionCreatedDate(Date versionCreatedDate) {
+        this.versionCreatedDate = versionCreatedDate;
+    }
+
+    public Date getVersionLastModifiedDate() {
+        return versionLastModifiedDate;
+    }
+
+    public void setVersionLastModifiedDate(Date versionLastModifiedDate) {
+        this.versionLastModifiedDate = versionLastModifiedDate;
     }
 
     public SimpleObject getRealmCountry() {
