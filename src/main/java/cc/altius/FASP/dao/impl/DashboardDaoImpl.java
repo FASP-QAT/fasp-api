@@ -235,18 +235,33 @@ public class DashboardDaoImpl implements DashboardDao {
             } catch (Exception e) {
 
             }
+
+            String sqlString = "CALL getDashboardStockStatus(:curMonth, :endMonth, :programId)";
+            ed.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardStockStatusRowMapper()));
+            
+            sqlString = "CALL getDashboardForecastConsumptionProblems(:programId)";
+            ed.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardActualConsumptionList(:programId)";
+            ed.setActualConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardInventoryProblems(:programId)";
+            ed.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
+
+            sqlString = "CALL getDashboardShipmentProblems(:programId)";
+            ed.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardQplRowMapper()));
         });
         return edList;
     }
 
     @Override
-    public DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException {
+    public DashboardBottom getDashboardBottom(int programId, String startDate, String stopDate, int displayShipmentsBy, CustomUserDetails curUser) throws ParseException {
         DashboardBottom db = new DashboardBottom();
         String sqlString = "CALL getDashboardStockStatus(:startDate, :stopDate, :programId)";
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", ei.getProgramId());
-        params.put("startDate", ei.getStartDate());
-        params.put("stopDate", DateUtils.getEndOfMonthVariable(ei.getStopDate()));
+        params.put("programId", programId);
+        params.put("startDate", startDate);
+        params.put("stopDate", DateUtils.getEndOfMonthVariable(stopDate));
         params.put("curDate", DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD));
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
@@ -259,7 +274,7 @@ public class DashboardDaoImpl implements DashboardDao {
         db.setExpiriesList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiredPuRowMapper()));
 
         sqlString = "CALL getDashboardShipmentDetailsReportBy(:startDate, :stopDate, :programId, :displayShipmentsBy)";
-        params.put("displayShipmentsBy", ei.getDisplayShipmentsBy());
+        params.put("displayShipmentsBy", displayShipmentsBy);
         db.setShipmentDetailsList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportByRowMapper()));
 
         sqlString = "CALL getDashboardShipmentWithFundingSourceTbd(:startDate, :stopDate, :programId)";
@@ -345,7 +360,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
     @Override
     public int getUserCount(CustomUserDetails curUser) {
-        String sql="SELECT COUNT(u.USER_ID) FROM us_user u WHERE u.ACTIVE ";
+        String sql = "SELECT COUNT(u.USER_ID) FROM us_user u WHERE u.ACTIVE ";
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
@@ -362,7 +377,7 @@ public class DashboardDaoImpl implements DashboardDao {
 //        this.aclService.addFullAclForProgram(sb1, params, "p", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb1.toString(), params, Integer.class);
     }
-    
+
     @Override
     public ProgramCount getFullProgramCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();

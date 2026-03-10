@@ -8,7 +8,6 @@ package cc.altius.FASP.dao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.ProgramCount;
-import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardTop;
@@ -43,14 +42,14 @@ public interface DashboardDao {
 
     List<DashboardTop> getDashboardTop(String[] programIds, CustomUserDetails curUser);
 
-    DashboardBottom getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException;
+    DashboardBottom getDashboardBottom(int programId, String startDate, String stopDate, int displayShipmentsBy, CustomUserDetails curUser) throws ParseException;
 
     DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException;
 
     public int getUserCount(CustomUserDetails curUser);
-    
+
     public int getLinkedErpShipmentsCount(CustomUserDetails curUser);
-    
+
     public ProgramCount getFullProgramCount(CustomUserDetails curUser);
 
 }

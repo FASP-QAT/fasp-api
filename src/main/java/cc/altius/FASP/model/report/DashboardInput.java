@@ -12,17 +12,17 @@ import java.io.Serializable;
  */
 public class DashboardInput implements Serializable {
 
-    private int programId;
+    private String[] programIds;
     private String startDate;
     private String stopDate;
     private int displayShipmentsBy; // 1 = Funding Source, 2 = Procurement Agent, 3 = Status-
 
-    public int getProgramId() {
-        return programId;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public String getStartDate() {
