@@ -22,6 +22,7 @@ public class BatchData implements Serializable {
     private Double actualConsumption;
     private double shipment;
     private double shipmentWps;
+    private double shipmentWtbdps;
     private Double adjustment;
     private Double stock;
     private Double inventoryQty;
@@ -44,6 +45,14 @@ public class BatchData implements Serializable {
     private double calculatedFEFOWps;
     private double calculatedLEFOWps;
     private double closingBalanceWps;
+    
+    private double openingBalanceWtbdps;
+    private double expiredStockWtbdps;
+    private double unallocatedFEFOWtbdps;
+    private double unallocatedLEFOWtbdps;
+    private double calculatedFEFOWtbdps;
+    private double calculatedLEFOWtbdps;
+    private double closingBalanceWtbdps;
 
     public BatchData() {
     }
@@ -103,6 +112,14 @@ public class BatchData implements Serializable {
 
     public void setShipmentWps(double shipmentWps) {
         this.shipmentWps = shipmentWps;
+    }
+
+    public double getShipmentWtbdps() {
+        return shipmentWtbdps;
+    }
+
+    public void setShipmentWtbdps(double shipmentWtbdps) {
+        this.shipmentWtbdps = shipmentWtbdps;
     }
 
     public Double getAdjustment() {
@@ -257,6 +274,64 @@ public class BatchData implements Serializable {
         this.calculatedLEFOWps = calculatedLEFOWps;
     }
 
+    public double getOpeningBalanceWtbdps() {
+        return openingBalanceWtbdps;
+    }
+
+    public void setOpeningBalanceWtbdps(double openingBalanceWtbdps) {
+        this.openingBalanceWtbdps = openingBalanceWtbdps;
+    }
+
+    public double getExpiredStockWtbdps() {
+        return expiredStockWtbdps;
+    }
+
+    public void setExpiredStockWtbdps(double expiredStockWtbdps) {
+        this.expiredStockWtbdps = expiredStockWtbdps;
+    }
+
+    public double getUnallocatedFEFOWtbdps() {
+        return unallocatedFEFOWtbdps;
+    }
+
+    public void setUnallocatedFEFOWtbdps(double unallocatedFEFOWtbdps) {
+        this.unallocatedFEFOWtbdps = unallocatedFEFOWtbdps;
+    }
+
+    public double getUnallocatedLEFOWtbdps() {
+        return unallocatedLEFOWtbdps;
+    }
+
+    public void setUnallocatedLEFOWtbdps(double unallocatedLEFOWtbdps) {
+        this.unallocatedLEFOWtbdps = unallocatedLEFOWtbdps;
+    }
+
+    public double getCalculatedFEFOWtbdps() {
+        return calculatedFEFOWtbdps;
+    }
+
+    public void setCalculatedFEFOWtbdps(double calculatedFEFOWtbdps) {
+        this.calculatedFEFOWtbdps = calculatedFEFOWtbdps;
+    }
+
+    public double getCalculatedLEFOWtbdps() {
+        return calculatedLEFOWtbdps;
+    }
+
+    public void setCalculatedLEFOWtbdps(double calculatedLEFOWtbdps) {
+        this.calculatedLEFOWtbdps = calculatedLEFOWtbdps;
+    }
+
+    public double getClosingBalanceWtbdps() {
+        return closingBalanceWtbdps;
+    }
+
+    public void setClosingBalanceWtbdps(double closingBalanceWtbdps) {
+        this.closingBalanceWtbdps = closingBalanceWtbdps;
+    }
+    
+    
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -281,7 +356,7 @@ public class BatchData implements Serializable {
         }
         return true;
     }
-
+    
     @Override
     public String toString() {
         return "BatchData{" + "batchId=" + batchId + ", expiryDate=" + expiryDate + '}';

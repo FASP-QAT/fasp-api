@@ -2952,22 +2952,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String sqlString = "SELECT  "
                 + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
                 + "    spa.`PLANNING_UNIT_ID`, pu.`MULTIPLIER` `CONVERSION_FACTOR`, spa.`TRANS_DATE`,  "
-                + "    spa.`OPENING_BALANCE`, spa.`OPENING_BALANCE_WPS`, "
+                + "    spa.`OPENING_BALANCE`, spa.`OPENING_BALANCE_WPS`, spa.OPENING_BALANCE_WTBDPS, "
                 + "    spa.`ACTUAL` `ACTUAL_FLAG`, IF(spa.`ACTUAL`, spa.`ACTUAL_CONSUMPTION_QTY`, spa.`FORECASTED_CONSUMPTION_QTY`) `CONSUMPTION_QTY`, "
                 + "    spa.`ADJUSTMENT_MULTIPLIED_QTY`, spa.`STOCK_MULTIPLIED_QTY`, "
                 + "    spa.`REGION_COUNT`, spa.`REGION_COUNT_FOR_STOCK`, "
-                + "    spa.`MANUAL_PLANNED_SHIPMENT_QTY`, spa.`MANUAL_SUBMITTED_SHIPMENT_QTY`, spa.`MANUAL_APPROVED_SHIPMENT_QTY`, spa.`MANUAL_SHIPPED_SHIPMENT_QTY`, spa.`MANUAL_RECEIVED_SHIPMENT_QTY`, spa.`MANUAL_ONHOLD_SHIPMENT_QTY`, "
-                + "    spa.`ERP_PLANNED_SHIPMENT_QTY`, spa.`ERP_SUBMITTED_SHIPMENT_QTY`, spa.`ERP_APPROVED_SHIPMENT_QTY`, spa.`ERP_SHIPPED_SHIPMENT_QTY`, spa.`ERP_RECEIVED_SHIPMENT_QTY`, spa.`ERP_ONHOLD_SHIPMENT_QTY`, "
-                + "    spa.`EXPIRED_STOCK`, spa.`EXPIRED_STOCK_WPS`, "
-                + "    spa.`NATIONAL_ADJUSTMENT`, spa.`NATIONAL_ADJUSTMENT_WPS`, "
-                + "    spa.`CLOSING_BALANCE`, spa.`CLOSING_BALANCE_WPS`, "
-                + "    spa.`UNMET_DEMAND`, spa.`UNMET_DEMAND_WPS`, "
-                + "    spa.`AMC`, spa.`AMC_COUNT`, spa.`MOS`, spa.`MOS_WPS`, spa.`MIN_STOCK_MOS`, spa.`MIN_STOCK_QTY`, spa.`MAX_STOCK_MOS`, spa.`MAX_STOCK_QTY`, "
-                + "    b2.`BATCH_ID`, b2.`BATCH_NO`, b2.`EXPIRY_DATE`, b2.`AUTO_GENERATED`, b2.`BATCH_OPENING_BALANCE`, b2.`BATCH_OPENING_BALANCE_WPS`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, b2.`BATCH_CONSUMPTION_QTY`, b2.`BATCH_STOCK_MULTIPLIED_QTY`, b2.`BATCH_ADJUSTMENT_MULTIPLIED_QTY`, b2.`BATCH_SHIPMENT_QTY`, b2.`BATCH_SHIPMENT_QTY_WPS`, b2.`BATCH_EXPIRED_STOCK`, b2.`BATCH_EXPIRED_STOCK_WPS`, b2.`BATCH_CLOSING_BALANCE`, b2.`BATCH_CLOSING_BALANCE_WPS`, bi.CREATED_DATE `BATCH_CREATED_DATE` "
+                + "    spa.`MANUAL_PLANNED_SHIPMENT_QTY`, spa.MANUAL_PLANNED_SHIPMENT_WTBD_QTY, spa.`MANUAL_SUBMITTED_SHIPMENT_QTY`, spa.`MANUAL_APPROVED_SHIPMENT_QTY`, spa.`MANUAL_SHIPPED_SHIPMENT_QTY`, spa.`MANUAL_RECEIVED_SHIPMENT_QTY`, spa.`MANUAL_ONHOLD_SHIPMENT_QTY`, "
+                + "    spa.`ERP_PLANNED_SHIPMENT_QTY`, spa.ERP_PLANNED_SHIPMENT_WTBD_QTY, spa.`ERP_SUBMITTED_SHIPMENT_QTY`, spa.`ERP_APPROVED_SHIPMENT_QTY`, spa.`ERP_SHIPPED_SHIPMENT_QTY`, spa.`ERP_RECEIVED_SHIPMENT_QTY`, spa.`ERP_ONHOLD_SHIPMENT_QTY`, "
+                + "    spa.`EXPIRED_STOCK`, spa.`EXPIRED_STOCK_WPS`, spa.EXPIRED_STOCK_WTBDPS, "
+                + "    spa.`NATIONAL_ADJUSTMENT`, spa.`NATIONAL_ADJUSTMENT_WPS`, spa.NATIONAL_ADJUSTMENT_WTBDPS, "
+                + "    spa.`CLOSING_BALANCE`, spa.`CLOSING_BALANCE_WPS`, spa.CLOSING_BALANCE_WTBDPS, "
+                + "    spa.`UNMET_DEMAND`, spa.`UNMET_DEMAND_WPS`, spa.UNMET_DEMAND_WTBDPS, "
+                + "    spa.`AMC`, spa.`AMC_COUNT`, "
+                + "    spa.`MOS`, spa.`MOS_WPS`, spa.MOS_WTBDPS, "
+                + "    spa.`MIN_STOCK_MOS`, spa.`MIN_STOCK_QTY`, "
+                + "    spa.`MAX_STOCK_MOS`, spa.`MAX_STOCK_QTY`, "
+                + "    b2.`BATCH_ID`, b2.`BATCH_NO`, b2.`EXPIRY_DATE`, b2.`AUTO_GENERATED`, "
+                + "    b2.`BATCH_OPENING_BALANCE`, b2.`BATCH_OPENING_BALANCE_WPS`, b2.`BATCH_OPENING_BALANCE_WTBDPS`, "
+                + "    b2.`BATCH_CALCULATED_CONSUMPTION_QTY`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY_WTBDPS`, "
+                + "    b2.`BATCH_CONSUMPTION_QTY`, b2.`BATCH_STOCK_MULTIPLIED_QTY`, b2.`BATCH_ADJUSTMENT_MULTIPLIED_QTY`, "
+                + "    b2.`BATCH_SHIPMENT_QTY`, b2.`BATCH_SHIPMENT_QTY_WPS`, b2.`BATCH_SHIPMENT_QTY_WTBDPS`, "
+                + "    b2.`BATCH_EXPIRED_STOCK`, b2.`BATCH_EXPIRED_STOCK_WPS`, b2.`BATCH_EXPIRED_STOCK_WTBDPS`, "
+                + "    b2.`BATCH_CLOSING_BALANCE`, b2.`BATCH_CLOSING_BALANCE_WPS`, b2.`BATCH_CLOSING_BALANCE_WTBDPS`, "
+                + "    bi.CREATED_DATE `BATCH_CREATED_DATE` "
                 + "FROM rm_supply_plan_amc spa  "
                 + "LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId "
                 + "LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`OPENING_BALANCE`) `BATCH_OPENING_BALANCE`, SUM(spbq.`OPENING_BALANCE_WPS`) `BATCH_OPENING_BALANCE_WPS`, SUM(spbq.`CALCULATED_CONSUMPTION`) `BATCH_CALCULATED_CONSUMPTION_QTY`, SUM(spbq.`CALCULATED_CONSUMPTION_WPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, SUM(spbq.`ACTUAL_CONSUMPTION_QTY`) BATCH_CONSUMPTION_QTY, SUM(spbq.`STOCK_MULTIPLIED_QTY`) `BATCH_STOCK_MULTIPLIED_QTY`, SUM(spbq.`ADJUSTMENT_MULTIPLIED_QTY`) `BATCH_ADJUSTMENT_MULTIPLIED_QTY`, SUM(spbq.`SHIPMENT_QTY`) `BATCH_SHIPMENT_QTY`, SUM(spbq.`SHIPMENT_QTY_WPS`) `BATCH_SHIPMENT_QTY_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS` FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
+                + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`OPENING_BALANCE`) `BATCH_OPENING_BALANCE`, SUM(spbq.`OPENING_BALANCE_WPS`) `BATCH_OPENING_BALANCE_WPS`, SUM(spbq.`OPENING_BALANCE_WTBDPS`) `BATCH_OPENING_BALANCE_WTBDPS`, SUM(spbq.`CALCULATED_CONSUMPTION`) `BATCH_CALCULATED_CONSUMPTION_QTY`, SUM(spbq.`CALCULATED_CONSUMPTION_WPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, SUM(spbq.`CALCULATED_CONSUMPTION_WTBDPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WTBDPS`, SUM(spbq.`ACTUAL_CONSUMPTION_QTY`) BATCH_CONSUMPTION_QTY, SUM(spbq.`STOCK_MULTIPLIED_QTY`) `BATCH_STOCK_MULTIPLIED_QTY`, SUM(spbq.`ADJUSTMENT_MULTIPLIED_QTY`) `BATCH_ADJUSTMENT_MULTIPLIED_QTY`, SUM(spbq.`SHIPMENT_QTY`) `BATCH_SHIPMENT_QTY`, SUM(spbq.`SHIPMENT_QTY_WPS`) `BATCH_SHIPMENT_QTY_WPS`, SUM(spbq.`SHIPMENT_QTY_WTBDPS`) `BATCH_SHIPMENT_QTY_WTBDPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`,  SUM(spbq.`EXPIRED_STOCK_WTBDPS`) `BATCH_EXPIRED_STOCK_WTBDPS`,  SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS`, SUM(spbq.`CLOSING_BALANCE_WTBDPS`) `BATCH_CLOSING_BALANCE_WTBDPS`  FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "LEFT JOIN rm_batch_info bi ON b2.BATCH_ID=bi.BATCH_ID "
                 + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE) AND (:useCutOff = FALSE OR (:useCutOff = TRUE AND spa.TRANS_DATE>=:cutOffDate))";
         return this.namedParameterJdbcTemplate.query(sqlString, params, new SimplifiedSupplyPlanResultSetExtractor());
@@ -2995,6 +3005,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
                 spbi.setOpeningBalanceWps(prevCBWps, sd.getTransDate());
                 sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
+                int prevCBWtbdps = sp.getPrevClosingBalanceWtbdps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
+                spbi.setOpeningBalanceWtbdps(prevCBWtbdps, sd.getTransDate());
+                sd.setUnallocatedConsumptionWtbdps(spbi.updateUnAllocatedCountAndExpiredStockWtbdps(sd.getTransDate(), sd.getUnallocatedConsumptionWtbdps()));
             }
             int unallocatedConsumption = sd.getUnallocatedConsumption();
             int unallocatedConsumptionWps = sd.getUnallocatedConsumptionWps();
@@ -3060,13 +3073,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("TRANS_DATE", nsp.getTransDate());
                 a1.addValue("OPENING_BALANCE", nsp.getOpeningBalance());
                 a1.addValue("OPENING_BALANCE_WPS", nsp.getOpeningBalanceWps());
+                a1.addValue("OPENING_BALANCE_WTBDPS", nsp.getOpeningBalanceWtbdps());
                 a1.addValue("MANUAL_PLANNED_SHIPMENT_QTY", nsp.getPlannedShipmentsTotalData());
+                a1.addValue("MANUAL_PLANNED_SHIPMENT_WTBD_QTY", nsp.getPlannedShipmentsTotalWtbdData());
                 a1.addValue("MANUAL_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedShipmentsTotalData());
                 a1.addValue("MANUAL_APPROVED_SHIPMENT_QTY", nsp.getApprovedShipmentsTotalData());
                 a1.addValue("MANUAL_SHIPPED_SHIPMENT_QTY", nsp.getShippedShipmentsTotalData());
                 a1.addValue("MANUAL_RECEIVED_SHIPMENT_QTY", nsp.getReceivedShipmentsTotalData());
                 a1.addValue("MANUAL_ONHOLD_SHIPMENT_QTY", nsp.getOnholdShipmentsTotalData());
                 a1.addValue("ERP_PLANNED_SHIPMENT_QTY", nsp.getPlannedErpShipmentsTotalData());
+                a1.addValue("ERP_PLANNED_SHIPMENT_WTBD_QTY", nsp.getPlannedErpShipmentsTotalWtbdData());
                 a1.addValue("ERP_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedErpShipmentsTotalData());
                 a1.addValue("ERP_APPROVED_SHIPMENT_QTY", nsp.getApprovedErpShipmentsTotalData());
                 a1.addValue("ERP_SHIPPED_SHIPMENT_QTY", nsp.getShippedErpShipmentsTotalData());
@@ -3083,12 +3099,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("REGION_COUNT_FOR_STOCK", nsp.getRegionCountForStock());
                 a1.addValue("NATIONAL_ADJUSTMENT", nsp.getNationalAdjustment());
                 a1.addValue("NATIONAL_ADJUSTMENT_WPS", nsp.getNationalAdjustmentWps());
+                a1.addValue("NATIONAL_ADJUSTMENT_WTBDPS", nsp.getNationalAdjustmentWtbdps());
                 a1.addValue("EXPIRED_STOCK", nsp.getExpiredStock());
                 a1.addValue("EXPIRED_STOCK_WPS", nsp.getExpiredStockWps());
+                a1.addValue("EXPIRED_STOCK_WTBDPS", nsp.getExpiredStockWtbdps());
                 a1.addValue("CLOSING_BALANCE", nsp.getClosingBalance());
                 a1.addValue("CLOSING_BALANCE_WPS", nsp.getClosingBalanceWps());
+                a1.addValue("CLOSING_BALANCE_WTBDPS", nsp.getClosingBalanceWtbdps());
                 a1.addValue("UNMET_DEMAND", nsp.getUnmetDemand());
                 a1.addValue("UNMET_DEMAND_WPS", nsp.getUnmetDemandWps());
+                a1.addValue("UNMET_DEMAND_WTBDPS", nsp.getUnmetDemandWtbdps());
                 amcParams.add(a1);
                 for (BatchData bd : nsp.getBatchDataList()) {
                     int batchId;
@@ -3135,19 +3155,25 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         tmpBd.setUseActualConsumption(tmpBd.isUseActualConsumption() || bd.isUseActualConsumption());
                         tmpBd.setShipment(Optional.ofNullable(tmpBd.getShipment()).orElse(0.0) + Optional.ofNullable(bd.getShipment()).orElse(0.0));
                         tmpBd.setShipmentWps(Optional.ofNullable(tmpBd.getShipmentWps()).orElse(0.0) + Optional.ofNullable(bd.getShipmentWps()).orElse(0.0));
+                        tmpBd.setShipmentWtbdps(Optional.ofNullable(tmpBd.getShipmentWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getShipmentWtbdps()).orElse(0.0));
                         tmpBd.setAdjustment(Optional.ofNullable(tmpBd.getAdjustment()).orElse(0.0) + Optional.ofNullable(bd.getAdjustment()).orElse(0.0));
                         tmpBd.setStock(Optional.ofNullable(tmpBd.getStock()).orElse(0.0) + Optional.ofNullable(bd.getStock()).orElse(0.0));
                         tmpBd.setAllRegionsReportedStock(tmpBd.isAllRegionsReportedStock() || bd.isAllRegionsReportedStock());
                         tmpBd.setOpeningBalance(Optional.ofNullable(tmpBd.getOpeningBalance()).orElse(0.0) + Optional.ofNullable(bd.getOpeningBalance()).orElse(0.0));
                         tmpBd.setOpeningBalanceWps(Optional.ofNullable(tmpBd.getOpeningBalanceWps()).orElse(0.0) + Optional.ofNullable(bd.getOpeningBalanceWps()).orElse(0.0));
+                        tmpBd.setOpeningBalanceWtbdps(Optional.ofNullable(tmpBd.getOpeningBalanceWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getOpeningBalanceWtbdps()).orElse(0.0));
                         tmpBd.setExpiredStock(Optional.ofNullable(tmpBd.getExpiredStock()).orElse(0.0) + Optional.ofNullable(bd.getExpiredStock()).orElse(0.0));
                         tmpBd.setExpiredStockWps(Optional.ofNullable(tmpBd.getExpiredStockWps()).orElse(0.0) + Optional.ofNullable(bd.getExpiredStockWps()).orElse(0.0));
+                        tmpBd.setExpiredStockWtbdps(Optional.ofNullable(tmpBd.getExpiredStockWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getExpiredStockWtbdps()).orElse(0.0));
                         tmpBd.setCalculatedFEFO(Optional.ofNullable(tmpBd.getCalculatedFEFO()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedFEFO()).orElse(0.0));
                         tmpBd.setCalculatedFEFOWps(Optional.ofNullable(tmpBd.getCalculatedFEFOWps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0));
+                        tmpBd.setCalculatedFEFOWtbdps(Optional.ofNullable(tmpBd.getCalculatedFEFOWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedFEFOWtbdps()).orElse(0.0));
                         tmpBd.setCalculatedLEFO(Optional.ofNullable(tmpBd.getCalculatedLEFO()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedLEFO()).orElse(0.0));
                         tmpBd.setCalculatedLEFOWps(Optional.ofNullable(tmpBd.getCalculatedLEFOWps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0));
+                        tmpBd.setCalculatedLEFOWtbdps(Optional.ofNullable(tmpBd.getCalculatedLEFOWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getCalculatedLEFOWtbdps()).orElse(0.0));
                         tmpBd.setClosingBalance(Optional.ofNullable(tmpBd.getClosingBalance()).orElse(0.0) + Optional.ofNullable(bd.getClosingBalance()).orElse(0.0));
                         tmpBd.setClosingBalanceWps(Optional.ofNullable(tmpBd.getClosingBalanceWps()).orElse(0.0) + Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0));
+                        tmpBd.setClosingBalanceWtbdps(Optional.ofNullable(tmpBd.getClosingBalanceWtbdps()).orElse(0.0) + Optional.ofNullable(bd.getClosingBalanceWtbdps()).orElse(0.0));
                         cleanedBatchDataList.set(idx, tmpBd);
                     }
                 });
@@ -3164,17 +3190,22 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("ACTUAL", bd.isUseActualConsumption());
                     b1.addValue("SHIPMENT_QTY", bd.getShipment());
                     b1.addValue("SHIPMENT_QTY_WPS", bd.getShipmentWps());
+                    b1.addValue("SHIPMENT_QTY_WTBDPS", bd.getShipmentWtbdps());
                     b1.addValue("ADJUSTMENT_MULTIPLIED_QTY", bd.getAdjustment());
                     b1.addValue("STOCK_MULTIPLIED_QTY", bd.getStock());
                     b1.addValue("ALL_REGIONS_REPORTED_STOCK", bd.isAllRegionsReportedStock());
                     b1.addValue("OPENING_BALANCE", bd.getOpeningBalance());
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
+                    b1.addValue("OPENING_BALANCE_WTBDPS", bd.getOpeningBalanceWtbdps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
+                    b1.addValue("EXPIRED_STOCK_WTBDPS", bd.getExpiredStockWtbdps());
                     b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO() + bd.getCalculatedLEFO());
                     b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps() + bd.getCalculatedLEFOWps());
+                    b1.addValue("CALCULATED_CONSUMPTION_WTBDPS", bd.getCalculatedFEFOWtbdps() + bd.getCalculatedLEFOWtbdps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
+                    b1.addValue("CLOSING_BALANCE_WTBDPS", bd.getClosingBalanceWtbdps());
                     batchParams.add(b1);
                 });
 
@@ -3187,40 +3218,42 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc1` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
-                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
-                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MOS_WTBDPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WTBDPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_PLANNED_SHIPMENT_WTBD_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_WTBD_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
                     + "  `ERP_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, "
                     + "  `ADJUSTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `STOCK_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
-                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
-                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WTBDPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WTBDPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WTBDPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WTBDPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
 
             sqlString = "CREATE TEMPORARY TABLE `tmp_supply_plan_amc2` ( "
                     + "  `SUPPLY_PLAN_AMC_ID` int unsigned NOT NULL AUTO_INCREMENT, `PROGRAM_ID` int unsigned NOT NULL, `VERSION_ID` int unsigned NOT NULL, `PLANNING_UNIT_ID` int unsigned NOT NULL, `TRANS_DATE` date NOT NULL, "
-                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
-                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
-                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `AMC` decimal(24,8) DEFAULT NULL, `AMC_COUNT` int DEFAULT NULL, `MOS` decimal(24,8) DEFAULT NULL, `MOS_WPS` decimal(24,8) DEFAULT NULL, `MOS_WTBDPS` decimal(24,8) DEFAULT NULL, `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL, `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL, `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, `OPENING_BALANCE_WTBDPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_PLANNED_SHIPMENT_WTBD_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `MANUAL_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
+                    + "  `MANUAL_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_PLANNED_SHIPMENT_WTBD_QTY` decimal(24,8) DEFAULT NULL, `ERP_SUBMITTED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_APPROVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_SHIPPED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, "
                     + "  `ERP_RECEIVED_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `ERP_ONHOLD_SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `SHIPMENT_QTY` decimal(24,8) DEFAULT NULL, `FORECASTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, "
                     + "  `ADJUSTED_CONSUMPTION_QTY` decimal(24,8) DEFAULT NULL, `ACTUAL` tinyint(1) DEFAULT NULL, `ADJUSTMENT_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `STOCK_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL, `REGION_COUNT` int unsigned NOT NULL, "
-                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, "
-                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
+                    + "  `REGION_COUNT_FOR_STOCK` int unsigned NOT NULL, `EXPIRED_STOCK` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WPS` decimal(24,8) DEFAULT NULL, `EXPIRED_STOCK_WTBDPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WPS` decimal(24,8) DEFAULT NULL, `CLOSING_BALANCE_WTBDPS` decimal(24,8) DEFAULT NULL, "
+                    + "  `UNMET_DEMAND` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WPS` decimal(24,8) DEFAULT NULL, `UNMET_DEMAND_WTBDPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WPS` decimal(24,8) DEFAULT NULL, `NATIONAL_ADJUSTMENT_WTBDPS` decimal(24,8) DEFAULT NULL, PRIMARY KEY (`SUPPLY_PLAN_AMC_ID`)) ENGINE=InnoDB";
             // Create table
             this.namedParameterJdbcTemplate.update(sqlString, params);
 
             logger.info("Delete the existing records from supply plan amc");
             this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
             logger.info("Delete done");
-            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
-            SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("tmp_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS");
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "OPENING_BALANCE_WTBDPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_PLANNED_SHIPMENT_WTBD_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_WTBD_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "NATIONAL_ADJUSTMENT_WTBDPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "EXPIRED_STOCK_WTBDPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "CLOSING_BALANCE_WTBDPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS", "UNMET_DEMAND_WTBDPS");
+            SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("tmp_supply_plan_amc").usingColumns("PROGRAM_ID", "VERSION_ID", "PLANNING_UNIT_ID", "TRANS_DATE", "OPENING_BALANCE", "OPENING_BALANCE_WPS", "OPENING_BALANCE_WTBDPS", "MANUAL_PLANNED_SHIPMENT_QTY", "MANUAL_PLANNED_SHIPMENT_WTBD_QTY", "MANUAL_SUBMITTED_SHIPMENT_QTY", "MANUAL_APPROVED_SHIPMENT_QTY", "MANUAL_SHIPPED_SHIPMENT_QTY", "MANUAL_RECEIVED_SHIPMENT_QTY", "MANUAL_ONHOLD_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_QTY", "ERP_PLANNED_SHIPMENT_WTBD_QTY", "ERP_SUBMITTED_SHIPMENT_QTY", "ERP_APPROVED_SHIPMENT_QTY", "ERP_SHIPPED_SHIPMENT_QTY", "ERP_RECEIVED_SHIPMENT_QTY", "ERP_ONHOLD_SHIPMENT_QTY", "SHIPMENT_QTY", "FORECASTED_CONSUMPTION_QTY", "ACTUAL_CONSUMPTION_QTY", "ADJUSTED_CONSUMPTION_QTY", "ACTUAL", "ADJUSTMENT_MULTIPLIED_QTY", "STOCK_MULTIPLIED_QTY", "REGION_COUNT", "REGION_COUNT_FOR_STOCK", "NATIONAL_ADJUSTMENT", "NATIONAL_ADJUSTMENT_WPS", "NATIONAL_ADJUSTMENT_WTBDPS", "EXPIRED_STOCK", "EXPIRED_STOCK_WPS", "EXPIRED_STOCK_WTBDPS", "CLOSING_BALANCE", "CLOSING_BALANCE_WPS", "CLOSING_BALANCE_WTBDPS", "UNMET_DEMAND", "UNMET_DEMAND_WPS", "UNMET_DEMAND_WTBDPS");
             MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
             amcParams.toArray(amcParamsArray);
             si.executeBatch(amcParamsArray);
-            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc1 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
-            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc2 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`) VALUES (:PROGRAM_ID, :VERSION_ID, :PLANNING_UNIT_ID, :TRANS_DATE, :OPENING_BALANCE, :OPENING_BALANCE_WPS, :MANUAL_PLANNED_SHIPMENT_QTY, :MANUAL_SUBMITTED_SHIPMENT_QTY, :MANUAL_APPROVED_SHIPMENT_QTY, :MANUAL_SHIPPED_SHIPMENT_QTY, :MANUAL_RECEIVED_SHIPMENT_QTY, :MANUAL_ONHOLD_SHIPMENT_QTY, :ERP_PLANNED_SHIPMENT_QTY, :ERP_SUBMITTED_SHIPMENT_QTY, :ERP_APPROVED_SHIPMENT_QTY, :ERP_SHIPPED_SHIPMENT_QTY, :ERP_RECEIVED_SHIPMENT_QTY, :ERP_ONHOLD_SHIPMENT_QTY, :SHIPMENT_QTY, :FORECASTED_CONSUMPTION_QTY, :ACTUAL_CONSUMPTION_QTY, :ADJUSTED_CONSUMPTION_QTY, :ACTUAL, :ADJUSTMENT_MULTIPLIED_QTY, :STOCK_MULTIPLIED_QTY, :REGION_COUNT, :REGION_COUNT_FOR_STOCK, :NATIONAL_ADJUSTMENT, :NATIONAL_ADJUSTMENT_WPS, :EXPIRED_STOCK, :EXPIRED_STOCK_WPS, :CLOSING_BALANCE, :CLOSING_BALANCE_WPS, :UNMET_DEMAND, :UNMET_DEMAND_WPS)", amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc1 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `OPENING_BALANCE_WTBDPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_PLANNED_SHIPMENT_WTBD_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_WTBD_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `NATIONAL_ADJUSTMENT_WTBDPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `EXPIRED_STOCK_WTBDPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `CLOSING_BALANCE_WTBDPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`, `UNMET_DEMAND_WTBDPS`) VALUES "
+                    + "                                                                   (:PROGRAM_ID,  :VERSION_ID,  :PLANNING_UNIT_ID,  :TRANS_DATE,  :OPENING_BALANCE,  :OPENING_BALANCE_WPS,  :OPENING_BALANCE_WTBDPS,  :MANUAL_PLANNED_SHIPMENT_QTY,  :MANUAL_PLANNED_SHIPMENT_WTBD_QTY,  :MANUAL_SUBMITTED_SHIPMENT_QTY,  :MANUAL_APPROVED_SHIPMENT_QTY,  :MANUAL_SHIPPED_SHIPMENT_QTY,  :MANUAL_RECEIVED_SHIPMENT_QTY,  :MANUAL_ONHOLD_SHIPMENT_QTY,  :ERP_PLANNED_SHIPMENT_QTY,  :ERP_PLANNED_SHIPMENT_WTBD_QTY,  :ERP_SUBMITTED_SHIPMENT_QTY,  :ERP_APPROVED_SHIPMENT_QTY,  :ERP_SHIPPED_SHIPMENT_QTY,  :ERP_RECEIVED_SHIPMENT_QTY,  :ERP_ONHOLD_SHIPMENT_QTY,  :SHIPMENT_QTY,  :FORECASTED_CONSUMPTION_QTY,  :ACTUAL_CONSUMPTION_QTY,  :ADJUSTED_CONSUMPTION_QTY,  :ACTUAL,  :ADJUSTMENT_MULTIPLIED_QTY,  :STOCK_MULTIPLIED_QTY,  :REGION_COUNT,  :REGION_COUNT_FOR_STOCK,  :NATIONAL_ADJUSTMENT,  :NATIONAL_ADJUSTMENT_WPS,  :NATIONAL_ADJUSTMENT_WTBDPS,  :EXPIRED_STOCK,  :EXPIRED_STOCK_WPS,  :EXPIRED_STOCK_WTBDPS,  :CLOSING_BALANCE,  :CLOSING_BALANCE_WPS,  :CLOSING_BALANCE_WTBDPS,  :UNMET_DEMAND,  :UNMET_DEMAND_WPS,  :UNMET_DEMAND_WTBDPS)", amcParamsArray);
+            this.namedParameterJdbcTemplate.batchUpdate("INSERT INTO tmp_supply_plan_amc2 (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `TRANS_DATE`, `OPENING_BALANCE`, `OPENING_BALANCE_WPS`, `OPENING_BALANCE_WTBDPS`, `MANUAL_PLANNED_SHIPMENT_QTY`, `MANUAL_PLANNED_SHIPMENT_WTBD_QTY`, `MANUAL_SUBMITTED_SHIPMENT_QTY`, `MANUAL_APPROVED_SHIPMENT_QTY`, `MANUAL_SHIPPED_SHIPMENT_QTY`, `MANUAL_RECEIVED_SHIPMENT_QTY`, `MANUAL_ONHOLD_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_QTY`, `ERP_PLANNED_SHIPMENT_WTBD_QTY`, `ERP_SUBMITTED_SHIPMENT_QTY`, `ERP_APPROVED_SHIPMENT_QTY`, `ERP_SHIPPED_SHIPMENT_QTY`, `ERP_RECEIVED_SHIPMENT_QTY`, `ERP_ONHOLD_SHIPMENT_QTY`, `SHIPMENT_QTY`, `FORECASTED_CONSUMPTION_QTY`, `ACTUAL_CONSUMPTION_QTY`, `ADJUSTED_CONSUMPTION_QTY`, `ACTUAL`, `ADJUSTMENT_MULTIPLIED_QTY`, `STOCK_MULTIPLIED_QTY`, `REGION_COUNT`, `REGION_COUNT_FOR_STOCK`, `NATIONAL_ADJUSTMENT`, `NATIONAL_ADJUSTMENT_WPS`, `NATIONAL_ADJUSTMENT_WTBDPS`, `EXPIRED_STOCK`, `EXPIRED_STOCK_WPS`, `EXPIRED_STOCK_WTBDPS`, `CLOSING_BALANCE`, `CLOSING_BALANCE_WPS`, `CLOSING_BALANCE_WTBDPS`, `UNMET_DEMAND`, `UNMET_DEMAND_WPS`, `UNMET_DEMAND_WTBDPS`) VALUES "
+                    + "                                                                   (:PROGRAM_ID,  :VERSION_ID,  :PLANNING_UNIT_ID,  :TRANS_DATE,  :OPENING_BALANCE,  :OPENING_BALANCE_WPS,  :OPENING_BALANCE_WTBDPS,  :MANUAL_PLANNED_SHIPMENT_QTY,  :MANUAL_PLANNED_SHIPMENT_WTBD_QTY,  :MANUAL_SUBMITTED_SHIPMENT_QTY,  :MANUAL_APPROVED_SHIPMENT_QTY,  :MANUAL_SHIPPED_SHIPMENT_QTY,  :MANUAL_RECEIVED_SHIPMENT_QTY,  :MANUAL_ONHOLD_SHIPMENT_QTY,  :ERP_PLANNED_SHIPMENT_QTY,  :ERP_PLANNED_SHIPMENT_WTBD_QTY,  :ERP_SUBMITTED_SHIPMENT_QTY,  :ERP_APPROVED_SHIPMENT_QTY,  :ERP_SHIPPED_SHIPMENT_QTY,  :ERP_RECEIVED_SHIPMENT_QTY,  :ERP_ONHOLD_SHIPMENT_QTY,  :SHIPMENT_QTY,  :FORECASTED_CONSUMPTION_QTY,  :ACTUAL_CONSUMPTION_QTY,  :ADJUSTED_CONSUMPTION_QTY,  :ACTUAL,  :ADJUSTMENT_MULTIPLIED_QTY,  :STOCK_MULTIPLIED_QTY,  :REGION_COUNT,  :REGION_COUNT_FOR_STOCK,  :NATIONAL_ADJUSTMENT,  :NATIONAL_ADJUSTMENT_WPS,  :NATIONAL_ADJUSTMENT_WTBDPS,  :EXPIRED_STOCK,  :EXPIRED_STOCK_WPS,  :EXPIRED_STOCK_WTBDPS,  :CLOSING_BALANCE,  :CLOSING_BALANCE_WPS,  :CLOSING_BALANCE_WTBDPS,  :UNMET_DEMAND,  :UNMET_DEMAND_WPS,  :UNMET_DEMAND_WTBDPS)", amcParamsArray);
             logger.info("Batch insert for supply plan amc completed");
             logger.info("Delete the existing records from supply plan batch");
             this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
@@ -3252,6 +3285,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "        spa.AMC_COUNT=amc.AMC_COUNT, "
                     + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
                     + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "        spa.MOS_WTBDPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WTBDPS/amc.AMC), "
                     + "        spa.MIN_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), IF(amc.AMC IS NULL OR amc.AMC=0, null, ppu.MIN_QTY/amc.AMC)), "
                     + "        spa.MAX_STOCK_MOS = IF(ppu.PLAN_BASED_ON=1, IF( "
                     + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
@@ -3272,14 +3306,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
                     + "                                ) "
                     + "                            )* amc.AMC, ppu.MIN_QTY + ppu.REORDER_FREQUENCY_IN_MONTHS*amc.AMC)  "
-                    + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+                    + "        WHERE spa.PROGRAM_ID=:programId and spa.VERSION_ID=:versionId";
+            params.put("programId", programId);
+            params.put("versionId", versionId);
             logger.info("Going to update the supply plan amc records");
             this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("Update completed, now dropping tmp table");
             this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc1", params);
             this.namedParameterJdbcTemplate.update("DROP TABLE IF EXISTS tmp_supply_plan_amc2", params);
             logger.info("Table dropped");
-//            msp.printSupplyPlan();
+            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {

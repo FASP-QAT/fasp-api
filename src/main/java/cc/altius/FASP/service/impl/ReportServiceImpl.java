@@ -71,6 +71,8 @@ import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalInput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
@@ -110,18 +112,6 @@ public class ReportServiceImpl implements ReportService {
     EquivalencyUnitDao equivalencyUnitDao;
     @Autowired
     PlanningUnitDao planningUnitDao;
-
-    @Override
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
-        if (ssm.getProgramId() != 0) {
-            try {
-                this.programCommonDao.getSimpleProgramById(ssm.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-            } catch (EmptyResultDataAccessException e) {
-                throw new AccessControlFailedException();
-            }
-        }
-        return this.reportDao.getStockStatusMatrix(ssm);
-    }
 
     // Report no 1
     @Override
@@ -196,6 +186,42 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return this.reportDao.getForecastMetricsComparision(fmi, curUser);
+    }
+
+    // Report no 18a
+    @Override
+    public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssm.getProgramId() != 0) {
+            try {
+                this.programCommonDao.getSimpleProgramById(ssm.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            } catch (EmptyResultDataAccessException e) {
+                throw new AccessControlFailedException();
+            }
+        }
+        return this.reportDao.getStockStatusMatrix(ssm);
+    }
+
+    // Report no 18b
+    @Override
+    public StockStatusMatrixGlobalOutput getStockStatusMatrixGlobal(StockStatusMatrixGlobalInput ssmg, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (ssmg.getProgramIds() != null) {
+            for (String programId : ssmg.getProgramIds()) {
+                try {
+                    this.programCommonDao.getSimpleProgramById(Integer.parseInt(programId), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                } catch (EmptyResultDataAccessException e) {
+                    throw new AccessControlFailedException();
+                }
+            }
+        }
+        StockStatusMatrixGlobalOutput ssmgo = this.reportDao.getStockStatusMatrixGlobal(ssmg);
+        if (ssmg.getEquivalencyUnitId() == 0) {
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(Integer.parseInt(ssmg.getPlanningUnitIds()[0]), curUser);
+            ssmgo.setReportView(new SimpleObject(pu.getPlanningUnitId(), pu.getLabel()));
+        } else {
+            EquivalencyUnit eu = this.equivalencyUnitDao.getEquivalencyUnitById(ssmg.getEquivalencyUnitId(), curUser);
+            ssmgo.setReportView(new SimpleObject(eu.getEquivalencyUnitId(), eu.getLabel()));
+        }
+        return ssmgo;
     }
 
     @Override

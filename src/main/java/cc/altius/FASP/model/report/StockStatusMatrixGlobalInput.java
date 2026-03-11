@@ -16,7 +16,7 @@ import java.util.Date;
  *
  * @author akil
  */
-public class StockStatusMatrixInput implements Serializable {
+public class StockStatusMatrixGlobalInput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -24,14 +24,17 @@ public class StockStatusMatrixInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private int programId;
+    private String[] realmCountryIds;
+    private String[] programIds;
     private int versionId;
-    private String[] planningUnitIds; // Empty means all selected
+    private int equivalencyUnitId; // 0=No Equivalency Unit; Value means the EquivalencyUnitId is selected and therefore the report should be in terms of EU Id
+    private String[] planningUnitIds; // If EU is selected then this is a multi-select. Empty means all selected. If EU=0 then this must be a single select
     private String[] stockStatusConditions; // Empty means all conditions selected
     private int removePlannedShipments; // 0 - Retain all Planned Shipments, 1 - Remove all Planned Shipments, 2 - Remove all Planned Shipments that have Funding Source TBD
     private String[] fundingSourceIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
     private String[] procurementAgentIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
     private boolean showByQty;
+    private int reportView; // 1 - Group by Program; 2 - Group by Country
 
     public Date getStartDate() {
         return startDate;
@@ -49,12 +52,20 @@ public class StockStatusMatrixInput implements Serializable {
         this.stopDate = stopDate;
     }
 
-    public int getProgramId() {
-        return programId;
+    public String[] getRealmCountryIds() {
+        return realmCountryIds;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setRealmCountryIds(String[] realmCountryIds) {
+        this.realmCountryIds = realmCountryIds;
+    }
+
+    public String[] getProgramIds() {
+        return programIds;
+    }
+
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public int getVersionId() {
@@ -63,6 +74,14 @@ public class StockStatusMatrixInput implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
+    }
+
+    public int getEquivalencyUnitId() {
+        return equivalencyUnitId;
+    }
+
+    public void setEquivalencyUnitId(int equivalencyUnitId) {
+        this.equivalencyUnitId = equivalencyUnitId;
     }
 
     public String[] getPlanningUnitIds() {
@@ -113,14 +132,42 @@ public class StockStatusMatrixInput implements Serializable {
         this.showByQty = showByQty;
     }
 
+    public int getReportView() {
+        return reportView;
+    }
+
+    public void setReportView(int reportView) {
+        this.reportView = reportView;
+    }
+
+    public String getRealmCountryIdsString() {
+        if (this.realmCountryIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.realmCountryIds);
+        }
+    }
+    
+    public String getProgramIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.programIds);
+        }
+    }
+    
     public String getPlanningUnitIdsString() {
         if (this.planningUnitIds == null) {
             return "";
         } else {
-            return String.join(",", this.planningUnitIds);
+            if (this.equivalencyUnitId != 0) {
+                return String.join(",", this.planningUnitIds);
+            } else {
+                return this.planningUnitIds[0];
+            }
         }
     }
-    
+
     public String getStockStatusConditioinsString() {
         if (this.stockStatusConditions == null) {
             return "";
@@ -128,7 +175,7 @@ public class StockStatusMatrixInput implements Serializable {
             return String.join(",", this.stockStatusConditions);
         }
     }
-    
+
     public String getFundingSourceIdsString() {
         if (this.fundingSourceIds == null) {
             return "";
@@ -136,7 +183,7 @@ public class StockStatusMatrixInput implements Serializable {
             return String.join(",", this.fundingSourceIds);
         }
     }
-    
+
     public String getProcurementAgentIdsString() {
         if (this.procurementAgentIds == null) {
             return "";

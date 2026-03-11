@@ -85,15 +85,20 @@ import cc.altius.FASP.model.report.StockStatusAcrossProductsForProgramRowMapper;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsOutput;
 import cc.altius.FASP.model.report.StockStatusAcrossProductsOutputResultsetExtractor;
+import cc.altius.FASP.model.report.StockStatusDetails;
+import cc.altius.FASP.model.report.StockStatusDetailsRowMapper;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalInput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixGlobalRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
-import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusMatrixRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalAggregateOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalIndividualOutput;
@@ -110,6 +115,7 @@ import cc.altius.FASP.model.rowMapper.ProgramAndPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -482,19 +488,56 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query(sqlString, params, new StockStatusOverTimeOutputRowMapper());
     }
 
-    // Report no 18
+    // Report no 18a
     @Override
-    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sql = "CALL stockStatusMatrix(:programId, :versionId, :tracerCategoryIds, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
+    public StockStatusMatrixOutput getStockStatusMatrix(StockStatusMatrixInput ssm) {
+        String sqlStockStatusMatrix = "CALL stockStatusMatrix(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds)";
+        String sqlStockStatusDetails = "CALL stockStatusDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds)";
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("programId", ssm.getProgramId());
-        params.put("versionId", ssm.getVersionId());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
-        params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
-        params.put("planningUnitIds", String.join(",", ssm.getPlanningUnitIds()));
-        params.put("tracerCategoryIds", String.join(",", ssm.getTracerCategoryIds()));
-        return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
+        params.put("programId", ssm.getProgramId());
+        params.put("versionId", ssm.getVersionId());
+        params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
+        params.put("stockStatusConditions", ssm.getStockStatusConditioinsString());
+        params.put("removePlannedShipments", ssm.getRemovePlannedShipments());
+        params.put("fundingSourceIds", ssm.getFundingSourceIdsString());
+        params.put("procurementAgentIds", ssm.getProcurementAgentIdsString());
+        StockStatusMatrixOutput ssmo = new StockStatusMatrixOutput();
+        ssmo.setStockStatusMatrix(this.namedParameterJdbcTemplate.query(sqlStockStatusMatrix, params, new StockStatusMatrixRowMapper(ssm.getStartDate(), ssm.getStopDate())));
+        List<StockStatusDetails> ssdList = this.namedParameterJdbcTemplate.query(sqlStockStatusDetails, params, new StockStatusDetailsRowMapper());
+        if (ssm.getStockStatusConditions().length > 0) {
+            ssmo.setStockStatusDetails(ssdList
+                    .stream()
+                    .filter((t)
+                            -> Arrays.asList(ssm.getStockStatusConditions()).indexOf(Integer.toString(t.getStockStatusId())) != -1)
+                    .collect(Collectors.toList()));
+        } else {
+            ssmo.setStockStatusDetails(ssdList);
+        }
+        return ssmo;
+    }
+
+    // Report no 18b
+    @Override
+    public StockStatusMatrixGlobalOutput getStockStatusMatrixGlobal(StockStatusMatrixGlobalInput ssmg) {
+        String sql = "CALL stockStatusMatrixGlobal(:startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :equivalencyUnitId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds, :reportView)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssmg.getStartDate());
+        params.put("stopDate", ssmg.getStopDate());
+        params.put("realmCountryIds", ssmg.getRealmCountryIdsString());
+        params.put("programIds", ssmg.getProgramIdsString());
+        params.put("versionId", ssmg.getVersionId());
+        params.put("equivalencyUnitId", ssmg.getEquivalencyUnitId());
+        params.put("planningUnitIds", ssmg.getPlanningUnitIdsString());
+        params.put("stockStatusConditions", ssmg.getStockStatusConditioinsString());
+        params.put("removePlannedShipments", ssmg.getRemovePlannedShipments());
+        params.put("fundingSourceIds", ssmg.getFundingSourceIdsString());
+        params.put("procurementAgentIds", ssmg.getProcurementAgentIdsString());
+        params.put("reportView", ssmg.getReportView());
+        StockStatusMatrixGlobalOutput ssmgo = new StockStatusMatrixGlobalOutput();
+        ssmgo.setDataList(this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixGlobalRowMapper(ssmg.getStartDate(), ssmg.getStopDate())));
+        return ssmgo;
     }
 
     // Report no 19

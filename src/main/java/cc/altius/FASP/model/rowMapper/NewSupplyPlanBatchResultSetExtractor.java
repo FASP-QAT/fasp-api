@@ -48,6 +48,7 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             }
             bd.setShipment(rs.getDouble("SHIPMENT"));
             bd.setShipmentWps(rs.getDouble("SHIPMENT_WPS"));
+            bd.setShipmentWtbdps(rs.getDouble("SHIPMENT_WTBDPS"));
             bd.setAdjustment(rs.getDouble("ADJUSTMENT"));
             if (rs.wasNull()) {
                 bd.setAdjustment(null);

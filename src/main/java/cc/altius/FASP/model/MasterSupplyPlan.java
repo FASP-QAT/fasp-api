@@ -91,11 +91,13 @@ public class MasterSupplyPlan implements Serializable {
         if (prevNsp == null) {
             nsp.setOpeningBalance(0);
             nsp.setOpeningBalanceWps(0);
+            nsp.setOpeningBalanceWtbdps(0);
         } else {
             logger.debug("Prev Closing Balance " + prevNsp.getClosingBalance());
             nsp.setOpeningBalance(prevNsp.getClosingBalance());
             logger.debug("NSP Opening Balance " + nsp.getOpeningBalance());
             nsp.setOpeningBalanceWps(prevNsp.getClosingBalanceWps());
+            nsp.setOpeningBalanceWtbdps(prevNsp.getClosingBalanceWtbdps());
             for (BatchData bd : prevNsp.getBatchDataList()) {
                 BatchData newBd = new BatchData();
                 newBd.setBatchId(bd.getBatchId());
@@ -103,6 +105,7 @@ public class MasterSupplyPlan implements Serializable {
                 if (idx2 == -1) {
                     newBd.setOpeningBalance(bd.getClosingBalance());
                     newBd.setOpeningBalanceWps(bd.getClosingBalanceWps());
+                    newBd.setOpeningBalanceWtbdps(bd.getClosingBalanceWtbdps());
                     newBd.setExpiryDate(bd.getExpiryDate());
                     newBd.setShelfLife(bd.getShelfLife());
                     nsp.getBatchDataList().add(newBd);
@@ -110,6 +113,7 @@ public class MasterSupplyPlan implements Serializable {
                     newBd = nsp.getBatchDataList().get(idx2);
                     newBd.setOpeningBalance(bd.getClosingBalance());
                     newBd.setOpeningBalanceWps(bd.getClosingBalanceWps());
+                    newBd.setOpeningBalanceWtbdps(bd.getClosingBalanceWtbdps());
                 }
             }
             nsp.getBatchDataList().sort(new ComparatorBatchData());
@@ -122,10 +126,13 @@ public class MasterSupplyPlan implements Serializable {
                 .append("TrnsDt").append("\t")
                 .append("OB").append("\t")
                 .append("OBW").append("\t")
+                .append("OBWT").append("\t")
                 .append("Exp").append("\t")
                 .append("ExpW").append("\t")
+                .append("ExpWT").append("\t")
                 .append("Shpt").append("\t")
                 .append("ShptW").append("\t")
+                .append("ShptWT").append("\t")
                 .append("ActCon").append("\t")
                 .append("FnlCon").append("\t")
                 .append("Stock").append("\t")
@@ -133,12 +140,15 @@ public class MasterSupplyPlan implements Serializable {
                 .append("FnlAdj").append("\t")
                 .append("Exptd").append("\t")
                 .append("ExptdW").append("\t")
+                .append("ExptdWT").append("\t")
                 .append("NA").append("\t")
                 .append("NAW").append("\t")
                 .append("CB").append("\t")
                 .append("CBW").append("\t")
+                .append("CBWT").append("\t")
                 .append("Unmet").append("\t")
-                .append("UnmetW").append("\r\n");
+                .append("UnmetW").append("\r\n")
+                .append("UnmetWT").append("\r\n");
         StringBuilder batchString = new StringBuilder()
                 .append("PlngUnt").append("\t")
                 .append("TrnsDt").append("\t\t")
@@ -146,10 +156,13 @@ public class MasterSupplyPlan implements Serializable {
                 .append("ExpDt").append("\t")
                 .append("OB").append("\t")
                 .append("OBW").append("\t")
+                .append("OBWT").append("\t")
                 .append("Exp").append("\t")
                 .append("ExpW").append("\t")
+                .append("ExpWT").append("\t")
                 .append("Shpt").append("\t")
                 .append("ShptW").append("\t")
+                .append("ShptWT").append("\t")
                 .append("UseAct").append("\t")
                 .append("ActCon").append("\t")
                 .append("AllReg").append("\t")
@@ -164,10 +177,15 @@ public class MasterSupplyPlan implements Serializable {
                 .append("CaFEW").append("\t")
                 .append("UnLEW").append("\t")
                 .append("CaLEW").append("\t")
+                .append("UnFEWT").append("\t")
+                .append("CaFEWT").append("\t")
+                .append("UnLEWT").append("\t")
+                .append("CaLEWT").append("\t")
                 //                .append("UnalCW").append("\t")
                 //                .append("CaclCW").append("\t")
                 .append("CB").append("\t")
-                .append("CBW").append("\r\n");
+                .append("CBW").append("\r\n")
+                .append("CBWT").append("\r\n");
         this.nspList.forEach(nsp -> {
             nsp.getBatchDataList().forEach(bd -> {
                 batchString
@@ -177,8 +195,10 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getExpiryDate()).append("\t")
                         .append(bd.getOpeningBalance()).append("\t")
                         .append(bd.getOpeningBalanceWps()).append("\t")
+                        .append(bd.getOpeningBalanceWtbdps()).append("\t")
                         .append(bd.getExpiredStock()).append("\t")
                         .append(bd.getExpiredStockWps()).append("\t")
+                        .append(bd.getExpiredStockWtbdps()).append("\t")
                         .append(bd.getShipment()).append("\t")
                         .append(bd.getShipmentWps()).append("\t")
                         .append(bd.isUseActualConsumption()).append("\t")
@@ -194,30 +214,42 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getCalculatedFEFOWps()).append("\t")
                         .append(bd.getUnallocatedLEFOWps()).append("\t")
                         .append(bd.getCalculatedLEFOWps()).append("\t")
+                        .append(bd.getUnallocatedFEFOWtbdps()).append("\t")
+                        .append(bd.getCalculatedFEFOWtbdps()).append("\t")
+                        .append(bd.getUnallocatedLEFOWtbdps()).append("\t")
+                        .append(bd.getCalculatedLEFOWtbdps()).append("\t")
                         .append(bd.getClosingBalance()).append("\t")
-                        .append(bd.getClosingBalanceWps()).append("\r\n");
+                        .append(bd.getClosingBalanceWps()).append("\t")
+                        .append(bd.getClosingBalanceWtbdps()).append("\r\n");
             });
             regionString
                     .append(nsp.getPlanningUnitId()).append("\t")
                     .append(nsp.getTransDate()).append("\t")
                     .append(nsp.getOpeningBalance()).append("\t")
                     .append(nsp.getOpeningBalanceWps()).append("\t")
+                    .append(nsp.getOpeningBalanceWtbdps()).append("\t")
                     .append(nsp.getExpiredStock()).append("\t")
                     .append(nsp.getExpiredStockWps()).append("\t")
+                    .append(nsp.getExpiredStockWtbdps()).append("\t")
                     .append(nsp.getManualShipmentTotal() + nsp.getErpShipmentTotal()).append("\t")
                     .append(nsp.getManualShipmentTotalWps() + nsp.getErpShipmentTotalWps()).append("\t")
+                    .append(nsp.getManualShipmentTotalWtbdps() + nsp.getErpShipmentTotalWtbdps()).append("\t")
                     .append(nsp.isActualConsumptionFlag()).append("\t")
                     .append(nsp.getActualConsumptionQty()).append("\t")
                     .append(nsp.getStockQty()).append("\t")
                     .append(nsp.getAdjustmentQty()).append("\t")
                     .append(nsp.getExpectedStock()).append("\t")
                     .append(nsp.getExpectedStockWps()).append("\t")
+                    .append(nsp.getExpectedStockWtbdps()).append("\t")
                     .append(nsp.getNationalAdjustment()).append("\t")
                     .append(nsp.getNationalAdjustmentWps()).append("\t")
+                    .append(nsp.getNationalAdjustmentWtbdps()).append("\t")
                     .append(nsp.getClosingBalance()).append("\t")
                     .append(nsp.getClosingBalanceWps()).append("\t")
+                    .append(nsp.getClosingBalanceWtbdps()).append("\t")
                     .append(nsp.getUnmetDemand()).append("\t")
-                    .append(nsp.getUnmetDemandWps()).append("\r\n");
+                    .append(nsp.getUnmetDemandWps()).append("\t")
+                    .append(nsp.getUnmetDemandWtbdps()).append("\r\n");
         });
         FileWriter myWriter;
         try {

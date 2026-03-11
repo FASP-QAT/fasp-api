@@ -28,6 +28,7 @@ public class SupplyPlanDate implements Serializable {
     private String transDate;
     private int unallocatedConsumption;
     private int unallocatedConsumptionWps;
+    private int unallocatedConsumptionWtbdps;
     private List<SupplyPlanBatchInfo> batchList;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("MMM yy");
@@ -104,6 +105,14 @@ public class SupplyPlanDate implements Serializable {
         this.unallocatedConsumptionWps = unallocatedConsumptionWps;
     }
 
+    public int getUnallocatedConsumptionWtbdps() {
+        return unallocatedConsumptionWtbdps;
+    }
+
+    public void setUnallocatedConsumptionWtbdps(int unallocatedConsumptionWtbdps) {
+        this.unallocatedConsumptionWtbdps = unallocatedConsumptionWtbdps;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 5;
