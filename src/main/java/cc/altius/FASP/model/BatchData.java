@@ -356,7 +356,7 @@ public class BatchData implements Serializable {
         }
         return true;
     }
-
+    
     @Override
     public String toString() {
         return "BatchData{" + "batchId=" + batchId + ", expiryDate=" + expiryDate + '}';
