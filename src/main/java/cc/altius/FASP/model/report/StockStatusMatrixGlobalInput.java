@@ -31,8 +31,6 @@ public class StockStatusMatrixGlobalInput implements Serializable {
     private String[] planningUnitIds; // If EU is selected then this is a multi-select. Empty means all selected. If EU=0 then this must be a single select
     private String[] stockStatusConditions; // Empty means all conditions selected
     private int removePlannedShipments; // 0 - Retain all Planned Shipments, 1 - Remove all Planned Shipments, 2 - Remove all Planned Shipments that have Funding Source TBD
-    private String[] fundingSourceIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
-    private String[] procurementAgentIds; // Only applies to the removePlannedShipmentsThatFailLeadTime flag; Empty means all selected
     private boolean showByQty;
     private int reportView; // 1 - Group by Program; 2 - Group by Country
 
@@ -108,22 +106,6 @@ public class StockStatusMatrixGlobalInput implements Serializable {
         this.removePlannedShipments = removePlannedShipments;
     }
 
-    public String[] getFundingSourceIds() {
-        return fundingSourceIds;
-    }
-
-    public void setFundingSourceIds(String[] fundingSourceIds) {
-        this.fundingSourceIds = fundingSourceIds;
-    }
-
-    public String[] getProcurementAgentIds() {
-        return procurementAgentIds;
-    }
-
-    public void setProcurementAgentIds(String[] procurementAgentIds) {
-        this.procurementAgentIds = procurementAgentIds;
-    }
-
     public boolean isShowByQty() {
         return showByQty;
     }
@@ -176,19 +158,4 @@ public class StockStatusMatrixGlobalInput implements Serializable {
         }
     }
 
-    public String getFundingSourceIdsString() {
-        if (this.fundingSourceIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.fundingSourceIds);
-        }
-    }
-
-    public String getProcurementAgentIdsString() {
-        if (this.procurementAgentIds == null) {
-            return "";
-        } else {
-            return String.join(",", this.procurementAgentIds);
-        }
-    }
 }
