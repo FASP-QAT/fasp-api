@@ -268,4 +268,12 @@ public class SimpleBatchQuantity implements Serializable {
         this.openingBalanceWtbdps = openingBalanceWtbdps;
     }
 
+    public Double getExpiredQtyWtbdps() {
+        return expiredQtyWtbdps;
+    }
+
+    public void setExpiredQtyWtbdps(Double expiredQtyWtbdps) {
+        this.expiredQtyWtbdps = expiredQtyWtbdps;
+    }
+
 }
