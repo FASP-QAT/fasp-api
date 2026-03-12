@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_REPORT_VIEW INT(10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_REPORT_VIEW INT(10))
 BEGIN
     
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -16,11 +16,9 @@ BEGIN
     -- removePlannedShipments = 0 means that you want to retain all Shipments in the Planned stage when the Version was saved.
     -- removePlannedShipments = 1 means that you want to remove all Shipments in the Planned stage when the Version was saved.
     -- removePlannedShipments = 2 means that you want to remove the shipments that have Funding Source as TBD and are in the Planned stage when the Version was saved.
-    -- fundingSourceIds are those specific FundingSources that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
-    -- procurementAgentIds are those specific ProcurementAgents that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
     -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
     -- Current month is always included in AMC
-    -- reportView=1 means show in terms of MoS and Qty based on the PlannedBasedOn setting; If reportView=2 it means show everything in terms of Qty but retain the color coding and StockStatusId
+    -- reportView=1 means show in terms of MoS and Qty based on the PlannedBasedOn setting, but if even one of them in the group by is plan_based_on=2 then change to Qty; If reportView=2 it means show everything in terms of Qty but retain the color coding and StockStatusId
     
     DECLARE curMn DATE;
     DECLARE done INT DEFAULT FALSE;
@@ -123,10 +121,6 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN '",VAR_START_DATE,"' AND '",VAR_STOP_DATE,"' ");
     SET @sqlString = CONCAT(@sqlString, "GROUP BY amc2.ID ");
-    -- SELECT * FROM tmp_amc;
-    -- SELECT @sqlString;
-    -- PREPARE S2 FROM @interimSql;
-    -- EXECUTE S2;
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
     
