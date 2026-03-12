@@ -521,7 +521,7 @@ public class ReportDaoImpl implements ReportDao {
     // Report no 18b
     @Override
     public StockStatusMatrixGlobalOutput getStockStatusMatrixGlobal(StockStatusMatrixGlobalInput ssmg) {
-        String sql = "CALL stockStatusMatrixGlobal(:startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :equivalencyUnitId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :fundingSourceIds, :procurementAgentIds, :reportView)";
+        String sql = "CALL stockStatusMatrixGlobal(:startDate, :stopDate, :realmCountryIds, :programIds, :versionId, :equivalencyUnitId, :planningUnitIds, :stockStatusConditions, :removePlannedShipments, :reportView)";
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", ssmg.getStartDate());
         params.put("stopDate", ssmg.getStopDate());
@@ -532,8 +532,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitIds", ssmg.getPlanningUnitIdsString());
         params.put("stockStatusConditions", ssmg.getStockStatusConditioinsString());
         params.put("removePlannedShipments", ssmg.getRemovePlannedShipments());
-        params.put("fundingSourceIds", ssmg.getFundingSourceIdsString());
-        params.put("procurementAgentIds", ssmg.getProcurementAgentIdsString());
         params.put("reportView", ssmg.getReportView());
         StockStatusMatrixGlobalOutput ssmgo = new StockStatusMatrixGlobalOutput();
         ssmgo.setDataList(this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixGlobalRowMapper(ssmg.getStartDate(), ssmg.getStopDate())));
