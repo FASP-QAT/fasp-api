@@ -7,18 +7,12 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
 import cc.altius.FASP.dao.ReportDao;
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramCount;
-import cc.altius.FASP.model.report.DashboardActualConsumptionDetails;
-import cc.altius.FASP.model.report.DashboardActualConsumptionResultSetExtractor;
-import cc.altius.FASP.model.report.DashboardInput;
 import cc.altius.FASP.model.report.DashboardBottom;
 import cc.altius.FASP.model.report.DashboardExpiredPuRowMapper;
 import cc.altius.FASP.model.report.DashboardPuWithCountRowMapper;
-import cc.altius.FASP.model.report.DashboardQpl;
 import cc.altius.FASP.model.report.DashboardForLoadProgram;
 import cc.altius.FASP.model.report.DashboardExpiriesForLoadProgramResultSetExtractor;
 import cc.altius.FASP.model.report.DashboardForecastErrorForLoadProgramResultSetExtractor;
@@ -37,6 +31,7 @@ import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramCountRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.ArrayUtils;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
@@ -266,34 +261,52 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
-
+        
         sqlString = "CALL getDashboardStockOutCount(:startDate, :stopDate, :programId, -1)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()).stream().filter(d -> d.getCount() > 0).collect(Collectors.toList()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardExpiriesList(:startDate, :stopDate, :programId, -1)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setExpiriesList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardExpiredPuRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardShipmentDetailsReportBy(:startDate, :stopDate, :programId, :displayShipmentsBy)";
         params.put("displayShipmentsBy", displayShipmentsBy);
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setShipmentDetailsList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardShipmentDetailsReportByRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardShipmentWithFundingSourceTbd(:startDate, :stopDate, :programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setShipmentWithFundingSourceTbd(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardForecastErrorNew(:startDate, :stopDate, :programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setForecastErrorList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardForecastErrorRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardForecastConsumptionProblems(:programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setForecastConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardActualConsumptionList(:programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setActualConsumptionQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardInventoryProblems(:programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setInventoryQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         sqlString = "CALL getDashboardShipmentProblems(:programId)";
+//        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.setShipmentQpl(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardQplRowMapper()));
+//        logger.debug(LogUtils.buildStringForLog("completed", params));
 
         return db;
     }

@@ -23,11 +23,14 @@ import cc.altius.FASP.model.report.DashboardTop;
 import cc.altius.FASP.service.DashboardService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmService;
+import cc.altius.FASP.utils.LogUtils;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +49,7 @@ public class DashboardServiceImpl implements DashboardService {
     private RealmService realmService;
     @Autowired
     private ProgramCommonDao programCommonDao;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Map<String, Object> getApplicationLevelDashboard(CustomUserDetails curUser) {
@@ -103,8 +107,10 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public List<DashboardBottom> getDashboardBottom(DashboardInput ei, CustomUserDetails curUser) throws ParseException, AccessControlFailedException {
         List<DashboardBottom> dashboardList = new LinkedList<>();
+//        logger.info(LogUtils.buildStringForLog("Starting the process", new Object[]{}));
         for (String strProgramId : ei.getProgramIds()) {
             int programId = Integer.valueOf(strProgramId);
+//            logger.info(LogUtils.buildStringForLog("Program Id = " + programId, new Object[]{}));
             Program p = this.programService.getFullProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             DashboardBottom db = this.dashboardDao.getDashboardBottom(programId, ei.getStartDate(), ei.getStopDate(), ei.getDisplayShipmentsBy(), curUser);
             SimpleCodeObject simpleProgram = new SimpleCodeObject(p.getProgramId(), p.getLabel(), p.getProgramCode());
@@ -118,6 +124,7 @@ public class DashboardServiceImpl implements DashboardService {
             db.setRealmCountry(new SimpleObject(p.getRealmCountry().getRealmCountryId(), p.getRealmCountry().getCountry().getLabel()));
             db.setHealthAreaList(p.getHealthAreaList());
             dashboardList.add(db);
+//            logger.info(LogUtils.buildStringForLog("Completed", new Object[]{}));
         }
         return dashboardList;
     }
