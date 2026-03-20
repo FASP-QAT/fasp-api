@@ -65,9 +65,32 @@ BEGIN
     ELSEIF VAR_VERSION_ID = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @varVersionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=VAR_PROGRAM_ID;
     END IF;
-    -- SELECT @varVersionId;
+
     DROP TABLE IF EXISTS tmp_amc;
-    CREATE TABLE tmp_amc
+    CREATE TEMPORARY TABLE `tmp_amc` (
+        `TRANS_DATE` date,
+        `PROGRAM_ID` int unsigned NOT NULL DEFAULT '0' COMMENT 'Unique Id for each Program',
+        `REALM_COUNTRY_ID` int unsigned NOT NULL COMMENT 'Foreign key to indicate which Realm-Country this Program belongs to',
+        `PLANNING_UNIT_ID` int unsigned,
+        `PLAN_BASED_ON` int unsigned COMMENT '1- MoS , 2- Qty',
+        `MIN_MONTHS_OF_STOCK` int unsigned DEFAULT NULL,
+        `REORDER_FREQUENCY_IN_MONTHS` int unsigned COMMENT 'Min number of months of stock that we should have before triggering a reorder',
+        `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+        `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+        `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL,
+        `MOS` decimal(24,8) DEFAULT NULL,
+        `SHIPMENT_QTY` decimal(28,8) DEFAULT NULL,
+        `EXPIRED_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+        `AMC` decimal(24,8) DEFAULT NULL,
+        `STOCK_MULTIPLIED_QTY` decimal(24,8) DEFAULT NULL,
+        `CONVERSION` decimal(24,6) DEFAULT NULL,
+        KEY `idx_tmpAmc_transDate` (`TRANS_DATE`),
+        KEY `idx_tmpAmc_programId` (`PROGRAM_ID`),
+        KEY `idx_tmpAmc_realmCountryId` (`REALM_COUNTRY_ID`),
+        KEY `idx_tmpAmc_planningUnitId` (`PLANNING_UNIT_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+    
+    INSERT INTO tmp_amc 
     SELECT 
         amc.TRANS_DATE, p.PROGRAM_ID, p.REALM_COUNTRY_ID,
         amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MAX_STOCK_QTY,
@@ -86,35 +109,53 @@ BEGIN
         AND (LENGTH(VAR_REALM_COUNTRY_IDS)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, VAR_REALM_COUNTRY_IDS))
         AND (LENGTH(VAR_PROGRAM_IDS)=0 OR FIND_IN_SET(p.PROGRAM_ID, VAR_PROGRAM_IDS))
         AND ppu.PLANNING_UNIT_ID is not null;
-
-	SET @interimSql = "SELECT 
-                                IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
-                                amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
-                                GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
-                                CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
-                                IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
-                                IF(
-                                    SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
-                                    CASE 
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END IS NULL THEN -1 
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END = 0 THEN 0
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
-                                        ELSE 3
-                                    END,
-                                    CASE 
-                                        WHEN SUM(amc.CLOSING_BALANCE)=0 THEN 0
-                                        WHEN SUM(amc.CLOSING_BALANCE)<SUM(amc.MIN_STOCK_QTY) THEN 1
-                                        WHEN SUM(amc.CLOSING_BALANCE)<=SUM(amc.MAX_STOCK_QTY) THEN 2
-                                        ELSE 3
-                                    END
-                                ) `STOCK_STATUS_ID`,
-                                SUM(amc.CLOSING_BALANCE*amc.CONVERSION) `CLOSING_BALANCE`,
-                                CASE WHEN COUNT(amc.STOCK_MULTIPLIED_QTY)=count(*) THEN SUM(amc.STOCK_MULTIPLIED_QTY*amc.CONVERSION) ELSE NULL END `STOCK_MULTIPLIED_QTY`,
-                                SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
-                                SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
-                            FROM tmp_amc amc
-                            group by amc.TRANS_DATE, IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID)";
+	
+    DROP TABLE IF EXISTS tmp_amc2;
+    CREATE TEMPORARY TABLE `tmp_amc2` (
+        `ID` int unsigned NOT NULL DEFAULT '0',
+        `TRANS_DATE` date DEFAULT NULL,
+        `AMC` decimal(65,14) DEFAULT NULL,
+        `PLANNING_UNIT_IDS` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+        `MOS` decimal(46,8) DEFAULT NULL,
+        `PLAN_BASED_ON` int NOT NULL DEFAULT '0',
+        `STOCK_STATUS_ID` int NOT NULL DEFAULT '0',
+        `CLOSING_BALANCE` decimal(65,14) DEFAULT NULL,
+        `STOCK_MULTIPLIED_QTY` decimal(65,14) DEFAULT NULL,
+        `SHIPMENT_QTY` decimal(65,14) DEFAULT NULL,
+        `EXPIRED_STOCK_QTY` decimal(65,14) DEFAULT NULL,
+        KEY `idx_tmpAmc2_id` (`ID`),
+        KEY `idx_tmpAmc2_transDate` (`TRANS_DATE`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+    
+    INSERT INTO tmp_amc2
+    SELECT 
+        IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
+        amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
+        GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
+        CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
+        IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
+        IF(
+            SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
+            CASE 
+                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END IS NULL THEN -1 
+                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END = 0 THEN 0
+                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
+                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
+                ELSE 3
+            END,
+            CASE 
+                WHEN SUM(amc.CLOSING_BALANCE)=0 THEN 0
+                WHEN SUM(amc.CLOSING_BALANCE)<SUM(amc.MIN_STOCK_QTY) THEN 1
+                WHEN SUM(amc.CLOSING_BALANCE)<=SUM(amc.MAX_STOCK_QTY) THEN 2
+                ELSE 3
+            END
+        ) `STOCK_STATUS_ID`,
+        SUM(amc.CLOSING_BALANCE*amc.CONVERSION) `CLOSING_BALANCE`,
+        CASE WHEN COUNT(amc.STOCK_MULTIPLIED_QTY)=count(*) THEN SUM(amc.STOCK_MULTIPLIED_QTY*amc.CONVERSION) ELSE NULL END `STOCK_MULTIPLIED_QTY`,
+        SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
+        SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
+    FROM tmp_amc amc
+    group by amc.TRANS_DATE, IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID);
 	
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
@@ -127,7 +168,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.PROGRAM_CODE, c.COUNTRY_CODE) `CODE` ");
     SET @sqlString = CONCAT(@sqlString, @mnSqlString);
     SET @sqlString = CONCAT(@sqlString, "FROM mn ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN (",@interimSql,") amc2 ON mn.MONTH=amc2.TRANS_DATE ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN tmp_amc2 amc2 ON mn.MONTH=amc2.TRANS_DATE ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON amc2.ID=p.PROGRAM_ID AND @varReportView=1 ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON amc2.ID=rc.REALM_COUNTRY_ID AND @varReportView=2 ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
