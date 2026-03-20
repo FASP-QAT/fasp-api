@@ -1,3 +1,123 @@
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.scorecard','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Scorecard');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Tableau de bord du plan d''approvisionnement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cuadro de mando del plan de suministro');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quadro de pontuação do plano de abastecimento');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.totalScore','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score total');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación total');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação total');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.overallScore','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Overall Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score global');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación general');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação geral');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.overallScoreTitle','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Overall Supply Plan Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score global du plan d''approvisionnement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación general del plan de suministro');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação geral do plano de abastecimento');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.qualityScore','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Quality Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score de qualité');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación de calidad');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação de qualidade');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.score','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.stockStatusScore','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock Status Score');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score de l''état des stocks');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación del estado de las existencias');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação do status do estoque');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.countryXprogram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Country x Program');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pays x Programme');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'País x Programa');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'País x Programa');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.viewBy','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View By');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver por');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver por');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.scoreBy','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Score by');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Score du plan d''approvisionnement par');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Puntuación del plan de suministro por');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pontuação do plano de abastecimento por');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.showDetail','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Detail');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les détails');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar detalles');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar detalhes');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.latestVersion','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Latest Version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Dernière version');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Última versión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Última versão');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.activePUs','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Active PUs');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'PUs actives');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PUs activas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PUs ativas');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.actualInventory','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual Inventory');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Inventaire réel');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Inventario real');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque real');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.qualityScoreTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This score represents the average percent compliance across all data quality metrics - forecasted consumption, actual consumption, actual inventory, and shipments. Supply plans that are more complete and up‑to‑date earn higher scores.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce score représente le pourcentage moyen de conformité pour toutes les mesures de qualité des données - consommation prévue, consommation réelle, inventaire réel et expéditions. Les plans d''approvisionnement qui sont plus complets et à jour obtiennent des scores plus élevés.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esta puntuación representa el porcentaje promedio de cumplimiento en todas las métricas de calidad de datos: consumo previsto, consumo real, inventario real y envíos. Los planes de suministro que están más completos y actualizados obtienen puntuaciones más altas.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta pontuação representa a porcentagem média de conformidade em todas as métricas de qualidade de dados - consumo previsto, consumo real, estoque real e remessas. Planos de abastecimento mais completos e atualizados recebem pontuações mais altas.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.stockStatusScoreTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This score reflects the average number of months in which all planning units are Stocked to Plan. Supply plans that adhere to MIN/MAX parameters and remain Stocked to Plan earn higher scores.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce score reflète le nombre moyen de mois pendant lesquels toutes les unités de planification sont approvisionnées selon le plan. Les plans d''approvisionnement qui respectent les paramètres MIN/MAX et restent approvisionnés selon le plan obtiennent des scores plus élevés.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esta puntuación refleja el número promedio de meses en los que todas las unidades de planificación están abastecidas según el plan. Los planes de suministro que se adhieren a los parámetros MIN/MAX y permanecen abastecidos según el plan obtienen puntuaciones más altas.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta pontuação reflete o número médio de meses em que todas as unidades de planejamento estão estocadas de acordo com o plano. Planos de abastecimento que aderem aos parâmetros MIN/MAX e permanecem estocados de acordo com o plano recebem pontuações mais altas.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.totalScoreTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This score is calculated as the average of the Quality Score and Stock Status Score. Higher scores indicate stronger overall supply plan performance across data quality and stock status.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce score est calculé comme la moyenne du score de qualité et du score de l''état des stocks. Des scores plus élevés indiquent une meilleure performance globale du plan d''approvisionnement en termes de qualité des données et d''état des stocks.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esta puntuación se calcula como el promedio de la puntuación de calidad y la puntuación del estado de las existencias. Las puntuaciones más altas indican un mejor rendimiento general del plan de suministro en la calidad de los datos y el estado de las existencias.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esta pontuação é calculada como a média da Pontuação de Qualidade e da Pontuação do Status do Estoque. Pontuações mais altas indicam um desempenho geral mais forte do plano de abastecimento em termos de qualidade de dados e status do estoque.');-- pr
+
+
 ALTER TABLE `fasp`.`rm_realm` ADD COLUMN `SUPPLY_PLAN_SCORE_THRESHOLD_PERC` DECIMAL(4,3) NOT NULL DEFAULT '0.70' AFTER `NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD`;
 
 USE `fasp`;
