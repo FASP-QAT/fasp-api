@@ -35,12 +35,14 @@ public class NewSupplyPlan implements Serializable {
     private Double finalConsumptionQty;
     private boolean actualConsumptionFlag;
     private double plannedShipmentsTotalData;
+    private double plannedShipmentsTotalWtbdData;
     private double submittedShipmentsTotalData;
     private double approvedShipmentsTotalData;
     private double shippedShipmentsTotalData;
     private double receivedShipmentsTotalData;
     private double onholdShipmentsTotalData;
     private double plannedErpShipmentsTotalData;
+    private double plannedErpShipmentsTotalWtbdData;
     private double submittedErpShipmentsTotalData;
     private double approvedErpShipmentsTotalData;
     private double shippedErpShipmentsTotalData;
@@ -64,6 +66,13 @@ public class NewSupplyPlan implements Serializable {
     private double nationalAdjustmentWps;
     private double closingBalanceWps;
     private double unmetDemandWps;
+    
+    private double openingBalanceWtbdps;
+    private double expiredStockWtbdps;
+    private double expectedStockWtbdps;
+    private double nationalAdjustmentWtbdps;
+    private double closingBalanceWtbdps;
+    private double unmetDemandWtbdps;
 
     private List<RegionData> regionDataList;
     private List<BatchData> batchDataList;
@@ -234,6 +243,13 @@ public class NewSupplyPlan implements Serializable {
         this.plannedShipmentsTotalData += plannedShipmentsTotalData;
     }
 
+    public double getPlannedShipmentsTotalWtbdData() {
+        return plannedShipmentsTotalWtbdData;
+    }
+
+    public void addPlannedShipmentsTotalWtbdData(double plannedShipmentsTotalWtbdData) {
+        this.plannedShipmentsTotalWtbdData += plannedShipmentsTotalWtbdData;
+    }
     public double getOnholdShipmentsTotalData() {
         return onholdShipmentsTotalData;
     }
@@ -282,6 +298,14 @@ public class NewSupplyPlan implements Serializable {
         this.plannedErpShipmentsTotalData += plannedErpShipmentsTotalData;
     }
 
+    public double getPlannedErpShipmentsTotalWtbdData() {
+        return plannedErpShipmentsTotalWtbdData;
+    }
+    
+    public void addPlannedErpShipmentsTotalWtbdData(double plannedErpShipmentsTotalWtbdData) {
+        this.plannedErpShipmentsTotalWtbdData += plannedErpShipmentsTotalWtbdData;
+    }
+
     public double getOnholdErpShipmentsTotalData() {
         return onholdErpShipmentsTotalData;
     }
@@ -297,6 +321,10 @@ public class NewSupplyPlan implements Serializable {
     public double getManualShipmentTotalWps() {
         return this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
+    
+    public double getManualShipmentTotalWtbdps() {
+        return this.plannedShipmentsTotalWtbdData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
+    }
 
     public double getErpShipmentTotal() {
         return this.plannedErpShipmentsTotalData + getErpShipmentTotalWps();
@@ -304,6 +332,10 @@ public class NewSupplyPlan implements Serializable {
 
     public double getErpShipmentTotalWps() {
         return this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
+    }
+    
+    public double getErpShipmentTotalWtbdps() {
+        return this.plannedErpShipmentsTotalWtbdData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
     public double getExpiredStock() {
@@ -322,6 +354,14 @@ public class NewSupplyPlan implements Serializable {
         this.expiredStockWps = expiredStockWps;
     }
 
+    public double getExpiredStockWtbdps() {
+        return expiredStockWtbdps;
+    }
+
+    public void setExpiredStockWtbdps(double expiredStockWtbdps) {
+        this.expiredStockWtbdps = expiredStockWtbdps;
+    }
+
     public double getExpectedStock() {
         return expectedStock;
     }
@@ -330,9 +370,18 @@ public class NewSupplyPlan implements Serializable {
         return expectedStockWps;
     }
 
+    public double getExpectedStockWtbdps() {
+        return expectedStockWtbdps;
+    }
+
+    public void setExpectedStockWtbdps(double expectedStockWtbdps) {
+        this.expectedStockWtbdps = expectedStockWtbdps;
+    }
+
     public void updateExpectedStock() {
         this.expectedStock = this.openingBalance - this.expiredStock + (getManualShipmentTotal() + getErpShipmentTotal()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) + Optional.ofNullable(this.adjustmentQty).orElse(0.0);
         this.expectedStockWps = this.openingBalanceWps - this.expiredStockWps + (getManualShipmentTotalWps() + getErpShipmentTotalWps()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) + Optional.ofNullable(this.adjustmentQty).orElse(0.0);
+        this.expectedStockWtbdps = this.openingBalanceWtbdps - this.expiredStockWtbdps + (getManualShipmentTotalWtbdps() + getErpShipmentTotalWtbdps()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) + Optional.ofNullable(this.adjustmentQty).orElse(0.0);
     }
 
     public double getNationalAdjustment() {
@@ -341,6 +390,10 @@ public class NewSupplyPlan implements Serializable {
 
     public double getNationalAdjustmentWps() {
         return nationalAdjustmentWps;
+    }
+    
+    public double getNationalAdjustmentWtbdps() {
+        return nationalAdjustmentWtbdps;
     }
 
     public void updateNationalAdjustment() {
@@ -354,6 +407,12 @@ public class NewSupplyPlan implements Serializable {
                 || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0.0).doubleValue() > this.expectedStockWps)
                 || (this.regionCountForStock > 0 && this.expectedStockWps < 0)) {
             this.nationalAdjustmentWps = Optional.ofNullable(this.stockQty).orElse(0.0) - this.expectedStockWps;
+        }
+        
+        if ((this.regionCountForStock == this.regionCount && this.expectedStockWtbdps != Optional.ofNullable(this.stockQty).orElse(0.0).doubleValue())
+                || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0.0).doubleValue() > this.expectedStockWtbdps)
+                || (this.regionCountForStock > 0 && this.expectedStockWtbdps < 0)) {
+            this.nationalAdjustmentWtbdps = Optional.ofNullable(this.stockQty).orElse(0.0) - this.expectedStockWtbdps;
         }
     }
 
@@ -373,6 +432,14 @@ public class NewSupplyPlan implements Serializable {
         this.openingBalanceWps = openingBalanceWps;
     }
 
+    public double getOpeningBalanceWtbdps() {
+        return openingBalanceWtbdps;
+    }
+
+    public void setOpeningBalanceWtbdps(double openingBalanceWtbdps) {
+        this.openingBalanceWtbdps = openingBalanceWtbdps;
+    }
+
     public double getClosingBalance() {
         return closingBalance;
     }
@@ -381,17 +448,23 @@ public class NewSupplyPlan implements Serializable {
         return closingBalanceWps;
     }
 
+    public double getClosingBalanceWtbdps() {
+        return closingBalanceWtbdps;
+    }
+
+    public void setClosingBalanceWtbdps(double closingBalanceWtbdps) {
+        this.closingBalanceWtbdps = closingBalanceWtbdps;
+    }
+
     public void updateClosingBalance() {
         if (this.regionCountForStock == this.regionCount) {
             this.closingBalance = Optional.ofNullable(this.stockQty).orElse(0.0);
+            this.closingBalanceWps = Optional.ofNullable(this.stockQty).orElse(0.0);
+            this.closingBalanceWtbdps = Optional.ofNullable(this.stockQty).orElse(0.0);
         } else {
             this.closingBalance = Math.max(Optional.ofNullable(this.stockQty).orElse(0.0), Math.max(this.expectedStock + this.nationalAdjustment, 0));
-        }
-
-        if (this.regionCountForStock == this.regionCount) {
-            this.closingBalanceWps = Optional.ofNullable(this.stockQty).orElse(0.0);
-        } else {
             this.closingBalanceWps = Math.max(Optional.ofNullable(this.stockQty).orElse(0.0), Math.max(this.expectedStockWps + this.nationalAdjustmentWps, 0));
+            this.closingBalanceWtbdps = Math.max(Optional.ofNullable(this.stockQty).orElse(0.0), Math.max(this.expectedStockWtbdps + this.nationalAdjustmentWtbdps, 0));
         }
     }
 
@@ -403,14 +476,20 @@ public class NewSupplyPlan implements Serializable {
         if (isAllRegionsReportedStock() || (!isAllRegionsReportedStock() && this.closingBalance != 0)) {
             this.unmetDemand = Optional.ofNullable(this.adjustedConsumptionQty).orElse(0.0) - Optional.ofNullable(this.actualConsumptionQty).orElse(0.0);
             this.unmetDemandWps = this.unmetDemand;
+            this.unmetDemandWtbdps = this.unmetDemand;
         } else {
             this.unmetDemand = 0 - this.expectedStock + (Optional.ofNullable(this.adjustedConsumptionQty).orElse(0.0) - Optional.ofNullable(this.actualConsumptionQty).orElse(0.0));
             this.unmetDemandWps = 0 - this.expectedStockWps + (Optional.ofNullable(this.adjustedConsumptionQty).orElse(0.0) - Optional.ofNullable(this.actualConsumptionQty).orElse(0.0));
+            this.unmetDemandWtbdps = 0 - this.expectedStockWtbdps + (Optional.ofNullable(this.adjustedConsumptionQty).orElse(0.0) - Optional.ofNullable(this.actualConsumptionQty).orElse(0.0));
         }
     }
 
     public double getUnmetDemandWps() {
         return unmetDemandWps;
+    }
+
+    public double getUnmetDemandWtbdps() {
+        return unmetDemandWtbdps;
     }
 
     public List<RegionData> getRegionDataList() {
@@ -541,6 +620,10 @@ public class NewSupplyPlan implements Serializable {
     public void addOpeningBalanceWps(double ob) {
         this.openingBalanceWps += ob;
     }
+    
+    public void addOpeningBalanceWtbdps(double ob) {
+        this.openingBalanceWtbdps += ob;
+    }
 
     public void updateExpiredStock() {
         this.batchDataList.forEach(bd -> {
@@ -549,6 +632,8 @@ public class NewSupplyPlan implements Serializable {
                 this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0.0) + bd.getExpiredStock();
                 bd.setExpiredStockWps(Optional.ofNullable(bd.getShipmentWps()).orElse(0.0) + bd.getOpeningBalanceWps());
                 this.expiredStockWps = Optional.ofNullable(this.expiredStockWps).orElse(0.0) + bd.getExpiredStockWps();
+                bd.setExpiredStockWtbdps(Optional.ofNullable(bd.getShipmentWtbdps()).orElse(0.0) + bd.getOpeningBalanceWtbdps());
+                this.expiredStockWtbdps = Optional.ofNullable(this.expiredStockWtbdps).orElse(0.0) + bd.getExpiredStockWtbdps();
             }
         });
     }
@@ -565,20 +650,27 @@ public class NewSupplyPlan implements Serializable {
                 BatchData bd = getBatchData(x);
                 bd.setClosingBalance(Optional.ofNullable(bd.getInventoryQty()).orElse(0.0));
                 bd.setClosingBalanceWps(bd.getClosingBalance());
+                bd.setClosingBalanceWtbdps(bd.getClosingBalance());
                 bd.setUnallocatedFEFO(0);
                 bd.setUnallocatedFEFOWps(0);
+                bd.setUnallocatedFEFOWtbdps(0);
                 bd.setUnallocatedLEFO(0);
                 bd.setUnallocatedLEFOWps(0);
+                bd.setUnallocatedLEFOWtbdps(0);
                 bd.setCalculatedFEFO(0);
                 bd.setCalculatedFEFOWps(0);
+                bd.setCalculatedFEFOWtbdps(0);
                 bd.setCalculatedLEFO(0);
                 bd.setCalculatedLEFOWps(0);
+                bd.setCalculatedLEFOWtbdps(0);
             }
         } else {
             double unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // FEFO
             double unallocatedLEFO = 0.0 - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // LEFO
             double unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // FEFO
             double unallocatedLEFOWps = 0.0 - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // LEFO
+            double unallocatedFEFOWtbdps = Optional.ofNullable(this.finalConsumptionQty).orElse(0.0) - Math.min(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // FEFO
+            double unallocatedLEFOWtbdps = 0.0 - Math.max(0, Optional.ofNullable(this.adjustmentQty).orElse(0.0) + Optional.ofNullable(this.nationalAdjustment).orElse(0.0)); // LEFO
             for (int x = 0; x < getSizeOfBatchDataList(); x++) {
                 BatchData bd = getBatchData(x);
                 double tempOB = bd.getOpeningBalance()
@@ -612,8 +704,7 @@ public class NewSupplyPlan implements Serializable {
                     bd.setClosingBalance(0);
                 }
 
-//            WPS Calculations
-
+                // WPS Calculations
                 double tempOBWps = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
                         + Optional.ofNullable(bd.getShipmentWps()).orElse(0.0);
@@ -641,6 +732,36 @@ public class NewSupplyPlan implements Serializable {
                     bd.setClosingBalanceWps(tempOBWps - consumption + adjustment);
                 } else {
                     bd.setClosingBalanceWps(0);
+                }
+                
+                // WTBDPS Calculations
+                double tempOBWtbdps = bd.getOpeningBalanceWtbdps()
+                        - bd.getExpiredStockWtbdps()
+                        + Optional.ofNullable(bd.getShipmentWtbdps()).orElse(0.0);
+                if (adjustment + Optional.ofNullable(this.nationalAdjustment).orElse(0.0) > 0) {
+                    if ((tempOBWtbdps + adjustment) >= 0) {
+                        unallocatedLEFOWtbdps += adjustment;
+                    } else {
+                        unallocatedLEFOWtbdps -= tempOBWtbdps;
+                    }
+                } else {
+                    if ((tempOBWtbdps + adjustment) >= 0) {
+                        unallocatedFEFOWtbdps += adjustment;
+                    } else {
+                        unallocatedFEFOWtbdps -= tempOBWtbdps;
+                    }
+                }
+
+                if ((tempOBWtbdps - consumption + adjustment) >= 0) {
+                    unallocatedFEFOWtbdps -= consumption;
+                } else {
+                    unallocatedFEFOWtbdps -= tempOBWtbdps + adjustment > 0 ? tempOBWtbdps + adjustment : 0;
+                }
+
+                if (tempOBWtbdps - consumption + adjustment > 0) {
+                    bd.setClosingBalanceWtbdps(tempOBWtbdps - consumption + adjustment);
+                } else {
+                    bd.setClosingBalanceWtbdps(0);
                 }
 
             }
@@ -682,8 +803,27 @@ public class NewSupplyPlan implements Serializable {
                     }
                 }
             }
+            
+            if (unallocatedLEFOWtbdps != 0) {
+                for (int x = getSizeOfBatchDataList() - 1; x >= 0; x--) {
+                    if (unallocatedLEFOWtbdps != 0) {
+                        BatchData bd = getBatchData(x);
+                        double tempCB = bd.getClosingBalanceWtbdps();
+                        bd.setUnallocatedLEFOWtbdps(unallocatedLEFOWtbdps);
+                        if (tempCB >= unallocatedLEFOWtbdps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Adjustment 
+                            bd.setClosingBalanceWtbdps(tempCB - unallocatedLEFOWtbdps);
+                            bd.setCalculatedLEFOWtbdps(unallocatedLEFOWtbdps);
+                            unallocatedLEFOWtbdps = 0;
+                        } else {
+                            bd.setClosingBalanceWtbdps(0);
+                            bd.setCalculatedLEFOWtbdps(tempCB);
+                            unallocatedLEFOWtbdps -= tempCB;
+                        }
+                    }
+                }
+            }
 
-            if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0) {
+            if (unallocatedLEFO < 0 || unallocatedLEFOWps < 0 || unallocatedLEFOWtbdps < 0) {
                 System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
                 BatchData bdNew = new BatchData();
                 bdNew.setBatchId(newBatchCounter);
@@ -691,12 +831,16 @@ public class NewSupplyPlan implements Serializable {
                 bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
                 bdNew.setOpeningBalance(0);
                 bdNew.setOpeningBalanceWps(0);
+                bdNew.setOpeningBalanceWtbdps(0);
                 bdNew.setUnallocatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
                 bdNew.setCalculatedLEFO(unallocatedLEFO < 0 ? unallocatedLEFO : 0);
                 bdNew.setUnallocatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+                bdNew.setUnallocatedLEFOWtbdps(unallocatedLEFOWtbdps < 0 ? unallocatedLEFOWtbdps : 0);
                 bdNew.setCalculatedLEFOWps(unallocatedLEFOWps < 0 ? unallocatedLEFOWps : 0);
+                bdNew.setCalculatedLEFOWtbdps(unallocatedLEFOWtbdps < 0 ? unallocatedLEFOWtbdps : 0);
                 bdNew.setClosingBalance(unallocatedLEFO < 0 ? 0 - unallocatedLEFO : 0);
                 bdNew.setClosingBalanceWps(unallocatedLEFOWps < 0 ? 0 - unallocatedLEFOWps : 0);
+                bdNew.setClosingBalanceWtbdps(unallocatedLEFOWtbdps < 0 ? 0 - unallocatedLEFOWtbdps : 0);
                 bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
                 this.batchDataList.add(bdNew);
                 newBatchCounter--;
@@ -731,6 +875,21 @@ public class NewSupplyPlan implements Serializable {
                     unallocatedFEFOWps -= tempCB;
                 }
             }
+            
+            for (int x = 0; x < getSizeOfBatchDataList(); x++) {
+                BatchData bd = getBatchData(x);
+                double tempCB = bd.getClosingBalanceWtbdps();
+                bd.setUnallocatedFEFOWtbdps(unallocatedFEFOWtbdps);
+                if (tempCB >= unallocatedFEFOWtbdps && DateUtils.compareDates(bd.getExpiryDate().substring(0, 7) + "-01", this.transDate) > 0) { // There is equal or more stock than Consumption 
+                    bd.setClosingBalanceWtbdps(tempCB - unallocatedFEFOWtbdps);
+                    bd.setCalculatedFEFOWtbdps(unallocatedFEFOWtbdps);
+                    unallocatedFEFOWtbdps = 0;
+                } else {
+                    bd.setClosingBalanceWtbdps(0);
+                    bd.setCalculatedFEFOWtbdps(tempCB);
+                    unallocatedFEFOWtbdps -= tempCB;
+                }
+            }
         }
         return newBatchCounter;
     }
@@ -747,12 +906,14 @@ public class NewSupplyPlan implements Serializable {
                 && Optional.ofNullable(bd.getClosingBalance()).orElse(0.0) == 0
                 && bd.getOpeningBalanceWps() == 0
                 && Optional.ofNullable(bd.getShipmentWps()).orElse(0.0) == 0
-                && Optional.ofNullable(bd.getActualConsumption()).orElse(0.0) == 0
-                && Optional.ofNullable(bd.getAdjustment()).orElse(0.0) == 0
-                && Optional.ofNullable(bd.getStock()).orElse(0.0) == 0
                 && Optional.ofNullable(bd.getCalculatedFEFOWps()).orElse(0.0) == 0
                 && Optional.ofNullable(bd.getCalculatedLEFOWps()).orElse(0.0) == 0
-                && Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0) == 0)
+                && Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0.0) == 0
+                && bd.getOpeningBalanceWtbdps() == 0
+                && Optional.ofNullable(bd.getShipmentWtbdps()).orElse(0.0) == 0
+                && Optional.ofNullable(bd.getCalculatedFEFOWtbdps()).orElse(0.0) == 0
+                && Optional.ofNullable(bd.getCalculatedLEFOWtbdps()).orElse(0.0) == 0
+                && Optional.ofNullable(bd.getClosingBalanceWtbdps()).orElse(0.0) == 0)
         ).forEachOrdered(bd -> {
             removeList.add(bd);
         });

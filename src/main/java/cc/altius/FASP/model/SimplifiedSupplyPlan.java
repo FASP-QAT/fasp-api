@@ -49,6 +49,8 @@ public class SimplifiedSupplyPlan implements Serializable {
     private double submittedShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double plannedShipmentsTotalData;
+    @JsonView({Views.InternalView.class})
+    private double plannedShipmentsTotalWtbdData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double onholdShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -61,6 +63,8 @@ public class SimplifiedSupplyPlan implements Serializable {
     private double submittedErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double plannedErpShipmentsTotalData;
+    @JsonView({Views.InternalView.class})
+    private double plannedErpShipmentsTotalWtbdData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double onholdErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -89,26 +93,38 @@ public class SimplifiedSupplyPlan implements Serializable {
     private double expiredStock;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double expiredStockWps;
+    @JsonView({Views.InternalView.class})
+    private double expiredStockWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double unmetDemand;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double unmetDemandWps;
+    @JsonView({Views.InternalView.class})
+    private double unmetDemandWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double openingBalance;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double openingBalanceWps;
+    @JsonView({Views.InternalView.class})
+    private double openingBalanceWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double closingBalance;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double closingBalanceWps;
+    @JsonView({Views.InternalView.class})
+    private double closingBalanceWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double nationalAdjustment;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double nationalAdjustmentWps;
+    @JsonView({Views.InternalView.class})
+    private double nationalAdjustmentWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mos;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mosWps;
+    @JsonView({Views.InternalView.class})
+    private Double mosWtbdps;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double minQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -189,8 +205,26 @@ public class SimplifiedSupplyPlan implements Serializable {
     }
 
     @JsonView({Views.InternalView.class})
+    public double getShipmentTotalQtyWps() {
+        return getManualTotalQtyWps() + getErpTotalQtyWps();
+    }
+
+    @JsonView({Views.InternalView.class})
+    public double getShipmentTotalQtyWtbdps() {
+        return getManualTotalQtyWtbdps() + getErpTotalQtyWtbdps();
+    }
+
+    @JsonView({Views.InternalView.class})
     public double getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
+    }
+
+    public double getManualTotalQtyWps() {
+        return this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
+    }
+
+    public double getManualTotalQtyWtbdps() {
+        return this.plannedShipmentsTotalWtbdData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
     public double getReceivedShipmentsTotalData() {
@@ -244,6 +278,14 @@ public class SimplifiedSupplyPlan implements Serializable {
     @JsonView({Views.InternalView.class})
     public double getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
+    }
+
+    public double getErpTotalQtyWps() {
+        return this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
+    }
+
+    public double getErpTotalQtyWtbdps() {
+        return this.plannedErpShipmentsTotalWtbdData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
     public double getReceivedErpShipmentsTotalData() {
@@ -500,6 +542,70 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setMaxQty(double maxQty) {
         this.maxQty = maxQty;
+    }
+
+    public double getPlannedShipmentsTotalWtbdData() {
+        return plannedShipmentsTotalWtbdData;
+    }
+
+    public void setPlannedShipmentsTotalWtbdData(double plannedShipmentsTotalWtbdData) {
+        this.plannedShipmentsTotalWtbdData = plannedShipmentsTotalWtbdData;
+    }
+
+    public double getPlannedErpShipmentsTotalWtbdData() {
+        return plannedErpShipmentsTotalWtbdData;
+    }
+
+    public void setPlannedErpShipmentsTotalWtbdData(double plannedErpShipmentsTotalWtbdData) {
+        this.plannedErpShipmentsTotalWtbdData = plannedErpShipmentsTotalWtbdData;
+    }
+
+    public double getExpiredStockWtbdps() {
+        return expiredStockWtbdps;
+    }
+
+    public void setExpiredStockWtbdps(double expiredStockWtbdps) {
+        this.expiredStockWtbdps = expiredStockWtbdps;
+    }
+
+    public double getUnmetDemandWtbdps() {
+        return unmetDemandWtbdps;
+    }
+
+    public void setUnmetDemandWtbdps(double unmetDemandWtbdps) {
+        this.unmetDemandWtbdps = unmetDemandWtbdps;
+    }
+
+    public double getOpeningBalanceWtbdps() {
+        return openingBalanceWtbdps;
+    }
+
+    public void setOpeningBalanceWtbdps(double openingBalanceWtbdps) {
+        this.openingBalanceWtbdps = openingBalanceWtbdps;
+    }
+
+    public double getClosingBalanceWtbdps() {
+        return closingBalanceWtbdps;
+    }
+
+    public void setClosingBalanceWtbdps(double closingBalanceWtbdps) {
+        this.closingBalanceWtbdps = closingBalanceWtbdps;
+    }
+
+    public double getNationalAdjustmentWtbdps() {
+        return nationalAdjustmentWtbdps;
+    }
+
+    public void setNationalAdjustmentWtbdps(double nationalAdjustmentWtbdps) {
+        this.nationalAdjustmentWtbdps = nationalAdjustmentWtbdps;
+    }
+
+    public Double getMosWtbdps() {
+        return mosWtbdps;
+    }
+
+    public void setMosWtbdps(Double mosWtbdps) {
+        this.mosWtbdps = mosWtbdps;
     }
 
     @Override
