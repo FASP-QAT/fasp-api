@@ -129,13 +129,6 @@ public class SimplifiedSupplyPlan implements Serializable {
     private double minQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double maxQty;
-    
-    
-    
-    
-    
-    
-    
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
@@ -212,8 +205,26 @@ public class SimplifiedSupplyPlan implements Serializable {
     }
 
     @JsonView({Views.InternalView.class})
+    public double getShipmentTotalQtyWps() {
+        return getManualTotalQtyWps() + getErpTotalQtyWps();
+    }
+
+    @JsonView({Views.InternalView.class})
+    public double getShipmentTotalQtyWtbdps() {
+        return getManualTotalQtyWtbdps() + getErpTotalQtyWtbdps();
+    }
+
+    @JsonView({Views.InternalView.class})
     public double getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
+    }
+
+    public double getManualTotalQtyWps() {
+        return this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
+    }
+
+    public double getManualTotalQtyWtbdps() {
+        return this.plannedShipmentsTotalWtbdData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
     public double getReceivedShipmentsTotalData() {
@@ -267,6 +278,14 @@ public class SimplifiedSupplyPlan implements Serializable {
     @JsonView({Views.InternalView.class})
     public double getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
+    }
+
+    public double getErpTotalQtyWps() {
+        return this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
+    }
+
+    public double getErpTotalQtyWtbdps() {
+        return this.plannedErpShipmentsTotalWtbdData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
     public double getReceivedErpShipmentsTotalData() {
@@ -588,7 +607,6 @@ public class SimplifiedSupplyPlan implements Serializable {
     public void setMosWtbdps(Double mosWtbdps) {
         this.mosWtbdps = mosWtbdps;
     }
-
 
     @Override
     public int hashCode() {
