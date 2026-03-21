@@ -189,152 +189,6 @@ DELIMITER ;
 ;
 
 USE `fasp`;
-DROP procedure IF EXISTS `stockStatusMatrixGlobal`;
-
-USE `fasp`;
-DROP procedure IF EXISTS `fasp`.`stockStatusMatrixGlobal`;
-;
-
-DELIMITER $$
-USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_FUNDING_SOURCE_IDS TEXT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_REPORT_VIEW INT(10))
-BEGIN
-    
-    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    -- Report no 18b
-    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    -- startDate and stopDate are the period for which you want to run the report
-    -- realmCountryIds is the list of Countries that you want to run the report for; Empty means all countries
-    -- programIds is the list of Programs that you want to run the report for; Empty means all programs
-    -- versionId Only to be used when a Single Program is selected. So if you get VersionId<>0 it means only the first ProgramId should be used from the list; -1 would mean that use the latest VersionId
-    -- equivalencyUnitId When passed as 0 it means that No EquivalencyUnitId was selected and therefore only a single PlanningUnit can be selected; If an EquivalencyUnitId is selected it means that multiple PlanningUnits can be selected since the report is to be showing in terms of EU
-    -- planningUnitIds is the list of Planning Units that you want to include in the report; Empty means all PlanningUnitIds; When EU is 0 then only a single PU can be selected
-    -- stockStatusIds is the list of Stock Statuses that you want to show in the report; For now this is not possible need to go back to FASP about this option.
-    -- removePlannedShipments = 0 means that you want to retain all Shipments in the Planned stage when the Version was saved.
-    -- removePlannedShipments = 1 means that you want to remove all Shipments in the Planned stage when the Version was saved.
-    -- removePlannedShipments = 2 means that you want to remove the shipments that have Funding Source as TBD and are in the Planned stage when the Version was saved.
-    -- fundingSourceIds are those specific FundingSources that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
-    -- procurementAgentIds are those specific ProcurementAgents that should be removed for the removePlannedShipmentsThatFailLeadTime flag; Empty means all should be removed; For now this is not possible need to go back to FASP about this option.
-    -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
-    -- Current month is always included in AMC
-    -- reportView=1 means show in terms of MoS and Qty based on the PlannedBasedOn setting; If reportView=2 it means show everything in terms of Qty but retain the color coding and StockStatusId
-    
-    DECLARE curMn DATE;
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE cursor_mn CURSOR FOR SELECT mn.MONTH FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE and VAR_STOP_DATE;
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-    
-    SET @varRemovePlannedShipments = VAR_REMOVE_PLANNED_SHIPMENTS;
-    SET @varReportView = VAR_REPORT_VIEW;
-    SET @mnSqlString = "";
-    
-    OPEN cursor_mn;
-        read_loop: LOOP
-        FETCH cursor_mn INTO curMn;
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
-        -- For each loop build the sql for acl
-        SET @mnSqlString = CONCAT(@mnSqlString, "   	, GROUP_CONCAT(IF(mn.MONTH='",curMn,"', amc2.PLANNING_UNIT_IDS, null)) `PLANNING_UNIT_IDS_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.MOS, null)) `MOS_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.AMC, null)) `AMC_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.STOCK_STATUS_ID, null)) `STOCK_STATUS_ID_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.CLOSING_BALANCE, null)) `CLOSING_BALANCE_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.STOCK_MULTIPLIED_QTY, null)) `STOCK_QTY_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.SHIPMENT_QTY, null)) `SHIPMENT_QTY_",curMn,"` ");
-        SET @mnSqlString = CONCAT(@mnSqlString,"		, SUM(IF(mn.MONTH='",curMn,"', amc2.EXPIRED_STOCK_QTY, null)) `EXPIRED_STOCK_QTY_",curMn,"` ");
-    END LOOP;
-    CLOSE cursor_mn;
-    
-    SET @varVersionId = VAR_VERSION_ID;
-    IF VAR_VERSION_ID = 0 THEN 
-	SET @varVersionId = null;
-    ELSEIF VAR_VERSION_ID = -1 THEN
-        SELECT MAX(pv.VERSION_ID) INTO @varVersionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=VAR_PROGRAM_ID;
-    END IF;
-    -- SELECT @varVersionId;
-    DROP TABLE IF EXISTS tmp_amc;
-    CREATE TABLE tmp_amc
-    SELECT 
-        amc.TRANS_DATE, p.PROGRAM_ID, p.REALM_COUNTRY_ID,
-        amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MAX_STOCK_QTY,
-        CASE @varRemovePlannedShipments WHEN 0 THEN amc.CLOSING_BALANCE WHEN 1 THEN amc.CLOSING_BALANCE_WPS WHEN 2 THEN amc.CLOSING_BALANCE_WTBDPS END `CLOSING_BALANCE`,
-        CASE @varRemovePlannedShipments WHEN 0 THEN amc.MOS WHEN 1 THEN amc.MOS_WPS WHEN 2 THEN amc.MOS_WTBDPS END `MOS`,
-        CASE @varRemovePlannedShipments WHEN 0 THEN amc.SHIPMENT_QTY WHEN 1 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY WHEN 2 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY+amc.MANUAL_PLANNED_SHIPMENT_WTBD_QTY+amc.ERP_PLANNED_SHIPMENT_WTBD_QTY END `SHIPMENT_QTY`,
-        CASE @varRemovePlannedShipments WHEN 0 THEN amc.EXPIRED_STOCK WHEN 1 THEN amc.EXPIRED_STOCK_WPS WHEN 2 THEN amc.EXPIRED_STOCK_WTBDPS END `EXPIRED_STOCK_QTY`,
-        amc.AMC, amc.STOCK_MULTIPLIED_QTY, IF(VAR_EQUIVALENCY_UNIT_ID=0, 1, pu.MULTIPLIER/COALESCE(eum1.CONVERT_TO_EU, eum2.CONVERT_TO_EU)) `CONVERSION`
-    FROM vw_program p 
-    LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND (LENGTH(VAR_PLANNING_UNIT_IDS)=0 OR FIND_IN_SET(ppu.PLANNING_UNIT_ID, VAR_PLANNING_UNIT_IDS))
-    LEFT JOIN rm_supply_plan_amc amc ON amc.PROGRAM_ID=p.PROGRAM_ID AND amc.VERSION_ID=COALESCE(@varVersionId, p.CURRENT_VERSION_ID) AND amc.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND amc.TRANS_DATE BETWEEN VAR_START_DATE AND VAR_STOP_DATE
-    LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
-    LEFT JOIN rm_equivalency_unit_mapping eum1 ON pu.FORECASTING_UNIT_ID=eum1.FORECASTING_UNIT_ID AND eum1.PROGRAM_ID=p.PROGRAM_ID AND eum1.EQUIVALENCY_UNIT_ID=VAR_EQUIVALENCY_UNIT_ID
-    LEFT JOIN rm_equivalency_unit_mapping eum2 ON pu.FORECASTING_UNIT_ID=eum2.FORECASTING_UNIT_ID AND eum2.PROGRAM_ID IS NULL AND eum2.EQUIVALENCY_UNIT_ID=VAR_EQUIVALENCY_UNIT_ID
-    WHERE TRUE AND p.ACTIVE
-        AND (LENGTH(VAR_REALM_COUNTRY_IDS)=0 OR FIND_IN_SET(p.REALM_COUNTRY_ID, VAR_REALM_COUNTRY_IDS))
-        AND (LENGTH(VAR_PROGRAM_IDS)=0 OR FIND_IN_SET(p.PROGRAM_ID, VAR_PROGRAM_IDS))
-        AND ppu.PLANNING_UNIT_ID is not null;
-
-	SET @interimSql = "SELECT 
-                                IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
-                                amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
-                                GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
-                                CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
-                                IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
-                                IF(
-                                    SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
-                                    CASE 
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END IS NULL THEN -1 
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END = 0 THEN 0
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                                        WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
-                                        ELSE 3
-                                    END,
-                                    CASE 
-                                        WHEN SUM(amc.CLOSING_BALANCE)=0 THEN 0
-                                        WHEN SUM(amc.CLOSING_BALANCE)<SUM(amc.MIN_STOCK_QTY) THEN 1
-                                        WHEN SUM(amc.CLOSING_BALANCE)<=SUM(amc.MAX_STOCK_QTY) THEN 2
-                                        ELSE 3
-                                    END
-                                ) `STOCK_STATUS_ID`,
-                                SUM(amc.CLOSING_BALANCE*amc.CONVERSION) `CLOSING_BALANCE`,
-                                CASE WHEN COUNT(amc.STOCK_MULTIPLIED_QTY)=count(*) THEN SUM(amc.STOCK_MULTIPLIED_QTY*amc.CONVERSION) ELSE NULL END `STOCK_MULTIPLIED_QTY`,
-                                SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
-                                SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
-                            FROM tmp_amc amc
-                            group by amc.TRANS_DATE, IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID)";
-	
-    SET @sqlString = "";
-    SET @sqlString = CONCAT(@sqlString, "SELECT ");
-    SET @sqlString = CONCAT(@sqlString, "   amc2.`ID`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.LABEL_ID, c.LABEL_ID) `LABEL_ID`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.LABEL_EN, c.LABEL_EN) `LABEL_EN`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.LABEL_FR, c.LABEL_FR) `LABEL_FR`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.LABEL_SP, c.LABEL_SP) `LABEL_SP`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.LABEL_PR, c.LABEL_PR) `LABEL_PR`, ");
-    SET @sqlString = CONCAT(@sqlString, "   COALESCE(p.PROGRAM_CODE, c.COUNTRY_CODE) `CODE` ");
-    SET @sqlString = CONCAT(@sqlString, @mnSqlString);
-    SET @sqlString = CONCAT(@sqlString, "FROM mn ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN (",@interimSql,") amc2 ON mn.MONTH=amc2.TRANS_DATE ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_program p ON amc2.ID=p.PROGRAM_ID AND @varReportView=1 ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON amc2.ID=rc.REALM_COUNTRY_ID AND @varReportView=2 ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
-    SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN '",VAR_START_DATE,"' AND '",VAR_STOP_DATE,"' ");
-    SET @sqlString = CONCAT(@sqlString, "GROUP BY amc2.ID ");
-    -- SELECT * FROM tmp_amc;
-    -- SELECT @sqlString;
-    -- PREPARE S2 FROM @interimSql;
-    -- EXECUTE S2;
-    PREPARE S1 FROM @sqlString;
-    EXECUTE S1;
-    
-END$$
-
-DELIMITER ;
-;
-
-USE `fasp`;
 DROP procedure IF EXISTS `buildNewSupplyPlanRegion`;
 
 USE `fasp`;
@@ -693,3 +547,157 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.removePlannedShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Remove Planned Shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Supprimer les envois planifiés');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eliminar envíos planificados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remover remessas planejadas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.removeTBDFundingSourceShipments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Remove TBD Funding Source Shipments');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Supprimer les expéditions de la source de financement à déterminer');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eliminar envíos de fuente de financiación por determinar');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remover remessas com fonte de financiamento a ser definida');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showQuantity','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Quantity');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher la quantité');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar cantidad');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar quantidade');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showIcon','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Icon');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher l\'icône');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar icono');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar ícone');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.minMax','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Min / Max');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Min / Max');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mínimo/Máximo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mín. / Máx.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.selectStockStatus','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Stock Status');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionner l\'état du stock');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el estado del stock');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o status do estoque');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.totalShipmentQty','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Shipment Qty');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale expédiée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total de envíos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total de remessas');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.planningUnitTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click on planning unit name to navigate to the Supply Plan Report for this product. Hover over to view planning unit notes.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez sur le nom de l\'unité de planification pour accéder au rapport du plan d\'approvisionnement de ce produit. Survolez l\'unité de planification pour afficher ses notes.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haz clic en el nombre de la unidad de planificación para acceder al Informe del Plan de Suministro de este producto. Pasa el cursor por encima para ver las notas de la unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique no nome da unidade de planejamento para acessar o Relatório do Plano de Suprimentos deste produto. Passe o cursor sobre a unidade para visualizar as notas.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.planByTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program admins can choose to plan products by months of stock (MOS) or quantity. Most products are better planned by MOS, while some low consumption, higher expiry products are better planned by quantity.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les administrateurs de programme peuvent choisir de planifier les produits en fonction du nombre de mois de stock (MOS) ou de la quantité. La plupart des produits sont mieux planifiés en fonction du MOS, tandis que certains produits à faible consommation et à date de péremption plus longue sont mieux planifiés en fonction de la quantité.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los administradores del programa pueden optar por planificar los productos según los meses de existencias (MOS) o la cantidad. La mayoría de los productos se planifican mejor según los meses de existencias, mientras que algunos productos de bajo consumo y fecha de caducidad próxima se planifican mejor según la cantidad.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os administradores do programa podem optar por planejar os produtos por meses de estoque (MES) ou por quantidade. A maioria dos produtos é melhor planejada por MES, enquanto alguns produtos de baixo consumo e maior prazo de validade são melhor planejados por quantidade.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.minMaxTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If planning by MOS, max MOS = min MOS + reorder interval. If planning by quantity, the max quantity = min quantity + reorder interval * AMC for that month, and the max value displayed here is the average of all the monthly max values. Min and reorder interval settings can be updated by program admins.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'En cas de planification par MOS, le MOS max = MOS min + intervalle de réapprovisionnement. En cas de planification par quantité, la quantité max = quantité min + intervalle de réapprovisionnement * AMC pour ce mois, et la valeur max affichée ici est la moyenne de toutes les valeurs max mensuelles. Les paramètres de quantité minimale et d\'intervalle de réapprovisionnement peuvent être modifiés par les administrateurs du programme.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si la planificación se basa en MOS, el MOS máximo = MOS mínimo + intervalo de reorden. Si la planificación se basa en cantidad, la cantidad máxima = cantidad mínima + intervalo de reorden * AMC para ese mes, y el valor máximo que se muestra aquí es el promedio de todos los valores máximos mensuales. Los administradores del programa pueden actualizar la configuración del intervalo mínimo y de reorden.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se o planejamento for feito por MOS (Mercado de Estoque Mínimo), o MOS máximo = MOS mínimo + intervalo de reposição. Se o planejamento for feito por quantidade, a quantidade máxima = quantidade mínima + intervalo de reposição * Custo Médio de Manutenção (CMM) para aquele mês, e o valor máximo exibido aqui é a média de todos os valores máximos mensais. As configurações de quantidade mínima e intervalo de reposição podem ser atualizadas pelos administradores do programa.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.noPlanningUnits','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No planning units are present in this program');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ce programme ne comporte aucune unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'En este programa no hay unidades de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Este programa não contém unidades de planejamento.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.noData','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'There is no available data for the planning unit(s) during the selected report period');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune donnée n\'est disponible pour la ou les unités de planification pendant la période de rapport sélectionnée.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No hay datos disponibles para la(s) unidad(es) de planificación durante el período de informe seleccionado.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Não existem dados disponíveis para a(s) unidade(s) de planejamento durante o período do relatório selecionado.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.reportPeriodTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Default: 3 months past + 15 months in future. Please select the period you would like to view.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Par défaut : 3 mois précédents + 15 mois suivants. Veuillez sélectionner la période que vous souhaitez consulter.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por defecto: 3 meses pasados + 15 meses futuros. Seleccione el período que desea consultar.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Padrão: 3 meses anteriores + 15 meses posteriores. Selecione o período que deseja visualizar.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.versionTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'* for final, ** for final approved, Default = latest version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'* Version finale, ** Version finale approuvée, Par défaut = dernière version');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'* para versión final, ** para versión final aprobada, Predeterminado = última versión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'* para versão final, ** para versão final aprovada, Padrão = versão mais recente');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showQuantityTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If unchecked, stock is represented by months of stock (MOS) (default). If checked, stock is represented by quantity.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette option n\'est pas cochée, le stock est représenté par mois de stock (par défaut). Si elle est cochée, le stock est représenté par quantité.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si no está marcada, el stock se representa por meses de existencias (MOS) (opción predeterminada). Si está marcada, el stock se representa por cantidad.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se não estiver selecionado, o estoque será representado por meses de estoque (MOS) (padrão). Se estiver selecionado, o estoque será representado pela quantidade.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showIconTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this displays the shipment and expiry icons. There is a shipment icon for every month with shipment(s), including all shipment statuses except cancelled, on-hold and any inactive shipments. There is an expiry icon for every month with a projected expiry.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette option est activée, les icônes d\'expédition et d\'expiration s\'affichent. Une icône d\'expédition est présente pour chaque mois comportant au moins un envoi, quel que soit son statut, à l\'exception des envois annulés, en attente ou inactifs. Une icône d\'expiration est également présente pour chaque mois présentant une date d\'expiration prévue.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcada, se muestran los iconos de envío y vencimiento. Hay un icono de envío para cada mes con envíos, incluyendo todos los estados de envío excepto cancelados, en espera y los envíos inactivos. Hay un icono de vencimiento para cada mes con una fecha de vencimiento prevista.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se selecionada, esta opção exibe os ícones de envio e validade. Há um ícone de envio para cada mês com envios, incluindo todos os status de envio, exceto cancelado, em espera e envios inativos. Há um ícone de validade para cada mês com data de validade prevista.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.removePlannedShipmentsTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this shows the resulting stock (status) if shipments with status = planned are removed. Note that by definition, this removes all TBD shipments since TBD shipments are not allowed past planned status.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette option est cochée, le stock résultant (statut) s\'affiche après suppression des expéditions dont le statut est « Planifié ». Notez que, par définition, toutes les expéditions « À déterminer » sont supprimées, car ces expéditions ne sont pas autorisées après le statut « Planifié ».');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcada, esta opción muestra el stock resultante (estado) si se eliminan los envíos con estado = planificado. Tenga en cuenta que, por definición, esto elimina todos los envíos TBD, ya que estos no se permiten más allá del estado planificado.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se selecionada, esta opção mostra o estoque (status) resultante caso os embarques com status = planejado sejam removidos. Observe que, por definição, isso remove todos os embarques com status a definir, visto que embarques com status a definir não podem ultrapassar o status planejado.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.removeTBDFundingSourceShipmentsTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If checked, this shows the resulting stock (status) if shipments with funding source = TBD are removed.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si cette option est cochée, elle affiche le stock résultant (statut) si les expéditions dont la source de financement est à déterminer sont supprimées.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si está marcada, esta opción muestra el stock resultante (estado) si se eliminan los envíos con fuente de financiación = TBD.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se selecionada, esta opção mostra o estoque (status) resultante caso os envios com fonte de financiamento = A definir sejam removidos.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.consumptionTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual consumption where available. Otherwise, forecasted consumption.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation réelle lorsque disponible. Sinon, consommation prévisionnelle.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo real cuando esté disponible. En caso contrario, consumo previsto.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo real, quando disponível. Caso contrário, consumo previsto.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.amcTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Average Monthly Consumption. Dynamic value based on user-entered number of months past & future in the Planning Unit settings screen.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation mensuelle moyenne. Valeur dynamique basée sur le nombre de mois passés et futurs saisi par l\'utilisateur dans l\'écran des paramètres de l\'unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo mensual promedio. Valor dinámico basado en el número de meses pasados y futuros introducidos por el usuario en la pantalla de configuración de la unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo médio mensal. Valor dinâmico baseado no número de meses passados e futuros inserido pelo usuário na tela de configurações da Unidade de Planejamento.');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.mosTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months of Stock');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois de stock');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses de existencias');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses de estoque');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatusMatrix.statusTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock status relative to minimum and maximum levels (either in MOS or quantity) as set in the Planning Unit settings screen.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'État des stocks par rapport aux niveaux minimum et maximum (en MOS ou en quantité) tels que définis dans l\'écran des paramètres de l\'unité de planification.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estado del stock en relación con los niveles mínimo y máximo (ya sea en MOS o en cantidad) establecidos en la pantalla de configuración de la unidad de planificación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Status do estoque em relação aos níveis mínimo e máximo (em MOS ou quantidade), conforme definido na tela de configurações da Unidade de Planejamento.');-- pr
