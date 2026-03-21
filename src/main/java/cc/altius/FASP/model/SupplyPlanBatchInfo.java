@@ -19,12 +19,14 @@ public class SupplyPlanBatchInfo implements Serializable {
     private int batchId;
     private String expiryDate;
     private int manualPlannedShipmentQty;
+    private int manualPlannedShipmentWtbdQty;
     private int manualSubmittedShipmentQty;
     private int manualApprovedShipmentQty;
     private int manualShippedShipmentQty;
     private int manualReceivedShipmentQty;
     private int manualOnholdShipmentQty;
     private int erpPlannedShipmentQty;
+    private int erpPlannedShipmentWtbdQty;
     private int erpSubmittedShipmentQty;
     private int erpApprovedShipmentQty;
     private int erpShippedShipmentQty;
@@ -40,10 +42,15 @@ public class SupplyPlanBatchInfo implements Serializable {
     private int calculatedConsumption;
     private int unmetDemand;
     private int openingBalanceWps;
+    private int openingBalanceWtbdps;
     private int closingBalanceWps;
+    private int closingBalanceWtbdps;
     private int expiredStockWps;
+    private int expiredStockWtbdps;
     private int calculatedConsumptionWps;
+    private int calculatedConsumptionWtbdps;
     private int unmetDemandWps;
+    private int unmetDemandWtbdps;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("MMM yy");
 
@@ -52,19 +59,21 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     public SupplyPlanBatchInfo(
             int supplyPlanId, int batchId, String expiryDate, 
-            int manualPlannedShipmentQty, int manualSubmittedShipmentQty, int manualApprovedShipmentQty, int manualShippedShipmentQty, int manualReceivedShipmentQty, int manualOnholdShipmentQty, 
-            int erpPlannedShipmentQty, int erpSubmittedShipmentQty, int erpApprovedShipmentQty, int erpShippedShipmentQty, int erpReceivedShipmentQty, int erpOnholdShipmentQty, 
+            int manualPlannedShipmentQty, int manualPlannedShipmentWtbdQty, int manualSubmittedShipmentQty, int manualApprovedShipmentQty, int manualShippedShipmentQty, int manualReceivedShipmentQty, int manualOnholdShipmentQty, 
+            int erpPlannedShipmentQty, int erpPlannedShipmentWtbdQty, int erpSubmittedShipmentQty, int erpApprovedShipmentQty, int erpShippedShipmentQty, int erpReceivedShipmentQty, int erpOnholdShipmentQty, 
             int shipmentQty, int consumption, int adjustment, int stock) {
         this.supplyPlanId = supplyPlanId;
         this.batchId = batchId;
         this.expiryDate = expiryDate;
         this.manualPlannedShipmentQty = manualPlannedShipmentQty;
+        this.manualPlannedShipmentWtbdQty = manualPlannedShipmentWtbdQty;
         this.manualSubmittedShipmentQty = manualSubmittedShipmentQty;
         this.manualApprovedShipmentQty = manualApprovedShipmentQty;
         this.manualShippedShipmentQty = manualShippedShipmentQty;
         this.manualReceivedShipmentQty = manualReceivedShipmentQty;
         this.manualOnholdShipmentQty = manualOnholdShipmentQty;
         this.erpPlannedShipmentQty = erpPlannedShipmentQty;
+        this.erpPlannedShipmentWtbdQty = erpPlannedShipmentWtbdQty;
         this.erpSubmittedShipmentQty = erpSubmittedShipmentQty;
         this.erpApprovedShipmentQty = erpApprovedShipmentQty;
         this.erpShippedShipmentQty = erpShippedShipmentQty;
@@ -110,6 +119,14 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     public void setManualPlannedShipmentQty(int manualPlannedShipmentQty) {
         this.manualPlannedShipmentQty = manualPlannedShipmentQty;
+    }
+
+    public int getManualPlannedShipmentWtbdQty() {
+        return manualPlannedShipmentWtbdQty;
+    }
+
+    public void setManualPlannedShipmentWtbdQty(int manualPlannedShipmentWtbdQty) {
+        this.manualPlannedShipmentWtbdQty = manualPlannedShipmentWtbdQty;
     }
 
     public int getManualApprovedShipmentQty() {
@@ -158,6 +175,14 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     public void setErpPlannedShipmentQty(int erpPlannedShipmentQty) {
         this.erpPlannedShipmentQty = erpPlannedShipmentQty;
+    }
+
+    public int getErpPlannedShipmentWtbdQty() {
+        return erpPlannedShipmentWtbdQty;
+    }
+
+    public void setErpPlannedShipmentWtbdQty(int erpPlannedShipmentWtbdQty) {
+        this.erpPlannedShipmentWtbdQty = erpPlannedShipmentWtbdQty;
     }
 
     public int getErpSubmittedShipmentQty() {
@@ -299,6 +324,46 @@ public class SupplyPlanBatchInfo implements Serializable {
     public void setUnmetDemandWps(int unmetDemandWps) {
         this.unmetDemandWps = unmetDemandWps;
     }
+    
+    public int getOpeningBalanceWtbdps() {
+        return openingBalanceWtbdps;
+    }
+
+    public void setOpeningBalanceWtbdps(int openingBalanceWtbdps, String transDate) {
+        this.openingBalanceWtbdps = openingBalanceWtbdps;
+        if (this.openingBalanceWtbdps > 0 && DateUtils.compareDates(transDate, expiryDate)>=0) {
+            this.expiredStockWtbdps += this.openingBalanceWtbdps;
+            this.openingBalanceWtbdps = 0;
+        }
+    }
+
+    public int getClosingBalanceWtbdps() {
+        return closingBalanceWtbdps;
+    }
+
+    public void setClosingBalanceWtbdps(int closingBalanceWtbdps) {
+        this.closingBalanceWtbdps = closingBalanceWtbdps;
+    }
+
+    public int getExpiredStockWtbdps() {
+        return expiredStockWtbdps;
+    }
+
+    public void setExpiredStockWtbdps(int expiredStockWtbdps) {
+        this.expiredStockWtbdps = expiredStockWtbdps;
+    }
+
+    public int getCalculatedConsumptionWtbdps() {
+        return calculatedConsumptionWtbdps;
+    }
+
+    public int getUnmetDemandWtbdps() {
+        return unmetDemandWtbdps;
+    }
+
+    public void setUnmetDemandWtbdps(int unmetDemandWtbdps) {
+        this.unmetDemandWtbdps = unmetDemandWtbdps;
+    }
 
     public int updateUnAllocatedCountAndExpiredStock(String transDate, int unallocatedConsumption) {
         if (this.openingBalance > 0 && DateUtils.compareDates(transDate, expiryDate) >= 0) {
@@ -344,6 +409,19 @@ public class SupplyPlanBatchInfo implements Serializable {
         }
         return unallocatedConsumptionWps;
     }
+    
+    public int updateUnAllocatedCountAndExpiredStockWtbdps(String transDate, int unallocatedConsumptionWtbdps) {
+        if (this.openingBalanceWtbdps > 0 && DateUtils.compareDates(transDate, expiryDate) >= 0) {
+            this.expiredStockWtbdps = this.consumption;
+            unallocatedConsumptionWtbdps += this.consumption;
+        }
+
+        int tempCBWtbdps = this.openingBalanceWtbdps + this.shipmentQty - this.manualPlannedShipmentWtbdQty - this.erpPlannedShipmentWtbdQty - this.consumption + this.adjustment;
+        if (tempCBWtbdps < 0) {
+            unallocatedConsumptionWtbdps += 0 - tempCBWtbdps;
+        }
+        return unallocatedConsumptionWtbdps;
+    }
 
     public int updateCBWps(int existingUnAllocatedConsumptionWps) {
         int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.manualPlannedShipmentQty - this.erpPlannedShipmentQty - this.consumption + this.adjustment;
@@ -362,6 +440,25 @@ public class SupplyPlanBatchInfo implements Serializable {
             this.closingBalanceWps = tempCBWps;
         }
         return existingUnAllocatedConsumptionWps;
+    }
+    
+    public int updateCBWtbdps(int existingUnAllocatedConsumptionWtbdps) {
+        int tempCBWtbdps = this.openingBalanceWtbdps + this.shipmentQty - this.manualPlannedShipmentWtbdQty - this.erpPlannedShipmentWtbdQty - this.consumption + this.adjustment;
+        if (existingUnAllocatedConsumptionWtbdps > 0 && tempCBWtbdps > 0) {
+            if (tempCBWtbdps > existingUnAllocatedConsumptionWtbdps) {
+                this.calculatedConsumptionWtbdps = existingUnAllocatedConsumptionWtbdps;
+                tempCBWtbdps -= existingUnAllocatedConsumptionWtbdps;
+                existingUnAllocatedConsumptionWtbdps = 0;
+            } else {
+                this.calculatedConsumptionWtbdps = tempCBWtbdps;
+                existingUnAllocatedConsumptionWtbdps -= tempCBWtbdps;
+                tempCBWtbdps = 0;
+            }
+        }
+        if (tempCBWtbdps >= 0) {
+            this.closingBalanceWtbdps = tempCBWtbdps;
+        }
+        return existingUnAllocatedConsumptionWtbdps;
     }
 
     public int getCalculatedConsumption() {
@@ -382,12 +479,16 @@ public class SupplyPlanBatchInfo implements Serializable {
                 && this.adjustment == 0
                 && this.openingBalance == 0
                 && this.openingBalanceWps == 0
+                && this.openingBalanceWtbdps == 0
                 && this.closingBalance == 0
                 && this.closingBalanceWps == 0
+                && this.closingBalanceWtbdps == 0
                 && this.expiredStock == 0
                 && this.expiredStockWps == 0
+                && this.expiredStockWtbdps == 0
                 && this.unmetDemand == 0
-                && this.unmetDemandWps == 0);
+                && this.unmetDemandWps == 0
+                && this.unmetDemandWtbdps == 0);
     }
 
     @Override
