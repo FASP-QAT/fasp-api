@@ -35,12 +35,14 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
             rd.setRegionId(rs.getInt("REGION_ID"));
             if (rs.wasNull()) {
                 nsp.addPlannedShipmentsTotalData(rs.getDouble("MANUAL_PLANNED_SHIPMENT"));
+                nsp.addPlannedShipmentsTotalWtbdData(rs.getDouble("MANUAL_PLANNED_SHIPMENT_WTBD"));
                 nsp.addSubmittedShipmentsTotalData(rs.getDouble("MANUAL_SUBMITTED_SHIPMENT"));
                 nsp.addApprovedShipmentsTotalData(rs.getDouble("MANUAL_APPROVED_SHIPMENT"));
                 nsp.addShippedShipmentsTotalData(rs.getDouble("MANUAL_SHIPPED_SHIPMENT"));
                 nsp.addReceivedShipmentsTotalData(rs.getDouble("MANUAL_RECEIVED_SHIPMENT"));
                 nsp.addOnholdShipmentsTotalData(rs.getDouble("MANUAL_ONHOLD_SHIPMENT"));
                 nsp.addPlannedErpShipmentsTotalData(rs.getDouble("ERP_PLANNED_SHIPMENT"));
+                nsp.addPlannedErpShipmentsTotalWtbdData(rs.getDouble("ERP_PLANNED_SHIPMENT_WTBD"));
                 nsp.addSubmittedErpShipmentsTotalData(rs.getDouble("ERP_SUBMITTED_SHIPMENT"));
                 nsp.addApprovedErpShipmentsTotalData(rs.getDouble("ERP_APPROVED_SHIPMENT"));
                 nsp.addShippedErpShipmentsTotalData(rs.getDouble("ERP_SHIPPED_SHIPMENT"));
