@@ -123,7 +123,7 @@ ALTER TABLE `fasp`.`rm_realm` ADD COLUMN `SUPPLY_PLAN_SCORE_THRESHOLD_PERC` DECI
 USE `fasp`;
 CREATE  OR REPLACE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`localhost` 
+    DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_realm` AS
     SELECT 
@@ -170,7 +170,7 @@ DROP procedure IF EXISTS `fasp`.`getDashboardStockStatus`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getDashboardStockStatus`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getDashboardStockStatus`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT)
 BEGIN
     
     SELECT COUNT(mn.MONTH) INTO @monthCount FROM mn WHERE mn.MONTH BETWEEN VAR_START_DATE AND VAR_STOP_DATE;
