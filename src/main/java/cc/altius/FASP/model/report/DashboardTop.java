@@ -53,6 +53,16 @@ public class DashboardTop implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date latestFinalVersionLastModifiedDate;
+    @JsonView(Views.ReportView.class)
+    private DashboardQpl forecastConsumptionQpl;
+    @JsonView(Views.ReportView.class)
+    private DashboardQpl actualConsumptionQpl;
+    @JsonView(Views.ReportView.class)
+    private DashboardQpl inventoryQpl;
+    @JsonView(Views.ReportView.class)
+    private DashboardQpl shipmentQpl;
+    @JsonView(Views.ReportView.class)
+    private DashboardStockStatus stockStatus;
 
     public DashboardTop() {
     }
@@ -174,5 +184,61 @@ public class DashboardTop implements Serializable {
     public void setLatestFinalVersionLastModifiedDate(Date latestFinalVersionLastModifiedDate) {
         this.latestFinalVersionLastModifiedDate = latestFinalVersionLastModifiedDate;
     }
+    
+    @JsonView(Views.ReportView.class)
+    public double getSupplyPlanQualityScore() {
+        return ( ((double)this.forecastConsumptionQpl.getCorrectCount() / (double)this.forecastConsumptionQpl.getPuCount())
+                + ((double)this.actualConsumptionQpl.getCorrectCount() / (double)this.actualConsumptionQpl.getPuCount())
+                + ((double)this.inventoryQpl.getCorrectCount() / (double)this.inventoryQpl.getPuCount())
+                + ((double)this.shipmentQpl.getCorrectCount() / (double)this.shipmentQpl.getPuCount())) / 4.0;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getStockStatusScore() {
+        return (double) this.stockStatus.getAdequate()
+                / (double) (this.stockStatus.getStockOut() + this.stockStatus.getUnderStock() + this.stockStatus.getAdequate() + this.stockStatus.getOverStock());
+    }
+
+    public DashboardQpl getForecastConsumptionQpl() {
+        return forecastConsumptionQpl;
+    }
+
+    public void setForecastConsumptionQpl(DashboardQpl forecastConsumptionQpl) {
+        this.forecastConsumptionQpl = forecastConsumptionQpl;
+    }
+
+    public DashboardQpl getActualConsumptionQpl() {
+        return actualConsumptionQpl;
+    }
+
+    public void setActualConsumptionQpl(DashboardQpl actualConsumptionQpl) {
+        this.actualConsumptionQpl = actualConsumptionQpl;
+    }
+
+    public DashboardQpl getInventoryQpl() {
+        return inventoryQpl;
+    }
+
+    public void setInventoryQpl(DashboardQpl inventoryQpl) {
+        this.inventoryQpl = inventoryQpl;
+    }
+
+    public DashboardQpl getShipmentQpl() {
+        return shipmentQpl;
+    }
+
+    public void setShipmentQpl(DashboardQpl shipmentQpl) {
+        this.shipmentQpl = shipmentQpl;
+    }
+
+    public DashboardStockStatus getStockStatus() {
+        return stockStatus;
+    }
+
+    public void setStockStatus(DashboardStockStatus stockStatus) {
+        this.stockStatus = stockStatus;
+    }
+    
+    
 
 }

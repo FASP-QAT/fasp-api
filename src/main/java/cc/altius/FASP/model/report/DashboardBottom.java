@@ -4,10 +4,16 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +25,26 @@ public class DashboardBottom implements Serializable {
 
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
+    private int versionId;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject versionStatus;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject versionType;
+    @JsonView(Views.ReportView.class)
+    private String versionNotes;
+    @JsonView(Views.ReportView.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date versionCreatedDate;
+    @JsonView(Views.ReportView.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date versionLastModifiedDate;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject realmCountry;
+    @JsonView(Views.ReportView.class)
+    private List<SimpleCodeObject> healthAreaList;
     @JsonView(Views.ReportView.class)
     private DashboardStockStatus stockStatus;
     @JsonView(Views.ReportView.class)
@@ -126,6 +152,89 @@ public class DashboardBottom implements Serializable {
 
     public void setShipmentQpl(DashboardQpl shipmentQpl) {
         this.shipmentQpl = shipmentQpl;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public int getTotalPus() {
+        return this.shipmentQpl.getPuCount();
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getSupplyPlanQualityScore() {
+        return ( ((double)this.forecastConsumptionQpl.getCorrectCount() / (double)this.forecastConsumptionQpl.getPuCount())
+                + ((double)this.actualConsumptionQpl.getCorrectCount() / (double)this.actualConsumptionQpl.getPuCount())
+                + ((double)this.inventoryQpl.getCorrectCount() / (double)this.inventoryQpl.getPuCount())
+                + ((double)this.shipmentQpl.getCorrectCount() / (double)this.shipmentQpl.getPuCount())) / 4.0;
+    }
+
+    @JsonView(Views.ReportView.class)
+    public double getStockStatusScore() {
+        return (double) this.stockStatus.getAdequate()
+                / (double) (this.stockStatus.getStockOut() + this.stockStatus.getUnderStock() + this.stockStatus.getAdequate() + this.stockStatus.getOverStock());
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
+    }
+
+    public SimpleObject getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(SimpleObject versionStatus) {
+        this.versionStatus = versionStatus;
+    }
+
+    public SimpleObject getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(SimpleObject versionType) {
+        this.versionType = versionType;
+    }
+
+    public String getVersionNotes() {
+        return versionNotes;
+    }
+
+    public void setVersionNotes(String versionNotes) {
+        this.versionNotes = versionNotes;
+    }
+
+    public Date getVersionCreatedDate() {
+        return versionCreatedDate;
+    }
+
+    public void setVersionCreatedDate(Date versionCreatedDate) {
+        this.versionCreatedDate = versionCreatedDate;
+    }
+
+    public Date getVersionLastModifiedDate() {
+        return versionLastModifiedDate;
+    }
+
+    public void setVersionLastModifiedDate(Date versionLastModifiedDate) {
+        this.versionLastModifiedDate = versionLastModifiedDate;
+    }
+
+    public SimpleObject getRealmCountry() {
+        return realmCountry;
+    }
+
+    public void setRealmCountry(SimpleObject realmCountry) {
+        this.realmCountry = realmCountry;
+    }
+
+    public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
+    }
+
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
     }
 
 }
