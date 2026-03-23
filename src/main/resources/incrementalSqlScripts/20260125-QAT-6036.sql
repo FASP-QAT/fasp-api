@@ -137,10 +137,10 @@ BEGIN
         IF(
             SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
             CASE 
-                AVG(amc.MOS) IS NULL THEN -1 
-                AVG(amc.MOS) = 0 THEN 0
-                AVG(amc.MOS) < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                AVG(amc.MOS) <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
+                WHEN AVG(amc.MOS) IS NULL THEN -1 
+                WHEN AVG(amc.MOS) = 0 THEN 0
+                WHEN AVG(amc.MOS) < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
+                WHEN AVG(amc.MOS) <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
                 ELSE 3
             END,
             CASE 
