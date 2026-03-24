@@ -132,15 +132,15 @@ BEGIN
         IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
         amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
         GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
-        CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
+        AVG(amc.MOS) `MOS`,
         IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
         IF(
             SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
             CASE 
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END IS NULL THEN -1 
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END = 0 THEN 0
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
+                WHEN AVG(amc.MOS) IS NULL THEN -1 
+                WHEN AVG(amc.MOS) = 0 THEN 0
+                WHEN AVG(amc.MOS) < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
+                WHEN AVG(amc.MOS) <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
                 ELSE 3
             END,
             CASE 
