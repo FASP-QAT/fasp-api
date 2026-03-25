@@ -120,21 +120,21 @@ BEGIN
         IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
         amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
         GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
-        AVG(amc.MOS) `MOS`,
+        SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) `MOS`,
         IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
         IF(
             SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
             CASE 
-                WHEN AVG(amc.MOS) IS NULL THEN -1 
-                WHEN AVG(amc.MOS) = 0 THEN 0
-                WHEN AVG(amc.MOS) < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                WHEN AVG(amc.MOS) <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
+                WHEN SUM(amc.CLOSING_BALANCE)/SUM(amc.AMC) IS NULL THEN -1 
+                WHEN SUM(amc.CLOSING_BALANCE)/SUM(amc.AMC) = 0 THEN 0
+                WHEN SUM(amc.CLOSING_BALANCE)/SUM(amc.AMC) < AVG(amc.MIN_MONTHS_OF_STOCK) THEN 1
+                WHEN SUM(amc.CLOSING_BALANCE)/SUM(amc.AMC) <= AVG(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
                 ELSE 3
             END,
             CASE 
                 WHEN SUM(amc.CLOSING_BALANCE)=0 THEN 0
-                WHEN SUM(amc.CLOSING_BALANCE)<SUM(amc.MIN_STOCK_QTY) THEN 1
-                WHEN SUM(amc.CLOSING_BALANCE)<=SUM(amc.MAX_STOCK_QTY) THEN 2
+                WHEN SUM(amc.CLOSING_BALANCE)<AVG(amc.MIN_STOCK_QTY) THEN 1
+                WHEN SUM(amc.CLOSING_BALANCE)<=AVG(amc.MAX_STOCK_QTY) THEN 2
                 ELSE 3
             END
         ) `STOCK_STATUS_ID`,
