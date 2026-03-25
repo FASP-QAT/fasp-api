@@ -155,7 +155,7 @@ BEGIN
         SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
         SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
     FROM tmp_amc amc
-    group by amc.TRANS_DATE, IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID);
+    group by amc.TRANS_DATE, IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID);
 	
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
