@@ -113,7 +113,7 @@ public class ProblemDaoImpl implements ProblemDao {
 
     @Override
     public List<ProblemReport> getProblemReportList(int programId, int versionId, CustomUserDetails curUser) {
-        String sql = this.problemReportSql + " AND rp.ACTIVE ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
+        String sql = this.problemReportSql + " ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
