@@ -1,5 +1,33 @@
 INSERT INTO `fasp`.`ap_security` (`METHOD`, `URL`, `BF`) VALUES ('2', '/api/report/stockStatusMatrixGlobal', 'ROLE_BF_STOCK_STATUS_MATRIX_REPORT');
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showInEu','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show data in equivalency unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les données en unité d''équivalence');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar datos en unidad de equivalencia');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar dados em unidade de equivalência');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.stockStatusMatrixGlobal','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock Status Matrix (Global)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Matrice de l''état des stocks (Global)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Matriz del estado de las existencias (Global)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Matriz de status do estoque (Global)');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.showInEuTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT is able to aggregate across different products (different pack sizes, products, etc.), by utilizing Equivalency Units, which are mapped to different forecasting units. View under Realm Masters > Products > Equivalency Units. Realm-level mappings are available to all users. Program admins can also create program-specific mappings.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT est capable d''agréger différents produits (différentes tailles de conditionnement, produits, etc.), en utilisant des unités d''équivalence, qui sont mappées à différentes unités de prévision. Voir sous Maîtres de domaine > Produits > Unités d''équivalence. Les mappages au niveau du domaine sont disponibles pour tous les utilisateurs. Les administrateurs de programme peuvent également créer des mappages spécifiques au programme.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'QAT puede agregar diferentes productos (diferentes tamaños de envases, productos, etc.), utilizando unidades de equivalencia, que están mapeadas a diferentes unidades de pronóstico. Ver en Maestros de Dominio > Productos > Unidades de Equivalencia. Los mapeos a nivel de dominio están disponibles para todos los usuarios. Los administradores de programas también pueden crear mapeos específicos del programa.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O QAT é capaz de agregar diferentes produtos (diferentes tamanhos de embalagens, produtos, etc.), utilizando Unidades de Equivalência, que são mapeadas para diferentes unidades de previsão. Veja em Mestres de Domínio > Produtos > Unidades de Equivalência. Os mapeamentos de nível de domínio estão disponíveis para todos os usuários. Os administradores de programas também podem criar mapeamentos específicos do programa.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showPUsInAllProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only show PUs available in ALL programs');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher uniquement les PU disponibles dans TOUS les programmes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar solo las PU disponibles en TODOS los programas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar apenas as PUs disponíveis em TODOS os programas');-- pr
+
 
 USE `fasp`;
 DROP procedure IF EXISTS `stockStatusMatrixGlobal`;
