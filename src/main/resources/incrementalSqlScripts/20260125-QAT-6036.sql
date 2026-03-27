@@ -1,5 +1,33 @@
 INSERT INTO `fasp`.`ap_security` (`METHOD`, `URL`, `BF`) VALUES ('2', '/api/report/stockStatusMatrixGlobal', 'ROLE_BF_STOCK_STATUS_MATRIX_REPORT');
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showInEu','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show data in equivalency unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les données en unité d''équivalence');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar datos en unidad de equivalencia');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar dados em unidade de equivalência');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.stockStatusMatrixGlobal','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock Status Matrix (Global)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Matrice de l''état des stocks (Global)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Matriz del estado de las existencias (Global)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Matriz de status do estoque (Global)');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.stockStatus.showInEuTooltip','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT is able to aggregate across different products (different pack sizes, products, etc.), by utilizing Equivalency Units, which are mapped to different forecasting units. View under Realm Masters > Products > Equivalency Units. Realm-level mappings are available to all users. Program admins can also create program-specific mappings.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'QAT est capable d''agréger différents produits (différentes tailles de conditionnement, produits, etc.), en utilisant des unités d''équivalence, qui sont mappées à différentes unités de prévision. Voir sous Maîtres de domaine > Produits > Unités d''équivalence. Les mappages au niveau du domaine sont disponibles pour tous les utilisateurs. Les administrateurs de programme peuvent également créer des mappages spécifiques au programme.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'QAT puede agregar diferentes productos (diferentes tamaños de envases, productos, etc.), utilizando unidades de equivalencia, que están mapeadas a diferentes unidades de pronóstico. Ver en Maestros de Dominio > Productos > Unidades de Equivalencia. Los mapeos a nivel de dominio están disponibles para todos los usuarios. Los administradores de programas también pueden crear mapeos específicos del programa.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O QAT é capaz de agregar diferentes produtos (diferentes tamanhos de embalagens, produtos, etc.), utilizando Unidades de Equivalência, que são mapeadas para diferentes unidades de previsão. Veja em Mestres de Domínio > Produtos > Unidades de Equivalência. Os mapeamentos de nível de domínio estão disponíveis para todos os usuários. Os administradores de programas também podem criar mapeamentos específicos do programa.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.showPUsInAllProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only show PUs available in ALL programs');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher uniquement les PU disponibles dans TOUS les programmes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar solo las PU disponibles en TODOS los programas');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar apenas as PUs disponíveis em TODOS os programas');-- pr
+
 
 USE `fasp`;
 DROP procedure IF EXISTS `stockStatusMatrixGlobal`;
@@ -10,7 +38,7 @@ DROP procedure IF EXISTS `fasp`.`stockStatusMatrixGlobal`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_REPORT_VIEW INT(10))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusMatrixGlobal`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_VERSION_ID INT(10), VAR_EQUIVALENCY_UNIT_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_STOCK_STATUS_CONDITIONS TEXT, VAR_REMOVE_PLANNED_SHIPMENTS TINYINT(1), VAR_REPORT_VIEW INT(10))
 BEGIN
     
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,7 +104,9 @@ BEGIN
         `MIN_MONTHS_OF_STOCK` int unsigned DEFAULT NULL,
         `REORDER_FREQUENCY_IN_MONTHS` int unsigned COMMENT 'Min number of months of stock that we should have before triggering a reorder',
         `MIN_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+        `MIN_STOCK_MOS` decimal(24,8) DEFAULT NULL,
         `MAX_STOCK_QTY` decimal(24,8) DEFAULT NULL,
+        `MAX_STOCK_MOS` decimal(24,8) DEFAULT NULL,
         `CLOSING_BALANCE` decimal(24,8) DEFAULT NULL,
         `MOS` decimal(24,8) DEFAULT NULL,
         `SHIPMENT_QTY` decimal(28,8) DEFAULT NULL,
@@ -93,7 +123,7 @@ BEGIN
     INSERT INTO tmp_amc 
     SELECT 
         amc.TRANS_DATE, p.PROGRAM_ID, p.REALM_COUNTRY_ID,
-        amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MAX_STOCK_QTY,
+        amc.PLANNING_UNIT_ID, ppu.PLAN_BASED_ON, ppu.MIN_MONTHS_OF_STOCK, ppu.REORDER_FREQUENCY_IN_MONTHS, amc.MIN_STOCK_QTY, amc.MIN_STOCK_MOS, amc.MAX_STOCK_QTY, amc.MAX_STOCK_MOS,
         CASE @varRemovePlannedShipments WHEN 0 THEN amc.CLOSING_BALANCE WHEN 1 THEN amc.CLOSING_BALANCE_WPS WHEN 2 THEN amc.CLOSING_BALANCE_WTBDPS END `CLOSING_BALANCE`,
         CASE @varRemovePlannedShipments WHEN 0 THEN amc.MOS WHEN 1 THEN amc.MOS_WPS WHEN 2 THEN amc.MOS_WTBDPS END `MOS`,
         CASE @varRemovePlannedShipments WHEN 0 THEN amc.SHIPMENT_QTY WHEN 1 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY WHEN 2 THEN amc.SHIPMENT_QTY-amc.MANUAL_PLANNED_SHIPMENT_QTY-amc.ERP_PLANNED_SHIPMENT_QTY+amc.MANUAL_PLANNED_SHIPMENT_WTBD_QTY+amc.ERP_PLANNED_SHIPMENT_WTBD_QTY END `SHIPMENT_QTY`,
@@ -132,21 +162,21 @@ BEGIN
         IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID) `ID`,
         amc.TRANS_DATE, SUM(amc.AMC*amc.CONVERSION) `AMC`,
         GROUP_CONCAT(DISTINCT amc.PLANNING_UNIT_ID) `PLANNING_UNIT_IDS`,
-        CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END `MOS`,
+        SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) `MOS`,
         IF(SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,1,2) `PLAN_BASED_ON`,
         IF(
             SUM(amc.PLAN_BASED_ON)/COUNT(amc.PLAN_BASED_ON)=1,
             CASE 
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END IS NULL THEN -1 
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END = 0 THEN 0
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END < SUM(amc.MIN_MONTHS_OF_STOCK) THEN 1
-                WHEN CASE WHEN COUNT(amc.MOS)=COUNT(*) THEN SUM(amc.MOS) ELSE null END <= SUM(amc.MIN_MONTHS_OF_STOCK+amc.REORDER_FREQUENCY_IN_MONTHS) THEN 2
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) IS NULL THEN 4 
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) = 0 THEN 0
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) < AVG(amc.MIN_STOCK_MOS) THEN 1
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)/SUM(amc.AMC*amc.CONVERSION) <= AVG(amc.MAX_STOCK_MOS) THEN 2
                 ELSE 3
             END,
             CASE 
-                WHEN SUM(amc.CLOSING_BALANCE)=0 THEN 0
-                WHEN SUM(amc.CLOSING_BALANCE)<SUM(amc.MIN_STOCK_QTY) THEN 1
-                WHEN SUM(amc.CLOSING_BALANCE)<=SUM(amc.MAX_STOCK_QTY) THEN 2
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)=0 THEN 0
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)<AVG(amc.MIN_STOCK_QTY) THEN 1
+                WHEN SUM(amc.CLOSING_BALANCE*amc.CONVERSION)<=AVG(amc.MAX_STOCK_QTY) THEN 2
                 ELSE 3
             END
         ) `STOCK_STATUS_ID`,
@@ -155,7 +185,7 @@ BEGIN
         SUM(amc.SHIPMENT_QTY*amc.CONVERSION) `SHIPMENT_QTY`,
         SUM(amc.EXPIRED_STOCK_QTY*amc.CONVERSION) `EXPIRED_STOCK_QTY`
     FROM tmp_amc amc
-    group by amc.TRANS_DATE, IF(@reportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID);
+    group by amc.TRANS_DATE, IF(@varReportView=1, amc.PROGRAM_ID, amc.REALM_COUNTRY_ID);
 	
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
