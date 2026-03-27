@@ -1,4 +1,14 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+
+USE `fasp`;
+DROP procedure IF EXISTS `getShipmentLinkingNotifications`;
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getShipmentLinkingNotifications`;
+;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @procurementAgentId = 1;
@@ -20,4 +30,8 @@ WHERE
 	n.ACTIVE AND sl.ACTIVE  and sl.PROGRAM_ID=@programId and slt.VERSION_ID<=@versionId and ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL and ppu.ACTIVE
 GROUP BY n.NOTIFICATION_ID
 ORDER BY n.ADDRESSED DESC, n.NOTIFICATION_ID;
-END
+END$$
+
+DELIMITER ;
+;
+

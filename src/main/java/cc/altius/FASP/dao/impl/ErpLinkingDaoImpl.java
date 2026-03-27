@@ -1787,8 +1787,11 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
 //        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT COUNT(*) FROM ( "
                 + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
-                + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
-                + " WHERE n.`ACTIVE` AND s.ACTIVE AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
+                + " LEFT JOIN rm_shipment_linking sl ON sl.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
+                + " left join rm_shipment s on s.SHIPMENT_ID=sl.CHILD_SHIPMENT_ID "
+                + " left join rm_shipment_trans st on st.SHIPMENT_ID=s.SHIPMENT_ID and st.VERSION_ID=s.MAX_VERSION_ID "
+                + " left join rm_program_planning_unit ppu on ppu.PROGRAM_ID = sl.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + " WHERE n.`ACTIVE` AND sl.ACTIVE AND n.`ADDRESSED`=0 AND sl.`PROGRAM_ID` IN (" + programIds + ") and ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL and ppu.ACTIVE GROUP BY n.`NOTIFICATION_ID` ) AS a;";
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
@@ -1813,14 +1816,17 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
 //        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
-        sql = "SELECT s.`PROGRAM_ID`,p.`LABEL_ID`,p.`LABEL_EN`,p.`LABEL_FR`,p.`LABEL_SP`,p.`LABEL_PR`, "
+        sql = "SELECT sl.`PROGRAM_ID`,p.`LABEL_ID`,p.`LABEL_EN`,p.`LABEL_FR`,p.`LABEL_SP`,p.`LABEL_PR`, "
                 + " COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT "
                 + " FROM rm_erp_notification n "
-                + " LEFT JOIN rm_shipment_linking s ON s.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
+                + " LEFT JOIN rm_shipment_linking sl ON sl.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
                 + " LEFT JOIN vw_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
-                + " WHERE n.`ACTIVE` AND s.ACTIVE AND n.`ADDRESSED`=0 "
-                + " AND s.`PROGRAM_ID` IN (" + programIds + ") "
-                + " GROUP BY s.`PROGRAM_ID` ;";
+                + " left join rm_shipment s on s.SHIPMENT_ID=sl.CHILD_SHIPMENT_ID "
+                + " left join rm_shipment_trans st on st.SHIPMENT_ID=s.SHIPMENT_ID and st.VERSION_ID=s.MAX_VERSION_ID "
+                + " left join rm_program_planning_unit ppu on ppu.PROGRAM_ID = sl.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
+                + " WHERE n.`ACTIVE` AND sl.ACTIVE AND n.`ADDRESSED`=0 and ppu.PROGRAM_PLANNING_UNIT_ID IS NOT NULL and ppu.ACTIVE "
+                + " AND sl.`PROGRAM_ID` IN (" + programIds + ") "
+                + " GROUP BY sl.`PROGRAM_ID` ;";
         return this.jdbcTemplate.query(sql, new NotificationSummaryDTORowMapper());
     }
 

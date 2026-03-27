@@ -197,12 +197,16 @@ public class DashboardDaoImpl implements DashboardDao {
         List<DashboardTop> edList = this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new DashboardTopRowMapper());
         Date curMonth = DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * curUser.getRealm().getNoOfMonthsInPastForTopDashboard()));
         Date endMonth = DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), curUser.getRealm().getNoOfMonthsInFutureForTopDashboard() - 1));
+        Date curMonthForScore = DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 0));
+        Date endMonthForScore = DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 17));
         edList.forEach(ed -> {
             String sql1 = "SELECT SUM(IF(s1.`SUM_STOCK_OUT`>0,1,0)) `PRODUCTS_WITH_STOCK_OUT` FROM (SELECT sma.PROGRAM_ID, sma.PLANNING_UNIT_ID, SUM(IF(sma.MOS=0,1,0)) `SUM_STOCK_OUT` FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID AND ppu.ACTIVE LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID AND pu.ACTIVE LEFT JOIN rm_supply_plan_amc sma ON p.PROGRAM_ID=sma.PROGRAM_ID AND p.CURRENT_VERSION_ID=sma.VERSION_ID AND pu.PLANNING_UNIT_ID=sma.PLANNING_UNIT_ID WHERE p.PROGRAM_ID=:programId AND sma.TRANS_DATE BETWEEN :curMonth AND :endMonth group by sma.PROGRAM_ID, sma.PLANNING_UNIT_ID) s1 GROUP BY s1.PROGRAM_ID";
             Map<String, Object> eParams = new HashMap<>();
             eParams.put("programId", ed.getProgram().getId());
             eParams.put("curMonth", curMonth);
             eParams.put("endMonth", endMonth);
+            eParams.put("curMonthForScore", curMonthForScore);
+            eParams.put("endMonthForScore", endMonthForScore);
             String sql2 = "SELECT SUM(ROUND(p1.EXPIRED_STOCK*st.RATE,0)) EXPIRED_VALUE "
                     + "    FROM ( "
                     + "        SELECT "
@@ -231,7 +235,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
             }
 
-            String sqlString = "CALL getDashboardStockStatus(:curMonth, :endMonth, :programId)";
+            String sqlString = "CALL getDashboardStockStatus(:curMonthForScore, :endMonthForScore, :programId)";
             ed.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, eParams, new DashboardStockStatusRowMapper()));
             
             sqlString = "CALL getDashboardForecastConsumptionProblems(:programId)";
@@ -252,17 +256,21 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public DashboardBottom getDashboardBottom(int programId, String startDate, String stopDate, int displayShipmentsBy, CustomUserDetails curUser) throws ParseException {
         DashboardBottom db = new DashboardBottom();
-        String sqlString = "CALL getDashboardStockStatus(:startDate, :stopDate, :programId)";
+        Date curMonthForScore = DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 0));
+        Date endMonthForScore = DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 17));
+        String sqlString = "CALL getDashboardStockStatus(:curMonthForScore, :endMonthForScore, :programId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("startDate", startDate);
         params.put("stopDate", DateUtils.getEndOfMonthVariable(stopDate));
+        params.put("curMonthForScore", curMonthForScore);
+        params.put("endMonthForScore", endMonthForScore);
         params.put("curDate", DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD));
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
         db.setStockStatus(this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DashboardStockStatusRowMapper()));
         
-        sqlString = "CALL getDashboardStockOutCount(:startDate, :stopDate, :programId, -1)";
+        sqlString = "CALL getDashboardStockOutCount(:curMonthForScore, :endMonthForScore, :programId, -1)";
 //        logger.debug(LogUtils.buildStringForLog(sqlString, params));
         db.getStockStatus().setPuStockOutList(this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardPuWithCountRowMapper()).stream().filter(d -> d.getCount() > 0).collect(Collectors.toList()));
 //        logger.debug(LogUtils.buildStringForLog("completed", params));
@@ -313,6 +321,8 @@ public class DashboardDaoImpl implements DashboardDao {
 
     @Override
     public DashboardForLoadProgram getDashboardForLoadProgram(int programId, int versionId, int noOfMonthsInPastForBottom, int noOfMonthsInFutureForBottom, int noOfMonthsInPastForTop, int noOfMonthsInFutureForTop, CustomUserDetails curUser) throws ParseException {
+        Date curMonthForScore = DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 0));
+        Date endMonthForScore = DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), 17));
         DashboardForLoadProgram db = new DashboardForLoadProgram();
         db.setCurDate(DateUtils.getCurrentDateObject(DateUtils.EST));
         db.setStartDateBottom(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * noOfMonthsInPastForBottom)));
@@ -320,7 +330,7 @@ public class DashboardDaoImpl implements DashboardDao {
         db.setStartDateTop(DateUtils.getStartOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), -1 * noOfMonthsInPastForTop)));
         db.setStopDateTop(DateUtils.getEndOfMonthVariable(DateUtils.addMonths(DateUtils.getCurrentDateObject(DateUtils.EST), noOfMonthsInFutureForTop - 1)));
 
-        String sqlString = "CALL getDashboardStockStatusForLoadProgram(:startDateBottom, :stopDateBottom, :programId, :versionId)";
+        String sqlString = "CALL getDashboardStockStatusForLoadProgram(:curMonthForScore, :endMonthForScore, :programId, :versionId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
@@ -331,6 +341,8 @@ public class DashboardDaoImpl implements DashboardDao {
         params.put("curDate", db.getCurDate());
         params.put("curStartOfMonth", DateUtils.getStartOfMonthString(DateUtils.YMD));
         params.put("curEndOfMonth", DateUtils.getEndOfMonthString(DateUtils.YMD));
+        params.put("curMonthForScore", curMonthForScore);
+        params.put("endMonthForScore", endMonthForScore);
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardStockStatusForLoadProgramResultSetExtractor(db));
 
         sqlString = "SELECT p1.*, st.`RATE` FROM (SELECT "
@@ -363,7 +375,7 @@ public class DashboardDaoImpl implements DashboardDao {
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 3));
         sqlString = "CALL getDashboardShipmentProblemsForLoadProgram(:programId, :versionId, :curEndOfMonth)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardQplForLoadProgramResultSetExtractor(db, 4));
-        sqlString = "CALL getDashboardStockOutCount(:startDateTop, :stopDateTop, :programId, :versionId)";
+        sqlString = "CALL getDashboardStockOutCount(:curMonthForScore, :endMonthForScore, :programId, :versionId)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardTopStockOutForLoadProgramResultSetExtractor(db));
         sqlString = "CALL getDashboardExpiriesList(:startDateTop, :stopDateTop, :programId, :versionId)";
         this.namedParameterJdbcTemplate.query(sqlString, params, new DashboardTopExpiriesForLoadProgramResultSetExtractor(db));
