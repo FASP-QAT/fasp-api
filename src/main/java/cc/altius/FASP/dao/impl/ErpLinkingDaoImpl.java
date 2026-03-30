@@ -1820,7 +1820,7 @@ public class ErpLinkingDaoImpl implements ErpLinkingDao {
                 + " COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT "
                 + " FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment_linking sl ON sl.SHIPMENT_LINKING_ID=n.SHIPMENT_LINKING_ID "
-                + " LEFT JOIN vw_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
+                + " LEFT JOIN vw_program p ON p.`PROGRAM_ID`=sl.`PROGRAM_ID` "
                 + " left join rm_shipment s on s.SHIPMENT_ID=sl.CHILD_SHIPMENT_ID "
                 + " left join rm_shipment_trans st on st.SHIPMENT_ID=s.SHIPMENT_ID and st.VERSION_ID=s.MAX_VERSION_ID "
                 + " left join rm_program_planning_unit ppu on ppu.PROGRAM_ID = sl.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID "
