@@ -69,7 +69,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
     public List<Integer> importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
         List<Integer> programList = new LinkedList<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         Map<String, Object> params = new HashMap<>();
         logger.info("################################################################################################");
         logger.info("Starting import of " + orderFile.getName() + " and " + shipmentFile.getName());
