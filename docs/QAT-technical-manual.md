@@ -7,6 +7,7 @@
 | 1 (Mar 15, 2021\) | GHSC-PSM FASP, Altius & FHI 360 | First draft |
 | 2 (Sept 14, 2022\) | Kyle Duarte | Updated to include Forecasting Module |
 | 3 (Aug 01, 2024\) | Akil Mahimwala | Updated to include reference to Integration documentation. |
+| 4 (Jul 23, 2026\) | Akil Mahimwala | Fixed port mismatch, added production deployment steps, corrected systemd service name, added database setup instructions. |
 
 **Acronyms & Definitions**
 
@@ -47,6 +48,8 @@ Table of Contents
 [5.9 React Specifications](\#react-specifications)  
 [5.10 React App Installation steps](\#react-app-installation-steps)  
 [5.11 Running QAT Application](\#running-qat-application)  
+[5.11.1 Database Setup (MySQL)](\#database-setup-mysql)  
+[5.11.2 Running the Front End](\#running-the-front-end)  
 [5.12 Running R based reports](\#running-r-based-reports)  
 [6 Integration with Country Dashboard](\#integration-with-country-dashboard)  
 [Annex 1: Business & Technical Requirements](\#annex-1-business--technical-requirements)  
@@ -480,13 +483,15 @@ Then you need to let run `sudo systemctl daemon-reload` to reload the daemon ser
 
 You can now use the following commands to start, stop or restart the application
 
-sudo systemctl start QATAPI.service
+sudo systemctl start qatApi.service
 
-sudo systemctl stop QATAPI.service
+sudo systemctl stop qatApi.service
 
-sudo systemctl status QATAPI.service
+sudo systemctl status qatApi.service
 
-sudo systemctl restart QATAPI.service
+sudo systemctl restart qatApi.service
+
+The automated build-and-deploy script (`buildAndDeploy.sh` in the `fasp-api` repository root) performs `mvn clean install`, copies the JAR to `/home/ubuntu/qatApi/`, and restarts the service. It uses `qatApi.service` as the unit name, so the file above must match exactly.
 
 ### List of API's
 
@@ -600,17 +605,148 @@ qat.homeFolder=/home/ubuntu/QAT
 
 In the properties folder inside the QAT directory you will need to follow instructions and fill in the parameters specific to your instance.
 
-Enter the project directory and execute npm install and npm run dev
+#### Database Setup (MySQL)
+
+The QAT API requires a MySQL 5.7 database. Follow the steps below to install MySQL, create the QAT schema, and configure the application to connect.
+
+**1. Install MySQL 5.7**
+
+```
+sudo apt-get update
+sudo apt-get install mysql-server-5.7
+sudo mysql_secure_installation
+```
+
+During `mysql_secure_installation`, set a strong root password, remove anonymous users, disable remote root login, and remove the test database.
+
+**2. Create the QAT database and application user**
+
+Log in to MySQL as root and create the database and a dedicated application user:
+
+```
+sudo mysql -u root -p
+```
+
+```sql
+CREATE DATABASE fasp DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER 'qat_app'@'localhost' IDENTIFIED BY '<STRONG_PASSWORD>';
+GRANT ALL PRIVILEGES ON fasp.* TO 'qat_app'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Replace `<STRONG_PASSWORD>` with a strong, unique password. If your database server is on a separate host, replace `'localhost'` with the application server's IP address or `'%'` (less secure).
+
+**3. Import the base schema**
+
+The repository contains incremental SQL scripts under `src/main/resources/`. To initialise a fresh database start with the complete script, then apply any newer incremental patches:
+
+```
+mysql -u qat_app -p fasp < src/main/resources/fasp-db.sql
+```
+
+Apply any incremental scripts from `src/main/resources/incrementalSqlScripts/` that are dated **after** the complete script, in chronological order.
+
+**4. Configure database credentials**
+
+The QAT API loads database connection properties from an **external file** located at:
+
+`<QAT_HOME>/properties/qat.properties`
+
+(Default `QAT_HOME` is `/home/ubuntu/QAT`)
+
+Create or edit `/home/ubuntu/QAT/properties/qat.properties` and add the following entries:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/fasp?useSSL=false&serverTimezone=UTC
+spring.datasource.username=qat_app
+spring.datasource.password=<STRONG_PASSWORD>
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+```
+
+Additionally, credentials for SFTP and other integrations are loaded from:
+
+`<QAT_HOME>/properties/credentials.properties`
+
+Refer to the SFTP/ERP integration section (Section 4) for details on what goes in `credentials.properties`.
+
+> **⚠️ Security Note:** Both `qat.properties` and `credentials.properties` contain sensitive credentials. Ensure these files are readable only by the application user:
+>
+> ```bash
+> sudo chown ubuntu:ubuntu /home/ubuntu/QAT/properties/qat.properties
+> sudo chmod 600 /home/ubuntu/QAT/properties/qat.properties
+> sudo chown ubuntu:ubuntu /home/ubuntu/QAT/properties/credentials.properties
+> sudo chmod 600 /home/ubuntu/QAT/properties/credentials.properties
+> ```
+
+**5. Verify the connection**
+
+Start the QAT API service and check the logs for a successful database connection:
+
+```
+sudo systemctl start qatApi.service
+sudo journalctl -u qatApi.service -f
+```
+
+Look for Spring Boot's `HikariPool` initialisation message confirming the connection to MySQL.
+
+#### Running the Front End
+
+Enter the project directory and install dependencies:
 
 $ cd fasp-core-ui
 
 $ npm install
 
+##### Option A — Local Development
+
+For **local development and testing only**, use the webpack dev server:
+
 $ npm run dev
 
-It starts the React application on port 4204\. Open new tab on browser with below address
+This starts the React application on **port 4202** (configured in `webpack.config.js`). Open a new tab in your browser with the address:
 
 [http://localhost:4202](http://localhost:4202)
+
+> **Note:** `npm run dev` starts a Node.js development server with hot-reloading. It is **not suitable for production** because it serves unoptimised bundles, exposes source maps, and does not produce the service-worker caching required for offline PWA functionality.
+
+##### Option B — Production Deployment (Recommended)
+
+For production, build optimised static assets and serve them via Apache (or a process manager like PM2):
+
+**1. Build the production bundle:**
+
+$ npm run prod
+
+This runs webpack in production mode and outputs the optimised static files (including the Workbox service worker for offline PWA support).
+
+**2. Serve via Apache:**
+
+Copy the build output to your web root (e.g., `/var/www/qat/`) and ensure the Apache VirtualHost (see Section 5.6) points to it. The Apache configuration already proxies port 443 traffic through to `http://localhost:4202`, so if using PM2 to serve the built assets, ensure PM2 binds to port 4202.
+
+Alternatively, serve the static build directly with Apache by replacing the `ProxyPass` directive with a `DocumentRoot`:
+
+```
+DocumentRoot /var/www/qat
+<Directory /var/www/qat>
+  Options -Indexes +FollowSymLinks
+  AllowOverride All
+  Require all granted
+  FallbackResource /index.html
+</Directory>
+```
+
+**3. Serve via PM2 (alternative):**
+
+If you prefer using PM2 to serve the application:
+
+```
+sudo npm install -g pm2 serve
+pm2 start npx --name "qat-ui" -- serve -s /var/www/qat -l 4202
+pm2 save
+pm2 startup
+```
 
 ### Running R based reports
 
