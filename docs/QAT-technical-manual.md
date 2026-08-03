@@ -648,6 +648,11 @@ mysql -u qat_app -p fasp < src/main/resources/fasp-db.sql
 
 Apply any incremental scripts from `src/main/resources/incrementalSqlScripts/` that are dated **after** the complete script, in chronological order.
 
+> [!NOTE]
+> By default, the database is populated with an initial Application Admin user. You can log in using the credentials:
+> **Email**: `admin@qat.com`
+> **Password**: `pass#Qat`
+
 **4. Configure database credentials**
 
 The QAT API loads database connection properties from an **external file** located at:
