@@ -1,3 +1,4 @@
+[![DPG Badge](https://img.shields.io/badge/Verified-DPG-3333AB)](https://digitalpublicgoods.net/registry/)
 
 ## QAT
 
