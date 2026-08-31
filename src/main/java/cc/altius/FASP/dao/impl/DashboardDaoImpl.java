@@ -111,7 +111,7 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public int getRealmCountryCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_realm_country r WHERE r.`ACTIVE`");
+        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_realm_country r LEFT JOIN vw_country c ON r.COUNTRY_ID=c.COUNTRY_ID WHERE r.`ACTIVE` AND c.`ACTIVE`");
         this.aclService.addUserAclForRealm(sb, params, "r", curUser);
 //        this.aclService.addUserAclForRealmCountry(sb, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, Integer.class);
@@ -120,7 +120,7 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public int getRegionCount(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_region r LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID` WHERE r.`ACTIVE`");
+        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM rm_region r LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID` LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID WHERE r.`ACTIVE` AND rc.`ACTIVE` AND c.`ACTIVE`");
         this.aclService.addUserAclForRealm(sb, params, "r", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, Integer.class);
     }
