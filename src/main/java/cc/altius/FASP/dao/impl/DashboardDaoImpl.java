@@ -411,4 +411,17 @@ public class DashboardDaoImpl implements DashboardDao {
         return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new ProgramCountRowMapper());
     }
 
+    @Override
+    public boolean isBackupRunning() {
+        // We use id != CONNECTION_ID() to exclude this query itself from the count.
+        // We check for mysqldump in the process list or queries containing SQL_NO_CACHE (which mysqldump uses heavily).
+        String sql = "SELECT COUNT(*) FROM information_schema.processlist WHERE id != CONNECTION_ID() AND (info LIKE '%mysqldump%' OR info LIKE '%/*!40001 SQL_NO_CACHE */%')";
+        try {
+            int count = this.jdbcTemplate.queryForObject(sql, Integer.class);
+            return count > 0;
+        } catch (Exception e) {
+            logger.error("Error while checking if backup is running", e);
+            return false;
+        }
+    }
 }
