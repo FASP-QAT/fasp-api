@@ -52,4 +52,5 @@ public interface DashboardDao {
 
     public ProgramCount getFullProgramCount(CustomUserDetails curUser);
 
+    public boolean isBackupRunning();
 }
