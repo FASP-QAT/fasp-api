@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,7 +59,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     private UserService userService;
 
     @Override
-    public ResponseEntity addIssue(String jsonData, CustomUserDetails curUser) {
+    public ResponseEntity<String> addIssue(String jsonData, CustomUserDetails curUser) {
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
@@ -67,7 +68,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         HttpHeaders headers = getCommonHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        jsonObject = JsonParser.parseString​(jsonData).getAsJsonObject();
+        jsonObject = JsonParser.parseString(jsonData).getAsJsonObject();
         fieldsObject = jsonObject.getAsJsonObject("fields");
 
         reporterObject = fieldsObject.getAsJsonObject("reporter");
@@ -82,7 +83,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     }
 
     @Override
-    public ResponseEntity addIssueAttachment(MultipartFile file, String issueId) {
+    public ResponseEntity<String> addIssueAttachment(MultipartFile file, String issueId) {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = null;
         try {
@@ -109,9 +110,12 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
                     JIRA_API_URL + "/issue/" + issueId + "/attachments", HttpMethod.POST, requestEntity, String.class);
 
             return response;
-        } catch (IOException ex) {
-            Logger.getLogger(JiraServiceDeskApiServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            return response;
+        } catch (IOException | RestClientException ex) {
+            Logger.getLogger(JiraServiceDeskApiServiceImpl.class.getName())
+                    .log(Level.SEVERE, "Error uploading attachment", ex);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload attachment");
         }
     }
 
@@ -149,7 +153,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
                     JIRA_API_URL + "/search/approximate-count", HttpMethod.POST, entity_Open, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+                JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
                 JsonElement element = jsonObject.get("count");
                 issuesDTO.setOpenIssues(element.getAsInt());
             }
@@ -161,7 +165,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
                     JIRA_API_URL + "/search/approximate-count", HttpMethod.POST, entity_Done, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+                JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
                 JsonElement element = jsonObject.get("count");
                 issuesDTO.setAddressedIssues(element.getAsInt());
             }
@@ -200,12 +204,15 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         try {
             response = restTemplate.exchange(
                     JIRA_SERVICE_DESK_API_URL + "/customer", HttpMethod.POST, entity, String.class);
-            JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+            JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
             JsonElement element = jsonObject.get("accountId");
             accountId = element.getAsString();
             this.userService.addUserJiraAccountId(curUser.getUserId(), accountId);
             return accountId;
-        } catch (Exception e) {
+        } catch (RestClientException e) {
+            Logger.getLogger(JiraServiceDeskApiServiceImpl.class.getName())
+                    .log(Level.SEVERE, "Error creating Jira customer", e);
+
             this.syncUserJiraAccountId(curUser.getEmailId());
             return this.userService.getUserJiraAccountId(curUser.getUserId());
         }
@@ -243,7 +250,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
             if (response.getStatusCode() == HttpStatus.OK) {
 
-                JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+                JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
                 JsonElement element = jsonObject.get("size");
                 total = element.getAsInt();
 
@@ -271,7 +278,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
                     sb.append("}");
                 }
             }
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             Logger.getLogger(JiraServiceDeskApiServiceImpl.class.getName()).log(Level.SEVERE, "Error syncing Jira Account Id", e);
         }
 
