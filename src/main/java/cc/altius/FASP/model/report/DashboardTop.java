@@ -48,6 +48,8 @@ public class DashboardTop implements Serializable {
     @JsonView(Views.ReportView.class)
     private int versionId;
     @JsonView(Views.ReportView.class)
+    private Integer latestFinalVersionId;
+    @JsonView(Views.ReportView.class)
     private SimpleObject latestFinalVersionStatus;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -67,7 +69,7 @@ public class DashboardTop implements Serializable {
     public DashboardTop() {
     }
 
-    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int versionId, SimpleObject latestFinalVersionStatus, Date latestFinalVersionLastModifiedDate) {
+    public DashboardTop(SimpleCodeObject program, int activePlanningUnits, int disabledPlanningUnits, Date lastModifiedDate, Date commitDate, SimpleObject versionType, SimpleObject versionStatus, int countOfOpenProblem, int versionId, Integer latestFinalVersionId, SimpleObject latestFinalVersionStatus, Date latestFinalVersionLastModifiedDate) {
         this.program = program;
         this.activePlanningUnits = activePlanningUnits;
         this.disabledPlanningUnits = disabledPlanningUnits;
@@ -77,6 +79,7 @@ public class DashboardTop implements Serializable {
         this.versionStatus = versionStatus;
         this.countOfOpenProblem = countOfOpenProblem;
         this.versionId = versionId;
+        this.latestFinalVersionId = latestFinalVersionId;
         this.latestFinalVersionStatus = latestFinalVersionStatus;
         this.latestFinalVersionLastModifiedDate = latestFinalVersionLastModifiedDate;
     }
@@ -167,6 +170,14 @@ public class DashboardTop implements Serializable {
 
     public void setVersion(int versionId) {
         this.versionId = versionId;
+    }
+
+    public Integer getLatestFinalVersionId() {
+        return latestFinalVersionId;
+    }
+
+    public void setLatestFinalVersionId(Integer latestFinalVersionId) {
+        this.latestFinalVersionId = latestFinalVersionId;
     }
 
     public SimpleObject getLatestFinalVersionStatus() {
