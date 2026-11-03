@@ -45,6 +45,10 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setShowDecimals(rs.getBoolean("SHOW_DECIMALS"));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
+                user.setNotes(rs.getString("NOTES"));
+                user.setAutoInactivated(rs.getBoolean("AUTO_INACTIVATED"));
+                user.setReminderEmailSent(rs.getBoolean("REMINDER_EMAIL_SENT"));
+                user.setReminderEmailSentDate(rs.getTimestamp("REMINDER_EMAIL_SENT_DATE"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 user.setRoleList(new LinkedList<>());
                 user.setUserAclList(new LinkedList<>());

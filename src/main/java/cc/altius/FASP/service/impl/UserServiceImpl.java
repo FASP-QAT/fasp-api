@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,6 +44,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserDao userDao;
@@ -169,6 +173,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
+        if (user.isActive()) {
+            User existingUser = this.userDao.getUserByUserId(user.getUserId(), curUser);
+            if (existingUser != null && existingUser.isAutoInactivated()) {
+                if (!curUser.hasBusinessFunction("ROLE_BF_ACTIVATE_AUTO_INACTIVATED_USER")) {
+                    throw new AccessControlFailedException("You do not have the rights to activate an auto-inactivated user");
+                }
+            }
+        }
         List<UserAcl> expandedUserAcl = new LinkedList<>();
         for (UserAcl acl : user.getUserAclList()) {
             if (userDao.checkCanCreateRole(acl.getRoleId(), curUser) == false) {
@@ -371,6 +383,67 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser) {
         return this.userDao.getAclRoleBfList(userId, curUser);
+    }
+
+    @Override
+    public int activateAutoInactivatedUser(int userId, CustomUserDetails curUser) throws AccessControlFailedException {
+        return this.userDao.activateAutoInactivatedUser(userId, curUser);
+    }
+
+    @Override
+    public Map<String, Object> processInactivityRemindersAndLockouts() {
+        logger.info("Starting processInactivityRemindersAndLockouts task");
+        Map<String, Object> result = new HashMap<>();
+        int remindersSent = 0;
+        int lockoutsCount = 0;
+
+        // 1. Process Reminders
+        try {
+            List<User> reminderUsers = this.userDao.getUsersDueForInactivityReminder();
+            logger.info("Found " + reminderUsers.size() + " users due for inactivity reminder email");
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(9);
+            for (User u : reminderUsers) {
+                try {
+                    int daysRemaining = u.getRealm().getNoOfDaysToLockUser() - u.getRealm().getNoOfDaysForInactivityReminder();
+                    String loginUrl = HOST_URL + "/#/login";
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = new String[]{u.getUsername(), String.valueOf(daysRemaining), loginUrl};
+                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), u.getEmailId(), "", "", subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+                    this.userDao.updateReminderEmailSent(u.getUserId());
+                    remindersSent++;
+                    logger.info("Sent inactivity reminder email to user: " + u.getEmailId());
+                } catch (Exception e) {
+                    logger.error("Error sending inactivity reminder to user: " + u.getEmailId(), e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error processing inactivity reminders", e);
+        }
+
+        // 2. Process Lockouts
+        try {
+            List<User> lockoutUsers = this.userDao.getUsersDueForInactivityLockout();
+            logger.info("Found " + lockoutUsers.size() + " users due for inactivity lockout");
+            for (User u : lockoutUsers) {
+                try {
+                    this.userDao.lockInactiveUser(u.getUserId());
+                    lockoutsCount++;
+                    logger.info("Auto-inactivated user: " + u.getEmailId() + " (ID: " + u.getUserId() + ") due to inactivity");
+                } catch (Exception e) {
+                    logger.error("Error auto-inactivating user: " + u.getUserId(), e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error processing inactivity lockouts", e);
+        }
+
+        result.put("status", "success");
+        result.put("remindersSent", remindersSent);
+        result.put("lockoutsCount", lockoutsCount);
+        return result;
     }
 
 }

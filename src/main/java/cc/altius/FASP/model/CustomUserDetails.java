@@ -40,6 +40,15 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private int defaultThemeId;
     private boolean showDecimals;
     private int defaultModuleId;
+    private boolean autoInactivated;
+
+    public boolean isAutoInactivated() {
+        return autoInactivated;
+    }
+
+    public void setAutoInactivated(boolean autoInactivated) {
+        this.autoInactivated = autoInactivated;
+    }
 
     public Realm getRealm() {
         return realm;

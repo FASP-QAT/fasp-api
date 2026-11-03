@@ -38,6 +38,8 @@ public class UserListResultSetExtractor implements ResultSetExtractor<List<User>
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), new LabelRowMapper("LANGUAGE_").mapRow(rs, 1), rs.getString("LANGUAGE_CODE"), rs.getString("COUNTRY_CODE")));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
+                user.setNotes(rs.getString("NOTES"));
+                user.setAutoInactivated(rs.getBoolean("AUTO_INACTIVATED"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 user.setRoleList(new LinkedList<>());
 //                user.setUserAclList(new LinkedList<>());

@@ -533,6 +533,33 @@ public class UserRestController {
         }
     }
 
+    @PostMapping(value = "/user/activateAutoInactivatedUser/{userId}")
+    @Operation(
+            summary = "Activate auto-inactivated user",
+            description = "Activate auto-inactivated user account"
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "200", description = "Returns a success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "Access denied")
+    @ApiResponse(content = @Content(mediaType = "text/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while activating the user")
+    public ResponseEntity activateAutoInactivatedUser(@PathVariable("userId") int userId, Authentication auth, HttpServletRequest request) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            auditLogger.info("Going to activate auto-inactivated User ID " + userId, request.getRemoteAddr(), curUser.getUsername());
+            int row = this.userService.activateAutoInactivatedUser(userId, curUser);
+            if (row > 0) {
+                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (AccessControlFailedException acfe) {
+            auditLogger.error(acfe.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.aclFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            auditLogger.info("User could not be activated", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Update a new passwords when a password has expired for a user
      *

@@ -92,6 +92,15 @@ public class JwtAuthenticationRestController {
             return new ResponseEntity(new ResponseCode("static.message.login.invalidCredentials"), HttpStatus.UNAUTHORIZED);
         } catch (DisabledException | AccountExpiredException e) {
 //            System.out.println("-------2--------------");
+            try {
+                CustomUserDetails user = this.customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+                if (user != null && user.isAutoInactivated()) {
+                    logger.info("JWT Token generation failed because user is Auto-Inactivated for Username: " + authenticationRequest.getUsername());
+                    return new ResponseEntity(new ResponseCode("static.message.login.autoInactivated"), HttpStatus.UNAUTHORIZED);
+                }
+            } catch (Exception ex) {
+                // fall through
+            }
             logger.info("JWT Token generation failed because user is Disabled for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.disabled"), HttpStatus.UNAUTHORIZED);
         } catch (LockedException e) {
