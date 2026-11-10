@@ -18,9 +18,11 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.UserNotificationPreference;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.BroadcastService;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
@@ -77,6 +79,8 @@ public class UserRestController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private BroadcastService broadcastService;
     @Autowired
     private ProgramService programService;
     @Autowired
@@ -991,5 +995,49 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    /**
+     * Get user notification preferences
+     *
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/user/notificationPreference")
+    @Operation(
+            summary = "Get user notification preferences",
+            description = "Get notification preferences for the logged in user"
+    )
+    public ResponseEntity getUserNotificationPreferences(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.broadcastService.getNotificationPreferences(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Could not get notification preferences", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Update user notification preferences
+     *
+     * @param preferences
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/user/notificationPreference")
+    @Operation(
+            summary = "Update user notification preferences",
+            description = "Update notification preferences for the logged in user"
+    )
+    public ResponseEntity updateUserNotificationPreferences(@RequestBody List<UserNotificationPreference> preferences, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            this.broadcastService.saveNotificationPreferences(preferences, curUser);
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Could not update notification preferences", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
