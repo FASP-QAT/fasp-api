@@ -17,6 +17,7 @@ import cc.altius.FASP.service.BroadcastService;
 import cc.altius.FASP.service.EmailService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +130,7 @@ public class BroadcastServiceImpl implements BroadcastService {
 
         String formattedHtml = buildEmailHtml(input.getBodyHtml(), category);
 
-        int sentBatches = 0;
+        List<Emailer> emailerBatches = new ArrayList<>();
         for (int i = 0; i < emailList.size(); i += BCC_BATCH_SIZE) {
             List<String> batch = emailList.subList(i, Math.min(i + BCC_BATCH_SIZE, emailList.size()));
             String bccString = String.join(",", batch);
@@ -143,17 +144,52 @@ public class BroadcastServiceImpl implements BroadcastService {
             emailer.setStatus(0);
 
             try {
-                // Insert into em_emailer table for the email scheduler to pick up and send
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
-                sentBatches++;
-                logger.info("Broadcast batch {}/{} (Email ID {}) queued in em_emailer for scheduler delivery.", sentBatches, totalBatches, emailerId);
+                emailerBatches.add(emailer);
+                logger.info("Broadcast batch {}/{} (Email ID {}) recorded in em_emailer.", emailerBatches.size(), totalBatches, emailerId);
             } catch (Exception e) {
-                logger.error("Error queueing broadcast batch {}/{}", (i / BCC_BATCH_SIZE) + 1, totalBatches, e);
+                logger.error("Error saving broadcast batch {}/{}", (i / BCC_BATCH_SIZE) + 1, totalBatches, e);
             }
         }
 
-        this.broadcastDao.updateBroadcastStatus(broadcastId, "QUEUED", emailList.size(), sentBatches);
+        final int finalBroadcastId = broadcastId;
+        final int totalRecipients = emailList.size();
+        final int totalBatchesCount = emailerBatches.size();
+
+        this.broadcastDao.updateBroadcastStatus(broadcastId, "QUEUED", totalRecipients, totalBatchesCount);
+
+        if (!emailerBatches.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                int successfulBatches = 0;
+                for (int b = 0; b < emailerBatches.size(); b++) {
+                    Emailer batchEmailer = emailerBatches.get(b);
+                    try {
+                        logger.info("Sending broadcast batch {}/{} (Email ID {}) for broadcastId {}",
+                                (b + 1), totalBatchesCount, batchEmailer.getEmailerId(), finalBroadcastId);
+                        int result = this.emailService.sendMail(batchEmailer);
+                        if (result == 1) {
+                            successfulBatches++;
+                        } else {
+                            logger.warn("sendMail returned {} for broadcast batch {}/{} (Email ID {})",
+                                    result, (b + 1), totalBatchesCount, batchEmailer.getEmailerId());
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Exception sending broadcast batch {}/{} (Email ID {}) for broadcastId {}",
+                                (b + 1), totalBatchesCount, batchEmailer.getEmailerId(), finalBroadcastId, ex);
+                    }
+                }
+                String finalStatus = (successfulBatches == totalBatchesCount) ? "COMPLETED" : (successfulBatches > 0 ? "PARTIAL" : "FAILED");
+                try {
+                    this.broadcastDao.updateBroadcastStatus(finalBroadcastId, finalStatus, totalRecipients, successfulBatches);
+                    logger.info("Broadcast {} background delivery finished with status: {} ({}/{} batches succeeded)",
+                            finalBroadcastId, finalStatus, successfulBatches, totalBatchesCount);
+                } catch (Exception ex) {
+                    logger.error("Failed to update final status for broadcast {}", finalBroadcastId, ex);
+                }
+            });
+        }
+
         return broadcastId;
     }
 
