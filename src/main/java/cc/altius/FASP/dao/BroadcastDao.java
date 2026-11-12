@@ -32,6 +32,12 @@ public interface BroadcastDao {
 
     public int saveBroadcastMessage(BroadcastMessage broadcastMessage, CustomUserDetails curUser);
 
+    public int updateBroadcastDraft(BroadcastMessage broadcastMessage, CustomUserDetails curUser);
+
+    public BroadcastMessage getBroadcastMessageById(int broadcastId);
+
+    public List<BroadcastRecipient> getRecipientsByBroadcastId(int broadcastId);
+
     public int updateBroadcastStatus(int broadcastId, String status, int totalRecipients, int batchCount);
 
     public List<BroadcastMessage> getBroadcastHistory();

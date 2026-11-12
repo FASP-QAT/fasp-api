@@ -324,5 +324,152 @@ INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Les répons
 INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Las respuestas no son monitoreadas. El pie de página estándar de soporte de QAT se incluirá automáticamente.');
 INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'As respostas não são monitoradas. O rodapé padrão de suporte do QAT será incluído automaticamente.');
 
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.newMessage', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'New Message');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Nouveau message');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Nuevo mensaje');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Nova mensagem');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.saveDraft', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Save as Draft');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Enregistrer comme brouillon');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Guardar como borrador');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Salvar como rascunho');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.draftSaved', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Broadcast message saved as draft.');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Message de diffusion enregistré comme brouillon.');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Mensaje de difusión guardado como borrador.');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Mensagem de transmissão salva como rascunho.');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.draft', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Draft');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Brouillon');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Borrador');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Rascunho');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.editDraft', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Edit Draft');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Modifier le brouillon');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Editar borrador');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Editar rascunho');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.recipientsList', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Recipients List');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Liste des destinataires');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Lista de destinatarios');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Lista de destinatários');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.backToList', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Back to Messages');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Retour aux messages');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Volver a los mensajes');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Voltar para as mensagens');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.time', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Time');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Heure');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Hora');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Hora');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.sentSuccess', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Broadcast message sent successfully');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Message de diffusion envoyé avec succès');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Mensaje de difusión enviado con éxito');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Mensagem de transmissão enviada com sucesso');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.normalText', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Normal');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Normal');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Normal');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Normal');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.heading', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Heading');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Titre');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Encabezado');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Título');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.indent', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Indent');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Indenter');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Aumentar sangría');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Aumentar recuo');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.outdent', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Outdent');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Désindenter');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Reducir sangría');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Diminuir recuo');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.clearFormatting', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Clear Formatting');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Effacer la mise en forme');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Borrar formato');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Limpar formatação');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.textColor', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Text Color');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Couleur du texte');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Color del texto');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Cor do texto');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.highlightColor', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Highlight Color');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Couleur de surbrillance');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Color de resaltado');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Cor de realce');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.fontSize', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Font Size');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Taille de police');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Tamaño de fuente');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Tamanho da fonte');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.alignLeft', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Align Left');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Aligner à gauche');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Alinear a la izquierda');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Alinhar à esquerda');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.alignCenter', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Align Center');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Centrer');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Centrar');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Centralizar');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.alignRight', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Align Right');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Aligner à droite');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Alinear a la derecha');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Alinhar à direita');
+
+INSERT INTO `ap_static_label` VALUES (null, 'static.broadcast.alignJustify', 1);
+SELECT @label_id := MAX(STATIC_LABEL_ID) FROM ap_static_label;
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 1, 'Justify');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 2, 'Justifier');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 3, 'Justificar');
+INSERT INTO `ap_static_label_languages` VALUES (null, @label_id, 4, 'Justificar');
+
 
 

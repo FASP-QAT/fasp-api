@@ -23,6 +23,26 @@ DELIMITER ;
 CALL `add_broadcast_target_roles_col`();
 DROP PROCEDURE `add_broadcast_target_roles_col`;
 
+-- 1b. Safely add LAST_MODIFIED_DATE and LAST_MODIFIED_BY to ap_broadcast_message if missing
+DROP PROCEDURE IF EXISTS `add_broadcast_mod_cols`;
+DELIMITER $$
+CREATE PROCEDURE `add_broadcast_mod_cols`()
+BEGIN
+    IF NOT EXISTS (
+        SELECT * FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'ap_broadcast_message' 
+        AND COLUMN_NAME = 'LAST_MODIFIED_DATE'
+    ) THEN
+        ALTER TABLE `ap_broadcast_message` 
+        ADD COLUMN `LAST_MODIFIED_DATE` datetime NULL AFTER `CREATED_DATE`,
+        ADD COLUMN `LAST_MODIFIED_BY` int unsigned NULL AFTER `LAST_MODIFIED_DATE`;
+    END IF;
+END$$
+DELIMITER ;
+CALL `add_broadcast_mod_cols`();
+DROP PROCEDURE `add_broadcast_mod_cols`;
+
 -- 2. Ensure ap_label_source exists for ap_email_category
 INSERT IGNORE INTO `ap_label_source` (`SOURCE_DESC`, `SOURCE_TEXT`) VALUES ('ap_email_category', 'Email Category');
 SELECT MAX(SOURCE_ID) INTO @email_category_source_id FROM `ap_label_source` WHERE SOURCE_DESC = 'ap_email_category';
@@ -150,6 +170,27 @@ CALL insert_static_label_if_missing('static.broadcast.allRoles', 'All Roles', 'T
 CALL insert_static_label_if_missing('static.broadcast.bccNote', 'Delivered via BCC chunks (≤ 200 recipients per email).', 'Envoyé par lots CCI (≤ 200 destinataires par e-mail).', 'Enviado en lotes CCO (≤ 200 destinatarios por correo).', 'Enviado em lotes CCO (≤ 200 destinatários por e-mail).');
 CALL insert_static_label_if_missing('static.broadcast.targetAudienceHelp', 'Select specific roles or leave empty to reach all active users.', 'Sélectionnez des rôles spécifiques ou laissez vide pour tous les utilisateurs actifs.', 'Seleccione roles específicos o deje en blanco para llegar a todos los usuarios activos.', 'Selecione funções específicas ou deixe em branco para alcançar todos os utilizadores ativos.');
 CALL insert_static_label_if_missing('static.broadcast.bodyHelp', 'Replies to broadcast emails are not monitored. Standard QAT support footer with support@quantificationanalytics.org will be included automatically.', 'Les réponses ne sont pas surveillées. Le pied de page officiel du support sera ajouté automatiquement.', 'Las respuestas no son monitoreadas. El pie de página estándar de soporte de QAT se incluirá automáticamente.', 'As respostas não são monitoradas. O rodapé padrão de suporte do QAT será incluído automaticamente.');
+CALL insert_static_label_if_missing('static.broadcast.newMessage', 'New Message', 'Nouveau message', 'Nuevo mensaje', 'Nova mensagem');
+CALL insert_static_label_if_missing('static.broadcast.saveDraft', 'Save as Draft', 'Enregistrer comme brouillon', 'Guardar como borrador', 'Salvar como rascunho');
+CALL insert_static_label_if_missing('static.broadcast.draftSaved', 'Broadcast message saved as draft.', 'Message de diffusion enregistré comme brouillon.', 'Mensaje de difusión guardado como borrador.', 'Mensagem de transmissão salva como rascunho.');
+CALL insert_static_label_if_missing('static.broadcast.draft', 'Draft', 'Brouillon', 'Borrador', 'Rascunho');
+CALL insert_static_label_if_missing('static.broadcast.editDraft', 'Edit Draft', 'Modifier le brouillon', 'Editar borrador', 'Editar rascunho');
+CALL insert_static_label_if_missing('static.broadcast.recipientsList', 'Recipients List', 'Liste des destinataires', 'Lista de destinatarios', 'Lista de destinatários');
+CALL insert_static_label_if_missing('static.broadcast.backToList', 'Back to Messages', 'Retour aux messages', 'Volver a los mensajes', 'Voltar para as mensagens');
+CALL insert_static_label_if_missing('static.broadcast.time', 'Time', 'Heure', 'Hora', 'Hora');
+CALL insert_static_label_if_missing('static.broadcast.sentSuccess', 'Broadcast message sent successfully', 'Message de diffusion envoyé avec succès', 'Mensaje de difusión enviado con éxito', 'Mensagem de transmissão enviada com sucesso');
+CALL insert_static_label_if_missing('static.broadcast.normalText', 'Normal', 'Normal', 'Normal', 'Normal');
+CALL insert_static_label_if_missing('static.broadcast.heading', 'Heading', 'Titre', 'Encabezado', 'Título');
+CALL insert_static_label_if_missing('static.broadcast.indent', 'Indent', 'Indenter', 'Aumentar sangría', 'Aumentar recuo');
+CALL insert_static_label_if_missing('static.broadcast.outdent', 'Outdent', 'Désindenter', 'Reducir sangría', 'Diminuir recuo');
+CALL insert_static_label_if_missing('static.broadcast.clearFormatting', 'Clear Formatting', 'Effacer la mise en forme', 'Borrar formato', 'Limpar formatação');
+CALL insert_static_label_if_missing('static.broadcast.textColor', 'Text Color', 'Couleur du texte', 'Color del texto', 'Cor do texto');
+CALL insert_static_label_if_missing('static.broadcast.highlightColor', 'Highlight Color', 'Couleur de surbrillance', 'Color de resaltado', 'Cor de realce');
+CALL insert_static_label_if_missing('static.broadcast.fontSize', 'Font Size', 'Taille de police', 'Tamaño de fuente', 'Tamanho da fonte');
+CALL insert_static_label_if_missing('static.broadcast.alignLeft', 'Align Left', 'Aligner à gauche', 'Alinear a la izquierda', 'Alinhar à esquerda');
+CALL insert_static_label_if_missing('static.broadcast.alignCenter', 'Align Center', 'Centrer', 'Centrar', 'Centralizar');
+CALL insert_static_label_if_missing('static.broadcast.alignRight', 'Align Right', 'Aligner à droite', 'Alinear a la derecha', 'Alinhar à direita');
+CALL insert_static_label_if_missing('static.broadcast.alignJustify', 'Justify', 'Justifier', 'Justificar', 'Justificar');
 
 DROP PROCEDURE IF EXISTS `insert_static_label_if_missing`;
 
