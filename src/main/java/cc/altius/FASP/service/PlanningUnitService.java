@@ -45,6 +45,8 @@ public interface PlanningUnitService {
 
     public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
+    public cc.altius.FASP.model.DTO.BulkSaveResponse addAndUpdatePlanningUnits(List<PlanningUnit> planningUnitList, CustomUserDetails curUser) throws DuplicateNameException;
+
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser);
 
     public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) throws ParseException;

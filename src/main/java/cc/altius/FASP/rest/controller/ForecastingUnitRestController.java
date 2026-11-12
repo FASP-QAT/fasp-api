@@ -141,6 +141,38 @@ public class ForecastingUnitRestController {
     }
 
     /**
+     * Add or Update FU's in bulk
+     *
+     * @param forecastingUnitList
+     * @param auth
+     * @return
+     */
+    @PostMapping(path = "/bulk")
+    @Operation(
+        summary = "Add or Update Forecasting Units in Bulk",
+        description = "Save or update a list of forecasting units"
+    )
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = cc.altius.FASP.model.DTO.BulkSaveResponse.class)), responseCode = "200", description = "Returns bulk save result")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "403", description = "User does not have permission to add/update forecasting units")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "406", description = "Forecasting unit name conflict")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseCode.class)), responseCode = "500", description = "Internal error while updating forecasting units")
+    public ResponseEntity postForecastingUnitBulk(@RequestBody List<ForecastingUnit> forecastingUnitList, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.forecastingUnitService.addAndUpdateForecastingUnits(forecastingUnitList, curUser), HttpStatus.OK);
+        } catch (DuplicateNameException de) {
+            logger.error("Error while trying to bulk add/update ForecastingUnit", de);
+            return new ResponseEntity(new ResponseCode(de.getMessage()), HttpStatus.NOT_ACCEPTABLE); // 406
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to bulk add/update ForecastingUnit", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN); // 403
+        } catch (Exception e) {
+            logger.error("Error while trying to bulk add/update ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+    }
+
+    /**
      * Get list of active FU’s
      *
      * @param auth

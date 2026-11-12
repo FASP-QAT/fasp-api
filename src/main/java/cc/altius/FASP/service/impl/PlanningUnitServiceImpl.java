@@ -13,6 +13,7 @@ import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithProductCategoryDTO;
+import cc.altius.FASP.model.DTO.BulkSaveResponse;
 import cc.altius.FASP.model.DTO.MultipleProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.DTO.ProductCategoryTracerCategoryAndForecastingUnitDTO;
 import cc.altius.FASP.model.DTO.ProgramAndVersionDTO;
@@ -32,12 +33,17 @@ import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -114,6 +120,41 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public BulkSaveResponse addAndUpdatePlanningUnits(List<PlanningUnit> planningUnitList, CustomUserDetails curUser) throws DuplicateNameException {
+        Set<String> names = new HashSet<>();
+        for (PlanningUnit pu : planningUnitList) {
+            if (pu.getLabel() != null && pu.getLabel().getLabel_en() != null) {
+                String name = pu.getLabel().getLabel_en().trim().toLowerCase();
+                if (!names.add(name)) {
+                    throw new DuplicateNameException("Duplicate Planning Unit name in submitted data: " + pu.getLabel().getLabel_en());
+                }
+            }
+        }
+        int totalEdited = 0;
+        int totalCreated = 0;
+        List<Map<String, Object>> savedUnits = new LinkedList<>();
+        for (PlanningUnit pu : planningUnitList) {
+            Map<String, Object> map = new HashMap<>();
+            if (pu.getPlanningUnitId() == 0) {
+                int id = this.addPlanningUnit(pu, curUser);
+                totalCreated++;
+                map.put("planningUnitId", id);
+                map.put("labelEn", pu.getLabel() != null ? pu.getLabel().getLabel_en() : "");
+                map.put("isNew", true);
+            } else {
+                this.updatePlanningUnit(pu, curUser);
+                totalEdited++;
+                map.put("planningUnitId", pu.getPlanningUnitId());
+                map.put("labelEn", pu.getLabel() != null ? pu.getLabel().getLabel_en() : "");
+                map.put("isNew", false);
+            }
+            savedUnits.add(map);
+        }
+        return new BulkSaveResponse(totalEdited, totalCreated, savedUnits);
     }
 
     @Override
