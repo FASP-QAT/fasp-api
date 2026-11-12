@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.BroadcastMessage;
 import cc.altius.FASP.model.BroadcastMessageInput;
+import cc.altius.FASP.model.BroadcastRecipient;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailCategory;
 import cc.altius.FASP.model.UserNotificationPreference;
@@ -29,6 +30,12 @@ public interface BroadcastService {
     public int getRecipientCount(int categoryId, List<String> businessFunctionIds, List<Integer> languageIds);
 
     public int sendBroadcast(BroadcastMessageInput input, CustomUserDetails curUser);
+
+    public int saveDraft(BroadcastMessageInput input, CustomUserDetails curUser);
+
+    public BroadcastMessage getBroadcastMessageById(int broadcastId);
+
+    public List<BroadcastRecipient> getRecipientsByBroadcastId(int broadcastId);
 
     public List<BroadcastMessage> getBroadcastHistory();
 

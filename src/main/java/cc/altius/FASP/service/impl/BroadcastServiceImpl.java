@@ -108,8 +108,14 @@ public class BroadcastServiceImpl implements BroadcastService {
         bm.setTotalRecipients(recipients.size());
         bm.setStatus("QUEUED");
 
-        int broadcastId = this.broadcastDao.saveBroadcastMessage(bm, curUser);
-        bm.setBroadcastId(broadcastId);
+        int broadcastId = input.getBroadcastId();
+        if (broadcastId > 0) {
+            bm.setBroadcastId(broadcastId);
+            this.broadcastDao.updateBroadcastDraft(bm, curUser);
+        } else {
+            broadcastId = this.broadcastDao.saveBroadcastMessage(bm, curUser);
+            bm.setBroadcastId(broadcastId);
+        }
 
         // Separate email addresses
         List<String> emailList = recipients.stream()
@@ -181,6 +187,48 @@ public class BroadcastServiceImpl implements BroadcastService {
 
         html.append("</div></div></body></html>");
         return html.toString();
+    }
+
+    @Override
+    public int saveDraft(BroadcastMessageInput input, CustomUserDetails curUser) {
+        if (input == null) {
+            return 0;
+        }
+        List<BroadcastRecipient> recipients = this.broadcastDao.getBroadcastRecipients(
+                input.getCategoryId(),
+                input.getTargetRoles(),
+                input.getTargetBusinessFunctions(),
+                input.getTargetLanguages()
+        );
+        int recipientCount = recipients != null ? recipients.size() : 0;
+
+        BroadcastMessage bm = new BroadcastMessage();
+        bm.setCategoryId(input.getCategoryId());
+        bm.setSubject(input.getSubject() != null ? input.getSubject().trim() : "");
+        bm.setBodyHtml(input.getBodyHtml() != null ? input.getBodyHtml() : "");
+        bm.setTargetRoles(input.getTargetRoles());
+        bm.setTargetBusinessFunctions(input.getTargetBusinessFunctions());
+        bm.setTargetLanguages(input.getTargetLanguages());
+        bm.setTotalRecipients(recipientCount);
+        bm.setStatus("DRAFT");
+
+        if (input.getBroadcastId() > 0) {
+            bm.setBroadcastId(input.getBroadcastId());
+            this.broadcastDao.updateBroadcastDraft(bm, curUser);
+            return input.getBroadcastId();
+        } else {
+            return this.broadcastDao.saveBroadcastMessage(bm, curUser);
+        }
+    }
+
+    @Override
+    public BroadcastMessage getBroadcastMessageById(int broadcastId) {
+        return this.broadcastDao.getBroadcastMessageById(broadcastId);
+    }
+
+    @Override
+    public List<BroadcastRecipient> getRecipientsByBroadcastId(int broadcastId) {
+        return this.broadcastDao.getRecipientsByBroadcastId(broadcastId);
     }
 
     @Override

@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -141,6 +142,66 @@ public class BroadcastRestController {
         } catch (Exception e) {
             logger.error("Error while sending broadcast", e);
             return new ResponseEntity(new ResponseCode("static.message.failed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Save broadcast draft
+     *
+     * @param input
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/draft")
+    @Operation(summary = "Save broadcast draft", description = "Saves or updates a broadcast draft without sending")
+    public ResponseEntity saveDraft(@RequestBody BroadcastMessageInput input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
+                    ((CustomUserDetails) auth.getPrincipal()).getUserId(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI()
+            );
+
+            if (!curUser.hasBusinessFunction(BF_BROADCAST_MESSAGE)) {
+                return new ResponseEntity(new ResponseCode("static.message.unauthorized"), HttpStatus.FORBIDDEN);
+            }
+
+            int broadcastId = this.broadcastService.saveDraft(input, curUser);
+            Map<String, Object> result = new HashMap<>();
+            result.put("broadcastId", broadcastId);
+            result.put("status", "DRAFT");
+            return new ResponseEntity(result, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while saving broadcast draft", e);
+            return new ResponseEntity(new ResponseCode("static.message.failed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get recipients by broadcast ID
+     *
+     * @param broadcastId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/{broadcastId}/recipients")
+    @Operation(summary = "Get recipients for a broadcast message", description = "Retrieve list of recipients targeted by this broadcast message")
+    public ResponseEntity getRecipientsByBroadcastId(@PathVariable("broadcastId") int broadcastId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
+                    ((CustomUserDetails) auth.getPrincipal()).getUserId(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI()
+            );
+
+            if (!curUser.hasBusinessFunction(BF_BROADCAST_MESSAGE)) {
+                return new ResponseEntity(new ResponseCode("static.message.unauthorized"), HttpStatus.FORBIDDEN);
+            }
+
+            return new ResponseEntity(this.broadcastService.getRecipientsByBroadcastId(broadcastId), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while fetching broadcast recipients", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

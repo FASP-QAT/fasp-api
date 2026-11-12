@@ -240,6 +240,103 @@ public class BroadcastDaoImpl implements BroadcastDao {
     }
 
     @Override
+    public int updateBroadcastDraft(BroadcastMessage broadcastMessage, CustomUserDetails curUser) {
+        String sql = "UPDATE ap_broadcast_message SET CATEGORY_ID = ?, SUBJECT = ?, BODY_HTML = ?, "
+                + "TARGET_ROLES = ?, TARGET_BUSINESS_FUNCTIONS = ?, TARGET_LANGUAGES = ?, "
+                + "TOTAL_RECIPIENTS = ?, STATUS = ? WHERE BROADCAST_ID = ?";
+        String rolesJson = null;
+        String bfJson = null;
+        String langJson = null;
+        try {
+            if (broadcastMessage.getTargetRoles() != null) {
+                rolesJson = objectMapper.writeValueAsString(broadcastMessage.getTargetRoles());
+            }
+            if (broadcastMessage.getTargetBusinessFunctions() != null) {
+                bfJson = objectMapper.writeValueAsString(broadcastMessage.getTargetBusinessFunctions());
+            }
+            if (broadcastMessage.getTargetLanguages() != null) {
+                langJson = objectMapper.writeValueAsString(broadcastMessage.getTargetLanguages());
+            }
+        } catch (Exception e) {
+            logger.warn("Error serializing broadcast filter JSON", e);
+        }
+        return this.jdbcTemplate.update(sql,
+                broadcastMessage.getCategoryId(),
+                broadcastMessage.getSubject(),
+                broadcastMessage.getBodyHtml(),
+                rolesJson,
+                bfJson,
+                langJson,
+                broadcastMessage.getTotalRecipients(),
+                broadcastMessage.getStatus() != null ? broadcastMessage.getStatus() : "DRAFT",
+                broadcastMessage.getBroadcastId()
+        );
+    }
+
+    @Override
+    public BroadcastMessage getBroadcastMessageById(int broadcastId) {
+        String sql = "SELECT b.BROADCAST_ID, b.CATEGORY_ID, c.CATEGORY_CODE, "
+                + "c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, "
+                + "b.SUBJECT, b.BODY_HTML, b.TARGET_ROLES, b.TARGET_BUSINESS_FUNCTIONS, b.TARGET_LANGUAGES, "
+                + "b.TOTAL_RECIPIENTS, b.BATCH_COUNT, b.STATUS, b.CREATED_DATE, "
+                + "u.USER_ID `CB_USER_ID`, u.USERNAME `CB_USERNAME` "
+                + "FROM ap_broadcast_message b "
+                + "LEFT JOIN vw_email_category c ON b.CATEGORY_ID = c.CATEGORY_ID "
+                + "LEFT JOIN us_user u ON b.CREATED_BY = u.USER_ID "
+                + "WHERE b.BROADCAST_ID = ?";
+
+        try {
+            return this.jdbcTemplate.queryForObject(sql, new RowMapper<BroadcastMessage>() {
+                @Override
+                public BroadcastMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    BroadcastMessage bm = new BroadcastMessage();
+                    bm.setBroadcastId(rs.getInt("BROADCAST_ID"));
+                    bm.setCategoryId(rs.getInt("CATEGORY_ID"));
+                    bm.setLabel(new LabelRowMapper("").mapRow(rs, rowNum));
+                    bm.setCategoryName(rs.getString("LABEL_EN"));
+                    bm.setCategoryCode(rs.getString("CATEGORY_CODE"));
+                    bm.setSubject(rs.getString("SUBJECT"));
+                    bm.setBodyHtml(rs.getString("BODY_HTML"));
+                    bm.setTotalRecipients(rs.getInt("TOTAL_RECIPIENTS"));
+                    bm.setBatchCount(rs.getInt("BATCH_COUNT"));
+                    bm.setStatus(rs.getString("STATUS"));
+                    bm.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+                    bm.setCreatedBy(new BasicUserRowMapper("CB_").mapRow(rs, rowNum));
+
+                    String rolesJson = rs.getString("TARGET_ROLES");
+                    String bfJson = rs.getString("TARGET_BUSINESS_FUNCTIONS");
+                    String langJson = rs.getString("TARGET_LANGUAGES");
+                    try {
+                        if (rolesJson != null && !rolesJson.isEmpty()) {
+                            bm.setTargetRoles(objectMapper.readValue(rolesJson, new TypeReference<List<String>>() {}));
+                        }
+                        if (bfJson != null && !bfJson.isEmpty()) {
+                            bm.setTargetBusinessFunctions(objectMapper.readValue(bfJson, new TypeReference<List<String>>() {}));
+                        }
+                        if (langJson != null && !langJson.isEmpty()) {
+                            bm.setTargetLanguages(objectMapper.readValue(langJson, new TypeReference<List<Integer>>() {}));
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Error deserializing broadcast filters", e);
+                    }
+                    return bm;
+                }
+            }, broadcastId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<BroadcastRecipient> getRecipientsByBroadcastId(int broadcastId) {
+        BroadcastMessage bm = getBroadcastMessageById(broadcastId);
+        if (bm == null) {
+            return new ArrayList<>();
+        }
+        return getBroadcastRecipients(bm.getCategoryId(), bm.getTargetRoles(), bm.getTargetBusinessFunctions(), bm.getTargetLanguages());
+    }
+
+    @Override
     public int updateBroadcastStatus(int broadcastId, String status, int totalRecipients, int batchCount) {
         String sql = "UPDATE ap_broadcast_message SET STATUS = ?, TOTAL_RECIPIENTS = ?, BATCH_COUNT = ? WHERE BROADCAST_ID = ?";
         return this.jdbcTemplate.update(sql, status, totalRecipients, batchCount, broadcastId);

@@ -14,14 +14,32 @@ import java.util.List;
  */
 public class BroadcastMessageInput implements Serializable {
 
+    private int broadcastId;
     private int categoryId;
     private String subject;
     private String bodyHtml;
     private List<String> targetRoles;
     private List<String> targetBusinessFunctions;
     private List<Integer> targetLanguages;
+    private String status;
 
     public BroadcastMessageInput() {
+    }
+
+    public int getBroadcastId() {
+        return broadcastId;
+    }
+
+    public void setBroadcastId(int broadcastId) {
+        this.broadcastId = broadcastId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<String> getTargetRoles() {
