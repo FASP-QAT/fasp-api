@@ -21,6 +21,7 @@ import cc.altius.FASP.exception.DuplicateNameException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.AutoCompleteInput;
 import cc.altius.FASP.model.DTO.AutocompleteInputWithTracerCategoryDTO;
+import cc.altius.FASP.model.DTO.BulkSaveResponse;
 import cc.altius.FASP.model.DTO.ProductCategoryAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnitWithCount;
 import cc.altius.FASP.model.Realm;
@@ -28,7 +29,12 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitWithUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleProgram;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -80,6 +86,41 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public BulkSaveResponse addAndUpdateForecastingUnits(List<ForecastingUnit> forecastingUnitList, CustomUserDetails curUser) throws DuplicateNameException {
+        Set<String> names = new HashSet<>();
+        for (ForecastingUnit fu : forecastingUnitList) {
+            if (fu.getLabel() != null && fu.getLabel().getLabel_en() != null) {
+                String name = fu.getLabel().getLabel_en().trim().toLowerCase();
+                if (!names.add(name)) {
+                    throw new DuplicateNameException("Duplicate Forecasting Unit name in submitted data: " + fu.getLabel().getLabel_en());
+                }
+            }
+        }
+        int totalEdited = 0;
+        int totalCreated = 0;
+        List<Map<String, Object>> savedUnits = new LinkedList<>();
+        for (ForecastingUnit fu : forecastingUnitList) {
+            Map<String, Object> map = new HashMap<>();
+            if (fu.getForecastingUnitId() == 0) {
+                int id = this.addForecastingUnit(fu, curUser);
+                totalCreated++;
+                map.put("forecastingUnitId", id);
+                map.put("labelEn", fu.getLabel() != null ? fu.getLabel().getLabel_en() : "");
+                map.put("isNew", true);
+            } else {
+                this.updateForecastingUnit(fu, curUser);
+                totalEdited++;
+                map.put("forecastingUnitId", fu.getForecastingUnitId());
+                map.put("labelEn", fu.getLabel() != null ? fu.getLabel().getLabel_en() : "");
+                map.put("isNew", false);
+            }
+            savedUnits.add(map);
+        }
+        return new BulkSaveResponse(totalEdited, totalCreated, savedUnits);
     }
 
     @Override

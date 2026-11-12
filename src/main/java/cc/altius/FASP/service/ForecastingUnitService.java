@@ -34,6 +34,8 @@ public interface ForecastingUnitService {
 
     public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) throws DuplicateNameException;
 
+    public cc.altius.FASP.model.DTO.BulkSaveResponse addAndUpdateForecastingUnits(List<ForecastingUnit> forecastingUnitList, CustomUserDetails curUser) throws DuplicateNameException;
+
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser);
 
     public List<ForecastingUnit> getForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
