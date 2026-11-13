@@ -38,6 +38,8 @@ public class RealmRowMapper implements RowMapper<Realm> {
         r.setNoOfMonthsInPastForTopDashboard(rs.getInt("NO_OF_MONTHS_IN_PAST_FOR_TOP_DASHBOARD"));
         r.setNoOfMonthsInFutureForTopDashboard(rs.getInt("NO_OF_MONTHS_IN_FUTURE_FOR_TOP_DASHBOARD"));
         r.setSupplyPlanScoreThresholdPerc(rs.getDouble("SUPPLY_PLAN_SCORE_THRESHOLD_PERC"));
+        r.setNoOfDaysForInactivityReminder(rs.getInt("NO_OF_DAYS_FOR_INACTIVITY_REMINDER"));
+        r.setNoOfDaysToLockUser(rs.getInt("NO_OF_DAYS_TO_LOCK_USER"));
         r.setActive(rs.getBoolean("ACTIVE"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         r.setLabel(new LabelRowMapper().mapRow(rs, i));

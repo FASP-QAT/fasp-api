@@ -54,6 +54,14 @@ public class User extends BaseModel implements Serializable {
     private UserAcl[] userAcls;
     private List<String> businessFunctionList;
     private boolean editable;
+    @JsonView(Views.UserListView.class)
+    private String notes;
+    @JsonView(Views.UserListView.class)
+    private boolean autoInactivated;
+    private boolean reminderEmailSent;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date reminderEmailSentDate;
 
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -249,6 +257,38 @@ public class User extends BaseModel implements Serializable {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public boolean isAutoInactivated() {
+        return autoInactivated;
+    }
+
+    public void setAutoInactivated(boolean autoInactivated) {
+        this.autoInactivated = autoInactivated;
+    }
+
+    public boolean isReminderEmailSent() {
+        return reminderEmailSent;
+    }
+
+    public void setReminderEmailSent(boolean reminderEmailSent) {
+        this.reminderEmailSent = reminderEmailSent;
+    }
+
+    public Date getReminderEmailSentDate() {
+        return reminderEmailSentDate;
+    }
+
+    public void setReminderEmailSentDate(Date reminderEmailSentDate) {
+        this.reminderEmailSentDate = reminderEmailSentDate;
     }
 
     @Override

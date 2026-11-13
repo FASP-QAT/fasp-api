@@ -38,6 +38,7 @@ public class CustomUserDetailsResultSetExtractorFull implements ResultSetExtract
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setSyncExpiresOn(rs.getTimestamp("SYNC_EXPIRES_ON"));
                 user.setActive(rs.getBoolean("ACTIVE"));
+                user.setAutoInactivated(rs.getBoolean("AUTO_INACTIVATED"));
                 user.setExpiresOn(rs.getTimestamp("EXPIRES_ON"));
                 user.setRoles(new LinkedList<>());
                 user.setAclList(new LinkedList<>());

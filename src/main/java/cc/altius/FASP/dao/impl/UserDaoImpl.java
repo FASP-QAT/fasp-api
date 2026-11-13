@@ -16,6 +16,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.SecurityRequestMatcher;
 import cc.altius.FASP.model.User;
@@ -116,7 +117,7 @@ public class UserDaoImpl implements UserDao {
             + " `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
             + " realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + " lang.`LANGUAGE_ID`, langLabel.`LABEL_ID` AS LANGUAGE_LABEL_ID,langLabel.`LABEL_EN` AS LANGUAGE_LABEL_EN,langLabel.`LABEL_FR` AS LANGUAGE_LABEL_FR,langLabel.`LABEL_PR` LANGUAGE_LABEL_PR,langLabel.`LABEL_SP` AS LANGUAGE_LABEL_SP , lang.`LANGUAGE_CODE`,lang.`COUNTRY_CODE`, "
-            + " `user`.`ACTIVE`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, `user`.`DEFAULT_THEME_ID`, `user`.`SHOW_DECIMALS`,`user`.`DEFAULT_MODULE_ID`, "
+            + " `user`.`ACTIVE`, `user`.`AUTO_INACTIVATED`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, `user`.`DEFAULT_THEME_ID`, `user`.`SHOW_DECIMALS`,`user`.`DEFAULT_MODULE_ID`, "
             + " role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
             + " bf.`BUSINESS_FUNCTION_ID`, "
             + " acl.USER_ACL_ID, acl.`ROLE_ID` `ACL_ROLE_ID`, acl_role_lb.`LABEL_ID` `ACL_ROLE_LABEL_ID`, acl_role_lb.`LABEL_EN` `ACL_ROLE_LABEL_EN`, acl_role_lb.`LABEL_FR` `ACL_ROLE_LABEL_FR`, acl_role_lb.`LABEL_SP` `ACL_ROLE_LABEL_SP`, acl_role_lb.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
@@ -165,7 +166,7 @@ public class UserDaoImpl implements UserDao {
             + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, `user`.`DEFAULT_MODULE_ID`, `user`.`DEFAULT_THEME_ID`, `user`.`SHOW_DECIMALS`, "
             + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + "    lang.`LANGUAGE_ID`, langLabel.`LABEL_ID` AS LANGUAGE_LABEL_ID,langLabel.`LABEL_EN` AS LANGUAGE_LABEL_EN,langLabel.`LABEL_FR` AS LANGUAGE_LABEL_FR,langLabel.`LABEL_PR` LANGUAGE_LABEL_PR,langLabel.`LABEL_SP` AS LANGUAGE_LABEL_SP , lang.`LANGUAGE_CODE`,lang.`COUNTRY_CODE`, "
-            + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
+            + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, `user`.`NOTES`, `user`.`AUTO_INACTIVATED`, `user`.`REMINDER_EMAIL_SENT`, `user`.`REMINDER_EMAIL_SENT_DATE`, "
             + "    role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
             + "    rbf.BUSINESS_FUNCTION_ID, "
             + "    acl.USER_ACL_ID, acl.`ROLE_ID` `ACL_ROLE_ID`, acl_role_lb.`LABEL_ID` `ACL_ROLE_LABEL_ID`, acl_role_lb.`LABEL_EN` `ACL_ROLE_LABEL_EN`, acl_role_lb.`LABEL_FR` `ACL_ROLE_LABEL_FR`, acl_role_lb.`LABEL_SP` `ACL_ROLE_LABEL_SP`, acl_role_lb.`LABEL_PR` `ACL_ROLE_LABEL_PR`, "
@@ -287,7 +288,7 @@ public class UserDaoImpl implements UserDao {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             params.put("curDate", curDate);
-            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
+            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate,REMINDER_EMAIL_SENT=0,REMINDER_EMAIL_SENT_DATE=NULL WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             return this.namedParameterJdbcTemplate.update(sqlString, params);
         } catch (DataAccessException e) {
             return 0;
@@ -338,7 +339,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional(rollbackFor = AccessControlFailedException.class)
     public int addNewUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
-        String sqlString = "INSERT INTO us_user (`REALM_ID`, `AGREEMENT_ACCEPTED`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `ORG_AND_COUNTRY`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_ID, :AGREEMENT_ACCEPTED, :USERNAME, :PASSWORD, :EMAIL_ID, :ORG_AND_COUNTRY, :LANGUAGE_ID, :ACTIVE, :FAILED_ATTEMPTS, :EXPIRES_ON, :SYNC_EXPIRES_ON, :LAST_LOGIN_DATE, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
+        String sqlString = "INSERT INTO us_user (`REALM_ID`, `AGREEMENT_ACCEPTED`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `ORG_AND_COUNTRY`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `NOTES`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_ID, :AGREEMENT_ACCEPTED, :USERNAME, :PASSWORD, :EMAIL_ID, :ORG_AND_COUNTRY, :LANGUAGE_ID, :ACTIVE, :FAILED_ATTEMPTS, :EXPIRES_ON, :SYNC_EXPIRES_ON, :LAST_LOGIN_DATE, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", ((user.getRealm() == null || user.getRealm().getRealmId() == null ? null : (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null))));
@@ -356,6 +357,7 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
+        map.put("NOTES", user.getNotes());
         map.put("CREATED_BY", curUser.getUserId());
         map.put("CREATED_DATE", curDate);
         map.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -440,7 +442,7 @@ public class UserDaoImpl implements UserDao {
                 + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
                 + "    r.`REALM_ID`, r.`REALM_CODE`, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.`LABEL_PR` `REALM_LABEL_PR`, "
                 + "   l.`LANGUAGE_ID`, ll.`LABEL_ID` AS `LANGUAGE_LABEL_ID`, ll.`LABEL_EN` AS `LANGUAGE_LABEL_EN`, ll.`LABEL_FR` AS `LANGUAGE_LABEL_FR`, ll.`LABEL_PR` `LANGUAGE_LABEL_PR`, ll.`LABEL_SP` AS `LANGUAGE_LABEL_SP`, l.`LANGUAGE_CODE`, l.`COUNTRY_CODE`, "
-                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, "
+                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, u.`NOTES`, u.`AUTO_INACTIVATED`, "
                 + "   ro.`ROLE_ID`, rol.`LABEL_ID` `ROLE_LABEL_ID`, rol.`LABEL_EN` `ROLE_LABEL_EN`, rol.`LABEL_FR` `ROLE_LABEL_FR`, rol.`LABEL_SP` `ROLE_LABEL_SP`, rol.`LABEL_PR` `ROLE_LABEL_PR` "
                 + "FROM us_user u "
                 + "LEFT JOIN vw_realm r ON r.`REALM_ID`=u.`REALM_ID` "
@@ -499,7 +501,7 @@ public class UserDaoImpl implements UserDao {
                 + "    u.`FAILED_ATTEMPTS`, u.`LAST_LOGIN_DATE`, u.`DEFAULT_MODULE_ID`, u.`DEFAULT_THEME_ID`, "
                 + "    r.`REALM_ID`, r.`REALM_CODE`, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN`, r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.`LABEL_PR` `REALM_LABEL_PR`, "
                 + "   l.`LANGUAGE_ID`, ll.`LABEL_ID` AS `LANGUAGE_LABEL_ID`, ll.`LABEL_EN` AS `LANGUAGE_LABEL_EN`, ll.`LABEL_FR` AS `LANGUAGE_LABEL_FR`, ll.`LABEL_PR` `LANGUAGE_LABEL_PR`, ll.`LABEL_SP` AS `LANGUAGE_LABEL_SP`, l.`LANGUAGE_CODE`, l.`COUNTRY_CODE`, "
-                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, "
+                + "   u.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, u.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, u.`ACTIVE`, u.`NOTES`, u.`AUTO_INACTIVATED`, "
                 + "   ro.`ROLE_ID`, rol.`LABEL_ID` `ROLE_LABEL_ID`, rol.`LABEL_EN` `ROLE_LABEL_EN`, rol.`LABEL_FR` `ROLE_LABEL_FR`, rol.`LABEL_SP` `ROLE_LABEL_SP`, rol.`LABEL_PR` `ROLE_LABEL_PR` "
                 + "FROM us_user u "
                 + "LEFT JOIN vw_realm r ON r.`REALM_ID`=u.`REALM_ID` "
@@ -569,6 +571,8 @@ public class UserDaoImpl implements UserDao {
     public int updateUser(User user, CustomUserDetails curUser) throws AccessControlFailedException {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
+        int isActivating = user.isActive() ? 1 : 0;
+        int autoInactivated = user.isActive() ? 0 : (user.isAutoInactivated() ? 1 : 0);
         sqlString = "UPDATE us_user u "
                 + "SET "
                 + "u.`USERNAME`=:userName, "
@@ -576,6 +580,11 @@ public class UserDaoImpl implements UserDao {
                 + "u.`ORG_AND_COUNTRY`=:orgAndCountry, "
                 + "u.`LANGUAGE_ID`=:languageId, "
                 + "u.`ACTIVE`=:active, "
+                + "u.`REMINDER_EMAIL_SENT`=(CASE WHEN :isActivating = 1 AND u.`AUTO_INACTIVATED` = 1 THEN 0 ELSE u.`REMINDER_EMAIL_SENT` END), "
+                + "u.`REMINDER_EMAIL_SENT_DATE`=(CASE WHEN :isActivating = 1 AND u.`AUTO_INACTIVATED` = 1 THEN NULL ELSE u.`REMINDER_EMAIL_SENT_DATE` END), "
+                + "u.`LAST_LOGIN_DATE`=(CASE WHEN :isActivating = 1 AND u.`AUTO_INACTIVATED` = 1 THEN :curDate ELSE u.`LAST_LOGIN_DATE` END), "
+                + "u.`AUTO_INACTIVATED`=:autoInactivated, "
+                + "u.`NOTES`=:notes, "
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy, "
                 + "u.`LAST_MODIFIED_DATE`=:lastModifiedDate "
                 + "WHERE  u.`USER_ID`=:userId;";
@@ -585,8 +594,12 @@ public class UserDaoImpl implements UserDao {
         params.put("orgAndCountry", user.getOrgAndCountry());
         params.put("languageId", user.getLanguage().getLanguageId());
         params.put("active", user.isActive());
+        params.put("isActivating", isActivating);
+        params.put("autoInactivated", autoInactivated);
+        params.put("notes", user.getNotes());
         params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
+        params.put("curDate", curDate);
         params.put("userId", user.getUserId());
         int row = this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "DELETE FROM us_user_role WHERE  USER_ID=:userId";
@@ -1186,6 +1199,83 @@ public class UserDaoImpl implements UserDao {
         params.put("curUser", curUser.getUserId());
         params.put("newRoleId", roleId);
         return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) >= 1);
+    }
+
+    @Override
+    public int activateAutoInactivatedUser(int userId, CustomUserDetails curUser) throws AccessControlFailedException {
+        User u = this.getUserByUserId(userId, curUser);
+        if (u == null) {
+            throw new AccessControlFailedException("You do not have access to this resource");
+        }
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "UPDATE us_user SET ACTIVE=1, AUTO_INACTIVATED=0, REMINDER_EMAIL_SENT=0, REMINDER_EMAIL_SENT_DATE=NULL, LAST_LOGIN_DATE=:curDate, LAST_MODIFIED_BY=:curUser, LAST_MODIFIED_DATE=:curDate WHERE USER_ID=:userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", curDate);
+        return this.namedParameterJdbcTemplate.update(sql, params);
+    }
+
+    @Override
+    public List<User> getUsersDueForInactivityReminder() {
+        String sql = "SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID, u.REALM_ID, u.LAST_LOGIN_DATE, u.CREATED_DATE, "
+                + " r.NO_OF_DAYS_FOR_INACTIVITY_REMINDER, r.NO_OF_DAYS_TO_LOCK_USER "
+                + " FROM us_user u "
+                + " INNER JOIN rm_realm r ON u.REALM_ID = r.REALM_ID "
+                + " WHERE u.ACTIVE = 1 "
+                + "   AND u.REMINDER_EMAIL_SENT = 0 "
+                + "   AND DATEDIFF(NOW(), COALESCE(u.LAST_LOGIN_DATE, u.CREATED_DATE)) >= r.NO_OF_DAYS_FOR_INACTIVITY_REMINDER "
+                + "   AND DATEDIFF(NOW(), COALESCE(u.LAST_LOGIN_DATE, u.CREATED_DATE)) < r.NO_OF_DAYS_TO_LOCK_USER";
+        return this.jdbcTemplate.query(sql, (rs, rowNum) -> {
+            User u = new User();
+            u.setUserId(rs.getInt("USER_ID"));
+            u.setUsername(rs.getString("USERNAME"));
+            u.setEmailId(rs.getString("EMAIL_ID"));
+            Realm r = new Realm(rs.getInt("REALM_ID"));
+            r.setNoOfDaysForInactivityReminder(rs.getInt("NO_OF_DAYS_FOR_INACTIVITY_REMINDER"));
+            r.setNoOfDaysToLockUser(rs.getInt("NO_OF_DAYS_TO_LOCK_USER"));
+            u.setRealm(r);
+            u.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
+            u.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+            return u;
+        });
+    }
+
+    @Override
+    public int updateReminderEmailSent(int userId) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "UPDATE us_user SET REMINDER_EMAIL_SENT = 1, REMINDER_EMAIL_SENT_DATE = :curDate WHERE USER_ID = :userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("curDate", curDate);
+        return this.namedParameterJdbcTemplate.update(sql, params);
+    }
+
+    @Override
+    public List<User> getUsersDueForInactivityLockout() {
+        String sql = "SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID, u.REALM_ID "
+                + " FROM us_user u "
+                + " INNER JOIN rm_realm r ON u.REALM_ID = r.REALM_ID "
+                + " WHERE u.ACTIVE = 1 "
+                + "   AND DATEDIFF(NOW(), COALESCE(u.LAST_LOGIN_DATE, u.CREATED_DATE)) >= r.NO_OF_DAYS_TO_LOCK_USER";
+        return this.jdbcTemplate.query(sql, (rs, rowNum) -> {
+            User u = new User();
+            u.setUserId(rs.getInt("USER_ID"));
+            u.setUsername(rs.getString("USERNAME"));
+            u.setEmailId(rs.getString("EMAIL_ID"));
+            u.setRealm(new Realm(rs.getInt("REALM_ID")));
+            return u;
+        });
+    }
+
+    @Override
+    public int lockInactiveUser(int userId) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "UPDATE us_user SET ACTIVE = 0, AUTO_INACTIVATED = 1, LAST_MODIFIED_DATE = :curDate WHERE USER_ID = :userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("curDate", curDate);
+        return this.namedParameterJdbcTemplate.update(sql, params);
     }
 
 }

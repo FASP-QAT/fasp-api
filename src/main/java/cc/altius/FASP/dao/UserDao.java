@@ -124,4 +124,14 @@ public interface UserDao {
     public List<SecurityRequestMatcher> getSecurityList();
     
     public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser);
+
+    public int activateAutoInactivatedUser(int userId, CustomUserDetails curUser) throws AccessControlFailedException;
+
+    public List<User> getUsersDueForInactivityReminder();
+
+    public int updateReminderEmailSent(int userId);
+
+    public List<User> getUsersDueForInactivityLockout();
+
+    public int lockInactiveUser(int userId);
 }

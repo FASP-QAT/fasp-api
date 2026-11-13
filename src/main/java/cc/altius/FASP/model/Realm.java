@@ -53,6 +53,10 @@ public class Realm extends BaseModel implements Serializable {
     private int noOfMonthsInFutureForTopDashboard;
     @JsonView(Views.InternalView.class)
     private double supplyPlanScoreThresholdPerc;
+    @JsonView(Views.InternalView.class)
+    private int noOfDaysForInactivityReminder;
+    @JsonView(Views.InternalView.class)
+    private int noOfDaysToLockUser;
 
     public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance, int actualConsumptionMonthsInPast, int forecastConsumtionMonthsInPast, int inventoryMonthsInPast, int minCountForMode, double minPercForMode, int noOfMonthsInPastForBottomDashboard, int noOfMonthsInFutureForBottomDashboard, int noOfMonthsInPastForTopDashboard, int noOfMonthsInFutureForTopDashboard, double supplyPlanScoreThresholdPerc) {
         if (realmId == null || realmId == 0) {
@@ -257,6 +261,22 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setSupplyPlanScoreThresholdPerc(double supplyPlanScoreThresholdPerc) {
         this.supplyPlanScoreThresholdPerc = supplyPlanScoreThresholdPerc;
+    }
+
+    public int getNoOfDaysForInactivityReminder() {
+        return noOfDaysForInactivityReminder;
+    }
+
+    public void setNoOfDaysForInactivityReminder(int noOfDaysForInactivityReminder) {
+        this.noOfDaysForInactivityReminder = noOfDaysForInactivityReminder;
+    }
+
+    public int getNoOfDaysToLockUser() {
+        return noOfDaysToLockUser;
+    }
+
+    public void setNoOfDaysToLockUser(int noOfDaysToLockUser) {
+        this.noOfDaysToLockUser = noOfDaysToLockUser;
     }
 
     @Override

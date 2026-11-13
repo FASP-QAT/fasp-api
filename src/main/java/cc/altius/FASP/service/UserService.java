@@ -118,4 +118,8 @@ public interface UserService {
     
     public Map<String, List<String>> getAclRoleBfList(int userId, CustomUserDetails curUser);
 
+    public int activateAutoInactivatedUser(int userId, CustomUserDetails curUser) throws AccessControlFailedException;
+
+    public Map<String, Object> processInactivityRemindersAndLockouts();
+
 }
