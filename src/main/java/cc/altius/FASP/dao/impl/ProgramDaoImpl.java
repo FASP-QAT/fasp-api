@@ -494,12 +494,8 @@ public class ProgramDaoImpl implements ProgramDao {
         si.executeBatch(paramList);
         if (p.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
             // Add and Update Procurement Agents
-            String paList = ArrayUtils.convertIntegerListToString(p.getProcurementAgents());
             params.clear();
             params.put("programId", p.getProgramId());
-            params.put("paList", paList);
-            params.put("curDate", curDate);
-            this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa SET pa.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(pa.PROCUREMENT_AGENT_ID, :paList) OR pa.PROCUREMENT_AGENT_ID IN (SELECT ppa.PROCUREMENT_AGENT_ID FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId)", params);
             this.namedParameterJdbcTemplate.update("DELETE ppa FROM rm_program_procurement_agent ppa WHERE ppa.PROGRAM_ID=:programId", params);
             for (int pa : p.getProcurementAgents()) {
                 params = new HashMap<>();
@@ -514,12 +510,8 @@ public class ProgramDaoImpl implements ProgramDao {
             }
 
             // Add and Update FundingSources
-            String fsList = ArrayUtils.convertIntegerListToString(p.getFundingSources());
             params.clear();
             params.put("programId", p.getProgramId());
-            params.put("fsList", fsList);
-            params.put("curDate", curDate);
-            this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs SET fs.LAST_MODIFIED_DATE=:curDate WHERE FIND_IN_SET(fs.FUNDING_SOURCE_ID, :fsList) OR fs.FUNDING_SOURCE_ID IN (SELECT pfs.FUNDING_SOURCE_ID FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId)", params);
             this.namedParameterJdbcTemplate.update("DELETE pfs FROM rm_program_funding_source pfs WHERE pfs.PROGRAM_ID=:programId", params);
             for (int fs : p.getFundingSources()) {
                 params = new HashMap<>();
