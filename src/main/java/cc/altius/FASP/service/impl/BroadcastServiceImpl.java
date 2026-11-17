@@ -76,6 +76,11 @@ public class BroadcastServiceImpl implements BroadcastService {
     }
 
     @Override
+    public List<BroadcastRecipient> getBroadcastRecipients(int categoryId, List<String> targetRoles, List<String> businessFunctionIds, List<Integer> languageIds) {
+        return this.broadcastDao.getBroadcastRecipients(categoryId, targetRoles, businessFunctionIds, languageIds);
+    }
+
+    @Override
     public int sendBroadcast(BroadcastMessageInput input, CustomUserDetails curUser) {
         if (input == null || input.getSubject() == null || input.getSubject().trim().isEmpty() || input.getBodyHtml() == null) {
             return 0;

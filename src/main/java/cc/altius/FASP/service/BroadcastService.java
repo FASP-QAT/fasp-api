@@ -27,6 +27,8 @@ public interface BroadcastService {
 
     public int getRecipientCount(int categoryId, List<String> targetRoles, List<String> businessFunctionIds, List<Integer> languageIds);
 
+    public List<BroadcastRecipient> getBroadcastRecipients(int categoryId, List<String> targetRoles, List<String> businessFunctionIds, List<Integer> languageIds);
+
     public int getRecipientCount(int categoryId, List<String> businessFunctionIds, List<Integer> languageIds);
 
     public int sendBroadcast(BroadcastMessageInput input, CustomUserDetails curUser);
