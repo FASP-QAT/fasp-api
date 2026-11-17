@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.BroadcastMessage;
 import cc.altius.FASP.model.BroadcastMessageInput;
+import cc.altius.FASP.model.BroadcastRecipient;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailCategory;
 import cc.altius.FASP.model.ResponseCode;
@@ -105,6 +106,40 @@ public class BroadcastRestController {
             return new ResponseEntity(response, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while calculating recipient count", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Preview recipients before sending broadcast message
+     *
+     * @param input
+     * @param auth
+     * @return
+     */
+    @PostMapping(value = "/previewRecipients")
+    @Operation(summary = "Preview recipients", description = "Retrieves recipient list based on category, roles, and languages")
+    public ResponseEntity previewRecipients(@RequestBody BroadcastMessageInput input, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(
+                    ((CustomUserDetails) auth.getPrincipal()).getUserId(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(),
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI()
+            );
+
+            if (!curUser.hasBusinessFunction(BF_BROADCAST_MESSAGE)) {
+                return new ResponseEntity(new ResponseCode("static.message.unauthorized"), HttpStatus.FORBIDDEN);
+            }
+
+            List<BroadcastRecipient> recipients = this.broadcastService.getBroadcastRecipients(
+                    input.getCategoryId(),
+                    input.getTargetRoles(),
+                    input.getTargetBusinessFunctions(),
+                    input.getTargetLanguages()
+            );
+            return new ResponseEntity(recipients, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while previewing recipients", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
