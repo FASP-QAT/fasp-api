@@ -180,7 +180,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
 
     @Override
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND (fs.LAST_MODIFIED_DATE>:lastSyncDate OR EXISTS (SELECT 1 FROM rm_program_funding_source pfs WHERE fs.FUNDING_SOURCE_ID = pfs.FUNDING_SOURCE_ID AND pfs.LAST_MODIFIED_DATE > :lastSyncDate)) ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND (fs.LAST_MODIFIED_DATE>:lastSyncDate OR EXISTS (SELECT 1 FROM rm_program_funding_source pfs WHERE fs.FUNDING_SOURCE_ID = pfs.FUNDING_SOURCE_ID AND pfs.LAST_MODIFIED_DATE > :lastSyncDate) OR EXISTS (SELECT 1 FROM rm_program p WHERE p.REALM_ID = fs.REALM_ID AND p.LAST_MODIFIED_DATE > :lastSyncDate)) ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
