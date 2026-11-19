@@ -1019,6 +1019,28 @@ public class UserRestController {
     }
 
     /**
+     * Get user notification preferences by userId (for Admin view)
+     *
+     * @param targetUserId
+     * @param auth
+     * @return
+     */
+    @GetMapping(value = "/user/notificationPreference/{userId}")
+    @Operation(
+            summary = "Get user notification preferences by userId",
+            description = "Get notification preferences for the specified user"
+    )
+    public ResponseEntity getUserNotificationPreferencesByUserId(@PathVariable("userId") int targetUserId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserIdForApi(((CustomUserDetails) auth.getPrincipal()).getUserId(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getMethod(), ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRequestURI());
+            return new ResponseEntity(this.broadcastService.getNotificationPreferencesByUserId(targetUserId), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Could not get notification preferences for user " + targetUserId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Update user notification preferences
      *
      * @param preferences
