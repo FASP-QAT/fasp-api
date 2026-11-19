@@ -23,6 +23,8 @@ public interface BroadcastService {
 
     public List<UserNotificationPreference> getNotificationPreferences(CustomUserDetails curUser);
 
+    public List<UserNotificationPreference> getNotificationPreferencesByUserId(int userId);
+
     public int saveNotificationPreferences(List<UserNotificationPreference> preferences, CustomUserDetails curUser);
 
     public int getRecipientCount(int categoryId, List<String> targetRoles, List<String> businessFunctionIds, List<Integer> languageIds);

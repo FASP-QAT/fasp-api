@@ -60,6 +60,11 @@ public class BroadcastServiceImpl implements BroadcastService {
     }
 
     @Override
+    public List<UserNotificationPreference> getNotificationPreferencesByUserId(int userId) {
+        return this.broadcastDao.getNotificationPreferencesByUserId(userId);
+    }
+
+    @Override
     public int saveNotificationPreferences(List<UserNotificationPreference> preferences, CustomUserDetails curUser) {
         return this.broadcastDao.saveNotificationPreferences(curUser.getUserId(), preferences);
     }
