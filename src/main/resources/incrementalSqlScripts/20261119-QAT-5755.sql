@@ -47,14 +47,7 @@ CALL insert_static_label_if_missing('static.broadcast.optedOut', 'Opted Out', 'D
 DROP PROCEDURE IF EXISTS `insert_static_label_if_missing`;
 
 -- Point 18: Security URL mappings for Admin viewing user notification preferences
-INSERT INTO `ap_business_function_url` (`BUSINESS_FUNCTION_URL_ID`, `METHOD`, `URL`, `BUSINESS_FUNCTION_ID`) 
-SELECT NULL, 1, '/api/user/notificationPreference/*', 'ROLE_BF_LIST_USER'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ap_business_function_url` WHERE `URL` = '/api/user/notificationPreference/*' AND `METHOD` = 1 AND `BUSINESS_FUNCTION_ID` = 'ROLE_BF_LIST_USER');
-
-INSERT INTO `ap_business_function_url` (`BUSINESS_FUNCTION_URL_ID`, `METHOD`, `URL`, `BUSINESS_FUNCTION_ID`) 
-SELECT NULL, 1, '/api/user/notificationPreference/*', 'ROLE_BF_EDIT_USER'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ap_business_function_url` WHERE `URL` = '/api/user/notificationPreference/*' AND `METHOD` = 1 AND `BUSINESS_FUNCTION_ID` = 'ROLE_BF_EDIT_USER');
-
-INSERT INTO `ap_business_function_url` (`BUSINESS_FUNCTION_URL_ID`, `METHOD`, `URL`, `BUSINESS_FUNCTION_ID`) 
-SELECT NULL, 1, '/api/user/notificationPreference/*', 'ROLE_BF_LOGGED_IN'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ap_business_function_url` WHERE `URL` = '/api/user/notificationPreference/*' AND `METHOD` = 1 AND `BUSINESS_FUNCTION_ID` = 'ROLE_BF_LOGGED_IN');
+INSERT IGNORE INTO `ap_security` (`METHOD`, `URL`, `BF`) VALUES 
+(1, '/api/user/notificationPreference/*', 'ROLE_BF_LIST_USER'),
+(1, '/api/user/notificationPreference/*', 'ROLE_BF_EDIT_USER'),
+(1, '/api/user/notificationPreference/*', 'ROLE_BF_LOGGED_IN');
