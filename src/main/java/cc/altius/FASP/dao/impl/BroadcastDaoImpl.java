@@ -11,6 +11,9 @@ import cc.altius.FASP.model.BroadcastMessage;
 import cc.altius.FASP.model.BroadcastRecipient;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailCategory;
+import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Language;
+import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.UserNotificationPreference;
 import cc.altius.FASP.model.rowMapper.BasicUserRowMapper;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
@@ -344,6 +347,34 @@ public class BroadcastDaoImpl implements BroadcastDao {
 
     @Override
     public List<BroadcastMessage> getBroadcastHistory() {
+        Map<String, Role> roleMap = new HashMap<>();
+        try {
+            String roleSql = "SELECT r.ROLE_ID, lb.* FROM us_role r LEFT JOIN ap_label lb ON r.LABEL_ID = lb.LABEL_ID";
+            this.jdbcTemplate.query(roleSql, (rs) -> {
+                Role r = new Role();
+                r.setRoleId(rs.getString("ROLE_ID"));
+                r.setLabel(new LabelRowMapper("").mapRow(rs, 1));
+                roleMap.put(r.getRoleId(), r);
+            });
+        } catch (Exception e) {
+            logger.warn("Error loading role map for broadcast history", e);
+        }
+
+        Map<Integer, Language> langMap = new HashMap<>();
+        try {
+            String langSql = "SELECT l.LANGUAGE_ID, l.LANGUAGE_CODE, l.COUNTRY_CODE, lb.* FROM ap_language l LEFT JOIN ap_label lb ON l.LABEL_ID = lb.LABEL_ID";
+            this.jdbcTemplate.query(langSql, (rs) -> {
+                Language l = new Language();
+                l.setLanguageId(rs.getInt("LANGUAGE_ID"));
+                l.setLanguageCode(rs.getString("LANGUAGE_CODE"));
+                l.setCountryCode(rs.getString("COUNTRY_CODE"));
+                l.setLabel(new LabelRowMapper("").mapRow(rs, 1));
+                langMap.put(l.getLanguageId(), l);
+            });
+        } catch (Exception e) {
+            logger.warn("Error loading language map for broadcast history", e);
+        }
+
         String sql = "SELECT b.BROADCAST_ID, b.CATEGORY_ID, c.CATEGORY_CODE, "
                 + "c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR, "
                 + "b.SUBJECT, b.BODY_HTML, b.TARGET_ROLES, b.TARGET_BUSINESS_FUNCTIONS, b.TARGET_LANGUAGES, "
@@ -376,13 +407,40 @@ public class BroadcastDaoImpl implements BroadcastDao {
                 String langJson = rs.getString("TARGET_LANGUAGES");
                 try {
                     if (rolesJson != null && !rolesJson.isEmpty()) {
-                        bm.setTargetRoles(objectMapper.readValue(rolesJson, new TypeReference<List<String>>() {}));
+                        List<String> rList = objectMapper.readValue(rolesJson, new TypeReference<List<String>>() {});
+                        bm.setTargetRoles(rList);
+                        if (rList != null) {
+                            List<Role> targetRoleList = new ArrayList<>();
+                            for (String rId : rList) {
+                                Role r = roleMap.get(rId);
+                                if (r != null) {
+                                    targetRoleList.add(r);
+                                } else {
+                                    Role fallback = new Role();
+                                    fallback.setRoleId(rId);
+                                    fallback.setLabel(new Label(0, rId, rId, rId, rId));
+                                    targetRoleList.add(fallback);
+                                }
+                            }
+                            bm.setTargetRoleList(targetRoleList);
+                        }
                     }
                     if (bfJson != null && !bfJson.isEmpty()) {
                         bm.setTargetBusinessFunctions(objectMapper.readValue(bfJson, new TypeReference<List<String>>() {}));
                     }
                     if (langJson != null && !langJson.isEmpty()) {
-                        bm.setTargetLanguages(objectMapper.readValue(langJson, new TypeReference<List<Integer>>() {}));
+                        List<Integer> lList = objectMapper.readValue(langJson, new TypeReference<List<Integer>>() {});
+                        bm.setTargetLanguages(lList);
+                        if (lList != null) {
+                            List<Language> targetLangList = new ArrayList<>();
+                            for (Integer lId : lList) {
+                                Language l = langMap.get(lId);
+                                if (l != null) {
+                                    targetLangList.add(l);
+                                }
+                            }
+                            bm.setTargetLanguageList(targetLangList);
+                        }
                     }
                 } catch (Exception e) {
                     logger.warn("Error deserializing broadcast filters", e);
