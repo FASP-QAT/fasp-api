@@ -40,6 +40,9 @@ CALL insert_static_label_if_missing('static.broadcast.recipients', 'Recipients',
 -- Rename estimatedRecipients to Recipients everywhere per client feedback
 CALL insert_static_label_if_missing('static.broadcast.estimatedRecipients', 'Recipients', 'Destinataires', 'Destinatarios', 'Destinatários');
 
+-- Point 2: Label Message queued time
+CALL insert_static_label_if_missing('static.broadcast.messageQueuedTime', 'Message queued time', 'Heure de mise en file d\'attente du message', 'Hora del mensaje en cola', 'Hora da mensagem na fila');
+
 -- Point 18: Notification Preferences Labels
 CALL insert_static_label_if_missing('static.broadcast.optedIn', 'Opted In', 'Inscrit', 'Suscrito', 'Inscrito');
 CALL insert_static_label_if_missing('static.broadcast.optedOut', 'Opted Out', 'Désinscrit', 'Cancelado', 'Cancelado');
