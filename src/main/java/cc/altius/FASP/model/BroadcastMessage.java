@@ -27,8 +27,10 @@ public class BroadcastMessage implements Serializable {
     private String subject;
     private String bodyHtml;
     private List<String> targetRoles;
+    private List<Role> targetRoleList;
     private List<String> targetBusinessFunctions;
     private List<Integer> targetLanguages;
+    private List<Language> targetLanguageList;
     private int totalRecipients;
     private int batchCount;
     private String status;
@@ -104,6 +106,14 @@ public class BroadcastMessage implements Serializable {
         this.targetRoles = targetRoles;
     }
 
+    public List<Role> getTargetRoleList() {
+        return targetRoleList;
+    }
+
+    public void setTargetRoleList(List<Role> targetRoleList) {
+        this.targetRoleList = targetRoleList;
+    }
+
     public List<String> getTargetBusinessFunctions() {
         return targetBusinessFunctions;
     }
@@ -118,6 +128,14 @@ public class BroadcastMessage implements Serializable {
 
     public void setTargetLanguages(List<Integer> targetLanguages) {
         this.targetLanguages = targetLanguages;
+    }
+
+    public List<Language> getTargetLanguageList() {
+        return targetLanguageList;
+    }
+
+    public void setTargetLanguageList(List<Language> targetLanguageList) {
+        this.targetLanguageList = targetLanguageList;
     }
 
     public int getTotalRecipients() {
