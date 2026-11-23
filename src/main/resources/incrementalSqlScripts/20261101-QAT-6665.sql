@@ -180,10 +180,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Rever alterações');-
 -- static.bulk.reviewPrompt
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.bulk.reviewPrompt','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please review the proposed changes below. Click OK to update or Cancel to return.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez vérifier les modifications ci-dessous. Cliquez sur OK pour mettre à jour ou sur Annuler pour revenir.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please review the proposed changes below. Click Okay to update or Cancel to return.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez vérifier les modifications ci-dessous. Cliquez sur Okay pour mettre à jour ou sur Annuler pour revenir.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor, revise los cambios propuestos a continuación. Haga clic en Aceptar para actualizar o en Cancelar para regresar.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, reveja as alterações propostas abaixo. Clique em OK para atualizar ou em Cancelar para voltar.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, reveja as alterações propostas abaixo. Clique em Okay para atualizar ou em Cancelar para voltar.');-- pr
 
 -- static.bulk.downloadTemplateBulkAdding
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.bulk.downloadTemplateBulkAdding','1'); 
