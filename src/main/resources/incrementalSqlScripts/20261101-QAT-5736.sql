@@ -88,6 +88,7 @@ SELECT
       .header h2 { color: #ffffff; margin: 0; font-size: 20px; font-weight: normal; }
       .content { background: #ffffff; padding: 30px 25px; border-radius: 4px; }
       .btn { display: inline-block; background-color: #007bff; color: #ffffff !important; padding: 10px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0; }
+      hr { border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0; }
     </style>
   </head>
   <body>
@@ -97,15 +98,14 @@ SELECT
       </div>
       <div class="content">
         <p>Dear <b><%USERNAME%></b>,</p>
-        <p>We noticed that you have not logged in to your QAT account recently.</p>
-        <p>To ensure account security and keep user lists up-to-date, your account is scheduled to be deactivated in <b><%DAYS%> days</b> unless you sign in.</p>
-        <p>If you wish to keep your account active, simply log in using the link below:</p>
+        <p>We noticed that you haven\'t logged in to your QAT account recently. To help keep accounts secure and user records up to date, your account will be deactivated in <b><%DAYS%> days</b> unless you sign in.</p>
+        <p>To keep your account active, simply sign in using the link below:</p>
         <p style="text-align: center;">
           <a class="btn" href="<%LOGIN_URL%>">Log In to QAT</a>
         </p>
-        <p>If you no longer need access, no action is required and your account will automatically be deactivated.</p>
-        <br>
-        <p>Thanks,<br>Team QAT<br><i>(This is an automated notification. Please do not reply directly to this email.)</i></p>
+        <p>If you no longer need access to QAT, no action is required. Your account will be automatically deactivated after <%DAYS%> days.</p>
+        <hr>
+        <p>Thanks,<br>QAT Management Team (QMT)<br><i>(This is an automated notification. Please do not reply directly to this email.)</i></p>
       </div>
     </div>
   </body>
@@ -122,6 +122,45 @@ SELECT
 WHERE NOT EXISTS (
     SELECT 1 FROM `em_email_template` WHERE `EMAIL_TEMPLATE_ID` = 9
 );
+
+UPDATE `em_email_template`
+SET `EMAIL_BODY` = '<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Account Inactivity Notice</title>
+    <style>
+      body { background-color: #f6f6f6; font-family: \'Roboto Slab\', \'Roboto\', \'Arial\', sans-serif; font-size: 14px; line-height: 1.4; color: #222; }
+      .container { max-width: 580px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #bb3430; padding: 25px 20px; text-align: center; }
+      .header h2 { color: #ffffff; margin: 0; font-size: 20px; font-weight: normal; }
+      .content { background: #ffffff; padding: 30px 25px; border-radius: 4px; }
+      .btn { display: inline-block; background-color: #007bff; color: #ffffff !important; padding: 10px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0; }
+      hr { border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>Quantification Analytics Tool</h2>
+      </div>
+      <div class="content">
+        <p>Dear <b><%USERNAME%></b>,</p>
+        <p>We noticed that you haven\'t logged in to your QAT account recently. To help keep accounts secure and user records up to date, your account will be deactivated in <b><%DAYS%> days</b> unless you sign in.</p>
+        <p>To keep your account active, simply sign in using the link below:</p>
+        <p style="text-align: center;">
+          <a class="btn" href="<%LOGIN_URL%>">Log In to QAT</a>
+        </p>
+        <p>If you no longer need access to QAT, no action is required. Your account will be automatically deactivated after <%DAYS%> days.</p>
+        <hr>
+        <p>Thanks,<br>QAT Management Team (QMT)<br><i>(This is an automated notification. Please do not reply directly to this email.)</i></p>
+      </div>
+    </div>
+  </body>
+</html>',
+    `LAST_MODIFIED_DATE` = NOW()
+WHERE `EMAIL_TEMPLATE_ID` = 9;
 
 -- ------------------------------------------------------------------------------
 -- 6. i18n Static Labels (ap_static_label & ap_static_label_languages)
