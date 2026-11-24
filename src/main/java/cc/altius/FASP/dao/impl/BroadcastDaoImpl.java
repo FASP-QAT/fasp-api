@@ -63,7 +63,7 @@ public class BroadcastDaoImpl implements BroadcastDao {
     public List<EmailCategory> getEmailCategoryList() {
         String sql = "SELECT c.CATEGORY_ID, c.CATEGORY_CODE, c.ALLOW_OPT_OUT, c.DEFAULT_OPT_IN, "
                 + "c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_SP, c.LABEL_PR "
-                + "FROM vw_email_category c ORDER BY c.CATEGORY_ID";
+                + "FROM vw_email_category c WHERE (c.ACTIVE IS NULL OR c.ACTIVE = 1) ORDER BY c.CATEGORY_ID";
         return this.jdbcTemplate.query(sql, new RowMapper<EmailCategory>() {
             @Override
             public EmailCategory mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -108,6 +108,7 @@ public class BroadcastDaoImpl implements BroadcastDao {
                 + "p.PREFERENCE_ID, IFNULL(p.OPTED_OUT, 0) `OPTED_OUT`, p.LAST_MODIFIED_DATE "
                 + "FROM vw_email_category c "
                 + "LEFT JOIN us_user_notification_preference p ON c.CATEGORY_ID = p.CATEGORY_ID AND p.USER_ID = ? "
+                + "WHERE (c.ACTIVE IS NULL OR c.ACTIVE = 1) "
                 + "ORDER BY c.CATEGORY_ID";
         return this.jdbcTemplate.query(sql, new RowMapper<UserNotificationPreference>() {
             @Override

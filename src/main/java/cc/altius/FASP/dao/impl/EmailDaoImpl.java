@@ -19,6 +19,14 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
+import jakarta.activation.DataHandler;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +160,7 @@ public class EmailDaoImpl implements EmailDao {
                 message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(emailer.getBccToSend()));
             }
             message.setSubject(emailer.getSubject());
-            message.setContent(emailer.getBody(), "text/html");
+            setHtmlContentWithInlineImages(message, emailer.getBody());
             Transport.send(message);
             status = 1; //1 for success
             attempts++;
@@ -236,4 +244,55 @@ public class EmailDaoImpl implements EmailDao {
         return this.jdbcTemplate.queryForObject("SELECT * FROM em_emailer e where e.EMAILER_ID=?", new EmailerRowMapper(), emailerId);
     }
 
+
+    private void setHtmlContentWithInlineImages(Message message, String htmlBody) throws Exception {
+        if (htmlBody == null) {
+            message.setContent("", "text/html; charset=UTF-8");
+            return;
+        }
+
+        Pattern pattern = Pattern.compile("src=[\"']data:image/([a-zA-Z0-9]+);base64,([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(htmlBody);
+
+        if (!matcher.find()) {
+            message.setContent(htmlBody, "text/html; charset=UTF-8");
+            return;
+        }
+
+        matcher.reset();
+        MimeMultipart multipart = new MimeMultipart("related");
+        StringBuffer sb = new StringBuffer();
+        int imgIndex = 0;
+        List<MimeBodyPart> imageParts = new ArrayList<>();
+
+        while (matcher.find()) {
+            String imgType = matcher.group(1);
+            String base64Data = matcher.group(2).replaceAll("\\s+", "");
+            try {
+                byte[] imgBytes = Base64.getDecoder().decode(base64Data);
+                String cid = "broadcast_img_" + imgIndex + "_" + System.currentTimeMillis();
+                matcher.appendReplacement(sb, "src=\"cid:" + cid + "\"");
+
+                MimeBodyPart imgPart = new MimeBodyPart();
+                imgPart.setDataHandler(new DataHandler(new ByteArrayDataSource(imgBytes, "image/" + imgType)));
+                imgPart.setHeader("Content-ID", "<" + cid + ">");
+                imgPart.setDisposition(MimeBodyPart.INLINE);
+                imageParts.add(imgPart);
+                imgIndex++;
+            } catch (Exception ex) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
+            }
+        }
+        matcher.appendTail(sb);
+
+        MimeBodyPart htmlPart = new MimeBodyPart();
+        htmlPart.setContent(sb.toString(), "text/html; charset=UTF-8");
+        multipart.addBodyPart(htmlPart);
+
+        for (MimeBodyPart p : imageParts) {
+            multipart.addBodyPart(p);
+        }
+
+        message.setContent(multipart);
+    }
 }
