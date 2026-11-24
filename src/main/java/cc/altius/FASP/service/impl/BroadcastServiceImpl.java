@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -138,7 +141,17 @@ public class BroadcastServiceImpl implements BroadcastService {
         int totalBatches = (int) Math.ceil((double) emailList.size() / BCC_BATCH_SIZE);
         String fromAddress = (this.emailUsername != null && !this.emailUsername.trim().isEmpty()) ? this.emailUsername : DEFAULT_NOREPLY;
 
-        String formattedHtml = buildEmailHtml(input.getBodyHtml(), category);
+        String baseUrl = getBaseUrl();
+        String formattedHtml = buildEmailHtml(input.getBodyHtml(), category, baseUrl);
+
+        String categoryPrefix = (category.getCategoryId() == 2 || "COMMUNITY".equalsIgnoreCase(category.getCategoryCode()))
+                ? "[QAT Community Update]"
+                : "[QAT System Update]";
+
+        String finalSubject = input.getSubject().trim();
+        if (!finalSubject.toLowerCase().startsWith(categoryPrefix.toLowerCase())) {
+            finalSubject = categoryPrefix + " " + finalSubject;
+        }
 
         List<Emailer> emailerBatches = new ArrayList<>();
         for (int i = 0; i < emailList.size(); i += BCC_BATCH_SIZE) {
@@ -148,7 +161,7 @@ public class BroadcastServiceImpl implements BroadcastService {
             Emailer emailer = new Emailer();
             emailer.setToSend(fromAddress);
             emailer.setBccToSend(bccString);
-            emailer.setSubject("[QAT Announcement] " + input.getSubject());
+            emailer.setSubject(finalSubject);
             emailer.setBody(formattedHtml);
             emailer.setAttempts(0);
             emailer.setStatus(0);
@@ -203,7 +216,31 @@ public class BroadcastServiceImpl implements BroadcastService {
         return broadcastId;
     }
 
-    private String buildEmailHtml(String rawBody, EmailCategory category) {
+    private String getBaseUrl() {
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null && attributes.getRequest() != null) {
+                HttpServletRequest request = attributes.getRequest();
+                String scheme = request.getHeader("X-Forwarded-Proto");
+                if (scheme == null || scheme.isEmpty()) {
+                    scheme = request.getScheme();
+                }
+                String host = request.getHeader("X-Forwarded-Host");
+                if (host == null || host.isEmpty()) {
+                    host = request.getHeader("Host");
+                }
+                if (host == null || host.isEmpty()) {
+                    host = request.getServerName() + (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort());
+                }
+                return scheme + "://" + host;
+            }
+        } catch (Exception e) {
+            logger.warn("Could not determine dynamic baseUrl, falling back to configured hostUrl", e);
+        }
+        return this.hostUrl != null ? this.hostUrl.replaceAll("/#.*$", "") : "https://qat.quantificationanalytics.org";
+    }
+
+    private String buildEmailHtml(String rawBody, EmailCategory category, String baseUrl) {
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html><html><head><meta charset='UTF-8'>");
         html.append("<style>");
@@ -225,10 +262,10 @@ public class BroadcastServiceImpl implements BroadcastService {
         html.append("<p style='margin: 0 0 8px 0;'><strong>This is a broadcast message.</strong> Users cannot reply directly to this email. For questions or support, please email <a href='mailto:").append(SUPPORT_EMAIL).append("'>").append(SUPPORT_EMAIL).append("</a>.</p>");
 
         if (category.isAllowOptOut()) {
-            String unsubUrl = this.hostUrl + "/#/unsubscribe";
+            String unsubUrl = baseUrl + "/#/unsubscribe";
             html.append("<p style='margin: 0; color: #94a3b8;'>You received this email according to your QAT notification settings. You can manage your preferences inside QAT under your User Profile or <a href='").append(unsubUrl).append("'>update email preferences here</a>.</p>");
         } else {
-            html.append("<p style='margin: 0; color: #94a3b8;'>This is a mandatory system/administrative announcement.</p>");
+            html.append("<p style='margin: 0; color: #94a3b8;'>This is a mandatory system/administrative announcement. Users cannot opt out.</p>");
         }
 
         html.append("</div></div></body></html>");
