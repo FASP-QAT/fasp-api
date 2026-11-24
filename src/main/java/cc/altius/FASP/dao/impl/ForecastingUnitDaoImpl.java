@@ -122,7 +122,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
             if (forecastingUnit.getGenericLabel() != null && forecastingUnit.getGenericLabel().getLabel_en() != null) {
                 ForecastingUnit fu = this.getForecastingUnitById(forecastingUnit.getForecastingUnitId(), curUser);
-                if ((fu.getGenericLabel() == null || fu.getGenericLabel().getLabelId() == null || fu.getGenericLabel().getLabelId() == 0)) {
+                if (fu.getGenericLabel() == null || fu.getGenericLabel().getLabelId() == null || fu.getGenericLabel().getLabelId() == 0) {
                     int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
                     String sql = "UPDATE rm_forecasting_unit fu SET fu.GENERIC_LABEL_ID=:genericLabelId, fu.LAST_MODIFIED_DATE=:curDate, fu.LAST_MODIFIED_BY=:curUser WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
                     params.put("genericLabelId", genericLabelId);
@@ -130,6 +130,21 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                     params.put("curUser", curUser.getUserId());
                     params.put("curDate", curDate);
                     int rows = this.namedParameterJdbcTemplate.update(sql, params);
+                } else {
+                    String countSql = "SELECT COUNT(*) FROM rm_forecasting_unit fu WHERE fu.GENERIC_LABEL_ID=:genericLabelId AND fu.FORECASTING_UNIT_ID!=:forecastingUnitId";
+                    Map<String, Object> countParams = new HashMap<>();
+                    countParams.put("genericLabelId", fu.getGenericLabel().getLabelId());
+                    countParams.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+                    int sharedCount = this.namedParameterJdbcTemplate.queryForObject(countSql, countParams, Integer.class);
+                    if (sharedCount > 0) {
+                        int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
+                        String sql = "UPDATE rm_forecasting_unit fu SET fu.GENERIC_LABEL_ID=:genericLabelId, fu.LAST_MODIFIED_DATE=:curDate, fu.LAST_MODIFIED_BY=:curUser WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
+                        params.put("genericLabelId", genericLabelId);
+                        params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
+                        params.put("curUser", curUser.getUserId());
+                        params.put("curDate", curDate);
+                        int rows = this.namedParameterJdbcTemplate.update(sql, params);
+                    }
                 }
             }
             
