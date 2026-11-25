@@ -133,3 +133,7 @@ CALL insert_static_label_if_missing(
 );
 
 DROP PROCEDURE IF EXISTS `insert_static_label_if_missing`;
+
+-- Point 26: Convert broadcast message and emailer tables to utf8mb4 for emoji support
+ALTER TABLE `ap_broadcast_message` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE `em_emailer` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

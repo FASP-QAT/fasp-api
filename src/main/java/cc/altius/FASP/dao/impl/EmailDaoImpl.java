@@ -160,6 +160,9 @@ public class EmailDaoImpl implements EmailDao {
                 message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(emailer.getBccToSend()));
             }
             message.setSubject(emailer.getSubject());
+            if (emailer.getSubject() != null && emailer.getSubject().startsWith("[QAT")) {
+                message.setReplyTo(new jakarta.mail.Address[] { new InternetAddress("QMT@quantificationanalytics.org") });
+            }
             setHtmlContentWithInlineImages(message, emailer.getBody());
             Transport.send(message);
             status = 1; //1 for success
