@@ -38,6 +38,8 @@ public class BroadcastServiceImpl implements BroadcastService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final int BCC_BATCH_SIZE = 200;
     private static final String SUPPORT_EMAIL = "support@quantificationanalytics.org";
+    private static final String QMT_EMAIL = "QMT@Quantificationanalytics.org";
+    private static final String HELPDESK_PORTAL_URL = "https://qathelpdesk.atlassian.net/servicedesk/customer/portals";
     private static final String DEFAULT_NOREPLY = "QAT_noreply@quantificationanalytics.org";
 
     @Autowired
@@ -237,38 +239,73 @@ public class BroadcastServiceImpl implements BroadcastService {
         } catch (Exception e) {
             logger.warn("Could not determine dynamic baseUrl, falling back to configured hostUrl", e);
         }
-        return this.hostUrl != null ? this.hostUrl.replaceAll("/#.*$", "") : "https://qat.quantificationanalytics.org";
+        return this.hostUrl != null ? this.hostUrl.replaceAll("/#.*$", "").replaceAll("/+$", "") : "https://qat.quantificationanalytics.org";
     }
 
     private String buildEmailHtml(String rawBody, EmailCategory category, String baseUrl) {
-        StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html><html><head><meta charset='UTF-8'>");
-        html.append("<style>");
-        html.append("body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f7f9fa; }");
-        html.append(".container { max-width: 680px; margin: 20px auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }");
-        html.append(".header { background: #002f6c; color: #ffffff; padding: 20px 28px; }");
-        html.append(".header h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }");
-        html.append(".content { padding: 28px; font-size: 15px; }");
-        html.append(".footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 28px; font-size: 12px; color: #64748b; }");
-        html.append(".footer a { color: #0066cc; text-decoration: none; }");
-        html.append(".footer a:hover { text-decoration: underline; }");
-        html.append("</style></head><body>");
-        html.append("<div class='container'>");
-        html.append("<div class='header'><h2>Quantification Analytics Tool (QAT)</h2></div>");
-        html.append("<div class='content'>");
-        html.append(rawBody);
-        html.append("</div>");
-        html.append("<div class='footer'>");
-        html.append("<p style='margin: 0 0 8px 0;'><strong>This is a broadcast message.</strong> Users cannot reply directly to this email. For questions or support, please email <a href='mailto:").append(SUPPORT_EMAIL).append("'>").append(SUPPORT_EMAIL).append("</a>.</p>");
+        String cleanBase = baseUrl != null ? baseUrl.replaceAll("/#.*$", "").replaceAll("/+$", "") : "https://qat.quantificationanalytics.org";
+        String unsubUrl = cleanBase + "/#/unsubscribe";
 
-        if (category.isAllowOptOut()) {
-            String unsubUrl = baseUrl + "/#/unsubscribe";
-            html.append("<p style='margin: 0; color: #94a3b8;'>You received this email according to your QAT notification settings. You can manage your preferences inside QAT under your User Profile or <a href='").append(unsubUrl).append("'>update email preferences here</a>.</p>");
+        boolean isCommunity = (category != null && (category.getCategoryId() == 2 || "COMMUNITY".equalsIgnoreCase(category.getCategoryCode()) || category.isAllowOptOut()));
+        String headerTitle = isCommunity ? "QAT Community Update" : "QAT System Update";
+
+        StringBuilder footerSb = new StringBuilder();
+        footerSb.append("<p style=\"margin: 0 0 10px 0;\">")
+                .append("This is an automated broadcast message. For questions or support, submit a ")
+                .append("<a href=\"").append(HELPDESK_PORTAL_URL).append("\" style=\"color: #0066cc; text-decoration: none;\">QAT helpdesk ticket</a>")
+                .append(" or email the QAT Management Team at ")
+                .append("<a href=\"mailto:").append(QMT_EMAIL).append("\" style=\"color: #0066cc; text-decoration: none;\">").append(QMT_EMAIL).append("</a>. ")
+                .append("Do NOT reply to this message, as this inbox is unmonitored.")
+                .append("</p>");
+
+        if (isCommunity) {
+            footerSb.append("<p style=\"margin: 0; color: #64748b;\">")
+                    .append("You're receiving this QAT community update based on your notification settings. To change them, go to your User Profile or ")
+                    .append("<a href=\"").append(unsubUrl).append("\" style=\"color: #0066cc; text-decoration: none;\">update email preferences here</a>.")
+                    .append("</p>");
         } else {
-            html.append("<p style='margin: 0; color: #94a3b8;'>This is a mandatory system/administrative announcement. Users cannot opt out.</p>");
+            footerSb.append("<p style=\"margin: 0; color: #64748b;\">")
+                    .append("You're receiving this mandatory system announcement because you have a registered QAT account. These announcements can't be turned off.")
+                    .append("</p>");
         }
 
-        html.append("</div></div></body></html>");
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html><html><head><meta charset='UTF-8'>");
+        html.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+        html.append("<!--[if mso]><style type=\"text/css\">body, table, td {font-family: Arial, Helvetica, sans-serif !important;}</style><![endif]-->");
+        html.append("<style>");
+        html.append("body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f7f9fa; }");
+        html.append(".main-table { width: 100%; max-width: 680px; margin: 20px auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; border-collapse: separate; }");
+        html.append(".header-cell { background-color: #002f6c; color: #ffffff; padding: 20px 28px; }");
+        html.append(".content-cell { padding: 28px; font-size: 15px; color: #333333; line-height: 1.6; }");
+        html.append(".footer-cell { background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 28px; font-size: 12px; color: #64748b; line-height: 1.5; }");
+        html.append(".footer-cell a { color: #0066cc; text-decoration: none; }");
+        html.append(".footer-cell a:hover { text-decoration: underline; }");
+        html.append("</style></head><body style=\"margin: 0; padding: 0; background-color: #f7f9fa;\">");
+        html.append("<!--[if (gte mso 9)|(IE)]>");
+        html.append("<table width=\"680\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:680px; margin:20px auto;\"><tr><td>");
+        html.append("<![endif]-->");
+        html.append("<table class=\"main-table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%; max-width: 680px; margin: 20px auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; border-collapse: separate;\">");
+        html.append("<tr>");
+        html.append("<td class=\"header-cell\" bgcolor=\"#002f6c\" style=\"background-color: #002f6c; color: #ffffff; padding: 20px 28px; border-top-left-radius: 8px; border-top-right-radius: 8px;\">");
+        html.append("<h2 style=\"margin: 0; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px;\">").append(headerTitle).append("</h2>");
+        html.append("</td>");
+        html.append("</tr>");
+        html.append("<tr>");
+        html.append("<td class=\"content-cell\" style=\"padding: 28px; font-size: 15px; color: #333333; line-height: 1.6;\">");
+        html.append(rawBody);
+        html.append("</td>");
+        html.append("</tr>");
+        html.append("<tr>");
+        html.append("<td class=\"footer-cell\" bgcolor=\"#f8fafc\" style=\"background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 28px; font-size: 12px; color: #64748b; line-height: 1.5; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;\">");
+        html.append(footerSb.toString());
+        html.append("</td>");
+        html.append("</tr>");
+        html.append("</table>");
+        html.append("<!--[if (gte mso 9)|(IE)]>");
+        html.append("</td></tr></table>");
+        html.append("<![endif]-->");
+        html.append("</body></html>");
         return html.toString();
     }
 

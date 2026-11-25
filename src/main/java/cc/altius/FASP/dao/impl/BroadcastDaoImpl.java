@@ -247,7 +247,7 @@ public class BroadcastDaoImpl implements BroadcastDao {
     public int updateBroadcastDraft(BroadcastMessage broadcastMessage, CustomUserDetails curUser) {
         String sql = "UPDATE ap_broadcast_message SET CATEGORY_ID = ?, SUBJECT = ?, BODY_HTML = ?, "
                 + "TARGET_ROLES = ?, TARGET_BUSINESS_FUNCTIONS = ?, TARGET_LANGUAGES = ?, "
-                + "TOTAL_RECIPIENTS = ?, STATUS = ? WHERE BROADCAST_ID = ?";
+                + "TOTAL_RECIPIENTS = ?, STATUS = ?, CREATED_BY = ?, CREATED_DATE = NOW() WHERE BROADCAST_ID = ?";
         String rolesJson = null;
         String bfJson = null;
         String langJson = null;
@@ -273,6 +273,7 @@ public class BroadcastDaoImpl implements BroadcastDao {
                 langJson,
                 broadcastMessage.getTotalRecipients(),
                 broadcastMessage.getStatus() != null ? broadcastMessage.getStatus() : "DRAFT",
+                curUser.getUserId(),
                 broadcastMessage.getBroadcastId()
         );
     }
